@@ -1,0 +1,19 @@
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# Eclipse #
+.settings/
+.classpath
+.project
+.springBeans
+
+# IntelliJ IDEA #
+*.iml
+.idea/
+
+# Maven #
+target/
