@@ -8,7 +8,7 @@
 # Eclipse #
 .settings/
 .classpath
-.project
+# .project
 .springBeans
 
 # IntelliJ IDEA #
