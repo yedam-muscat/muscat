@@ -277,7 +277,7 @@
 
 						<li class="sidebar-item  "><a
 							href="https://github.com/zuramai/mazer#donate"
-							class='sidebar-link'> <i class="bi bi-cash"></i> <span>Donate</span>
+							class='sidebar-link'> <i class="bi bi-cash"></i> <span>조직도</span>
 						</a></li>
 
 					</ul>
