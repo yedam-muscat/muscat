@@ -14,7 +14,7 @@ public class BoardContoller {
 	@RequestMapping(value="/board.do")
 //	@ResponseBody
 	public String board() {
-		return "egovframework/muscat/board/" + boardService.board();
+		return "board/" + boardService.board();
 	}
 
 }

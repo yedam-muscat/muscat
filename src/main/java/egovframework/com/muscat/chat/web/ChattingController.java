@@ -14,7 +14,7 @@ public class ChattingController {
 	@RequestMapping("/chat.do")
 //	@ResponseBody
 	public String chat() {
-		return "egovframework/muscat/" + chattingService.chat();
+		return "chat/" + chattingService.chat();
 	}
 
 }
