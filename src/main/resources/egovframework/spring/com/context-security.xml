@@ -27,7 +27,7 @@
 
     <egov-security:config id="securityConfig"
 		loginUrl="/uat/uia/egovLoginUsr.do"
-		logoutSuccessUrl="/approv.do"
+		logoutSuccessUrl="/main.do"
 		loginFailureUrl="/uat/uia/egovLoginUsr.do?login_error=1"
 		accessDeniedUrl="/sec/ram/accessDenied.do"
 
@@ -46,10 +46,10 @@
 		hashBase64="false"
 
 		concurrentMaxSessons="1"
-		concurrentExpiredUrl="/approv.do"
+		concurrentExpiredUrl="/main.do"
 		errorIfMaximumExceeded="false"
 
-		defaultTargetUrl="/approv.do"
+		defaultTargetUrl="/main.do"
 		alwaysUseDefaultTargetUrl="true"
 
 		sniff="true"

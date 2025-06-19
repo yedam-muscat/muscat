@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class MuscatController {
 
-	@RequestMapping("/muscat/main.do")
+	@RequestMapping("/main.do")
 	public String test() {
-		return "egovframework/muscat/main";
+		return "main";
 	}
 }
