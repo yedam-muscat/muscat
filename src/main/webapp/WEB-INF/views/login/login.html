@@ -1,8 +1,176 @@
 <!DOCTYPE html>
-<html xmlns:th="http//www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{layout/layout}">
+<html xmlns:th="http//www.thymeleaf.org">
 
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Mazer Admin Dashboard</title>
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link
+	href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap"
+	rel="stylesheet">
+<link rel="stylesheet" th:href="@{/assets/css/bootstrap.css}">
 
-<main layout:fragment="content">LOGIN</main>
+<link rel="stylesheet" th:href="@{/assets/css/pages/email.css}">
+<link rel="stylesheet"
+	th:href="@{/assets/vendors/sweetalert2/sweetalert2.min.css}">
+<link rel="stylesheet" th:href="@{/assets/css/pages/auth.css}">
+
+<link rel="stylesheet" th:href="@{/assets/vendors/iconly/bold.css}">
+
+<link rel="stylesheet"
+	th:href="@{/assets/vendors/perfect-scrollbar/perfect-scrollbar.css}">
+<link rel="stylesheet"
+	th:href="@{/assets/vendors/bootstrap-icons/bootstrap-icons.css}">
+<link rel="stylesheet" th:href="@{/assets/css/app.css}">
+<link rel="shortcut icon" th:href="@{/assets/images/favicon.svg}"
+	type="image/x-icon">
+<script src="https://code.jquery.com/jquery-3.7.1.js"
+	integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+	crossorigin="anonymous"></script>
+</head>
+
+<body>
+	<div id="auth">
+		<div class="row h-100">
+			<div class="col-lg-5 col-12">
+				<div id="auth-left">
+					<!--  <div class="auth-logo">
+						<a href="index.html"><img
+							th:src="@{/assets/images/logo/muscat_logo2.png}" alt="Logo"></a>
+					</div> -->
+					<h1 class="auth-title">MUSCAT</h1>
+					<h3 class="auth-title">Log in.</h3>
+					<p class="auth-subtitle">Groupware for elegant work.</p>
+
+					<div class="card">
+						<div class="card-header"></div>
+						<div class="card-body">
+							<div class="row">
+								<div class="form-check col-6">
+									<input class="form-check-input" type="radio"
+										name="flexRadioDefault" id="typeGnr" checked> <label
+										class="form-check-label" for="flexRadioDefault1">
+										일반사용자 </label>
+								</div>
+								<div class="form-check col-6">
+									<input class="form-check-input" type="radio"
+										name="flexRadioDefault" id="typeUsr"> <label
+										class="form-check-label" for="flexRadioDefault2"> 관리자</label>
+								</div>
+							</div>
+						</div>
+						<div class="form-group position-relative has-icon-left mb-4">
+							<input type="text" class="form-control form-control-xl" name="id"
+								id="id" placeholder="ID">
+							<div class="form-control-icon">
+								<i class="bi bi-person"></i>
+							</div>
+						</div>
+						<div class="form-group position-relative has-icon-left mb-4">
+							<input type="password" class="form-control form-control-xl"
+								name="password" id="password" placeholder="PASSWORD">
+							<div class="form-control-icon">
+								<i class="bi bi-shield-lock"></i>
+							</div>
+						</div>
+
+						<button class="btn btn-primary btn-block btn-lg shadow-lg"
+							onclick="actionLogin()">로그인</button>
+					</div>
+					<div class="text-center mt-5 text-lg fs-4">
+						<p class="text-gray-600">
+							계정이 없으신가요? <a href="#" onclick="goRegiUsr(); return false;"
+								class="font-bold">회원가입</a>
+						</p>
+						<p>
+							<a class="font-bold" href="#"
+								onclick="goResetPwd(); return false;">비밀번호를 잊으셨나요?</a>
+						</p>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-7 d-none d-lg-block">
+				<div id="auth-right"></div>
+			</div>
+		</div>
+	</div>
+	<script>
+		function actionLogin() {
+
+			$.ajax({
+				type : "POST",
+				url : "/muscat/login/actionLogin.do",
+				data : {
+					id : $('#id').val(),
+					password : $('#password').val(),
+					userSe : 'GNR'
+				},
+				success : function(response) {
+					console.log("성공:", response);
+
+					if (response.id) {
+						Swal.fire({
+							icon : "success",
+							title : "로그인 성공"
+						}).then((result) => {
+							  if (result.isConfirmed) {
+								location.href = "/muscat/main.do";
+							  } 
+							});
+
+					} else {
+						Swal.fire({
+							icon : "error",
+							title : "로그인 실패"
+						})
+					}
+
+				},
+				error : function(xhr, status, error) {
+					console.error("에러:", error);
+				}
+			});
+		}
+
+		function goRegiUsr() {
+
+		}
+
+		function goResetPwd() {
+
+		}
+
+		function setCookie(name, value, expires) {
+			document.cookie = name + "=" + escape(value) + "; path=/; expires="
+					+ expires.toGMTString();
+		}
+
+		function getCookie(Name) {
+			var search = Name + "=";
+			if (document.cookie.length > 0) { // 쿠키가 설정되어 있다면
+				offset = document.cookie.indexOf(search);
+				if (offset != -1) { // 쿠키가 존재하면
+					offset += search.length;
+					// set index of beginning of value
+					end = document.cookie.indexOf(";", offset);
+					// 쿠키 값의 마지막 위치 인덱스 번호 설정
+					if (end == -1)
+						end = document.cookie.length;
+					return unescape(document.cookie.substring(offset, end));
+				}
+			}
+			return "";
+		}
+	</script>
+	<script
+		th:src="@{/assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js}"></script>
+	<script th:src="@{/assets/js/bootstrap.bundle.min.js}"></script>
+
+	<!-- <script th:src="@{/assets/js/extensions/sweetalert2.js}"></script> -->
+	<script th:src="@{/assets/vendors/sweetalert2/sweetalert2.all.min.js}"></script>
+
+	<!-- <script th:src="@{/assets/js/main.js}"></script> -->
+</body>
+
 </html>
