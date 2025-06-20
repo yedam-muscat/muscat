@@ -14,7 +14,7 @@ public class ApprovContoller {
 	@RequestMapping(value="/approv.do")
 //	@ResponseBody
 	public String test() {
-		return "egovframework/" + approvService.test();
+		return "approv/approvMain";
 	}
 
 }

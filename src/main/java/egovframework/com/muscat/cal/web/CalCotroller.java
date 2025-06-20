@@ -13,7 +13,7 @@ public class CalCotroller {
 	
 	@RequestMapping("/cal.do")
 	public String calMain() {
-		return "egovframework/muscat/cal/calmain";
+		return "cal/cal";
 	}
 	
 }

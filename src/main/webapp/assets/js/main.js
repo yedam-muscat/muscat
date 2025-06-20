@@ -18,7 +18,7 @@ for(var i = 0; i < sidebarItems.length; i++) {
 window.addEventListener('DOMContentLoaded', (event) => {
     var w = window.innerWidth;
     if(w < 1200) {
-        //document.getElementById('sidebar').classList.remove('active');
+        document.getElementById('sidebar').classList.remove('active');
     }
 });
 window.addEventListener('resize', (event) => {
