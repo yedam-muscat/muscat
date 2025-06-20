@@ -1,18 +1,20 @@
 package egovframework.com.muscat.board.web;
 
-import javax.annotation.Resource;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springmodules.validation.commons.DefaultBeanValidator;
 
 import egovframework.com.muscat.board.service.BoardMasterService;
+import egovframework.com.muscat.board.service.BoardMasterVO;
 
 @Controller
 public class BoardContoller {
 	
-	@Resource(name = "BoardMasterService")
+	@Autowired
 	private BoardMasterService boardService;
 	
 	@Autowired
@@ -25,8 +27,8 @@ public class BoardContoller {
 	
 	@RequestMapping(value="/api/boardList", produces = "application/json; charset=utf-8")
 	@ResponseBody
-	public Map<String, Obuect> boardList(BoardMasterVO vo) throws Exception {
-		return boardService.select
+	public Map<String, Object> boardList(BoardMasterVO vo) throws Exception {
+		return null;	
 	}
 	
 	

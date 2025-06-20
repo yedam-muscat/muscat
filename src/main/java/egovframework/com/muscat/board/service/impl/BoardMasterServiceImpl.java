@@ -4,19 +4,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.egovframe.rte.fdl.cmmn.EgovAbstractServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import egovframework.com.muscat.board.service.BoardMaster;
 import egovframework.com.muscat.board.service.BoardMasterService;
 import egovframework.com.muscat.board.service.BoardMasterVO;
 
-@Service("BoardMasterService")
+@Service
 public class BoardMasterServiceImpl extends EgovAbstractServiceImpl implements BoardMasterService {
 
-	@Resource(name = "BoardMasterDAO")
+	@Autowired
 	private BoardMasterDAO boardMasterDao;
 	
 	@Override

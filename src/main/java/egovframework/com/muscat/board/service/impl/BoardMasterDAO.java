@@ -8,7 +8,7 @@ import egovframework.com.cmm.service.impl.EgovComAbstractDAO;
 import egovframework.com.muscat.board.service.BoardMaster;
 import egovframework.com.muscat.board.service.BoardMasterVO;
 
-@Repository("EgovBBSMasterDAO")
+@Repository
 public class BoardMasterDAO extends EgovComAbstractDAO {
 
 	public List<BoardMasterVO> selectBBSMasterInfs(BoardMasterVO boardMasterVO) {
