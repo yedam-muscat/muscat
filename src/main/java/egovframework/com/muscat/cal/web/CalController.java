@@ -49,11 +49,11 @@ public class CalController {
 	@RequestMapping("cal/calDetail.do")
 	public String calDetail(@RequestParam String date, Model model) {
 		model.addAttribute("date", date);
-		return "cal/calDetail";
+		return "cal/calDetail.html";
 	}
 
 	@RequestMapping("cal/calMonth.do")
 	public String calMonth() {
-		return "cal/calMonth";
+		return "cal/calMonth.html";
 	}
 }

@@ -78,7 +78,7 @@ public class LoginController {
 		if (message != null)
 			model.addAttribute("loginMessage", message);
 
-		return "login/login";
+		return "login/login.html";
 	}
 
 	/**

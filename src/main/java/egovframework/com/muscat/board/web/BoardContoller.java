@@ -24,7 +24,7 @@ public class BoardContoller {
     @GetMapping("/boardMasterList.do")
     public String bmListPage() {
     	// webapp/WEB-INF/views/board/boardmaster.html
-        return "board/boardmaster";
+        return "board/boardmaster.html";
     }
 
     // JSON 데이터 제공 (AJAX 호출)

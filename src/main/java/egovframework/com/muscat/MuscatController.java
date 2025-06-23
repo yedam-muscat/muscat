@@ -16,13 +16,13 @@ public class MuscatController {
 	public String main(HttpServletRequest request, Model model) {
 		LoginVO loginUser = (LoginVO) request.getSession().getAttribute("loginVO");
 	    model.addAttribute("user", loginUser);
-		return "main";
+		return "main.html";
 	}
 
 	// 예제 페이지
 
-	@RequestMapping("/ex_app_email.do")
-	public String ex1() {
-		return "example/application-email";
-	}
+//	@RequestMapping("/ex_app_email.do")
+//	public String ex1() {
+//		return "example/application-email";
+//	}
 }
