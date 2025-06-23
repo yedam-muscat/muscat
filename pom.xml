@@ -66,6 +66,12 @@
 			<groupId>org.egovframe.rte</groupId>
 			<artifactId>org.egovframe.rte.psl.dataaccess</artifactId>
 			<version>${org.egovframe.rte.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.egovframe.rte</groupId>
@@ -139,6 +145,12 @@
 			<artifactId>selenium-java</artifactId>
 			<version>4.13.0</version>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.springframework/spring-test -->
 		<dependency>
@@ -158,6 +170,12 @@
 			<groupId>org.egovframe.rte</groupId>
 			<artifactId>org.egovframe.rte.fdl.excel</artifactId>
 			<version>${org.egovframe.rte.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -420,6 +438,12 @@
 			<groupId>org.mariadb.jdbc</groupId>
 			<artifactId>mariadb-java-client</artifactId>
 			<version>3.4.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -527,11 +551,11 @@
 			<version>2.3</version>
 		</dependency>
 		<!-- thymeleaf -->
-		<dependency>
+		<!-- <dependency>
 			<groupId>org.thymeleaf</groupId>
 			<artifactId>thymeleaf</artifactId>
 			<version>3.1.2.RELEASE</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>org.thymeleaf</groupId>
 			<artifactId>thymeleaf-spring5</artifactId>

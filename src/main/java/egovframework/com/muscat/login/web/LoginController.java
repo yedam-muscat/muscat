@@ -67,6 +67,9 @@ public class LoginController {
 		if (EgovComponentChecker.hasComponent("mberManageService")) {
 			model.addAttribute("useMemberManage", "true");
 		}
+		
+		LOGGER.debug(loginVO.getId());
+		LOGGER.debug(loginVO.getPassword());
 
 		String authType = EgovProperties.getProperty("Globals.Auth").trim();
 		model.addAttribute("authType", authType);
