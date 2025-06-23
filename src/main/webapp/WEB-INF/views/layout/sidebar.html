@@ -235,39 +235,139 @@
 				<li class="sidebar-title">Raise Support</li>
 
 				<!-- 사이드바 조직도 메뉴 -->
-				<li class="sidebar-item  "><a href="#" class="sidebar-link"
-					id="menu-org-tree"> <i class="bi bi-life-preserver"></i>
-						<button type="button" class="btn btn-primary"
-							data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-							<span>조직도</span>
-						</button>
-				</a></li>
+				<li class="sidebar-item">
+					<button type="button" class="btn btn-light" data-bs-toggle="modal"
+						data-bs-target="#staticBackdrop">
+						<i class="bi bi-life-preserver"></i><span>조직도</span>
+					</button>
+				</li>
 			</ul>
 		</div>
 		<button class="sidebar-toggler btn x">
 			<i data-feather="x"></i>
 		</button>
 	</div>
-
-<!-- Modal -->
-<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static"
-	data-bs-keyboard="false" tabindex="-1"
-	aria-labelledby="staticBackdropLabel" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal"
-					aria-label="Close"></button>
-			</div>
-			<div class="modal-body">...</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary"
-					data-bs-dismiss="modal">Close</button>
-				<button type="button" class="btn btn-primary">Understood</button>
+	<!-- Modal -->
+	<div class="modal fade" id="staticBackdrop" data-bs-backdrop="false"
+		data-bs-keyboard="false" tabindex="-1"
+		aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		<div class="modal-dialog"
+			style="position: absolute; left: 200px; bottom: 50px; margin: 0;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h3 class="modal-title" id="staticBackdropLabel">조직도</h3>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="mb-3">
+						<input type="text" id="searchInput" class="form-control"
+							placeholder="이름/아이디/부서/직위/직책/전화 등 입력해주세요">
+					</div>
+					<div id="chart_div"></div>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
+
+	<!-- 조직도 카드 -->
+	<div id="employeeCard" class="card border border-secondary"
+		style="position: absolute; display: none; width: 500px; z-index: 2000;">
+		<div class="card-body">
+			<button type="button" class="btn btn-Light" style="float: right;"
+				onclick="hideCard()">X</button>
+			<h5 class="card-title" id="empName">사원명</h5>
+			<p class="card-text" id="empDetail">부서 / 직급</p>
+			<div>
+				<i class="bi bi-envelope-at"></i> <span id="empEmail">email@example.com</span>
+			</div>
+			<div>
+				<i class="bi bi-calendar3"></i> <a href="cal.do" target="_blank">캘린더</a>
+			</div>
+			<div>
+				<i class="bi bi-chat-dots"></i> 메신저
+			</div>
+		</div>
+	</div>
+	<!-- Scripts -->
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://www.gstatic.com/charts/loader.js"></script>
+
+	<script>
+		google.charts.load('current', {
+			packages : [ "orgchart" ]
+		});
+
+		$('#staticBackdrop').on('shown.bs.modal', function() {
+			drawChart();
+		});
+
+		function drawChart() {
+			var data = new google.visualization.DataTable();
+			data.addColumn('string', 'Name');
+			data.addColumn('string', 'Manager');
+			data.addColumn('string', 'ToolTip');
+
+			data.addRows([
+							[
+									{
+										v : 'CEO',
+										f : '<div onclick="showCard(event, \'CEO\', \'대표\')">CEO<div style="color:red; font-style:italic">대표</div>'
+									}, '', '대표' ],
+							[
+									{
+										v : '부서1',
+										f : '<div onclick="showCard(event, \'부서1\', \'부서\')">부서1</div>'
+									}, 'CEO', '부서1' ],
+							[
+									{
+										v : '부서2',
+										f : '<div onclick="showCard(event, \'부서2\', \'부서\')">부서2</div>'
+									}, 'CEO', '부서2' ],
+							[
+									{
+										v : '팀1',
+										f : '<div onclick="showCard(event, \'팀1\', \'팀\')">팀1</div>'
+									}, '부서1', '팀1' ],
+							[
+									{
+										v : '팀2',
+										f : '<div onclick="showCard(event, \'팀2\', \'팀\')">팀2</div>'
+									}, '부서1', '팀2' ],
+							[
+									{
+										v : '팀3',
+										f : '<div onclick="showCard(event, \'팀3\', \'팀\')">팀3</div>'
+									}, '부서2', '팀3' ],
+							[
+									{
+										v : '팀4',
+										f : '<div onclick="showCard(event, \'팀4\', \'팀\')">팀4</div>'
+									}, '부서2', '팀4' ] ]);
+
+			var chart = new google.visualization.OrgChart(document
+					.getElementById('chart_div'));
+			chart.draw(data, {
+				allowHtml : true
+			});
+		}
+
+		function showCard(event, name, detail) {
+			var card = document.getElementById('employeeCard');
+			document.getElementById('empName').innerText = name;
+			document.getElementById('empDetail').innerText = detail;
+			document.getElementById('empEmail').innerText = name.toLowerCase()+ "@company.com";
+
+			card.style.left = (event.pageX + 10) + 'px';
+			card.style.top = (event.pageY + 10) + 'px';
+			card.style.display = 'block';
+		}
+
+		function hideCard() {
+			document.getElementById('employeeCard').style.display = 'none';
+		}
+	</script>
 </div>
 </html>
