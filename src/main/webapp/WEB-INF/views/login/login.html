@@ -48,15 +48,15 @@
 						<div class="card-body">
 							<div class="row">
 								<div class="form-check col-6">
-									<input class="form-check-input" type="radio"
-										name="flexRadioDefault" id="typeGnr" checked> <label
+									<input class="form-check-input" type="radio" name="userType"
+										id="typeGnr" value="GNR" checked> <label
 										class="form-check-label" for="flexRadioDefault1">
 										일반사용자 </label>
 								</div>
 								<div class="form-check col-6">
-									<input class="form-check-input" type="radio"
-										name="flexRadioDefault" id="typeUsr"> <label
-										class="form-check-label" for="flexRadioDefault2"> 관리자</label>
+									<input class="form-check-input" type="radio" name="userType"
+										id="typeUsr" value="USR"> <label class="form-check-label"
+										for="flexRadioDefault2"> 관리자</label>
 								</div>
 							</div>
 						</div>
@@ -104,7 +104,7 @@
 				data : {
 					id : $('#id').val(),
 					password : $('#password').val(),
-					userSe : 'GNR'
+					userSe : $('[name="userType"]').val()
 				},
 				success : function(response) {
 					console.log("성공:", response);

@@ -123,6 +123,7 @@
 		<property name="templateEngine" ref="templateEngine" />
 		<property name="characterEncoding" value="UTF-8" />
 		<property name="contentType" value="text/html; charset=UTF-8" />
+		<property name="viewNames" value="*.html"/>
 		<property name="order" value="1" />
 	</bean>
 
