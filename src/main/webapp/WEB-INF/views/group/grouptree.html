@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+<head>
+<meta charset="utf-8">
+<title>조직도 모달</title>
+<meta name="viewport" content="width=device-width" />
+<link rel="stylesheet"
+	href="<c:url value='/html/egovframework/com/ext/ldapumt/themes/default/style.css' />" />
+<style>
+#modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	display: none; /* 처음에는 숨긴다. */
+	z-index: 1000;
+}
+
+#modal {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background: white;
+	width: 600px;
+	max-width: 90%;
+	height: 400px;
+	border-radius: 5px;
+	overflow: hidden;
+	display: flex;
+}
+
+#tree-container {
+	width: 50%;
+	border-right: 1px solid #ccc;
+	overflow: auto;
+}
+
+#content {
+	width: 50%;
+	padding: 10px;
+	overflow: auto;
+}
+
+.info-box {
+	border: 1px solid #ccc;
+	padding: 5px;
+	background: #f9f9f9;
+}
+
+#modal-close {
+	position: absolute;
+	top: 5px;
+	right: 10px;
+	cursor: pointer;
+	font-weight: bold;
+}
+</style>
+</head>
+<body>
+	<div id="modal-overlay"> <!-- modal overlay : 추가적인 정보를 표현할때 화면을 레이어  -->
+		<div id="modal">
+			<span id="modal-close">X</span>
+			<div id="tree-container">
+				<div id="tree">
+					<!-- 트리 데이터가 여기에 표시됩니다 -->
+				</div>
+			</div>
+			<div id="content">
+				<h3>정보</h3>
+				<div class="info-box" id="info-box">조직도에서 부서나 사용자를 클릭하세요.</div>
+			</div>
+		</div>
+	</div>
+</body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // 메뉴 클릭 시 모달 열기
+    $('#menu-org-tree').click(function(e) {
+        e.preventDefault(); // preventDefault a 태그나 submit 태그는 누르게 되면 href 를 통해 이동하거나 , 창이 새로고침하여 실행됩니다. preventDefault 를 통해 이러한 동작을 막아줄 수 있습니다.
+        $('#modal-overlay').show(); // 보여진다
+        loadTree(null);
+    });
+
+    // 모달 닫기
+    $('#modal-close').click(function() { // 모달을 닫는다.
+        $('#modal-overlay').hide(); // 숨긴다.
+        $('#tree').empty();
+        $('#info-box').text('조직도에서 부서나 사용자를 클릭하세요.');
+    });
+
+    // 트리 데이터 로드
+    function loadTree(nodeId) {
+        $.get('/org/treeData.do', { id: nodeId }, function(data) {
+            if (!nodeId) {
+                // 루트 노드 표시
+                $('#tree').empty();
+            }
+
+            $.each(data, function(i, node) {
+                var nodeElem = $('<div>')
+                    .addClass('tree-node')
+                    .attr('data-id', node.id)
+                    .text(node.text)
+                    .css({ paddingLeft: (nodeId ? 20 : 0) + 'px', cursor: 'pointer' });
+
+                $('#tree').append(nodeElem);
+            });
+        });
+    }
+
+    // 트리 노드 클릭 시 하위 로드 또는 정보 표시
+    $('#tree').on('click', '.tree-node', function(e) {
+        e.stopPropagation();
+        var nodeId = $(this).data('id');
+        $('#info-box').text('선택한 노드 ID: ' + nodeId);
+
+        // 이미 로드된 하위 노드 방지
+        if ($(this).data('loaded')) {
+            return;
+        }
+
+        loadTree(nodeId);
+        $(this).data('loaded', true);
+    });
+});
+</script>
+
+</html>

@@ -18,8 +18,8 @@
 			<ul class="menu">
 				<li class="sidebar-title">Menu</li>
 
-				<li class="sidebar-item active "><a href="index.html"
-					class='sidebar-link'> <i class="bi bi-grid-fill"></i> <span>Dashboard</span>
+				<li class="sidebar-item active "><a href="group.do"
+					class='sidebar-link'> <i class="bi bi-grid-fill"></i> <span>조직도</span>
 				</a></li>
 
 				<li class="sidebar-item  has-sub"><a href="#"
@@ -234,9 +234,13 @@
 
 				<li class="sidebar-title">Raise Support</li>
 
-				<li class="sidebar-item  "><a
-					href="https://zuramai.github.io/mazer/docs" class='sidebar-link'>
-						<i class="bi bi-life-preserver"></i> <span>Documentation</span>
+				<!-- 사이드바 조직도 메뉴 -->
+				<li class="sidebar-item  "><a href="#" class="sidebar-link"
+					id="menu-org-tree"> <i class="bi bi-life-preserver"></i>
+						<button type="button" class="btn btn-primary"
+							data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+							<span>조직도</span>
+						</button>
 				</a></li>
 			</ul>
 		</div>
@@ -244,5 +248,26 @@
 			<i data-feather="x"></i>
 		</button>
 	</div>
+
+<!-- Modal -->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static"
+	data-bs-keyboard="false" tabindex="-1"
+	aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"
+					aria-label="Close"></button>
+			</div>
+			<div class="modal-body">...</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary"
+					data-bs-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary">Understood</button>
+			</div>
+		</div>
+	</div>
+</div>
 </div>
 </html>
