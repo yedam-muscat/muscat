@@ -10,6 +10,7 @@
 
 	<!-- 실행환경에서 빈이름 참조(EgovAbstractDAO) -->
 	<bean id="egov.lobHandler"
+
  class="org.springframework.jdbc.support.lob.DefaultLobHandler"
  lazy-init="true" />
 
@@ -29,6 +30,7 @@
 
 	<!-- Mybatis Session Template -->
 	<bean id="egov.sqlSessionTemplate"
+
  class="org.mybatis.spring.SqlSessionTemplate">
  <constructor-arg ref="egov.sqlSession" />
 	</bean>
