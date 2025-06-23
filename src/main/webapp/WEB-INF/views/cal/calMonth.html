@@ -79,6 +79,7 @@
           center: 'title',
           right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
         },
+        events: 'http://localhost:8082/muscat/cal/listSchedule',
         buttonText: {
           today: '오늘',
           month: '월간',
@@ -121,23 +122,39 @@
 
       // 저장 버튼
       document.getElementById('saveEventBtn').addEventListener('click', function () {
-        const title = $('#eventTitle').val();
-        const location = $('#eventLocation').focus();
-        const start = $('#eventStart').val();
-        const end = $('#eventEnd').val();
-        const allDay = $('#eventAllDay').val() === 'true';
+    	  const title = $('#eventTitle').val();
+    	  const location = $('#eventlocation').val();
+    	  const start = $('#eventStart').val();
 
-        if (title) {
-          calendar.addEvent({
-            title: title,
-            start: start,
-            end: end,
-            allDay: allDay
-          });
-          const modal = bootstrap.Modal.getInstance(document.getElementById('eventModal'));
-          modal.hide();
-        }
-      });
+    	  if (title && start) {
+    	    // 서버로 일정 등록 요청
+    	    $.ajax({
+    	      type: 'POST',
+    	      url: '/cal/insertSchedule.json',
+    	      contentType: 'application/json',
+    	      data: JSON.stringify({
+    	    	  schdulId: Date.now().toString(),
+    	    	  schdulNm: title,
+    	    	  schdulPlace: location,
+    	    	  schdulBgnde: start,
+    	    	  schdulEndde: start,
+    	    	  frstRegisterId: 'admin',
+    	    	  schdulCn: '',
+    	    	  schdulChargerId: 'admin'
+    	    	}),
+    	      success: function () {
+    	      calendar.refetchEvents();
+    	        calendar.addEvent({
+    	          title: title,
+    	          start: start,
+    	          allDay: true
+    	        });
+    	        const modal = bootstrap.Modal.getInstance(document.getElementById('eventModal'));
+    	        modal.hide();
+    	      }
+    	    });
+    	  }
+    	});
     });
   </script>
 </main>

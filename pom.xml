@@ -527,11 +527,11 @@
 			<version>2.3</version>
 		</dependency>
 		<!-- thymeleaf -->
-		<dependency>
+		<!--<dependency>
 			<groupId>org.thymeleaf</groupId>
 			<artifactId>thymeleaf</artifactId>
 			<version>3.1.2.RELEASE</version>
-		</dependency>
+		</dependency> --> 
 		<dependency>
 			<groupId>org.thymeleaf</groupId>
 			<artifactId>thymeleaf-spring5</artifactId>
