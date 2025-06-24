@@ -16,11 +16,6 @@
 		</div>
 		<div class="sidebar-menu">
 			<ul class="menu">
-				<li class="sidebar-title">Menu</li>
-
-				<li class="sidebar-item"><a href="/muscat/group.do"
-					class='sidebar-link'> <i class="bi bi-grid-fill"></i> <span>조직도</span>
-				</a></li>
 
 				<li class="sidebar-item  has-sub"><a href="#"
 					class='sidebar-link'> <i class="bi bi-stack"></i> <span>전자결재</span>
@@ -33,8 +28,8 @@
 					class='sidebar-link'> <i class="bi bi-collection-fill"></i> <span>게시판</span>
 				</a>
 					<ul class="submenu ">
-						<li class="submenu-item "><a href="/muscat/boardMasterList.do">게시판
-								하위항목</a></li>
+						<li class="submenu-item "><a
+							href="/muscat/boardMasterList.do">게시판 하위항목</a></li>
 					</ul></li>
 
 				<li class="sidebar-item  has-sub"><a href="#"
@@ -46,25 +41,31 @@
 
 					</ul></li>
 
+				<li class="sidebar-item"><a href="#" class='sidebar-link'
+					data-bs-toggle="modal" data-bs-target="#chatListModal"
+					onclick="event.preventDefault();"> <i class="bi bi-chat-dots"></i>
+						<span>채팅</span>
+				</a></li>
+
 				<!-- 사이드바 조직도 메뉴 -->
-				<li class="sidebar-item">
-					<button type="button" class="btn btn-light" data-bs-toggle="modal"
-						data-bs-target="#staticBackdrop">
-						<i class="bi bi-life-preserver"></i><span>조직도</span>
-					</button>
-				</li>
+				<li class="sidebar-item"><a href="#" class="sidebar-link"
+					data-bs-toggle="modal" data-bs-target="#staticBackdrop"
+					onclick="event.preventDefault();"> <i
+						class="bi bi-life-preserver"></i> <span>조직도</span>
+				</a></li>
+
 			</ul>
 		</div>
 		<button class="sidebar-toggler btn x">
 			<i data-feather="x"></i>
 		</button>
 	</div>
-	<!-- Modal -->
+	<!-- 조직도 Modal -->
 	<div class="modal fade" id="staticBackdrop" data-bs-backdrop="false"
 		data-bs-keyboard="false" tabindex="-1"
 		aria-labelledby="staticBackdropLabel" aria-hidden="true">
 		<div class="modal-dialog"
-			style="position: absolute; left: 200px; bottom: 50px; margin: 0;">
+			style="position: absolute; left: 200px; bottom: 100px; margin: 0;">
 			<div class="modal-content">
 				<div class="modal-header">
 					<h3 class="modal-title" id="staticBackdropLabel">조직도</h3>
@@ -76,12 +77,11 @@
 						<input type="text" id="searchInput" class="form-control"
 							placeholder="이름/아이디/부서/직위/직책/전화 등 입력해주세요">
 					</div>
-					<div id="chart_div"></div>
+					<div id="tree"></div>
 				</div>
 			</div>
 		</div>
 	</div>
-
 	<!-- 조직도 카드 -->
 	<div id="employeeCard" class="card border border-secondary"
 		style="position: absolute; display: none; width: 500px; z-index: 2000;">
@@ -93,93 +93,373 @@
 			<div>
 				<i class="bi bi-envelope-at"></i> <span id="empEmail">email@example.com</span>
 			</div>
-			<div>
-				<i class="bi bi-calendar3"></i> <a href="cal.do" target="_blank">캘린더</a>
-			</div>
-			<div>
-				<i class="bi bi-chat-dots"></i> 메신저
+			<div class="d-flex justify-content-start gap-2 mb-2">
+				<i class="bi bi-calendar3"></i> <a href="/muscat/cal/calMonth.do"
+					target="_blank">캘린더</a> <i class="sidebar-item"
+					id="sidebarMessengerBtn" style="cursor: pointer;"> <a href="#"><i
+						class="bi bi-chat-dots"></i> <span>메신저</span></a>
 			</div>
 		</div>
 	</div>
+
+	<!-- 채팅방 목록 모달 -->
+	<div class="modal fade" id="chatListModal" tabindex="-1"
+		data-bs-backdrop="false" aria-labelledby="chatListModalLabel"
+		aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">채팅방 목록</h5>
+					<!-- 오른쪽 상단 메신저 아이콘 -->
+					<div
+						style="position: fixed; top: 10px; right: 10px; z-index: 4000;">
+						<i id="openMessenger" class="bi bi-chat-dots"
+							margin-right: 10px; style="font-size: 1.5rem; cursor: pointer;"
+							title="새 채팅 시작"></i>
+					</div>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="닫기"></button>
+				</div>
+				<div class="modal-body">
+					<ul class="list-group" id="chatList">
+						<li class="list-group-item chat-entry" data-user="홍길동">홍길동</li>
+						<li class="list-group-item chat-entry" data-user="김가">김가</li>
+						<li class="list-group-item chat-entry" data-user="김철수">김철수</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+	<!-- 채팅방 -->
+	<div id="chatRoom"
+		style="display: flex; position: fixed; bottom: 20px; right: 20px; width: 300px; height: 400px; background: #fff; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); z-index: 3000; flex-direction: column;">
+		<div class="header"
+			style="background: #fff; color: black; padding: 10px; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center;">
+			<span id="chatUserName"></span>
+			<button id="closeChat" aria-label="닫기"
+				style="background: none; border: none; color: black; font-weight: bold; cursor: pointer;">X</button>
+		</div>
+		<div id="chatMessages"
+			style="padding: 10px; flex-grow: 1; overflow-y: auto; background: #ACBCE3;"></div>
+
+		<div id="chatInputArea"
+			style="padding: 10px; border-top: 1px solid #ccc; display: flex; gap: 5px;">
+			<input id="chatInput" type="text" class="form-control"
+				placeholder="메시지를 입력하세요..." />
+			<button id="sendMsg" class="btn btn-success"
+				style="padding: 0.25rem 0.75rem; font-size: 0.9rem; white-space: nowrap;" disabled>전송</button>
+		</div>
+	</div>
+
 	<!-- Scripts -->
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-	<script src="https://www.gstatic.com/charts/loader.js"></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/jstree@3.3.12/dist/jstree.min.js"></script>
+	<!-- jQuery UI CSS -->
+	<link rel="stylesheet"
+		href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+
+	<!-- jQuery UI JS -->
+	<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 
 	<script>
-		google.charts.load('current', {
-			packages : [ "orgchart" ]
+		$(function() {
+			$('#staticBackdrop').on('shown.bs.modal', function() {
+				if (!$('#tree').jstree(true)) {
+					initTree();
+				}
+			});
 		});
 
-		$('#staticBackdrop').on('shown.bs.modal', function() {
-			drawChart();
-		});
+		function initTree() {
 
-		function drawChart() {
-			var data = new google.visualization.DataTable();
-			data.addColumn('string', 'Name');
-			data.addColumn('string', 'Manager');
-			data.addColumn('string', 'ToolTip');
-
-			data.addRows([
-							[
-									{
-										v : 'CEO',
-										f : '<div onclick="showCard(event, \'CEO\', \'대표\')">CEO<div style="color:red; font-style:italic">대표</div>'
-									}, '', '대표' ],
-							[
-									{
-										v : '부서1',
-										f : '<div onclick="showCard(event, \'부서1\', \'부서\')">부서1</div>'
-									}, 'CEO', '부서1' ],
-							[
-									{
-										v : '부서2',
-										f : '<div onclick="showCard(event, \'부서2\', \'부서\')">부서2</div>'
-									}, 'CEO', '부서2' ],
-							[
-									{
-										v : '팀1',
-										f : '<div onclick="showCard(event, \'팀1\', \'팀\')">팀1</div>'
-									}, '부서1', '팀1' ],
-							[
-									{
-										v : '팀2',
-										f : '<div onclick="showCard(event, \'팀2\', \'팀\')">팀2</div>'
-									}, '부서1', '팀2' ],
-							[
-									{
-										v : '팀3',
-										f : '<div onclick="showCard(event, \'팀3\', \'팀\')">팀3</div>'
-									}, '부서2', '팀3' ],
-							[
-									{
-										v : '팀4',
-										f : '<div onclick="showCard(event, \'팀4\', \'팀\')">팀4</div>'
-									}, '부서2', '팀4' ] ]);
-
-			var chart = new google.visualization.OrgChart(document
-					.getElementById('chart_div'));
-			chart.draw(data, {
-				allowHtml : true
+			$('#tree').jstree(
+					{
+						'core' : {
+							'data' : [ {
+								"id" : "CEO",
+								"parent" : "#",
+								"text" : "CEO",
+								"type" : "default",
+								"data" : {
+									"email" : "CEO@company.com",
+									"dept" : "CEO",
+									"title" : "대표이사"
+								}
+							}, {
+								"id" : "부서1",
+								"parent" : "CEO",
+								"text" : "부서1",
+								"type" : "default"
+							}, {
+								"id" : "부서2",
+								"parent" : "CEO",
+								"text" : "부서2",
+								"type" : "default"
+							}, {
+								"id" : "팀1",
+								"parent" : "부서1",
+								"text" : "팀1",
+								"type" : "user"
+							}, {
+								"id" : "팀2",
+								"parent" : "부서2",
+								"text" : "팀2",
+								"type" : "user"
+							}, {
+								"id" : "사원1",
+								"parent" : "팀1",
+								"text" : "홍길동",
+								"type" : "user",
+								"data" : {
+									"email" : "hong@company.com",
+									"dept" : "팀1",
+									"title" : "대리"
+								}
+							}, {
+								"id" : "사원2",
+								"parent" : "팀2",
+								"text" : "김가",
+								"type" : "user",
+								"data" : {
+									"email" : "kim@company.com",
+									"dept" : "팀2",
+									"title" : "과장"
+								}
+							}, ],
+							'themes' : {
+								'responsive' : false,
+								'variant' : 'small',
+								'stripes' : true
+							},
+							'check_callback' : true
+						},
+						'types' : {
+							'default' : {
+								'icon' : 'bi bi-folder'
+							},
+							'user' : {
+								'valid_children' : [],
+								'icon' : 'bi bi-person'
+							}
+						},
+						'plugins' : [ 'types', 'state', 'dnd', 'sort',
+								'contextmenu', 'unique' ]
+					}).on("select_node.jstree", function(e, data) {
+				if (data.node.type === "user") {
+					showEmployeeCard(data.node);
+				} else {
+					hideCard();
+				}
 			});
 		}
 
-		function showCard(event, name, detail) {
-			var card = document.getElementById('employeeCard');
-			document.getElementById('empName').innerText = name;
-			document.getElementById('empDetail').innerText = detail;
-			document.getElementById('empEmail').innerText = name.toLowerCase()+ "@company.com";
+		function showEmployeeCard(node) {
+			const card = document.getElementById('employeeCard');
+			document.getElementById('empName').innerText = node.text;
+			document.getElementById('empDetail').innerText = (node.data.dept || "")
+					+ " / " + (node.data.title || "");
+			document.getElementById('empEmail').innerText = node.data.email
+					|| "";
 
-			card.style.left = (event.pageX + 10) + 'px';
-			card.style.top = (event.pageY + 10) + 'px';
+			// 모달 위치 + 옆에 카드 띄우기
+			const modal = document
+					.querySelector('#staticBackdrop .modal-dialog');
+			const rect = modal.getBoundingClientRect();
+
+			card.style.left = (rect.right + 10) + 'px';
+			card.style.top = (rect.top) + 'px';
 			card.style.display = 'block';
 		}
 
 		function hideCard() {
 			document.getElementById('employeeCard').style.display = 'none';
 		}
+
+		// 메신저 아이콘 클릭 시 채팅방 열기
+		$('#openChatBtn').on('click', function() {
+			$('#chatRoom').show();
+			$('#chatInput').focus();
+		});
+
+		// 닫기 버튼 클릭 시 채팅방 닫기
+		$('#closeChat').on('click', function() {
+			$('#chatRoom').hide();
+		});
+
+		//채팅방 열기 함수 (이미 구현된 것 재활용 가능)
+		function openChatRoom() {
+			$('#chatRoom').show();
+			$('#chatInput').focus();
+		}
+
+		// 조직도 카드 내 메신저 아이콘 클릭 이벤트
+		$('#openChatBtn').on('click', function() {
+			openChatRoom();
+		});
+
+		//Enter 치면 메시지 추가
+		$('#chatInput').on(
+				'keypress',
+				function(e) {
+					if (e.which === 13 && this.value.trim() !== '') {
+						const msg = $('<div>').text(this.value.trim());
+						$('#chatMessages').append(msg);
+						this.value = '';
+						$('#chatMessages').scrollTop(
+								$('#chatMessages')[0].scrollHeight);
+					}
+				});
+
+		// 사이드바 메신저 클릭 → 채팅방 목록 모달 열기
+		$(function() {
+			$('#sidebarMessengerBtn').on(
+					'click',
+					function(e) {
+						e.preventDefault(); // 링크 기본 동작 막기
+						$('#employeeCard').fadeOut();
+						$('#staticBackdrop').fadeOut();
+						const modal = new bootstrap.Modal(document
+								.getElementById('chatListModal'));
+						modal.show();
+					});
+		});
+
+		// 목록 클릭 → 채팅방 열기
+		$('#chatList').on(
+				'click',
+				'.chat-entry',
+				function() {
+					const userName = $(this).data('user');
+					const total = $('#chatList .chat-entry').length;
+					$('#chatUserName').text(`${userName} ${total}`);
+					$('#chatRoom').show();
+					$('#chatInput').focus();
+
+					const modal = bootstrap.Modal.getInstance(document
+							.getElementById('chatListModal'));
+					modal.hide();
+				});
+
+		// 채팅방 닫기
+		$('#closeChat').on('click', function() {
+			$('#chatRoom').hide();
+		});
+
+		// 전송 버튼 클릭
+		$('#sendMsg').on('click', sendMessage);
+
+		// 엔터 키 누르면 전송
+		$('#chatInput').on('keydown', function(e) {
+			if (e.key === 'Enter') {
+				sendMessage();
+				e.preventDefault();
+			}
+		});
+		$(document).ready(function() {
+			// 채팅방 기본 숨김
+			$('#chatRoom').hide();
+
+			// 채팅방 드래그 가능
+			$('#chatRoom').draggable({
+				handle : ".header" // 헤더 부분을 잡고 이동
+			});
+
+			// 채팅방 크기 조정 가능
+			$('#chatRoom').resizable({
+				minHeight : 200,
+				minWidth : 200
+			});
+		});
+
+		let lastDate = "";
+
+		function formatDate(date) {
+			const y = date.getFullYear();
+			const m = String(date.getMonth() + 1).padStart(2, '0');
+			const d = String(date.getDate()).padStart(2, '0');
+			return `${y}-${m}-${d}`;
+		}
+
+		// 메시지 전송 함수
+		function sendMessage() {
+			const input = $('#chatInput');
+			const msg = input.val().trim();
+			if (!msg)
+				return;
+
+			const today = formatDate(new Date());
+			// 예시: 모든 사용자 (테스트용)
+		    const allUsers = ['홍길동', '김가', '김철수'];
+		    const sender = '나';
+		    const unreadBy = allUsers.filter(u => u !== sender);
+		    // 메시지 div 생성
+		    const msgContainer = $('<div></div>').css({
+		        display: 'flex',
+		        justifyContent: 'flex-end',
+		        alignItems: 'center',
+		        margin: '5px 0'
+		    });
+		    
+			// 날짜 라벨 추가 (날짜가 바뀌었을 경우)
+			if (today !== lastDate) {
+				const dateLabel = $('<div></div>').text(today).css({
+					textAlign : 'center',
+					color : '#888',
+					fontSize : '0.8rem',
+					margin : '10px 0'
+				});
+				$('#chatMessages').append(dateLabel);
+				lastDate = today;
+			}
+
+			// 메시지 추가
+			const msgDiv = $('<div></div>').text(msg).css({
+				display : 'block', 					// 글자 크기만큼 박스 크기
+				background : '#dcf8c6',
+				margin : '5px 0',
+				padding : '8px 12px',
+				borderRadius : '7px',
+				maxWidth : '60%', 					// 너무 긴 글은 이 폭까지만 허용
+				wordWrap : 'break-word', 			// 긴 단어는 줄바꿈
+				alignSelf : 'flex-end',
+				marginLeft : 'auto'
+			});
+			// 메시지 보내기
+			$('#chatMessages').append(msgDiv);
+			// 채팅창 스크롤
+			$('#chatMessages').scrollTop($('#chatMessages')[0].scrollHeight);
+
+			input.val('')
+			
+			// 전송 버튼 비활성화 및 색상 초기화
+			$('#sendMsg').removeClass('active').prop('disabled', true);
+
+			input.focus();
+		}
+
+		// 전송 버튼
+		$('#sendMsg').on('click', sendMessage);
+
+		// 엔터키
+		$('#chatInput').on('keydown', function(e) {
+			if (e.key === 'Enter') {
+				sendMessage();
+				e.preventDefault();
+			}
+		});
+
+		//버튼 비활성화/ 활성화 설정
+		$('#chatInput').on('input', function() {
+			const hasText = $(this).val().trim().length > 0;
+			$('#sendMsg').toggleClass('active', hasText);
+			$('#sendMsg').prop('disabled', !hasText);
+		});
 	</script>
 </div>
 </html>
