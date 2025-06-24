@@ -13,22 +13,68 @@
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/ko.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
 
-  <style>
-    body {
-      background-color: #f8f9fa;
-    }
+<style>
+  /* 모달 헤더 스타일 */
+  .modal-header {
+    background-color: #0d6efd;
+    color: white;
+    border-bottom: 1px solid #dee2e6;
+  }
 
-    #calendar {
-      max-width: 1200px;
-      max-height: 750px;
-      margin: 40px auto;
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    }
-  </style>
+  .modal-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+  }
+
+  .btn-close {
+    filter: brightness(0) invert(1); /* 흰색 닫기 버튼 */
+  }
+
+  /* 모달 바디 스타일 */
+  .modal-body label {
+    font-weight: 500;
+    margin-top: 0.5rem;
+  }
+
+  .modal-body input.form-control {
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.95rem;
+  }
+
+  /* 모달 푸터 스타일 */
+  .modal-footer {
+    border-top: 1px solid #dee2e6;
+    padding-top: 0.75rem;
+  }
+
+  .modal-content {
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  /* 버튼 스타일 조정 */
+  .modal-footer .btn-primary {
+    background-color: #0d6efd;
+    border: none;
+  }
+
+  .modal-footer .btn-primary:hover {
+    background-color: #0b5ed7;
+  }
+
+  .modal-footer .btn-secondary {
+    background-color: #6c757d;
+    border: none;
+  }
+
+  .modal-footer .btn-secondary:hover {
+    background-color: #5c636a;
+  }
+</style>
 </head>
 
 <main layout:fragment="content">
@@ -49,8 +95,14 @@
             <div class="mb-3">
               <label for="eventTitle" class="form-label">제목</label>
               <input type="text" class="form-control" id="eventTitle" required>
-              <label for="eventlocation" class="form-label">장소</label>
+              <label for="eventContent" class="form-label">내용</label>
+              <input type="text" class="form-control" id="eventContent" required>
+              <label for="eventLocation" class="form-label">장소</label>
               <input type="text" class="form-control" id="eventlocation" required>
+              <label for="startTime" class="form-label">시작 시간</label>
+			  <input type="time" class="form-control" id="startTime" required>
+			  <label for="endTime" class="form-label">종료 시간</label>
+			  <input type="time" class="form-control" id="endTime" required>
             </div>
             <input type="hidden" id="eventStart">
             <input type="hidden" id="eventEnd">
@@ -66,6 +118,9 @@
   </div>
 
   <script>
+  function formatDateToYYYYMMDDHHMMSS(dateStr) {
+	    return dateStr.replace(/-/g, '') + '000000';
+	  }
     document.addEventListener('DOMContentLoaded', function () {
       let calendarEl = document.getElementById('calendar');
       let clickTimer = null;
@@ -74,6 +129,8 @@
         initialView: 'dayGridMonth',
         locale: 'ko',
         themeSystem: 'bootstrap5',
+        height: 700, 
+        dayMaxEventRows: true,
         headerToolbar: {
           left: 'prev,next today',
           center: 'title',
@@ -103,8 +160,10 @@
 
                 //단일 클릭 시 모달 열기
                 $('#eventTitle').focus();
+                $('#eventContent').focus();
                 $('#eventLocation').focus();
                 $('#eventTitle').val('');
+                $('#eventContent').val('');
                 $('#eventLocation').val('');
                 $('#eventStart').val(info.dateStr);
                 $('#eventEnd').val('');
@@ -123,36 +182,57 @@
       // 저장 버튼
       document.getElementById('saveEventBtn').addEventListener('click', function () {
     	  const title = $('#eventTitle').val();
+    	  const content = $('#eventContent').val();
     	  const location = $('#eventlocation').val();
-    	  const start = $('#eventStart').val();
+    	  const date = $('#eventStart').val();         // yyyy-MM-dd
+    	  const startTime = $('#startTime').val();     // HH:mm
+    	  const endTime = $('#endTime').val();         // HH:mm
 
-    	  if (title && start) {
-    	    // 서버로 일정 등록 요청
+    	  if (title && date && startTime && endTime) {
+    	    const formatDateTime = (date, time) => {
+    	      return date.replace(/-/g, '') + time.replace(':', '') + '00';  // yyyyMMddHHmmss
+    	    };
+
+    	    const formattedStart = formatDateTime(date, startTime);
+    	    const formattedEnd = formatDateTime(date, endTime);
+
     	    $.ajax({
     	      type: 'POST',
-    	      url: '/cal/insertSchedule.json',
+    	      url: 'http://localhost:8082/muscat/cal/insertSchedule.json',
     	      contentType: 'application/json',
     	      data: JSON.stringify({
-    	    	  schdulId: Date.now().toString(),
-    	    	  schdulNm: title,
-    	    	  schdulPlace: location,
-    	    	  schdulBgnde: start,
-    	    	  schdulEndde: start,
-    	    	  frstRegisterId: 'admin',
-    	    	  schdulCn: '',
-    	    	  schdulChargerId: 'admin'
-    	    	}),
+    	        schdulId: Date.now().toString(),
+    	        schdulNm: title,
+    	        schdulPlace: location,
+    	        schdulBgnde: formattedStart,
+    	        schdulEndde: formattedEnd,
+    	        frstRegisterId: 'admin',
+    	        schdulCn: content,
+    	        schdulChargerId: 'admin',
+    	        leaderId: 'admin',
+    	        schdulDeptId: '',
+    	        schdulKindCode: '',
+    	        schdulIpcrCode: '',
+    	        atchFileId: '',
+    	        reptitSeCode: ''
+    	      }),
     	      success: function () {
-    	      calendar.refetchEvents();
-    	        calendar.addEvent({
-    	          title: title,
-    	          start: start,
-    	          allDay: true
-    	        });
+    	        calendar.refetchEvents(); // 이벤트 새로고침
     	        const modal = bootstrap.Modal.getInstance(document.getElementById('eventModal'));
     	        modal.hide();
+    	        Swal.fire({
+    	          icon: 'success',
+    	          title: '저장 완료',
+    	          text: '일정이 성공적으로 등록되었습니다!',
+    	          confirmButtonText: '확인'
+    	        });
+    	      },
+    	      error: function () {
+    	        Swal.fire('에러', '일정 저장 중 오류가 발생했습니다.', 'error');
     	      }
     	    });
+    	  } else {
+    	    Swal.fire('입력 오류', '모든 입력 항목을 확인해 주세요.', 'warning');
     	  }
     	});
     });

@@ -6,6 +6,10 @@ import lombok.Data;
 
 @Data
 public class ScudVO implements Serializable {
+	
+	/** 리더 아이디 */
+	private String leaderId;
+	
 	private String schdulId;
 
 	/** 일정구분(회의/교육/세미나/강의 기타) */
