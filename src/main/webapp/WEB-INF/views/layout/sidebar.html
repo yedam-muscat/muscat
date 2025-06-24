@@ -24,12 +24,18 @@
 						<li class="submenu-item "><a href="/muscat/appr/apprMain.do">전자결재</a></li>
 						<li class="submenu-item "><a href="/muscat/appr/apprMain.do">임시저장</a></li>
 						<li class="submenu-item "><a href="/muscat/appr/apprMain.do">결재대기</a></li>
-						<li class="submenu-item "><a href="/muscat/appr/apprHistory.do">기안문서함</a></li>
-						<li class="submenu-item "><a href="/muscat/appr/apprHistory.do">결재문서함</a></li>
-						<li class="submenu-item "><a href="/muscat/appr/apprHistory.do">참조문서함</a></li>
-						<li class="submenu-item "><a href="/muscat/appr/apprHistory.do">부서문서함</a></li>
-						<li class="submenu-item "><a href="/muscat/appr/docFormMng.do">문서양식관리</a></li>
-						<li class="submenu-item "><a href="/muscat/appr/docFormReg.do">문서양식등록</a></li>
+						<li class="submenu-item "><a
+							href="/muscat/appr/apprHistory.do">기안문서함</a></li>
+						<li class="submenu-item "><a
+							href="/muscat/appr/apprHistory.do">결재문서함</a></li>
+						<li class="submenu-item "><a
+							href="/muscat/appr/apprHistory.do">참조문서함</a></li>
+						<li class="submenu-item "><a
+							href="/muscat/appr/apprHistory.do">부서문서함</a></li>
+						<li class="submenu-item "><a
+							href="/muscat/appr/docFormMng.do">문서양식관리</a></li>
+						<li class="submenu-item "><a
+							href="/muscat/appr/docFormReg.do">문서양식등록</a></li>
 					</ul></li>
 
 
@@ -128,17 +134,31 @@
 		aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
-				<div class="modal-header">
+				<div class="modal-header" style="position: relative;">
 					<h5 class="modal-title">채팅방 목록</h5>
 					<!-- 오른쪽 상단 메신저 아이콘 -->
-					<div
-						style="position: fixed; top: 10px; right: 10px; z-index: 4000;">
+					<div style="top: 10px; right: 10px; z-index: 4000;">
 						<i id="openMessenger" class="bi bi-chat-dots"
-							margin-right: 10px; style="font-size: 1.5rem; cursor: pointer;"
+							style="position: absolute; top: 10px; right: 40px; font-size: 1.5rem; cursor: pointer;"
 							title="새 채팅 시작"></i>
 					</div>
-					<button type="button" class="btn-close" data-bs-dismiss="modal"
-						aria-label="닫기"></button>
+					<!-- <button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="닫기"></button> -->
+
+					<!-- 대화 상대 목록 (Dropdown처럼) -->
+					<div id="chatListPopup" class="card shadow"
+						style="display: none; position: absolute; min-width: 200px; z-index: 2000;">
+						<!-- 검색 입력 -->
+						<div class="p-2 border-bottom">
+							<input type="text" id="chatSearchInput"
+								class="form-control form-control-sm" placeholder="이름 검색">
+						</div>
+						<ul class="list-group list-group-flush mb-0">
+							<li class="list-group-item chat-entry" data-user="홍길동">홍길동</li>
+							<li class="list-group-item chat-entry" data-user="김가">김가</li>
+							<li class="list-group-item chat-entry" data-user="김철수">김철수</li>
+						</ul>
+					</div>
 				</div>
 				<div class="modal-body">
 					<ul class="list-group" id="chatList">
@@ -170,7 +190,8 @@
 			<input id="chatInput" type="text" class="form-control"
 				placeholder="메시지를 입력하세요..." />
 			<button id="sendMsg" class="btn btn-success"
-				style="padding: 0.25rem 0.75rem; font-size: 0.9rem; white-space: nowrap;" disabled>전송</button>
+				style="padding: 0.25rem 0.75rem; font-size: 0.9rem; white-space: nowrap;"
+				disabled>전송</button>
 		</div>
 	</div>
 
@@ -186,7 +207,9 @@
 
 	<!-- jQuery UI JS -->
 	<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-
+	<link
+		href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+		rel="stylesheet">
 	<script>
 		$(function() {
 			$('#staticBackdrop').on('shown.bs.modal', function() {
@@ -479,6 +502,73 @@
 			$('#sendMsg').toggleClass('active', hasText);
 			$('#sendMsg').prop('disabled', !hasText);
 		});
+		
+		// 대화 상대 추가
+		$('#openMessenger').on('click', function(e) {
+			 e.stopPropagation(); // 이벤트 버블링 방지
+			 
+			  const icon = $(this);
+			  const popup = $('#chatListPopup');
+
+			  if (popup.is(':visible')) {
+			    popup.hide();
+			    return;
+			  }
+			  
+			// 아이콘 기준 상대 위치 계산
+			  const iconPos = icon.position();
+			  const iconHeight = icon.outerHeight();
+
+			  /* // 아이콘 위치 계산
+			  const offset = icon.offset();
+			  const height = icon.outerHeight(); */
+
+			 /*  popup.css({
+			    top: offset.top + height + 5, // 아이콘 바로 밑 + 5px
+			    left: offset.left
+			  }).show();
+			}); */
+		
+			popup.css({
+			    top: iconPos.top + iconHeight + 20, // 아이콘 바로 밑 + 5px
+			    left: iconPos.left
+			  }).show();
+			
+			
+			$('#chatSearchInput').val('').focus();
+			  $('#chatListItems .chat-entry').show(); // 검색 초기화
+			});
+			
+			// 검색 입력 → 리스트 필터
+			$('#chatSearchInput').on('input', function() {
+  const keyword = $(this).val().trim().toLowerCase();
+
+	
+			  $('#chatListItems .chat-entry').each(function() {
+			    const name = $(this).text().trim().toLowerCase();
+			    if(name.includes(keyword)){
+					$(this).show();
+					}else {
+						$(this).hide();
+						}
+			  });
+			});
+
+			// 대화 상대 선택 시 처리
+			$('#chatListPopup').on('click', '.chat-entry', function() {
+			  const userName = $(this).data('user');
+			  $('#chatUserName').text(userName);
+			  $('#chatRoom').show();
+			  $('#chatInput').focus();
+			  $('#chatListPopup').hide();
+			});
+
+			// 화면 클릭 시 팝업 닫기
+			$(document).on('click', function(e) {
+			  if (!$(e.target).closest('#openMessenger, #chatListPopup').length) {
+			    $('#chatListPopup').hide();
+			  }
+			});
 	</script>
 </div>
 </html>
