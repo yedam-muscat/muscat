@@ -9,24 +9,22 @@
 		parameterType="egovframework.com.muscat.cal.mapper.ScudVO">
 		INSERT INTO COMTNLEADERSCHDUL (
 		SCHDUL_ID, SCHDUL_NM, SCHDUL_CN, SCHDUL_PLACE, SCHDUL_BGNDE, SCHDUL_ENDDE,
-		SCHDUL_SE, SCHDUL_DEPT_ID, SCHDUL_KIND_CODE, SCHDUL_IPCR_CODE,
-		SCHDUL_CHARGER_ID,
-		ATCH_FILE_ID, REPTIT_SE_CODE, FRST_REGISTER_PNTTM, FRST_REGISTER_ID
+		SCHDUL_SE, LEADER_ID, REPTIT_SE_CODE,
+		SCHDUL_CHARGER_ID, FRST_REGISTER_ID, FRST_REGIST_PNTTM
 		) VALUES (
 		#{schdulId}, #{schdulNm}, #{schdulCn}, #{schdulPlace}, #{schdulBgnde},
 		#{schdulEndde},
-		#{schdulSe}, #{schdulDeptId}, #{schdulKindCode}, #{schdulIpcrCode},
-		#{schdulChargerId},
-		#{atchFileId}, #{reptitSeCode}, SYSDATE, #{frstRegisterId}
+		#{schdulSe}, #{leaderId}, #{reptitSeCode},
+		#{schdulChargerId}, #{frstRegisterId}, SYSDATE
 		)
 	</insert>
 
-	<select id="selectScheduleList"
-		resultType="map">
+
+	<select id="selectScheduleList" resultType="map">
 		SELECT
 		SCHDUL_ID,
 		SCHDUL_NM "title",
-		to_char(to_date(SCHDUL_BGNDE,'yyyymmddHH24miss'),'yyyy-mm-dd"T"HH24:mi:ss' )"start" ,
+		to_char(to_date(SCHDUL_BGNDE,'yyyymmddHH24miss'),'yyyy-mm-dd"T"HH24:mi:ss')"start" ,
 		to_char(to_date(SCHDUL_ENDDE,'yyyymmddHH24miss'),'yyyy-mm-dd"T"HH24:mi:ss')"end",
 		SCHDUL_PLACE,
 		SCHDUL_CN
