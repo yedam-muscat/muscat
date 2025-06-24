@@ -6,7 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import egovframework.com.muscat.appr.service.ApprDocVO;
@@ -20,26 +21,63 @@ public class ApprContoller {
 	@Autowired
 	ApprService apprService;
 
-	@RequestMapping("/appr/apprMain.do")
+	// 전자결재 메인 페이지
+	@GetMapping("/appr/apprMain.do")
 	public String apprMain() {
 		return "appr/apprMain.html";
 	}
 
-	@RequestMapping("/appr/apprMainRecent")
+	// 전자결제 메인 - 최근 기안/결재 문서
+	@GetMapping("/appr/getApprMainRecent")
 	@ResponseBody
-	public List<ApprDocVO> apprMainRecent() {
+	public List<ApprDocVO> getApprMainRecent() {
 		return apprService.getApprDocRecent();
 	}
 
-	@RequestMapping("/appr/apprMainHistory")
+	// 전자결제 메인 - 최근 완료 문서
+	@GetMapping("/appr/getApprMainHistory")
 	@ResponseBody
-	public List<ApprDocVO> apprMainHistory() {
+	public List<ApprDocVO> getApprMainHistory() {
 		return apprService.getApprDocHistory();
 	}
 
-	@RequestMapping("/test")
+	// 문서 기안 페이지
+	@GetMapping("/appr/apprReg.do")
+	public String apprReg() {
+		return "appr/apprReg.html";
+	}
+	
+	// 문서 내역 페이지
+	@GetMapping("/appr/apprHistory.do")
+	public String apprHistory() {
+		return "appr/apprHistory.html";
+	}
+
+	// 문서 양식 관련
+	
+	// 문서 양식 관리 페이지
+	@GetMapping("/appr/docFormMng.do")
+	public String docFormMng() {
+		return "appr/docFormMng.html";
+	}
+
+	// 문서 양식 조회
+	@GetMapping("/appr/getDocForm.do")
 	@ResponseBody
-	public String test() {
-		return apprService.test();
+	public String getDocForm() {
+		return "";
+	}
+
+	// 문서 양식 등록 페이지
+	@GetMapping("/appr/docFormReg.do")
+	public String docFormReg() {
+		return "appr/docFormReg.html";
+	}
+
+	// 문서 양식 등록
+	@PostMapping("/appr/postDocFormReg.do")
+	@ResponseBody
+	public String postDocFormReg() {
+		return "";
 	}
 }

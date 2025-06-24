@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+
+<main layout:fragment="content">
+	<p>APPROV_REG</p>
+
+	<div class="form-section border p-4 rounded shadow-sm bg-white">
+		<div class="mb-3">
+			<button id="previewBtn" class="btn btn-info" data-bs-toggle="modal"
+				data-bs-target="#previewModal">미리보기</button>
+
+			<button id="saveBtn" class="btn btn-primary">저장하기</button>
+		</div>
+
+		<!-- 사용 여부 -->
+		<div class="mb-3">
+			<label class="form-label fw-bold">사용 여부</label>
+			<div>
+				<div class="form-check form-check-inline">
+					<input class="form-check-input" type="radio" name="useYn" id="useY"
+						value="Y" checked> <label class="form-check-label"
+						for="useY">사용</label>
+				</div>
+				<div class="form-check form-check-inline">
+					<input class="form-check-input" type="radio" name="useYn" id="useN"
+						value="N"> <label class="form-check-label" for="useN">사용
+						안 함</label>
+				</div>
+			</div>
+		</div>
+
+		<!-- 양식명 -->
+		<div class="mb-3">
+			<label for="formName" class="form-label required fw-bold">양식명</label>
+			<input type="text" class="form-control" id="formName" name="formName"
+				required>
+		</div>
+
+		<!-- 보존 연한 -->
+		<div class="mb-3 row align-items-center">
+			<label class="col-form-label col-auto fw-bold">보존 연한</label>
+			<div class="col-auto">
+				<input type="number" class="form-control" name="retentionYear"
+					id="retentionYear" placeholder="년 단위로 입력">
+			</div>
+			<div class="col-auto">
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" id="isPermanent">
+					<label class="form-check-label" for="isPermanent">영구 보존</label>
+				</div>
+			</div>
+		</div>
+
+		<!-- 결재선 -->
+		<div class="mb-3">
+			<label class="form-label fw-bold">결재선</label>
+			<div class="input-group" data-bs-toggle="modal"
+				data-bs-target="#apprLineModal">
+				<span class="input-group-text "><i class="bi bi-person"></i></span>
+				<input type="text" class="form-control" placeholder="등록된 결재선이 없습니다."
+					disabled>
+			</div>
+		</div>
+
+		<!-- 양식 안내 -->
+		<div>
+			<label for="formGuide" class="form-label fw-bold">양식 안내</label>
+			<textarea class="form-control" id="formGuide" rows="3"></textarea>
+		</div>
+	</div>
+
+	<div id="fb-editor" style="background-color: #EEEEEE; padding: 10px;"></div>
+
+	<!-- 미리보기 모달 -->
+	<div class="modal fade" id="previewModal" tabindex="-1"
+		aria-labelledby="previewModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-scrollable">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="previewModalLabel">미리보기</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="닫기"></button>
+				</div>
+				<div class="modal-body">
+					<form id="rendered-form"></form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"
+						data-bs-dismiss="modal">닫기</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 미리보기 모달 -->
+	<div class="modal fade" id="apprLineModal" tabindex="-1"
+		aria-labelledby="apprLineModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-scrollable">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="apprLineModalLabel">결재선</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="닫기"></button>
+				</div>
+				<div class="modal-body">
+					<div id="apprLineDiv"></div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"
+						data-bs-dismiss="modal">닫기</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+	<script src="https://formbuilder.online/assets/js/form-builder.min.js"></script>
+
+	<script src="https://formbuilder.online/assets/js/form-render.min.js"></script>
+	<script>
+		jQuery(function($) {
+
+			let options = {
+				onSave : function(evt, formData) {
+					Swal.fire({
+						icon : "question",
+						title : "저장하시겠습니까?",
+						showCancelButton: true,
+						confirmButtonText: "저장",
+						cancelButtonText: "취소"
+					}).then((result) => {
+						  if (result.isConfirmed) {
+						  } 
+					});
+					
+					console.log(JSON.stringify(formData));
+				},
+			}
+
+			const fb = $('#fb-editor').formBuilder(options);
+
+			// 미리보기 모달 렌더링
+			$('#previewModal').on('show.bs.modal', function() {
+				const formData = fb.actions.getData('json');
+
+				$('#rendered-form').formRender({
+					formData : formData
+				});
+			});
+
+			$('#apprLineModal').on('show.bs.modal', function() {
+
+			});
+
+			$('#saveBtn').on('click', function() {
+				fb.actions.save();
+			});
+
+			$('#isPermanent').on('change', function () {
+				  if ($(this).is(':checked')) {
+					    $('#retentionYear').addClass('disabled');
+					    $('#retentionYear').val('0');
+				  } else {
+					    $('#retentionYear').removeClass('disabled');
+					    $('#retentionYear').val('');
+				  }
+				});
+		});
+	</script>
+
+</main>
+</html>
