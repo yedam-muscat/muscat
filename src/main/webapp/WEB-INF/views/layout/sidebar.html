@@ -5,8 +5,8 @@
 		<div class="sidebar-header">
 			<div class="d-flex justify-content-between">
 				<div class="logo">
-					<a href="index.html"><img src="assets/images/logo/logo.png"
-						alt="Logo" srcset=""></a>
+					<a href="index.html"><img
+						th:src="@{/assets/images/logo/logo.png}" alt="Logo" srcset=""></a>
 				</div>
 				<div class="toggler">
 					<a href="#" class="sidebar-hide d-xl-none d-block"><i
@@ -16,13 +16,22 @@
 		</div>
 		<div class="sidebar-menu">
 			<ul class="menu">
-
-				<li class="sidebar-item  has-sub"><a href="#"
-					class='sidebar-link'> <i class="bi bi-stack"></i> <span>전자결재</span>
+				<li class="sidebar-item  has-sub"><a
+					href="/muscat/appr/apprMain.do" class='sidebar-link'> <i
+						class="bi bi-stack"></i> <span>전자결재</span>
 				</a>
 					<ul class="submenu ">
 						<li class="submenu-item "><a href="/muscat/appr/apprMain.do">전자결재</a></li>
+						<li class="submenu-item "><a href="/muscat/appr/apprMain.do">임시저장</a></li>
+						<li class="submenu-item "><a href="/muscat/appr/apprMain.do">결재대기</a></li>
+						<li class="submenu-item "><a href="/muscat/appr/apprHistory.do">기안문서함</a></li>
+						<li class="submenu-item "><a href="/muscat/appr/apprHistory.do">결재문서함</a></li>
+						<li class="submenu-item "><a href="/muscat/appr/apprHistory.do">참조문서함</a></li>
+						<li class="submenu-item "><a href="/muscat/appr/apprHistory.do">부서문서함</a></li>
+						<li class="submenu-item "><a href="/muscat/appr/docFormMng.do">문서양식관리</a></li>
+						<li class="submenu-item "><a href="/muscat/appr/docFormReg.do">문서양식등록</a></li>
 					</ul></li>
+
 
 				<li class="sidebar-item  has-sub"><a href="#"
 					class='sidebar-link'> <i class="bi bi-collection-fill"></i> <span>게시판</span>
@@ -41,11 +50,22 @@
 
 					</ul></li>
 
+				<!-- 공통코드 -->
+				<!-- <li class="sidebar-item  has-sub"><a href="#"
+					class='sidebar-link'> <i class="bi bi-grid-1x2-fill"></i> <span>공통코드</span>
+				</a>
+					<ul class="submenu ">
+						<li class="submenu-item "><a href="/muscat/cal/calMonth.do">공통분류코드</a></li>
+						<li class="submenu-item "><a href="/muscat/cal/calMonth.do">공통코드</a></li>
+						<li class="submenu-item "><a href="/muscat/cal/calMonth.do">공통상세코드</a></li>
+
+					</ul></li> -->
 				<li class="sidebar-item"><a href="#" class='sidebar-link'
 					data-bs-toggle="modal" data-bs-target="#chatListModal"
 					onclick="event.preventDefault();"> <i class="bi bi-chat-dots"></i>
 						<span>채팅</span>
 				</a></li>
+
 
 				<!-- 사이드바 조직도 메뉴 -->
 				<li class="sidebar-item"><a href="#" class="sidebar-link"
@@ -177,7 +197,6 @@
 		});
 
 		function initTree() {
-
 			$('#tree').jstree(
 					{
 						'core' : {
