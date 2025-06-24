@@ -573,7 +573,7 @@
 			<version>2.23.1</version>
 			<scope>compile</scope>
 		</dependency>
-		
+
 	</dependencies>
 
 	<build>
