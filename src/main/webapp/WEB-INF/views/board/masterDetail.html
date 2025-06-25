@@ -68,7 +68,7 @@
     }
 
     // 상세조회 Ajax
-    fetch(`/muscat/api/board/masterDetail?bbsId=${bbsId}`)
+    fetch(`/muscat/board/masterDetail?bbsId=${bbsId}`)
       .then(res => res.json())
       .then(data => {
         document.getElementById("bbsNm").textContent = data.bbsNm;
