@@ -13,11 +13,12 @@
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/ko.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   
-
 <style>
   /* 모달 헤더 스타일 */
+  * {
+      font-style: normal !important; 
+    }
   .modal-header {
     background-color: #0d6efd;
     color: white;
@@ -27,6 +28,7 @@
   .modal-title {
     font-weight: 600;
     font-size: 1.25rem;
+    font-style: normal;
   }
 
   .btn-close {
@@ -78,8 +80,33 @@
 </head>
 
 <main layout:fragment="content">
-  <div class="container">
-    <div id="calendar"></div>
+<div class="calendar-sidebar">
+<div class="p-1 border-end" style="background-color:#f3fdee; width: 220px; height: 700px; float: left;">
+<button class="btn btn-success w-100 mt-2">일정등록</button>
+  <h6 class="border-top mt-2 d-flex justify-content-between align-items-center">
+    <strong>내 캘린더</strong>
+    <button class="btn btn-sm btn-outline-secondary py-0 px-2" id="addMyCalendar">+</button>
+  </h6>
+  <div>
+    <input type="checkbox" class="calendar-toggle" data-calendar-id="personal" checked>
+    <span style="color: #1e90ff;">●</span> 개인
+  </div>
+  <h6 class="border-top mt-2 d-flex justify-content-between align-items-center">
+  	<strong>공유 캘린더</strong>
+  	<button class="btn btn-sm btn-outline-secondary py-0 px-2" id="addSharedCalendar">+</button>
+  </h6>
+  <div>
+    <input type="checkbox" class="calendar-toggle" data-calendar-id="personal" checked>
+    <span style="color: #000000;">●</span> 전사함
+  </div>
+  <div>
+    <input type="checkbox" class="calendar-toggle" data-calendar-id="personal" checked>
+    <span style="color: #1e90ff;">●</span> 회계부서
+  </div>
+</div>
+</div>
+  <div class="container-fluid" style="padding-right: 50px">
+    <div id="calendar" style="margin-left: 220px;"></div>
   </div>
 
 <!-- 모달창 -->
@@ -116,15 +143,46 @@
       </div>
     </div>
   </div>
+  
+  <!-- 캘린더 등록 -->
+<div class="modal fade" id="calendarModal" tabindex="-1" aria-labelledby="calendarModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content p-3">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="modal-title">캘린더 등록</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+      </div>
+      <div>
+        <label class="form-label">이름</label>
+        <input type="text" id="calendarName" class="form-control mb-2">
 
+        <label class="form-label">색상</label>
+        <input type="color" id="calendarColor" class="form-control form-control-color mb-3" value="#1e90ff">
+
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" id="calendarAllDay">
+          <label class="form-check-label" for="calendarAllDay">전사일정</label>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-end">
+          <button class="btn btn-secondary me-2" data-bs-dismiss="modal">취소</button>
+          <button class="btn btn-success" id="saveCalendarBtn">등록</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
   <script>
   function formatDateToYYYYMMDDHHMMSS(dateStr) {
 	    return dateStr.replace(/-/g, '') + '000000';
 	  }
     document.addEventListener('DOMContentLoaded', function () {
       let calendarEl = document.getElementById('calendar');
+      const calendarModal = new bootstrap.Modal(document.getElementById('calendarModal'));
       let clickTimer = null;
 
+    
+      
       let calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         locale: 'ko',
@@ -235,8 +293,46 @@
     	    Swal.fire('입력 오류', '모든 입력 항목을 확인해 주세요.', 'warning');
     	  }
     	});
+      document.getElementById('addMyCalendar').addEventListener('click', function () {
+          document.getElementById('calendarName').value = '';
+          document.getElementById('calendarColor').value = '#1e90ff';
+          document.getElementById('calendarAllDay').checked = false;
+          calendarModal.show();
+        });
+
+        document.getElementById('addSharedCalendar').addEventListener('click', function () {
+          document.getElementById('calendarName').value = '';
+          document.getElementById('calendarColor').value = '#1e90ff';
+          document.getElementById('calendarAllDay').checked = true;
+          calendarModal.show();
+        });
+
+        document.getElementById('saveCalendarBtn').addEventListener('click', function () {
+          const name = document.getElementById('calendarName').value.trim();
+          const color = document.getElementById('calendarColor').value;
+          const isAll = document.getElementById('calendarAllDay').checked;
+
+          if (!name) {
+            alert('캘린더 이름을 입력하세요.');
+            return;
+          }
+
+          const newId = 'calendar_' + Date.now();
+          const html = `
+            <div>
+              <input type="checkbox" class="calendar-toggle" data-calendar-id="${newId}" checked>
+              <span style="color: ${color};">●</span> ${name}
+            </div>`;
+
+          if (isAll) {
+            $('#addSharedCalendar').closest('h6').nextUntil('h6').last().after(html);
+          } else {
+            $('#addMyCalendar').closest('h6').nextUntil('h6').last().after(html);
+          }
+
+          calendarModal.hide();
+        });
     });
   </script>
 </main>
 </html>
-
