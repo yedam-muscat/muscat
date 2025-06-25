@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login - Mazer Admin Dashboard</title>
+<title>Login - MUSCAT</title>
 <link rel="preconnect" href="https://fonts.gstatic.com">
 <link
 	href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap"
@@ -23,7 +23,7 @@
 <link rel="stylesheet"
 	th:href="@{/assets/vendors/bootstrap-icons/bootstrap-icons.css}">
 <link rel="stylesheet" th:href="@{/assets/css/app.css}">
-<link rel="shortcut icon" th:href="@{/assets/images/favicon.svg}"
+<link rel="shortcut icon" th:href="@{/assets/images/favicon.ico}"
 	type="image/x-icon">
 <script src="https://code.jquery.com/jquery-3.7.1.js"
 	integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
@@ -55,8 +55,8 @@
 								</div>
 								<div class="form-check col-6">
 									<input class="form-check-input" type="radio" name="userType"
-										id="typeUsr" value="USR"> <label class="form-check-label"
-										for="flexRadioDefault2"> 관리자</label>
+										id="typeUsr" value="USR"> <label
+										class="form-check-label" for="flexRadioDefault2"> 관리자</label>
 								</div>
 							</div>
 						</div>
@@ -78,7 +78,7 @@
 						<button class="btn btn-primary btn-block btn-lg shadow-lg"
 							onclick="actionLogin()">로그인</button>
 					</div>
-					<div class="text-center mt-5 text-lg fs-4">
+					<div class="text-center mt-5 fs-5">
 						<p class="text-gray-600">
 							계정이 없으신가요? <a href="#" onclick="goRegiUsr(); return false;"
 								class="font-bold">회원가입</a>
@@ -98,12 +98,23 @@
 	<script>
 		function actionLogin() {
 
+			let id = $('#id').val();
+			let password = $('#password').val();
+			
+			if (!id || !password) {
+				Swal.fire({
+					icon : "warning",
+					title : "아이디와 비밀번호를 확인하세요"
+				})
+				return;
+			}
+
 			$.ajax({
 				type : "POST",
 				url : "/muscat/login/actionLogin.do",
 				data : {
-					id : $('#id').val(),
-					password : $('#password').val(),
+					id : id,
+					password : password,
 					userSe : $('[name="userType"]').val()
 				},
 				success : function(response) {
@@ -134,7 +145,7 @@
 		}
 
 		function goRegiUsr() {
-
+			location.href = "/muscat/login/userReg.do";
 		}
 
 		function goResetPwd() {
@@ -167,7 +178,6 @@
 		th:src="@{/assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js}"></script>
 	<script th:src="@{/assets/js/bootstrap.bundle.min.js}"></script>
 
-	<!-- <script th:src="@{/assets/js/extensions/sweetalert2.js}"></script> -->
 	<script th:src="@{/assets/vendors/sweetalert2/sweetalert2.all.min.js}"></script>
 
 	<!-- <script th:src="@{/assets/js/main.js}"></script> -->

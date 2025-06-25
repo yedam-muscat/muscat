@@ -1,27 +1,28 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/layout}">
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
 
 <main layout:fragment="content">
-  <h2>📋 게시판 목록</h2>
+	<h2>📋 게시판 목록</h2>
 
-  <table border="1" id="boardTable">
-    <thead>
-      <tr>
-        <th>게시판 ID</th>
-        <th>게시판명</th>
-        <th>게시판유형</th>
-        <th>사용여부</th>
-        <th>등록일</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Ajax 로딩 -->
-    </tbody>
-  </table>
+	<table id="boardTable">
+		<thead>
+			<tr>
+				<th>게시판 ID</th>
+				<th>게시판명</th>
+				<th>게시판유형</th>
+				<th>사용여부</th>
+				<th>등록일</th>
+			</tr>
+		</thead>
+		<tbody>
+			<!-- Ajax 로딩 -->
+		</tbody>
+	</table>
 
-  <script>
+	<script src="//cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
+	<script>
     fetch('http://localhost:8082/muscat/board/list')
       .then(response => response.json())
       .then(data => {
@@ -37,9 +38,16 @@
             <td>${row.frstRegisterPnttm}</td>
           `;
           tbody.appendChild(tr);
+          
+
         });
+        
+        new DataTable('#boardTable', {
+      	  language: {
+      		    url: "https://cdn.datatables.net/plug-ins/2.0.0/i18n/ko.json"
+      		  }});
       });
-  </script>
+    </script>
+
 </main>
 </html>
-s
