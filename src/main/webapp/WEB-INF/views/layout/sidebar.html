@@ -44,7 +44,7 @@
 				</a>
 					<ul class="submenu ">
 						<li class="submenu-item "><a
-							href="/muscat/boardMasterList.do">게시판 하위항목</a></li>
+							href="/muscat/board/masterList.do">게시판 하위항목</a></li>
 					</ul></li>
 
 				<li class="sidebar-item  has-sub"><a href="#"
@@ -120,9 +120,8 @@
 				<i class="bi bi-envelope-at"></i> <span id="empEmail">email@example.com</span>
 			</div>
 			<div class="d-flex justify-content-start gap-2 mb-2">
-				<i class="bi bi-calendar3"></i> <a href="/muscat/cal/calMonth.do"
-					target="_blank">캘린더</a> <i class="sidebar-item"
-					id="sidebarMessengerBtn" style="cursor: pointer;"> <a href="#"><i
+				<i class="bi bi-calendar3"></i> <a href="/muscat/cal/calMonth.do" target="_blank">캘린더</a> 
+				<i class="sidebar-item"	id="sidebarMessengerBtn" style="cursor: pointer;"> <a href="#"><i
 						class="bi bi-chat-dots"></i> <span>메신저</span></a>
 			</div>
 		</div>
@@ -134,8 +133,9 @@
 		aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
-				<div class="modal-header" style="position: relative;">
-					<h5 class="modal-title">채팅방 목록</h5>
+				<div class="modal-header"
+					style="position: relative; background-color: #0d6efd; color: white;">
+					<h5 class="modal-title" style="color: white;">채팅방 목록</h5>
 					<!-- 오른쪽 상단 메신저 아이콘 -->
 					<div style="top: 10px; right: 10px; z-index: 4000;">
 						<i id="openMessenger" class="bi bi-chat-dots"
@@ -175,12 +175,26 @@
 
 	<!-- 채팅방 -->
 	<div id="chatRoom"
-		style="display: flex; position: fixed; bottom: 20px; right: 20px; width: 300px; height: 400px; background: #fff; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); z-index: 3000; flex-direction: column;">
+		style="display: flex; position: fixed; bottom: 20px; right: 20px; width: 300px; height: 400px; background: #fff; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); z-index: 1045; flex-direction: column;">
 		<div class="header"
 			style="background: #fff; color: black; padding: 10px; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center;">
+
 			<span id="chatUserName"></span>
-			<button id="closeChat" aria-label="닫기"
-				style="background: none; border: none; color: black; font-weight: bold; cursor: pointer;">X</button>
+			<div style="display: flex; align-items: center; gap: 5px;">
+				<!-- 파일 아이콘 (input-group 시작점 처럼 보이게) -->
+				<span class="input-group-text"
+					style="padding: 0.375rem 0.75rem; background: transparent; border: none;">
+					<i id="attachFileIcon" class="bi bi-paperclip"
+					style="cursor: pointer;" title="파일 첨부"></i>
+				</span>
+
+				<button class="btn btn-sm btn-primary" type="button"
+					id="openMemoModal">보고</button>
+
+				<button id="closeChat" aria-label="닫기"
+					style="background: none; border: none; color: black; font-weight: bold; cursor: pointer;">X</button>
+				<input type="file" id="fileInput" style="display: none;">
+			</div>
 		</div>
 		<div id="chatMessages"
 			style="padding: 10px; flex-grow: 1; overflow-y: auto; background: #ACBCE3;"></div>
@@ -194,6 +208,111 @@
 				disabled>전송</button>
 		</div>
 	</div>
+
+	<!-- 보고 모달 -->
+	<div class="modal fade" id="fileAttachModal" tabindex="-1"
+		aria-labelledby="fileAttachModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content border-primary">
+				<div class="modal-header bg-primary text-white">
+					<h5 class="modal-title" id="fileAttachModalLabel">메모보고 등록</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="닫기"></button>
+				</div>
+				<div class="modal-body">
+					<!-- 메모보고 폼 작성 부분 -->
+					<div class="mb-2">
+						<label class="form-label">보고일자</label> <input type="date"
+							class="form-control">
+					</div>
+					<div class="mb-2">
+						<label class="form-label">작성자명</label> <input type="text"
+							class="form-control" value="홍길동" readonly>
+					</div>
+					<div class="mb-2">
+						<label class="form-label">보고대상자</label>
+						<div class="input-group">
+							<input type="text" class="form-control"> <span
+								class="input-group-text"><i class="bi bi-search"></i></span>
+						</div>
+					</div>
+					<div class="mb-2">
+						<label class="form-label">보고서제목</label> <input type="text"
+							class="form-control">
+					</div>
+					<div class="mb-2">
+						<label class="form-label">보고대상자</label>
+						<textarea class="form-control" rows="2"></textarea>
+					</div>
+					<div class="mb-2">
+						<label class="form-label">파일첨부</label> <input type="file"
+							class="form-control">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"
+						data-bs-dismiss="modal">취소</button>
+					<button type="button" class="btn btn-primary">등록</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!--  업무상세보고 모달 -->
+	<div class="modal fade" id="reportDetailModal" tabindex="-1"
+		aria-labelledby="reportDetailModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content border-primary">
+				<div class="modal-header bg-primary text-white">
+					<h5 class="modal-title" id="reportDetailModalLabel">보고서 상세조회</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="닫기"></button>
+				</div>
+				<div class="modal-body">
+					<table class="table table-bordered">
+						<tr>
+							<th>보고일자</th>
+							<td>2025-01-02</td>
+						</tr>
+						<tr>
+							<th>작성자명</th>
+							<td>홍길동</td>
+						</tr>
+						<tr>
+							<th>보고대상자</th>
+							<td>홍길동</td>
+						</tr>
+						<tr>
+							<th>보고서제목</th>
+							<td>프로젝트 지원 관련 보고</td>
+						</tr>
+						<tr>
+							<th>보고내용</th>
+							<td>관련 품의 결재가 필요합니다. 업무에 참고해주시기 바랍니다.</td>
+						</tr>
+						<tr>
+							<th>파일첨부</th>
+							<td>프로젝트 지원관련.xlsx</td>
+						</tr>
+						<tr>
+							<th>보고서상태</th>
+							<td>확인(2025-01-02 15시 00분)</td>
+						</tr>
+						<tr>
+							<th>의견/지시사항</th>
+							<td><textarea class="form-control"></textarea></td>
+						</tr>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button id="approveReport" class="btn btn-success">승인</button>
+					<button type="button" class="btn btn-secondary"
+						data-bs-dismiss="modal">닫기</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
 
 	<!-- Scripts -->
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -434,8 +553,9 @@
 			const msg = input.val().trim();
 			if (!msg)
 				return;
-
-			const today = formatDate(new Date());
+			const now = new Date();
+			const today = formatDate(now);
+			const timeStr = now.toTimeString().substring(0,5); // 시간 출력
 			// 예시: 모든 사용자 (테스트용)
 		    const allUsers = ['홍길동', '김가', '김철수'];
 		    const sender = '나';
@@ -446,6 +566,12 @@
 		        justifyContent: 'flex-end',
 		        alignItems: 'center',
 		        margin: '5px 0'
+		    });
+		    // 시간 표시
+		    const timeSpan = $('<span></span>').text(timeStr).css({
+		        fontSize: '0.7rem',
+		        color: '#555',
+		        marginLeft: '5px'
 		    });
 		    
 			// 날짜 라벨 추가 (날짜가 바뀌었을 경우)
@@ -470,8 +596,17 @@
 				maxWidth : '60%', 					// 너무 긴 글은 이 폭까지만 허용
 				wordWrap : 'break-word', 			// 긴 단어는 줄바꿈
 				alignSelf : 'flex-end',
-				marginLeft : 'auto'
+				marginLeft : 'auto',
+				position: 'relative'
 			});
+			const container = $('<div></div>').css({
+		        display: 'flex',
+		        justifyContent: 'flex-end',
+		        alignItems: 'start'
+		    });
+			 msgDiv.append(timeSpan);
+			 container.append(msgDiv);
+			 $('#chatMessages').append(container);
 			// 메시지 보내기
 			$('#chatMessages').append(msgDiv);
 			// 채팅창 스크롤
@@ -534,14 +669,14 @@
 			    left: iconPos.left
 			  }).show();
 			
-			
+			//채팅방 검색 필터 시작
 			$('#chatSearchInput').val('').focus();
 			  $('#chatListItems .chat-entry').show(); // 검색 초기화
 			});
 			
 			// 검색 입력 → 리스트 필터
 			$('#chatSearchInput').on('input', function() {
-  const keyword = $(this).val().trim().toLowerCase();
+  			const keyword = $(this).val().trim().toLowerCase();
 
 	
 			  $('#chatListItems .chat-entry').each(function() {
@@ -569,6 +704,182 @@
 			    $('#chatListPopup').hide();
 			  }
 			});
+			
+			//채팅방 파일 첨부 시작
+			$('#fileInput').on('change', function() {
+			    const file = this.files[0];
+			    if (file) {
+			        const fileMsg = $('<div></div>').css({
+			            display: 'inline-block',
+			            background: '#f1f0f0',
+			            padding: '8px 12px',
+			            borderRadius: '7px',
+			            maxWidth: '60%',
+			            wordWrap: 'break-word'
+			        }).text(`첨부: ${file.name}`);
+
+			        const container = $('<div></div>').css({
+			            display: 'flex',
+			            justifyContent: 'flex-end',
+			            margin: '5px 0'
+			        });
+
+			        container.append(fileMsg);
+			        $('#chatMessages').append(container);
+			        $('#chatMessages').scrollTop($('#chatMessages')[0].scrollHeight);
+			    }
+
+			    // 파일 선택 초기화
+			    $(this).val('');
+			});
+			
+			//보고 모달 열기
+			$('#attachFileIcon').on('click', function() {
+				  const modal = new bootstrap.Modal(document.getElementById('fileAttachModal'));
+				  modal.show();
+				});
+
+				$('#openMemoModal').on('click', function() {
+				  const modal = new bootstrap.Modal(document.getElementById('fileAttachModal'));
+				  modal.show();
+				});
+				
+				//보고 
+				$('#fileAttachModal .btn-primary').on('click', function() {
+					  Swal.fire({
+					    title: '보고 하시겠습니까?',
+					    icon: 'question',
+					    showCancelButton: true,
+					    confirmButtonText: '보고',
+					    cancelButtonText: '취소'
+					  }).then((result) => {
+					    if (result.isConfirmed) {
+					      Swal.fire({
+					        icon: 'success',
+					        title: '보고 완료',
+					        text: '보고서가 등록되었습니다.',
+					        confirmButtonText: '확인'
+					      }).then((result) => {
+					        if (result.isConfirmed) {
+					       
+					          // 파일 아이콘 생성
+						          const fileIconContainer = $('<div></div>').css({
+						            position: 'relative',
+						            display: 'inline-block',
+						            margin: '5px'
+						          });
+						          const fileIcon = $('<i class="bi bi-file-earmark-text"></i>').css({
+						              fontSize: '2rem',
+						              cursor: 'pointer',
+						              color: '#0d6efd'
+						            }).attr('title', '보고서 보기');
+
+					          // 아이콘 클릭 시 상세 모달 열기
+					          fileIcon.on('click', function() {
+					            const detailModal = new bootstrap.Modal(document.getElementById('reportDetailModal'));
+					            detailModal.show();
+					          });
+
+					          fileIconContainer.append(fileIcon);
+
+					       // 한 줄로 감싸서 오른쪽 끝에 붙이기
+					          const messageRow = $('<div></div>').css({
+					            width: '100%',
+					            display: 'flex',
+					            justifyContent: 'flex-end'
+					          }).append(fileIconContainer);
+					          
+					          // 채팅방에 추가
+					          $('#chatMessages').append(fileIconContainer);
+					          $('#chatMessages').scrollTop($('#chatMessages')[0].scrollHeight);
+
+					          // 모달 닫기
+					          const modal = bootstrap.Modal.getInstance(document.getElementById('fileAttachModal'));
+					          modal.hide();
+					        }
+					      });
+					    }
+					  });
+					});
+				
+				// 승인 시
+				$('#approveReport').on('click', function() {
+					  Swal.fire({
+					    title: '승인하시겠습니까?',
+					    icon: 'question',
+					    showCancelButton: true,
+					    confirmButtonText: '승인',
+					    cancelButtonText: '취소'
+					  }).then((result) => {
+					    if (result.isConfirmed) {
+					      // 예시: 파일 아이콘이 있는 컨테이너 찾기 (가장 최근 추가된 아이콘으로 가정)
+					      const fileIconContainer = $('#chatMessages > div').last(); 
+					      
+					      if (fileIconContainer.length) {
+					        // 체크 아이콘가 이미 있으면 중복 방지
+					        if (fileIconContainer.find('.check-badge').length === 0) {
+					          const checkBadge = $('<i class="bi bi-check-circle-fill check-badge text-success"></i>').css({
+					            position: 'absolute',
+					            top: '-0.5px',
+					            right: '1px',
+					            fontSize: '1rem',
+					            color: 'green',
+					            cursor: 'default'
+					          });
+					          fileIconContainer.append(checkBadge);
+					        }
+					      }
+
+					      Swal.fire({
+					        icon: 'success',
+					        title: '승인 완료',
+					        text: '보고서가 승인되었습니다.',
+					        confirmButtonText: '확인'
+					      });
+					   // 모달 닫기
+					        const modalInstance = bootstrap.Modal.getInstance(document.getElementById('reportDetailModal'));
+					        if (modalInstance) modalInstance.hide();
+					      
+					      // 파일 아이콘 클릭 이벤트
+					        fileIcon.on('click', function() {
+					            const detailModal = new bootstrap.Modal(document.getElementById('reportDetailModal'));
+					            detailModal.show();
+					        });
+					      
+					      
+					      // 체크 표시 (초기에는 숨김)
+					        const checkBadge = $('<i class="bi bi-check-circle-fill" style="color: green; font-size: 1rem; position: absolute; top: -5px; right: -5px; display: none;"></i>');
+					        // 조립
+					        fileIconContainer.append(fileIcon).append(checkBadge);
+					        fileIconContainer.data('checkBadge', checkBadge);
+		
+
+					      $('#reportDetailModal').modal('hide');
+					    }
+					  });
+					});
+				//업무보고상세모달, 보고모달 
+				$(function() {
+					  $('#fileAttachModal').on('shown.bs.modal', function() {
+					    $('.modal-dialog', this).draggable({
+					      handle: ".modal-header",
+					      containment: "window"
+					    });
+					  });
+
+					  $('#reportDetailModal').on('shown.bs.modal', function() {
+					    $('.modal-dialog', this).draggable({
+					      handle: ".modal-header"
+					    });
+					  });
+					});
+				// 모달이 화면을 벗어나지 않게
+				$('.modal-dialog', this).draggable({
+					  handle: ".modal-header",
+					  containment: "window"
+					});
+
+
 	</script>
 </div>
 </html>
