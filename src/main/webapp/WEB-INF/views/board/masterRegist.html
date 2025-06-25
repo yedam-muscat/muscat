@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>게시판 목록</title>
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
+  <script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
+</head>
+
+<main layout:fragment="content">
+
+  <h2>게시판 등록</h2>
+
+  <form id="bbsForm">
+    <div class="mb-3">
+      <label for="bbsNm" class="form-label">게시판명 <span class="text-danger">*</span></label>
+      <input type="text" class="form-control" id="bbsNm" name="bbsNm" required />
+    </div>
+
+    <div class="mb-3">
+      <label for="bbsIntrcn" class="form-label">게시판 소개 <span class="text-danger">*</span></label>
+      <textarea class="form-control" id="bbsIntrcn" name="bbsIntrcn" rows="3" required></textarea>
+    </div>
+
+    <div class="mb-3">
+      <label for="bbsTyCode" class="form-label">게시판 유형 <span class="text-danger">*</span></label>
+      <select class="form-select" id="bbsTyCode" name="bbsTyCode" required>
+        <option value="">-- 선택하세요 --</option>
+        <option value="BBST01">일반게시판</option>
+        <option value="BBST02">QnA게시판</option>
+        <option value="BBST03">방명록</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="replyPosblAt" class="form-label">답장 가능 여부</label>
+      <select class="form-select" id="replyPosblAt" name="replyPosblAt" required>
+        <option value="">-- 선택하세요 --</option>
+        <option value="Y">예</option>
+        <option value="N">아니오</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="fileAtchPosblAt" class="form-label">파일 첨부 가능 여부</label>
+      <select class="form-select" id="fileAtchPosblAt" name="fileAtchPosblAt" required>
+        <option value="">-- 선택하세요 --</option>
+        <option value="Y">예</option>
+        <option value="N">아니오</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="atchPosblFileNumber" class="form-label">첨부 가능 파일 수</label>
+      <select class="form-select" id="atchPosblFileNumber" name="atchPosblFileNumber" required>
+        <option value="0">없음</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="useAt" class="form-label">사용 여부</label>
+      <select class="form-select" id="useAt" name="useAt" required>
+        <option value="">-- 선택하세요 --</option>
+        <option value="Y">예</option>
+        <option value="N">아니오</option>
+      </select>
+    </div>
+
+    <div>
+      <button type="submit" class="btn btn-primary">등록</button>
+      <a href="/muscat/board/masterList.do" class="btn btn-secondary">목록</a>
+    </div>
+  </form>
+
+  <script>
+    document.getElementById("bbsTyCode").addEventListener("change", function () {
+      const type = this.value;
+      const reply = document.getElementById("replyPosblAt");
+      const fileAtch = document.getElementById("fileAtchPosblAt");
+      const fileNum = document.getElementById("atchPosblFileNumber");
+
+      if (type === "BBST03") {
+        reply.value = "N";
+        fileAtch.value = "N";
+        fileNum.value = "0";
+
+        reply.disabled = true;
+        fileAtch.disabled = true;
+        fileNum.disabled = true;
+      } else {
+        reply.disabled = false;
+        fileAtch.disabled = false;
+        fileNum.disabled = false;
+      }
+    });
+
+    document.getElementById("bbsForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const obj = Object.fromEntries(formData.entries());
+
+      try {
+        const res = await fetch('http://localhost:8082/muscat/board/masterInsert', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(obj)
+        });
+
+        const result = await res.json();
+        console.log(result);
+
+        if (res.ok) {
+          Swal.fire("성공", "게시판이 등록되었습니다.", "success").then(() => {
+            location.href = "/muscat/board/masterList.do";
+          });
+        } else {
+          Swal.fire("오류", result.message || "등록 실패", "error");
+        }
+      } catch (err) {
+        Swal.fire("오류", "서버 오류가 발생했습니다.", "error");
+      }
+    });
+  </script>
+</main>
+</html>

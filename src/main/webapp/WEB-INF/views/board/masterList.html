@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>게시판 목록</title>
+
+  <!-- DataTables 스타일 및 JS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
+</head>
+
+<main layout:fragment="content" class="container mt-4">
+  <h2>📋 게시판 목록</h2>
+
+  <!-- 상단 버튼 -->
+  <div class="mb-3">
+    <a href="/muscat/board/masterRegist.do" class="btn btn-primary">+ 게시판 등록</a>
+  </div>
+
+  <!-- 게시판 목록 테이블 -->
+  <table id="boardTable" class="display table table-bordered w-100">
+    <thead>
+      <tr>
+        <th>번호</th>
+        <th>게시판명</th>
+        <th>작성자</th>
+        <th>작성일</th>
+        <th>사용여부</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- 비동기 데이터 로딩 -->
+    </tbody>
+  </table>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      fetch('/muscat/board/masterList')
+        .then(response => response.json())
+        .then(data => {
+          const tbody = document.querySelector('#boardTable tbody');
+          tbody.innerHTML = '';
+
+          data.resultList.forEach((row, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${index + 1}</td>
+              <td><a href="/muscat/board/masterDetail.do?bbsId=${row.bbsId}">${row.bbsNm}</a></td>
+              <td>${row.frstRegisterNm || ''}</td>
+              <td>${row.frstRegisterPnttm ? row.frstRegisterPnttm.slice(0, 10) : ''}</td>
+              <td>${row.useAt === 'Y' ? '사용' : '미사용'}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+
+          new DataTable('#boardTable', {
+            language: {
+              url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/ko.json'
+            }
+          });
+        })
+        .catch(error => {
+          console.error('데이터 로딩 실패:', error);
+          alert('목록을 불러오는 중 오류가 발생했습니다.');
+        });
+    });
+  </script>
+</main>
+</html>
