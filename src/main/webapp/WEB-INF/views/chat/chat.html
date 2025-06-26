@@ -2,14 +2,13 @@
 <html xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/layout}">
-
-
-<main layout:fragment="content">CHAT_MAIN</main>
+<main layout:fragment="content">
 <head>
   <meta charset="UTF-8" />
-  <title>조직도 + 채팅방 예제</title>
+  <title>채팅방</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
+  
   <style>
     /* 채팅방 스타일 */
     #chatRoom {
@@ -62,12 +61,547 @@
       cursor: pointer;
       border-radius: 4px;
     }
+    .my-message {
+  align-self: flex-end;
+  background-color: #dcf8c6;
+  padding: 5px 10px;
+  border-radius: 10px;
+  margin: 2px 0;
+  max-width: 70%;
+}
+
+.other-message {
+  align-self: flex-start;
+  background-color: #fff;
+  padding: 5px 10px;
+  border-radius: 10px;
+  margin: 2px 0;
+  max-width: 70%;
+}
+#gridChatMessages {
+  padding: 10px;
+  flex-grow: 1;
+  overflow-y: auto;
+  background: #ACBCE3;
+  display: flex;
+  flex-direction: column;
+}
   </style>
 </head>
 <body>
+		<div id="chatContainer" style="display: flex; height: 80vh;">
+			<!-- 사이드바 -->
+			<div id="chatSidebar"
+				style="width: 250px; min-width: 150px; max-width: 600px; background-color: #f8f9fa; border-right: 1px solid #ddd; overflow-y: auto;">
+				<div class="p-3" style="background-color: #0d6efd; color: white;">
+					<h5>채팅방 목록</h5>
+				</div>
+				<div class="p-2">
+					<div id="chatTree"></div>
+				</div>
+			</div>
 
-<script>
+			<!-- 리사이저 -->
+			<div id="chatResizer"
+				style="width: 5px; cursor: col-resize; background: #ddd;"></div>
+			<!-- 그리드 시작 -->
+			<div id="gridContainer"
+				style="display: grid; grid-template-columns: 1fr 2fr; /* 카드:채팅방 비율 (1:2) */ gap: 10px; width: 100%; padding: 10px; box-sizing: border-box;">
+
+				<!-- 상세카드 -->
+				<div id="employeeDetail"
+					style="min-width: 150px; max-width: 600px; background-color: #f8f9fa; border: 1px solid #ddd; padding: 20px; box-sizing: border-box; resize: both; overflow: auto;">
+					<div
+						style="border: 1px solid #ccc; border-radius: 10px; padding: 20px;">
+						<div style="text-align: center; margin-bottom: 10px;">
+							<img src="https://via.placeholder.com/120" alt="프로필 사진"
+								style="border-radius: 50%; width: 120px; height: 120px;">
+						</div>
+						<h4 id="empName">이름: -</h4>
+						<p id="empCompany">회사: -</p>
+						<p id="empDept">부서: -</p>
+						<p id="empTitle">직책: -</p>
+						<p id="empGroup">그룹: -</p>
+						<p id="empEmail">이메일: -</p>
+						<p id="empRole">직무: -</p>
+						<p id="empMemo">메모: -</p>
+					</div>
+
+					<div style="text-align: center; margin-top: 15px;">
+						<button id="openGridChat"
+							style="background-color: #198754; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">채팅</button>
+					</div>
+
+				</div>
+
+				<!-- 채팅방 -->
+				<div id="gridChatRoom"
+					style="display: flex; background: #fff; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); flex-direction: column; height: 100%; ">
+
+					<div class="header"
+						style="background: #fff; color: black; padding: 10px; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center;">
+						<span id="gridChatUserName">채팅상대</span>
+						<div style="display: flex; align-items: center; gap: 5px;">
+							<span class="input-group-text"
+								style="padding: 0.375rem 0.75rem; background: transparent; border: none;">
+								<i id="gridAttachFileIcon" class="bi bi-paperclip"
+								style="cursor: pointer;" title="파일 첨부"></i>
+							</span>
+							<button class="btn btn-sm btn-primary" type="button"
+								id="gridOpenMemo">보고</button>
+							
+							<button id="closeGridChat"
+								style="background: none; border: none; color: black; font-weight: bold; cursor: pointer;">X</button>
+							<input type="file" id="gridFileInput" style="display: none;">
+						</div>
+					</div>
+
+					<div id="gridChatMessages"
+						style="padding: 10px; flex-grow: 1; overflow-y: auto; background: #ACBCE3;">
+						<!-- 채팅 메시지 표시 영역 -->
+					</div>
+
+					<div id="gridChatInputArea"
+						style="padding: 10px; border-top: 1px solid #ccc; display: flex; gap: 5px;">
+						<input id="gridChatInput" type="text" class="form-control"
+							placeholder="메시지를 입력하세요..." />
+						<button id="gridSendMsg" class="btn btn-success"
+							style="padding: 0.25rem 0.75rem; font-size: 0.9rem; white-space: nowrap;"
+							disabled>전송</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- 보고 모달 -->
+			<div class="modal fade" id="fileAttachModal" tabindex="-1"
+				aria-labelledby="fileAttachModalLabel" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered">
+					<div class="modal-content border-primary">
+						<div class="modal-header bg-primary text-white">
+							<h5 class="modal-title" id="fileAttachModalLabel">메모보고 등록</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal"
+								aria-label="닫기"></button>
+						</div>
+						<div class="modal-body">
+							<!-- 메모보고 폼 작성 부분 -->
+							<div class="mb-2">
+								<label class="form-label">보고일자</label> <input type="date"
+									class="form-control">
+							</div>
+							<div class="mb-2">
+								<label class="form-label">작성자명</label> <input type="text"
+									class="form-control" value="홍길동" readonly>
+							</div>
+							<div class="mb-2">
+								<label class="form-label">보고대상자</label>
+								<div class="input-group">
+									<input type="text" class="form-control"> <span
+										class="input-group-text"><i class="bi bi-search"></i></span>
+								</div>
+							</div>
+							<div class="mb-2">
+								<label class="form-label">보고서제목</label> <input type="text"
+									class="form-control">
+							</div>
+							<div class="mb-2">
+								<label class="form-label">보고대상자</label>
+								<textarea class="form-control" rows="2"></textarea>
+							</div>
+							<div class="mb-2">
+								<label class="form-label">파일첨부</label> <input type="file"
+									class="form-control">
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary"
+								data-bs-dismiss="modal">취소</button>
+							<button type="button" class="btn btn-primary">등록</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<script>
+			$(function() {
+			  $('#chatTree').jstree({
+			    'core': {
+			      'data':[
+			    	  { "id": "CEO", "parent": "#", "text": "CEO", "type": "default" },
+		
+			    	  { "id": "기술본부", "parent": "CEO", "text": "기술본부", "type": "default" },
+			    	  { "id": "개발1팀", "parent": "기술본부", "text": "개발1팀", "type": "default" },
+			    	  { "id": "개발2팀", "parent": "기술본부", "text": "개발2팀", "type": "default" },
+		
+			    	  { "id": "영업본부", "parent": "CEO", "text": "영업본부", "type": "default" },
+			    	  { "id": "국내영업팀", "parent": "영업본부", "text": "국내영업팀", "type": "default" },
+			    	  { "id": "해외영업팀", "parent": "영업본부", "text": "해외영업팀", "type": "default" },
+		
+			    	  { "id": "디자인본부", "parent": "CEO", "text": "디자인본부", "type": "default" },
+			    	  { "id": "UIUX팀", "parent": "디자인본부", "text": "UI/UX팀", "type": "default" },
+			    	  { "id": "콘텐츠팀", "parent": "디자인본부", "text": "콘텐츠팀", "type": "default" },
+		
+			    	  // 개발1팀
+			    	  { "id": "개발1_1", "parent": "개발1팀", "text": "아이유", "type": "user", "data": { "name": "아이유", "company": "스타컴퍼니", "dept": "개발1팀", "title": "대리",  "group": "개발본부", "email": "iu@example.com",  "role": "프론트엔드 개발자",  "memo": "React 전문가" } },
+			    	  { "id": "개발1_2", "parent": "개발1팀", "text": "박보검", "type": "user", "data": { "company": "스타컴퍼니", "dept": "개발1팀","title": "사원", "group": "개발본부", "email": "bogum@example.com", "role": "백엔드 개발자", "memo": "Node.js 담당"	 } },
+			    	  { "id": "개발1_3", "parent": "개발1팀", "text": "김태리", "type": "user", "data": { "title": "과장", "role": "모바일 앱 개발" } },
+			    	  { "id": "개발1_4", "parent": "개발1팀", "text": "정해인", "type": "user", "data": { "title": "주임", "role": "API 개발" } },
+			    	  { "id": "개발1_5", "parent": "개발1팀", "text": "수지", "type": "user", "data": { "title": "대리", "role": "데이터베이스 관리" } },
+		
+			    	  // 개발2팀
+			    	  { "id": "개발2_1", "parent": "개발2팀", "text": "송중기", "type": "user", "data": { "title": "대리", "role": "서버 관리" } },
+			    	  { "id": "개발2_2", "parent": "개발2팀", "text": "한지민", "type": "user", "data": { "title": "과장", "role": "보안 엔지니어" } },
+			    	  { "id": "개발2_3", "parent": "개발2팀", "text": "이종석", "type": "user", "data": { "title": "주임", "role": "DevOps" } },
+			    	  { "id": "개발2_4", "parent": "개발2팀", "text": "박신혜", "type": "user", "data": { "title": "대리", "role": "AI 개발" } },
+			    	  { "id": "개발2_5", "parent": "개발2팀", "text": "조인성", "type": "user", "data": { "title": "사원", "role": "테스트 엔지니어" } },
+		
+			    	  // 국내영업팀
+			    	  { "id": "국내영업_1", "parent": "국내영업팀", "text": "김수현", "type": "user", "data": { "title": "사원", "role": "국내 B2B 영업" } },
+			    	  { "id": "국내영업_2", "parent": "국내영업팀", "text": "윤아", "type": "user", "data": { "title": "주임", "role": "국내 B2C 영업" } },
+			    	  { "id": "국내영업_3", "parent": "국내영업팀", "text": "강동원", "type": "user", "data": { "title": "대리", "role": "영업 기획" } },
+			    	  { "id": "국내영업_4", "parent": "국내영업팀", "text": "전지현", "type": "user", "data": { "title": "과장", "role": "대형 고객 관리" } },
+			    	  { "id": "국내영업_5", "parent": "국내영업팀", "text": "지민", "type": "user", "data": { "title": "사원", "role": "영업 지원" } },
+		
+			    	  // UI/UX팀
+			    	  { "id": "UIUX_1", "parent": "UIUX팀", "text": "제니", "type": "user", "data": { "title": "대리", "role": "UX 설계" } },
+			    	  { "id": "UIUX_2", "parent": "UIUX팀", "text": "차은우", "type": "user", "data": { "title": "주임", "role": "UI 디자인" } },
+			    	  { "id": "UIUX_3", "parent": "UIUX팀", "text": "혜리", "type": "user", "data": { "title": "사원", "role": "프로토타입 제작" } },
+			    	  { "id": "UIUX_4", "parent": "UIUX팀", "text": "박서준", "type": "user", "data": { "title": "과장", "role": "사용자 조사" } },
+			    	  { "id": "UIUX_5", "parent": "UIUX팀", "text": "슬기", "type": "user", "data": { "title": "대리", "role": "비주얼 디자인" } }
+			    	],
+			    	'themes': {
+			        'responsive': false,
+			        'variant': 'small',
+			        'stripes': true
+			      },
+			      'check_callback': true
+			    },
+			    'types': {
+			      'default': { 'icon': 'bi bi-folder' },
+			      'user': { 'icon': 'bi bi-person' }
+			    },
+			    plugins: ['types', 'state']
+			  }).on("after_open.jstree", adjustSidebarWidth)
+			    .on("ready.jstree", adjustSidebarWidth)
+			    .on("select_node.jstree", function (e, data) {
   
-</script>
-</body>
+			    	if(data.node && data.node.data) {
+			    		console.log(data)
+			    		  const d = data.node.data;
+			    		  $("#empName").text(`이름: ${d.name}`);
+			    		  $("#empCompany").text(`회사: ${d.company}`);
+			    		  $("#empDept").text(`부서: ${d.dept}`);
+			    		  $("#empTitle").text(`직책: ${d.title}`);
+			    		  $("#empGroup").text(`그룹: ${d.group}`);
+			    		  $("#empEmail").text(`이메일: ${d.email}`);
+			    		  $("#empRole").text(`직무: ${d.role}`);
+			    		  $("#empMemo").text(`메모: ${d.memo}`);
+									}
+								});
+		
+						// 자동 폭 조절 함수
+						function adjustSidebarWidth() {
+							let maxWidth = 250; // 초기값
+							$('#chatSidebar li > a').each(function() {
+								const tmp = $('<span>').text($(this).text()).css({
+									position : 'absolute',
+									visibility : 'hidden',
+									whiteSpace : 'nowrap'
+								}).appendTo('body');
+								const w = tmp.width() + 60; // 여유값 (아이콘 + 패딩)
+								if (w > maxWidth)
+									maxWidth = w;
+								tmp.remove();
+							});
+							if (maxWidth > 600)
+								maxWidth = 600; // 최대폭 제한
+							$('#chatSidebar').css('width', maxWidth + 'px');
+						}
+		
+						// 리사이저
+						let isResizing = false;
+						$('#chatResizer').on('mousedown', function(e) {
+							isResizing = true;
+							e.preventDefault();
+						});
+						$(document).on('mousemove', function(e) {
+							if (!isResizing)
+								return;
+							const containerOffset = $('#chatContainer').offset().left;
+							let newWidth = e.clientX - containerOffset;
+							if (newWidth < 150)
+								newWidth = 150;
+							if (newWidth > 600)
+								newWidth = 600;
+							$('#chatSidebar').css('width', newWidth + 'px');
+						});
+						$(document).on('mouseup', function() {
+							isResizing = false;
+						});
+					});
+					// 상세 정보 카드 - 리사이저
+					$(function() {
+						$("#employeeDetail").resizable({
+							minWidth : 150,
+							minHeight : 200,
+							maxWidth : 600,
+							maxHeight : 600,
+							handles : "e, s, se" // 오른쪽, 아래, 오른쪽아래 방향으로만 리사이즈 가능
+						});
+					});
+					
+					//채팅방 
+					
+					// 상세카드 옆 채팅방 열기
+						$("#openGridChat").on("click", function() {
+							$("#gridChatRoom").show();
+						});
+						$("#closeGridChat").on("click", function() {
+							  $("#gridChatRoom").hide();
+							});
+						// 보고 버튼 클릭 시 보고 모달 열기
+						$("#gridOpenMemo").on("click", function() {
+							  const modal = new bootstrap.Modal(document.getElementById('fileAttachModal'));
+							  modal.show();
+							});
+						// 파일 아이콘 클릭 시 파일 선택
+						$("#gridAttachFileIcon").on("click", function() {
+						  $("#gridFileInput").click();
+						});
+		
+						// 입력값에 따라 전송 버튼 활성화
+						$("#gridChatInput").on("input", function() {
+						  const hasText = $(this).val().trim().length > 0;
+						  $("#gridSendMsg").prop("disabled", !hasText);
+						});
+		
+						// 전송 버튼 클릭 시 (여기엔 메시지 처리 로직 추가 가능)
+						$("#gridSendMsg").on("click", function() {
+						  const msg = $("#gridChatInput").val().trim();
+						  if (msg) {
+						    appendChatMessage(loginUser, msg);  // 반드시 appendChatMessage를 호출
+						    $("#gridChatInput").val('');
+						    $(this).prop("disabled", true);
+						  }
+						});
+						// 엔터키 입력 시 전송
+						$("#gridChatInput").on("keypress", function(e) {
+						  if (e.which === 13 && !$("#gridSendMsg").prop("disabled")) {
+						    $("#gridSendMsg").click();
+						  }
+						});
+						
+						//보고 모달 열기
+						$('#attachFileIcon').on('click', function() {
+							  const modal = new bootstrap.Modal(document.getElementById('fileAttachModal'));
+							  modal.show();
+							});
+		
+							$('#openMemoModal').on('click', function() {
+							  const modal = new bootstrap.Modal(document.getElementById('fileAttachModal'));
+							  modal.show();
+							});
+							
+							//보고 
+							$('#fileAttachModal .btn-primary').on('click', function() {
+								  Swal.fire({
+								    title: '보고 하시겠습니까?',
+								    icon: 'question',
+								    showCancelButton: true,
+								    confirmButtonText: '보고',
+								    cancelButtonText: '취소'
+								  }).then((result) => {
+								    if (result.isConfirmed) {
+								      Swal.fire({
+								        icon: 'success',
+								        title: '보고 완료',
+								        text: '보고서가 등록되었습니다.',
+								        confirmButtonText: '확인'
+								      }).then((result) => {
+								        if (result.isConfirmed) {
+								       
+								          // 파일 아이콘 생성
+									          const fileIconContainer = $('<div></div>').css({
+									            position: 'relative',
+									            display: 'inline-block',
+									            margin: '5px'
+									          });
+									          const fileIcon = $('<i class="bi bi-file-earmark-text"></i>').css({
+									              fontSize: '2rem',
+									              cursor: 'pointer',
+									              color: '#0d6efd'
+									            }).attr('title', '보고서 보기');
+		
+								          // 아이콘 클릭 시 상세 모달 열기
+								          fileIcon.on('click', function() {
+								            const detailModal = new bootstrap.Modal(document.getElementById('reportDetailModal'));
+								            detailModal.show();
+								          });
+		
+								          fileIconContainer.append(fileIcon);
+		
+								       // 한 줄로 감싸서 오른쪽 끝에 붙이기
+								          const messageRow = $('<div></div>').css({
+								            width: '100%',
+								            display: 'flex',
+								            justifyContent: 'flex-end'
+								          }).append(fileIconContainer);
+								          
+								          // 채팅방에 추가
+								         $('#gridChatMessages').append(messageRow);
+										 $('#gridChatMessages').scrollTop($('#gridChatMessages')[0].scrollHeight);
+		
+								          // 모달 닫기
+								          const modal = bootstrap.Modal.getInstance(document.getElementById('fileAttachModal'));
+								          modal.hide();
+								        }
+								      });
+								    }
+								  });
+								});
+							
+							// 승인 시
+							$('#approveReport').on('click', function() {
+								  Swal.fire({
+								    title: '승인하시겠습니까?',
+								    icon: 'question',
+								    showCancelButton: true,
+								    confirmButtonText: '승인',
+								    cancelButtonText: '취소'
+								  }).then((result) => {
+								    if (result.isConfirmed) {
+								      const fileIconContainer = $('#gridChatMessages > div').last();
+								
+								      if (fileIconContainer.length) {
+								        // 이미 체크 아이콘이 있으면 승인되었다고 알림
+								        if (fileIconContainer.find('.check-badge').length > 0) {
+								          Swal.fire({
+								            icon: 'info',
+								            title: '이미 승인된 보고입니다.',
+								            text: '이 보고서는 이미 승인 처리되었습니다.',
+								            confirmButtonText: '확인'
+								          });
+								          return;  // 더 이상 처리하지 않음
+								        }
+								
+								        // 승인 체크 표시 추가
+								        const checkBadge = $('<i class="bi bi-check-circle-fill check-badge"></i>').css({
+								          position: 'absolute',
+								          top: '0',
+								          right: '0',
+								          fontSize: '1rem',
+								          color: 'green'
+								        });
+								        fileIconContainer.find('div').append(checkBadge);
+								      }
+								
+								      Swal.fire({
+								        icon: 'success',
+								        title: '승인 완료',
+								        text: '보고서가 승인되었습니다.',
+								        confirmButtonText: '확인'
+								      });
+								
+								      const modalInstance = bootstrap.Modal.getInstance(document.getElementById('reportDetailModal'));
+								      if (modalInstance) modalInstance.hide();
+								 
+								      
+								      // 파일 아이콘 클릭 이벤트
+								        fileIcon.on('click', function() {
+								            const detailModal = new bootstrap.Modal(document.getElementById('reportDetailModal'));
+								            detailModal.show();
+								        });
+								      
+								      
+								      // 체크 표시 (초기에는 숨김)
+								        const checkBadge = $('<i class="bi bi-check-circle-fill" style="color: green; font-size: 1rem; position: absolute; top: -5px; right: -5px; display: none;"></i>');
+								        // 조립
+								        fileIconContainer.append(fileIcon).append(checkBadge);
+								        fileIconContainer.data('checkBadge', checkBadge);
+					
+		
+								      $('#reportDetailModal').modal('hide');
+								    }
+								  });
+								});
+							//업무보고상세모달, 보고모달 
+							$(function() {
+								  $('#fileAttachModal').on('shown.bs.modal', function() {
+								    $('.modal-dialog', this).draggable({
+								      handle: ".modal-header",
+								      containment: "window"
+								    });
+								  });
+		
+								  $('#reportDetailModal').on('shown.bs.modal', function() {
+								    $('.modal-dialog', this).draggable({
+								      handle: ".modal-header"
+								    });
+								  });
+								});
+							// 모달이 화면을 벗어나지 않게
+							$('.modal-dialog', this).draggable({
+								  handle: ".modal-header",
+								  containment: "window"
+								});
+								
+							const loginUser = "홍길동";  // 로그인 사용자 이름 (이건 실제 로그인 값으로 설정)
+		
+						
+		
+							// 메시지 추가 함수
+							function appendChatMessage(sender, message) { // 메시지를 추가 한다.								
+							  const isMe = (sender === loginUser);
+							  const now = new Date();
+							  const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+							  console.log(`sender: ${sender}, loginUser: ${loginUser}, isMe: ${isMe}`);
+							  const msgDiv = $('<div></div>')
+							                  .addClass(isMe ? 'my-message':'other-message' ) 
+							                  /* .text(message); */
+							  const textSpan = $('<span></span>').text(message); 
+							  const timeSpan = $('<span></span>').text(timeStr).css({
+							    fontSize: '0.7rem',
+							    color: '#555',
+							    marginTop: '2px'
+							  });
+
+							  msgDiv.append(textSpan).append(timeSpan);
+							  $("#gridChatMessages").append(msgDiv);
+							  $("#gridChatMessages").scrollTop($("#gridChatMessages")[0].scrollHeight);
+							}
+							
+							/* // 내가 메시지 보낼 때
+							$("#gridSendMsg").on("click", function() {
+							  const msg = $("#gridChatInput").val().trim();
+							  if (msg) {
+								appendDateSeparatorIfNeeded();	
+							    appendChatMessage(loginUser, msg); // 로그인 유저로 메시지 추가
+							    $("#gridChatInput").val('');
+							    $(this).prop("disabled", true);
+							    $("#gridChatMessages").scrollTop($("#gridChatMessages")[0].scrollHeight);
+							  }
+							});
+		 */
+							// 상대 메시지 호출
+							function receiveMessage(fromUser, text) {
+							  appendChatMessage(fromUser, text); // 내 메시지 호출
+							}
+							
+							receiveMessage("아이유", "안녕하세요 홍길동님!");
+							receiveMessage("박보검", "지금 회의 중이에요");
+							appendChatMessage(loginUser, "넵 확인했습니다!");
+							
+							
+							
+							
+							//접속 인원 표시
+							let currentUserCount = 0;
+
+							function updateUserCount(count) {
+							  currentUserCount = count;
+							  $("#gridChatUserName").text(`${currentChatTarget} (${currentUserCount}명 접속)`);
+							}
+							updateUserCount(3);
+			</script>
+	</body>
+</main>
 </html>
