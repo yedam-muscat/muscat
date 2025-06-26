@@ -11,10 +11,10 @@ public class ChattingController {
 	
 	@Autowired ChattingService chattingService;
 	
-	@RequestMapping("/chat.do")
+	@RequestMapping("/chat/chat.do")
 //	@ResponseBody
 	public String chat() {
-		return "chat/" + chattingService.chat();
+		return "chat/chat.html";
 	}
 
 }

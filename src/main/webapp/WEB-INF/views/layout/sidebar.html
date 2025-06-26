@@ -53,8 +53,10 @@
 					<ul class="submenu ">
 						<li class="submenu-item "><a href="/muscat/cal/calMonth.do">일정
 								하위항목</a></li>
-
 					</ul></li>
+					
+					<li class="sidebar-item"><a href="/muscat/chat/chat.do"
+					class='sidebar-link'> <i class="bi bi-chat-dots"></i> <span>채팅</span></a></li>
 
 				<!-- 공통코드 -->
 				<!-- <li class="sidebar-item  has-sub"><a href="#"
@@ -117,12 +119,13 @@
 			<h5 class="card-title" id="empName">사원명</h5>
 			<p class="card-text" id="empDetail">부서 / 직급</p>
 			<div>
-				<i class="bi bi-envelope-at"></i> <span id="empEmail">email@example.com</span>
+			 <span id="empEmail">email@example.com</span>
 			</div>
 			<div class="d-flex justify-content-start gap-2 mb-2">
-				<i class="bi bi-calendar3"></i> <a href="/muscat/cal/calMonth.do" target="_blank">캘린더</a> 
-				<i class="sidebar-item"	id="sidebarMessengerBtn" style="cursor: pointer;"> <a href="#"><i
-						class="bi bi-chat-dots"></i> <span>메신저</span></a>
+				<i class="bi bi-calendar3"></i> 
+				<a href="/muscat/cal/calMonth.do" target="_blank">캘린더</a> 
+				<i class="sidebar-item"	id="sidebarMessengerBtn" style="cursor: pointer;"> 
+				<a href="#"><i class="bi bi-chat-dots"></i> <span>메신저</span></a>
 			</div>
 		</div>
 	</div>
@@ -154,17 +157,17 @@
 								class="form-control form-control-sm" placeholder="이름 검색">
 						</div>
 						<ul class="list-group list-group-flush mb-0">
-							<li class="list-group-item chat-entry" data-user="홍길동">홍길동</li>
-							<li class="list-group-item chat-entry" data-user="김가">김가</li>
-							<li class="list-group-item chat-entry" data-user="김철수">김철수</li>
+							<li class="list-group-item chat-entry" data-user="아이유">아이유</li>
+							<li class="list-group-item chat-entry" data-user="박보검">박보검</li>
+							<li class="list-group-item chat-entry" data-user="김태리">김태리</li>
 						</ul>
 					</div>
 				</div>
 				<div class="modal-body">
 					<ul class="list-group" id="chatList">
-						<li class="list-group-item chat-entry" data-user="홍길동">홍길동</li>
-						<li class="list-group-item chat-entry" data-user="김가">김가</li>
-						<li class="list-group-item chat-entry" data-user="김철수">김철수</li>
+						<li class="list-group-item chat-entry" data-user="아이유">아이유</li>
+							<li class="list-group-item chat-entry" data-user="박보검">박보검</li>
+							<li class="list-group-item chat-entry" data-user="김태리">김태리</li>
 					</ul>
 				</div>
 			</div>
@@ -342,57 +345,49 @@
 			$('#tree').jstree(
 					{
 						'core' : {
-							'data' : [ {
-								"id" : "CEO",
-								"parent" : "#",
-								"text" : "CEO",
-								"type" : "default",
-								"data" : {
-									"email" : "CEO@company.com",
-									"dept" : "CEO",
-									"title" : "대표이사"
-								}
-							}, {
-								"id" : "부서1",
-								"parent" : "CEO",
-								"text" : "부서1",
-								"type" : "default"
-							}, {
-								"id" : "부서2",
-								"parent" : "CEO",
-								"text" : "부서2",
-								"type" : "default"
-							}, {
-								"id" : "팀1",
-								"parent" : "부서1",
-								"text" : "팀1",
-								"type" : "user"
-							}, {
-								"id" : "팀2",
-								"parent" : "부서2",
-								"text" : "팀2",
-								"type" : "user"
-							}, {
-								"id" : "사원1",
-								"parent" : "팀1",
-								"text" : "홍길동",
-								"type" : "user",
-								"data" : {
-									"email" : "hong@company.com",
-									"dept" : "팀1",
-									"title" : "대리"
-								}
-							}, {
-								"id" : "사원2",
-								"parent" : "팀2",
-								"text" : "김가",
-								"type" : "user",
-								"data" : {
-									"email" : "kim@company.com",
-									"dept" : "팀2",
-									"title" : "과장"
-								}
-							}, ],
+							'data' : [
+						    	  { "id": "CEO", "parent": "#", "text": "CEO", "type": "default" },
+
+						    	  { "id": "기술본부", "parent": "CEO", "text": "기술본부", "type": "default" },
+						    	  { "id": "개발1팀", "parent": "기술본부", "text": "개발1팀", "type": "default" },
+						    	  { "id": "개발2팀", "parent": "기술본부", "text": "개발2팀", "type": "default" },
+
+						    	  { "id": "영업본부", "parent": "CEO", "text": "영업본부", "type": "default" },
+						    	  { "id": "국내영업팀", "parent": "영업본부", "text": "국내영업팀", "type": "default" },
+						    	  { "id": "해외영업팀", "parent": "영업본부", "text": "해외영업팀", "type": "default" },
+
+						    	  { "id": "디자인본부", "parent": "CEO", "text": "디자인본부", "type": "default" },
+						    	  { "id": "UIUX팀", "parent": "디자인본부", "text": "UI/UX팀", "type": "default" },
+						    	  { "id": "콘텐츠팀", "parent": "디자인본부", "text": "콘텐츠팀", "type": "default" },
+
+						    	  // 개발1팀
+						    	  { "id": "개발1_1", "parent": "개발1팀", "text": "아이유", "type": "user", "data": { "title": "대리", "role": "프론트엔드 개발" } },
+						    	  { "id": "개발1_2", "parent": "개발1팀", "text": "박보검", "type": "user", "data": { "title": "사원", "role": "백엔드 개발" } },
+						    	  { "id": "개발1_3", "parent": "개발1팀", "text": "김태리", "type": "user", "data": { "title": "과장", "role": "모바일 앱 개발" } },
+						    	  { "id": "개발1_4", "parent": "개발1팀", "text": "정해인", "type": "user", "data": { "title": "주임", "role": "API 개발" } },
+						    	  { "id": "개발1_5", "parent": "개발1팀", "text": "수지", "type": "user", "data": { "title": "대리", "role": "데이터베이스 관리" } },
+
+						    	  // 개발2팀
+						    	  { "id": "개발2_1", "parent": "개발2팀", "text": "송중기", "type": "user", "data": { "title": "대리", "role": "서버 관리" } },
+						    	  { "id": "개발2_2", "parent": "개발2팀", "text": "한지민", "type": "user", "data": { "title": "과장", "role": "보안 엔지니어" } },
+						    	  { "id": "개발2_3", "parent": "개발2팀", "text": "이종석", "type": "user", "data": { "title": "주임", "role": "DevOps" } },
+						    	  { "id": "개발2_4", "parent": "개발2팀", "text": "박신혜", "type": "user", "data": { "title": "대리", "role": "AI 개발" } },
+						    	  { "id": "개발2_5", "parent": "개발2팀", "text": "조인성", "type": "user", "data": { "title": "사원", "role": "테스트 엔지니어" } },
+
+						    	  // 국내영업팀
+						    	  { "id": "국내영업_1", "parent": "국내영업팀", "text": "김수현", "type": "user", "data": { "title": "사원", "role": "국내 B2B 영업" } },
+						    	  { "id": "국내영업_2", "parent": "국내영업팀", "text": "윤아", "type": "user", "data": { "title": "주임", "role": "국내 B2C 영업" } },
+						    	  { "id": "국내영업_3", "parent": "국내영업팀", "text": "강동원", "type": "user", "data": { "title": "대리", "role": "영업 기획" } },
+						    	  { "id": "국내영업_4", "parent": "국내영업팀", "text": "전지현", "type": "user", "data": { "title": "과장", "role": "대형 고객 관리" } },
+						    	  { "id": "국내영업_5", "parent": "국내영업팀", "text": "지민", "type": "user", "data": { "title": "사원", "role": "영업 지원" } },
+
+						    	  // UI/UX팀
+						    	  { "id": "UIUX_1", "parent": "UIUX팀", "text": "제니", "type": "user", "data": { "title": "대리", "role": "UX 설계" } },
+						    	  { "id": "UIUX_2", "parent": "UIUX팀", "text": "차은우", "type": "user", "data": { "title": "주임", "role": "UI 디자인" } },
+						    	  { "id": "UIUX_3", "parent": "UIUX팀", "text": "혜리", "type": "user", "data": { "title": "사원", "role": "프로토타입 제작" } },
+						    	  { "id": "UIUX_4", "parent": "UIUX팀", "text": "박서준", "type": "user", "data": { "title": "과장", "role": "사용자 조사" } },
+						    	  { "id": "UIUX_5", "parent": "UIUX팀", "text": "슬기", "type": "user", "data": { "title": "대리", "role": "비주얼 디자인" } }
+						    	],
 							'themes' : {
 								'responsive' : false,
 								'variant' : 'small',
@@ -511,6 +506,7 @@
 		$('#closeChat').on('click', function() {
 			$('#chatRoom').hide();
 		});
+		
 
 		// 전송 버튼 클릭
 		$('#sendMsg').on('click', sendMessage);
