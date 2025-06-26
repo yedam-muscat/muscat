@@ -14,8 +14,9 @@
 
 <style>
 * {
-      font-style: normal !important; 
-    }
+	font-style: normal !important;
+}
+
 html, body {
 	height: 100%;
 	margin: 0;
@@ -59,14 +60,14 @@ textarea {
 }
 </style>
 </head>
-<!-- gg -->
+
 <main layout:fragment="content">
 	<div class="container-fluid">
 		<div class="row min-vh-100">
-			<!-- 왼쪽 폼 영역 -->
 			<div class="col-lg-8 col-md-12 col-sm-14 p-7">
 				<div class="schedule-form">
-					<form id="scheduleForm" enctype="multipart/form-data">
+					<form id="scheduleForm" method="post" action="/cal/save"
+						enctype="multipart/form-data">
 						<div class="compact-form">
 							<div class="form-row">
 								<label for="title">제목</label> <input type="text" id="title"
@@ -74,14 +75,22 @@ textarea {
 							</div>
 
 							<div class="form-row">
-								<label for="start">시작</label> <input type="datetime-local"
-									id="start" class="form-control" required> <label
-									for="end">종료</label> <input type="datetime-local" id="end"
-									class="form-control" required>
+								<div class="mb-3">
+									<label for="start">시작일</label> <input type="date" id="start"
+										class="form-control" required> <label for="startTime"
+										class="mt-2">시작시간</label> <input type="time" id="startTime"
+										class="form-control" required>
+								</div>
+								<div class="mb-3">
+									<label for="end">종료일</label> <input type="date" id="end"
+										class="form-control" required> <label for="endTime"
+										class="mt-2">종료시간</label> <input type="time" id="endTime"
+										class="form-control" required>
+								</div>
 							</div>
 
 							<div class="form-row">
-								<label>옵션</label>
+
 								<div class="form-check me-2">
 									<input class="form-check-input" type="checkbox" id="allDay">
 									<label class="form-check-label" for="allDay">종일</label>
@@ -95,14 +104,16 @@ textarea {
 									<label class="form-check-label" for="repeat">반복</label>
 								</div>
 							</div>
+
 							<div class="form-row">
 								<label for="participantInput">참석자</label> <input type="text"
 									id="participantInput" class="form-control"
 									placeholder="이름 입력 후 추가 클릭">
 								<button type="button" class="btn btn-outline-secondary"
 									onclick="addParticipant()">+추가</button>
-
 							</div>
+
+							<div id="participantList" class="form-row"></div>
 
 							<div class="form-row">
 								<label for="location">장소</label> <input type="text"
@@ -134,9 +145,13 @@ textarea {
 									class="form-control">
 							</div>
 
+							<input type="hidden" id="startDateTime" name="startDateTime">
+							<input type="hidden" id="endDateTime" name="endDateTime">
+
 							<div class="form-row">
 								<button class="btn btn-success">등록</button>
-								<button type="button" class="btn btn-secondary" onclick="resetForm()">초기화</button>
+								<button type="button" class="btn btn-secondary"
+									onclick="resetForm()">초기화</button>
 								<a href="calMonth.do" class="btn btn-outline-primary">캘린더</a>
 							</div>
 						</div>
@@ -144,109 +159,115 @@ textarea {
 				</div>
 			</div>
 
-			<!-- 오른쪽 여백 또는 향후 콘텐츠 영역 -->
 			<div class="col-lg-6 d-none d-lg-block bg-light"></div>
 		</div>
 	</div>
-</main>
 
-<script>
-  function addParticipant() {
-    const input = document.getElementById('participantInput');
-    const name = input.value.trim();
-    const list = document.getElementById('participantList');
+	<!-- 스크립트 영역 -->
+	<script>
 
-    if (name !== '') {
-      const badge = document.createElement('span');
-      badge.className = 'badge bg-secondary d-inline-flex align-items-center';
-      badge.style.paddingRight = '8px';
-      badge.innerHTML = `
-        ${name}
-        <button type="button" class="btn-close btn-close-white btn-sm ms-2" aria-label="삭제"
-          onclick="this.parentElement.remove()"></button>
-        <input type="hidden" name="participants" value="${name}">
-      `;
-      list.appendChild(badge);
-      input.value = '';
+  	function addParticipant() {
+    	const input = document.getElementById('participantInput');
+    	const name = input.value.trim();
+    	const list = document.getElementById('participantList');
+
+    	if (name !== '') {
+      	const badge = document.createElement('span');
+      	badge.className = 'badge bg-secondary d-inline-flex align-items-center';
+      	badge.style.paddingRight = '8px';
+      	badge.innerHTML = `
+        	${name}
+        	<button type="button" class="btn-close btn-close-white btn-sm ms-2" aria-label="삭제"
+          	onclick="this.parentElement.remove()"></button>
+        	<input type="hidden" name="participants" value="${name}">
+      	`;
+      	list.appendChild(badge);
+      	input.value = '';
+    	}
+  	}
+
+  	function resetForm() {
+    	document.getElementById('scheduleForm').reset();
+    	document.getElementById('participantList').innerHTML = '';
+    	const repeatCycle = document.getElementById('repeatCycle');
+    	if (repeatCycle) repeatCycle.parentElement.remove();
+  	}
+
+  	document.getElementById('allDay').addEventListener('change', function () {
+    	const startInput = document.getElementById('start');
+    	const endInput = document.getElementById('end');
+    	if (this.checked) {
+      	const startDate = new Date(startInput.value);
+      	if (!isNaN(startDate)) {
+        	startDate.setHours(0, 0, 0, 0);
+        	startInput.value = startDate.toISOString().slice(0, 16);
+      	}
+      	const endDate = new Date(endInput.value);
+      		if (!isNaN(endDate)) {
+        			endDate.setHours(23, 59, 0, 0);
+        			endInput.value = endDate.toISOString().slice(0, 16);
+      		}
+    	}
+  	});
+
+  	document.getElementById('repeat').addEventListener('change', function () {
+    	if (this.checked) {
+      	if (!document.getElementById('repeatCycle')) {
+        	const div = document.createElement('div');
+        	div.className = 'form-section';
+        	div.innerHTML = `
+          		<label class="form-label">반복 주기</label>
+          	<select id="repeatCycle" name="repeatCycle" class="form-select" style="max-width: 200px;">
+            	<option value="none">선택 안함</option>
+            	<option value="daily">매일</option>
+            	<option value="weekly">매주</option>
+            	<option value="monthly">매월</option>
+            	<option value="yearly" selected>매년</option>
+          	</select>
+        	`;
+        	const repeatCheckSection = document.getElementById('repeat').closest('.form-check');
+        	repeatCheckSection.insertAdjacentElement('afterend', div);
+      	}
+    	} else {
+      		const repeatCycle = document.getElementById('repeatCycle');
+      		if (repeatCycle) repeatCycle.parentElement.remove();
+    	}
+  	});
+  
+
+  	function setDateOnly(inputId, datetimeStr) {
+      	if (!datetimeStr) return;
+      	const date = new Date(datetimeStr);
+      	if (!isNaN(date)) {
+        	const yyyyMMdd = date.toISOString().slice(0, 10); // YYYY-MM-DD
+        	document.getElementById(inputId).value = yyyyMMdd;
+      	}
     }
-  }
 
-  function resetForm() {
-    document.getElementById('scheduleForm').reset();
-    document.getElementById('participantList').innerHTML = '';
-    const repeatCycle = document.getElementById('repeatCycle');
-    if (repeatCycle) repeatCycle.parentElement.remove();
-  }
+    // 날짜만 설정 (시간은 사용자가 입력)
+    window.addEventListener('DOMContentLoaded', () => {
+    	const params = new URLSearchParams(window.location.search);
+      	const start = params.get('start');
+      	const end = params.get('end');
 
-  document.getElementById('allDay').addEventListener('change', function () {
-    const startInput = document.querySelector('input[name="start"]');
-    const endInput = document.querySelector('input[name="end"]');
-    if (this.checked) {
-      const startDate = new Date(startInput.value);
-      if (!isNaN(startDate)) {
-        startDate.setHours(0, 0, 0, 0);
-        startInput.value = startDate.toISOString().slice(0, 16);
-      }
-      const endDate = new Date(endInput.value);
-      if (!isNaN(endDate)) {
-        endDate.setHours(23, 59, 0, 0);
-        endInput.value = endDate.toISOString().slice(0, 16);
-      }
+      	setDateOnly('start', start);
+      	setDateOnly('end', end);
+    });
+
+    // submit 전에 날짜 + 시간 합쳐서 hidden input에 넣기
+    document.getElementById('scheduleForm').addEventListener('submit', function (e) {
+      	const startDate = document.getElementById('start').value;
+      	const startTime = document.getElementById('startTime').value;
+      	const endDate = document.getElementById('end').value;
+      	const endTime = document.getElementById('endTime').value;
+
+      	document.getElementById('startDateTime').value = `${startDate}T${startTime}`;
+      	document.getElementById('endDateTime').value = `${endDate}T${endTime}`;
+    });
+
+    function resetForm() {
+      	document.getElementById('scheduleForm').reset();
     }
-  });
-
-  document.getElementById('repeat').addEventListener('change', function () {
-    if (this.checked) {
-      if (!document.getElementById('repeatCycle')) {
-        const div = document.createElement('div');
-        div.className = 'form-section';
-        div.innerHTML = `
-          <label class="form-label">반복 주기</label>
-          <select id="repeatCycle" name="repeatCycle" class="form-select" style="max-width: 200px;">
-            <option value="none">선택 안함</option>
-            <option value="daily">매일</option>
-            <option value="weekly">매주</option>
-            <option value="monthly">매월</option>
-            <option value="yearly" selected>매년</option>
-          </select>
-        `;
-        const repeatCheckSection = document.getElementById('repeat').closest('.form-check');
-        repeatCheckSection.insertAdjacentElement('afterend', div);
-      }
-    } else {
-      const repeatCycle = document.getElementById('repeatCycle');
-      if (repeatCycle) repeatCycle.parentElement.remove();
-    }
-  });
-
-  document.getElementById('scheduleForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-
-    const form = e.target;
-    const formData = new FormData(form);
-
-    fetch('/calendar/save', {
-      method: 'POST',
-      body: formData
-    })
-      .then(response => {
-        if (!response.ok) throw new Error('서버 오류 발생');
-        return response.text();
-      })
-      .then(() => {
-        Swal.fire({
-          icon: 'success',
-          title: '등록 완료',
-          text: '일정이 성공적으로 등록되었습니다.',
-          confirmButtonText: '캘린더로 이동'
-        }).then(() => {
-          window.location.href = 'cal/calMonth.do';
-        });
-      })
-      .catch(error => {
-        Swal.fire('에러', '일정 등록 중 오류가 발생했습니다.', 'error');
-        console.error(error);
-      });
-  });
 </script>
+</main>
 </html>

@@ -3,6 +3,7 @@ package egovframework.com.muscat.cal.service;
 import java.util.List;
 import java.util.Map;
 
+import egovframework.com.muscat.cal.mapper.CalendarVO;
 import egovframework.com.muscat.cal.mapper.ScudVO;
 
 public interface CalService {
@@ -11,4 +12,7 @@ public interface CalService {
 	
 	List<Map> selectScheduleList() throws Exception;
 	
+	 void insertCalendar(CalendarVO calendarVO);
+
+	List<Map> selectCalendarList();
 }
