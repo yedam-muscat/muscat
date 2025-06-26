@@ -12,4 +12,8 @@ public interface CalMapper {
     void insertSchedule(ScudVO vo) throws Exception;
 
     List<Map> selectScheduleList() throws Exception;
+    
+    void insertCalendar(CalendarVO calendarVO);
+
+	List<Map> selectCalendarList();
 }
