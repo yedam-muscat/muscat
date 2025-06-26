@@ -9,13 +9,19 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+import org.springmodules.validation.commons.DefaultBeanValidator;
 
 import egovframework.com.cmm.ComDefaultCodeVO;
 import egovframework.com.cmm.EgovComponentChecker;
@@ -25,8 +31,10 @@ import egovframework.com.cmm.config.EgovLoginConfig;
 import egovframework.com.cmm.service.CmmnDetailCode;
 import egovframework.com.cmm.service.EgovCmmUseService;
 import egovframework.com.cmm.service.EgovProperties;
-import egovframework.com.cmm.util.EgovUserDetailsHelper;
+import egovframework.com.muscat.common.ResultVO;
 import egovframework.com.uat.uia.service.EgovLoginService;
+import egovframework.com.uss.umt.service.EgovMberManageService;
+import egovframework.com.uss.umt.service.MberManageVO;
 import egovframework.com.utl.sim.service.EgovClntInfo;
 
 /* 
@@ -52,6 +60,14 @@ public class LoginController {
 	@Resource(name = "egovLoginConfig")
 	EgovLoginConfig egovLoginConfig;
 
+	/** mberManageService */
+	@Resource(name = "mberManageService")
+	private EgovMberManageService mberManageService;
+
+	/** DefaultBeanValidator beanValidator */
+	@Autowired
+	private DefaultBeanValidator beanValidator;
+
 	/** log */
 	private static final Logger LOGGER = LoggerFactory.getLogger(LoginController.class);
 
@@ -67,6 +83,13 @@ public class LoginController {
 			HttpServletResponse response, ModelMap model) throws Exception {
 		if (EgovComponentChecker.hasComponent("mberManageService")) {
 			model.addAttribute("useMemberManage", "true");
+		}
+
+		// 권한체크시 에러 페이지 이동
+		String auth_error = request.getParameter("auth_error") == null ? ""
+				: (String) request.getParameter("auth_error");
+		if (auth_error != null && auth_error.equals("1")) {
+			return "egovframework/com/cmm/error/accessDenied";
 		}
 
 		LOGGER.debug(loginVO.getId());
@@ -125,14 +148,14 @@ public class LoginController {
 
 		return "redirect:/login/login.do";
 	}
-	
+
 	/**
 	 * 일반회원등록 페이지.
 	 * 
 	 * @return String
 	 * @exception Exception
 	 */
-	@RequestMapping(value = "/login/userReg.do")
+	@GetMapping("/login/userReg.do")
 	public String userReg(HttpServletRequest request, ModelMap model) throws Exception {
 
 //        // 미인증 사용자에 대한 보안처리
@@ -141,27 +164,82 @@ public class LoginController {
 //            return "index";
 //        }
 
-        ComDefaultCodeVO comDefaultCodeVO = new ComDefaultCodeVO();
+		ComDefaultCodeVO comDefaultCodeVO = new ComDefaultCodeVO();
 
-        // 패스워드힌트목록을 코드정보로부터 조회
-        comDefaultCodeVO.setCodeId("COM022");
-        List<CmmnDetailCode> passwordHint_result = cmmUseService.selectCmmCodeDetail(comDefaultCodeVO);
-        // 성별구분코드를 코드정보로부터 조회
-        comDefaultCodeVO.setCodeId("COM014");
-        List<CmmnDetailCode> sexdstnCode_result = cmmUseService.selectCmmCodeDetail(comDefaultCodeVO);
-        // 사용자상태코드를 코드정보로부터 조회
-        comDefaultCodeVO.setCodeId("COM013");
-        List<CmmnDetailCode> mberSttus_result = cmmUseService.selectCmmCodeDetail(comDefaultCodeVO);
-        // 그룹정보를 조회 - GROUP_ID정보
-        comDefaultCodeVO.setTableNm("COMTNORGNZTINFO");
-        List<CmmnDetailCode> groupId_result = cmmUseService.selectGroupIdDetail(comDefaultCodeVO);
+		// 패스워드힌트목록을 코드정보로부터 조회
+		comDefaultCodeVO.setCodeId("COM022");
+		List<CmmnDetailCode> passwordHint_result = cmmUseService.selectCmmCodeDetail(comDefaultCodeVO);
+		// 성별구분코드를 코드정보로부터 조회
+		comDefaultCodeVO.setCodeId("COM014");
+		List<CmmnDetailCode> sexdstnCode_result = cmmUseService.selectCmmCodeDetail(comDefaultCodeVO);
+		// 사용자상태코드를 코드정보로부터 조회
+		comDefaultCodeVO.setCodeId("COM013");
+		List<CmmnDetailCode> mberSttus_result = cmmUseService.selectCmmCodeDetail(comDefaultCodeVO);
+		// 그룹정보를 조회 - GROUP_ID정보
+		comDefaultCodeVO.setTableNm("COMTNORGNZTINFO");
+		List<CmmnDetailCode> groupId_result = cmmUseService.selectGroupIdDetail(comDefaultCodeVO);
 
-        model.addAttribute("passwordHint_result", passwordHint_result); // 패스워트힌트목록
-        model.addAttribute("sexdstnCode_result", sexdstnCode_result); // 성별구분코드목록
-        model.addAttribute("mberSttus_result", mberSttus_result); // 사용자상태코드목록
-        model.addAttribute("groupId_result", groupId_result); // 그룹정보 목록
+		model.addAttribute("passwordHint_result", passwordHint_result); // 패스워트힌트목록
+		model.addAttribute("sexdstnCode_result", sexdstnCode_result); // 성별구분코드목록
+		model.addAttribute("mberSttus_result", mberSttus_result); // 사용자상태코드목록
+		model.addAttribute("groupId_result", groupId_result); // 그룹정보 목록
 
-        return "login/userReg.html";
+		return "login/userReg.html";
+	}
+
+	@PostMapping("/login/userReg.do")
+	@ResponseBody
+	public ResultVO insertMber(@ModelAttribute("mberManageVO") MberManageVO mberManageVO, BindingResult bindingResult,
+			Model model) throws Exception {
+
+		// 미인증 사용자에 대한 보안처리
+//        Boolean isAuthenticated = EgovUserDetailsHelper.isAuthenticated();
+//        if (!isAuthenticated) {
+//            return "index";
+//        }
+
+//        beanValidator.validate(mberManageVO, bindingResult);
+//        if (bindingResult.hasErrors()) {
+//
+//            ComDefaultCodeVO comDefaultCodeVO = new ComDefaultCodeVO();
+//
+//            // 패스워드힌트목록을 코드정보로부터 조회
+//            comDefaultCodeVO.setCodeId("COM022");
+//            List<CmmnDetailCode> passwordHint_result = cmmUseService.selectCmmCodeDetail(comDefaultCodeVO);
+//            // 성별구분코드를 코드정보로부터 조회
+//            comDefaultCodeVO.setCodeId("COM014");
+//            List<CmmnDetailCode> sexdstnCode_result = cmmUseService.selectCmmCodeDetail(comDefaultCodeVO);
+//            // 사용자상태코드를 코드정보로부터 조회
+//            comDefaultCodeVO.setCodeId("COM013");
+//            List<CmmnDetailCode> mberSttus_result = cmmUseService.selectCmmCodeDetail(comDefaultCodeVO);
+//            // 그룹정보를 조회 - GROUP_ID정보
+//            comDefaultCodeVO.setTableNm("COMTNORGNZTINFO");
+//            List<CmmnDetailCode> groupId_result = cmmUseService.selectGroupIdDetail(comDefaultCodeVO);
+//
+//            model.addAttribute("passwordHint_result", passwordHint_result); // 패스워트힌트목록
+//            model.addAttribute("sexdstnCode_result", sexdstnCode_result); // 성별구분코드목록
+//            model.addAttribute("mberSttus_result", mberSttus_result); // 사용자상태코드목록
+//            model.addAttribute("groupId_result", groupId_result); // 그룹정보 목록
+//
+//            return "egovframework/com/uss/umt/EgovMberInsert";
+//        } else {
+//            if ("".equals(mberManageVO.getGroupId())) {// KISA 보안약점 조치 (2018-10-29, 윤창원)
+//                mberManageVO.setGroupId(null);
+//            }
+//            mberManageService.insertMber(mberManageVO);
+//            // Exception 없이 진행시 등록 성공메시지
+//            model.addAttribute("resultMsg", "success.common.insert");
+//        }
+
+//        if ("".equals(mberManageVO.getGroupId())) {// KISA 보안약점 조치 (2018-10-29, 윤창원)
+//            mberManageVO.setGroupId(null);
+//        }
+//        mberManageService.insertMber(mberManageVO);
+		// Exception 없이 진행시 등록 성공메시지
+//        model.addAttribute("resultMsg", "success.common.insert");
+
+		ResultVO resultVO = new ResultVO(true, "REQUSRREG_SUCCESS", "회원가입 요청이 완료되었습니다");
+		return resultVO;
 	}
 
 	/**

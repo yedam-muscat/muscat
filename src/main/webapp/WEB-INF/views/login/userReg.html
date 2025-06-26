@@ -45,126 +45,214 @@
 						<div class="card-body">
 
 							<!-- 일반회원 아이디 -->
-							<div class="form-group position-relative has-icon-left mb-3">
-								<input type="text" class="form-control"
-									id="userId" placeholder="아이디">
-								<div class="form-control-icon">
-									<i class="bi bi-person-badge"></i>
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-2">
+									<label for="userId" class="col-form-label">아이디</label>
 								</div>
-								<button type="button"
-									class="btn btn-outline-primary position-absolute top-0 end-0 mt-1 me-1 btn-sm">중복아이디
-									검색</button>
+								<div class="col-auto">
+									<input type="text" id="userId" class="form-control">
+								</div>
+								<div class="col-auto">
+									<button type="button"
+										class="btn btn-outline-primary my-auto btn-sm"
+										id="checkIdButton">중복아이디 확인</button>
+								</div>
 							</div>
 
 							<!-- 일반회원 이름 -->
-							<div class="form-group position-relative has-icon-left mb-3">
-								<input type="text" class="form-control"
-									id="userName" placeholder="일반회원이름">
-								<div class="form-control-icon">
-									<i class="bi bi-person"></i>
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-2">
+									<label for="userName" class="col-form-label">이름</label>
 								</div>
+								<div class="col-auto">
+									<input type="text" id="userName" class="form-control">
+								</div>
+								<div class="col-auto"></div>
 							</div>
 
 							<!-- 비밀번호 -->
-							<div class="form-group position-relative has-icon-left mb-3">
-								<input type="password" class="form-control"
-									id="password" placeholder="비밀번호">
-								<div class="form-control-icon">
-									<i class="bi bi-lock"></i>
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-2">
+									<label for="password" class="col-form-label">비밀번호</label>
+								</div>
+								<div class="col-auto">
+									<input type="password" id="password" class="form-control"
+										aria-describedby="passwordHelpInline">
+								</div>
+								<div class="col-auto">
+									<span id="passwordHelpInline" class="form-text">영문자, 숫자,
+										특수문자 포함 8~20자리</span>
 								</div>
 							</div>
 
 							<!-- 비밀번호 확인 -->
-							<div class="form-group position-relative has-icon-left mb-3">
-								<input type="password" class="form-control"
-									id="confirmPassword" placeholder="비밀번호 확인">
-								<div class="form-control-icon">
-									<i class="bi bi-lock-fill"></i>
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-2">
+									<label for="confirmPassword" class="col-form-label">비밀번호
+										확인</label>
+								</div>
+								<div class="col-auto">
+									<input type="password" id="confirmPassword"
+										class="form-control">
 								</div>
 							</div>
 
 							<!-- 비밀번호 힌트 -->
-							<div class="form-group mb-3">
-								<select class="form-select" id="passwordHint">
-									<option selected>--비밀번호 힌트 선택--</option>
-									<option value="1">어릴 적 별명</option>
-									<option value="2">기억에 남는 선생님 이름</option>
-								</select>
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-2">
+									<label for="passwordHint" class="col-form-label">비밀번호
+										힌트</label>
+								</div>
+								<div class="col-auto">
+									<select class="form-select" id="passwordHint">
+										<option selected value="">--비밀번호 힌트 선택--</option>
+										<option th:each="item : ${passwordHint_result}" th:value="${item.code}"
+											th:text="${item.codeNm}"></option>
+									</select>
+								</div>
 							</div>
 
 							<!-- 비밀번호 정답 -->
-							<div class="form-group position-relative has-icon-left mb-3">
-								<input type="text" class="form-control"
-									id="passwordAnswer" placeholder="비밀번호 힌트 정답">
-								<div class="form-control-icon">
-									<i class="bi bi-question-circle"></i>
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-2">
+									<label for="passwordAnswer" class="col-form-label">힌트
+										정답</label>
+								</div>
+								<div class="col-auto">
+									<input type="text" id="passwordAnswer" class="form-control">
 								</div>
 							</div>
 
-							<!-- 성별 구분 코드 -->
-							<div class="form-group mb-3">
-								<select class="form-select" id="genderCode">
-									<option selected>--성별 구분--</option>
-									<option value="M">남성</option>
-									<option value="F">여성</option>
-								</select>
+							<!-- 성별 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-2">
+									<label for="genderCode" class="col-form-label">성별</label>
+								</div>
+								<div class="col-auto">
+									<select class="form-select" id="genderCode">
+										<option selected value="">-- 성별 구분 --</option>
+										<option th:each="item : ${sexdstnCode_result}" th:value="${item.code}"
+											th:text="${item.codeNm}"></option>
+									</select>
+								</div>
 							</div>
 
 							<!-- 전화번호 -->
-							<div class="row mb-3">
-								<div class="col">
-									<input type="text" class="form-control"
-										placeholder="전화번호 앞자리">
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-2">
+									<label class="col-form-label">전화번호</label>
 								</div>
-								<div class="col">
-									<input type="text" class="form-control"
-										placeholder="중간자리">
+								<div class="col-auto">
+									<select class="form-select" id="telStart">
+										<option value="">-- 번호 선택 --</option>
+										<option value="02">02 (서울)</option>
+										<option value="031">031 (경기)</option>
+										<option value="032">032 (인천)</option>
+										<option value="033">033 (강원)</option>
+										<option value="041">041 (충남)</option>
+										<option value="042">042 (대전)</option>
+										<option value="043">043 (충북)</option>
+										<option value="044">044 (세종)</option>
+										<option value="051">051 (부산)</option>
+										<option value="052">052 (울산)</option>
+										<option value="053">053 (대구)</option>
+										<option value="054">054 (경북)</option>
+										<option value="055">055 (경남)</option>
+										<option value="061">061 (전남)</option>
+										<option value="062">062 (광주)</option>
+										<option value="063">063 (전북)</option>
+										<option value="064">064 (제주)</option>
+										<option value="010">010</option>
+										<option value="011">011</option>
+										<option value="016">016</option>
+										<option value="017">017</option>
+										<option value="018">018</option>
+										<option value="019">019</option>
+									</select>
+
 								</div>
-								<div class="col">
-									<input type="text" class="form-control"
-										placeholder="끝자리">
+								<div class="col-2">
+									<input type="text" class="form-control" id="telCenter">
+								</div>
+								<div class="col-2">
+									<input type="text" class="form-control" id="telEnd">
 								</div>
 							</div>
 
-							<!-- 핸드폰, 이메일, 우편번호, 주소 -->
-							<div class="form-group position-relative has-icon-left mb-3">
-								<input type="text" class="form-control"
-									id="mobile" placeholder="핸드폰번호">
-								<div class="form-control-icon">
-									<i class="bi bi-phone"></i>
+							<!-- 핸드폰번호 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-2">
+									<label for="mobile" class="col-form-label">핸드폰</label>
+								</div>
+								<div class="col-auto">
+									<select id="mobileStart" class="form-select">
+										<option value="">-- 번호 선택 --</option>
+										<option value="010">010</option>
+										<option value="011">011</option>
+										<option value="016">016</option>
+										<option value="017">017</option>
+										<option value="018">018</option>
+										<option value="019">019</option>
+									</select>
+								</div>
+								<div class="col-2">
+									<input type="text" class="form-control" id="mobileCenter">
+								</div>
+								<div class="col-2">
+									<input type="text" class="form-control" id="mobileEnd">
 								</div>
 							</div>
 
-							<div class="form-group position-relative has-icon-left mb-3">
-								<input type="email" class="form-control"
-									id="email" placeholder="이메일주소">
-								<div class="form-control-icon">
-									<i class="bi bi-envelope"></i>
+							<!-- 이메일 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-2">
+									<label for="email" class="col-form-label">이메일</label>
+								</div>
+								<div class="col-auto">
+									<input type="email" id="email" class="form-control">
 								</div>
 							</div>
 
-							<div class="form-group position-relative has-icon-left mb-3">
-								<input type="text" class="form-control"
-									id="zipcode" placeholder="우편번호">
-								<div class="form-control-icon">
-									<i class="bi bi-geo"></i>
+							<!-- 우편번호 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-2">
+									<label for="zipcode" class="col-form-label">우편번호</label>
+								</div>
+								<div class="col-2">
+									<input type="text" id="zipcode" class="form-control" readonly>
+								</div>
+								<div class="col-auto">
+									<button type="button"
+										class="btn btn-outline-primary my-auto btn-sm" id="postNumBtn">우편번호
+										찾기</button>
+								</div>
+
+							</div>
+
+							<!-- 주소 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-2">
+									<label for="address" class="col-form-label">주소</label>
+								</div>
+								<div class="col-6">
+									<input type="text" id="address" class="form-control" readonly>
 								</div>
 							</div>
 
-							<div class="form-group mb-3">
-								<input type="text" class="form-control"
-									id="address" placeholder="주소">
-							</div>
-
-							<div class="form-group mb-4">
-								<input type="text" class="form-control"
-									id="addressDetail" placeholder="상세주소">
+							<!-- 상세주소 -->
+							<div class="row g-3 align-items-center mb-4">
+								<div class="col-2">
+									<label for="addressDetail" class="col-form-label">상세주소</label>
+								</div>
+								<div class="col-10">
+									<input type="text" id="addressDetail" class="form-control">
+								</div>
 							</div>
 
 							<!-- 버튼 -->
 							<div class="d-flex justify-content-end">
-								<button class="btn btn-primary me-2">등록</button>
-								<button class="btn btn-outline-secondary">목록</button>
+								<button class="btn btn-primary me-2" id="reqUserReg">회원가입</button>
+								<button class="btn btn-outline-secondary" id="cancelUserReg">취소</button>
 							</div>
 
 						</div>
@@ -173,7 +261,120 @@
 			</div>
 		</div>
 	</div>
-	<script>
+	<script th:inline="javascript">
+		function goAddSearch() {
+		    var width = 570;
+		    var height = 420;
+		    var left = (window.screen.width / 2) - (width / 2);
+		    var top = (window.screen.height / 2) - (height / 2);
+		    var url = /*[[ @{/sym/ccm/zip/EgovAdressPop.do} ]]*/ '';
+		    
+		    var pop = window.open(
+		    		url,
+		            'pop',
+		            'width=' + width + ',height=' + height + ',scrollbars=yes,resizable=yes' + ',top=' + top + ',left=' + left
+		        );		
+		    }
+		
+		function jusoCallBack(zipNo,rnMgtSn,siNm,sggNm,roadFullAddr,buldMnnm,buldSlno,bdNm,detBdNmList){
+			
+			console.log(zipNo);
+			//console.log(rnMgtSn);
+			//console.log(sggNm);
+			console.log(roadFullAddr);
+			//console.log(buldMnnm);
+			//console.log(buldSlno);
+			//console.log(bdNm);
+			//console.log(detBdNmList);
+			
+			$('#zipcode').val(zipNo);
+			formatAddress(roadFullAddr);
+			// 팝업페이지에서 주소입력한 정보를 받아서, 현 페이지에 정보를 등록합니다.
+			//document.zip.zip.value = zipNo; 										/* 우편번호 */
+			//document.zip.rdmnCode.value = rnMgtSn; 						/* 도로명코드 */
+			//document.zip.ctprvnNm.value = siNm; 								/* 시도명 */
+			//document.zip.signguNm.value = sggNm; 							/* 시군구명 */
+			//document.zip.rdmn.value = roadFullAddr; 						    /* 도로명 */
+			//document.zip.bdnbrMnnm.value = buldMnnm; 					/* 건물본번 */
+			//document.zip.bdnbrSlno.value = buldSlno; 						/* 건물부번 */
+			//document.zip.buldNm.value = bdNm; 								/* 건물명 */
+			//document.zip.detailBuldNm.value = detBdNmList; 				/* 상세건물명 */
+			window.close();
+		}
+		
+		function formatAddress(rawAddress) {
+			// 1. 괄호 안 텍스트 포함 괄호 전체 추출 (&#40;, &amp;#40;, ( 등)
+			let match = rawAddress.match(/((?:&amp;#40;|&#40;|\()[^&\(\)]*(?:&amp;#41;|&#41;|\)))/);
+			let parenText = match ? match[0] : ''; // 괄호 포함 텍스트
+
+			// 2. 괄호 앞까지 잘라냄
+			let main = rawAddress.split(/&amp;#40;|&#40;|\(/)[0].trim();
+
+			// 3. 쉼표로 나눈 후 앞뒤 공백 제거
+			let parts = main.split(',').map(p => p.trim());
+
+			// 4. 괄호 포함 텍스트를 뒷부분에 붙임
+			if (parts.length > 1 && parenText) {
+				// 괄호 디코딩 처리
+				let decoded = parenText
+					.replace(/&amp;#40;|&#40;/, '(')
+					.replace(/&amp;#41;|&#41;/, ')');
+				parts[1] += ' ' + decoded;
+			}
+			console.log(parts);
+
+			$('#address').val(parts[0]);
+			$('#addressDetail').val(parts[1]);
+			
+		}
+		
+		function fn_id_check(){
+			let url = /*[[ @{/uss/umt/EgovIdDplctCnfirmAjax.do} ]]*/ '';
+			$.ajax({
+				type: "POST",
+				url: url,
+				data: {
+					"checkId": $("#userId").val()		
+				},
+				dataType:'json',
+				timeout:(1000*30),
+				success:function(returnData, status){
+					if(status == "success") {
+						if (returnData.usedCnt > 0 ) {
+							//사용할수 없는 아이디입니다.
+				Swal.fire({
+					icon : "warning",
+					title : "사용할 수 없는 아이디입니다"
+				})
+						} else {
+							//사용가능한 아이디입니다.
+				Swal.fire({
+					icon : "success",
+					title : "사용할 수 있는 아이디입니다"
+				})
+						}
+					} else { 
+						Swal.fire({
+							icon : "error",
+							title : "오류가 발생했습니다"
+						})
+						return;
+					} 
+				}
+				});
+		}
+
+		$('document').ready(function() {
+			$('#postNumBtn').on('click', function() {
+				goAddSearch();
+			});
+			
+
+			$('#checkIdButton').on('click', function() {
+				fn_id_check();
+			});
+		});
+		
 	</script>
 	<script
 		th:src="@{/assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js}"></script>
@@ -181,7 +382,7 @@
 
 	<script th:src="@{/assets/vendors/sweetalert2/sweetalert2.all.min.js}"></script>
 
-	<script th:src="@{/assets/js/main.js}"></script>
+	<!-- <script th:src="@{/assets/js/main.js}"></script> -->
 </body>
 
 </html>
