@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>게시글 상세조회</title>
+  <link rel="stylesheet"
+        href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
+  <script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
+  <style>
+    th {
+      width: 120px;
+      background-color: #f8f8f8;
+    }
+  </style>
+</head>
+
+<main layout:fragment="content">
+  <h2>▶ 게시글 상세조회</h2>
+
+  <table class="table table-bordered">
+    <tbody>
+      <tr>
+        <th>제목</th>
+        <td id="nttSj" colspan="5"></td>
+      </tr>
+      <tr>
+        <th>등록자</th>
+        <td id="frstRegisterNm"></td>
+        <th>등록일</th>
+        <td id="frstRegisterPnttm"></td>
+        <th>조회수</th>
+        <td id="inqireCo"></td>
+      </tr>
+      <tr>
+        <th>내용</th>
+        <td id="nttCn" colspan="5"></td>
+      </tr>
+      <tr>
+        <th>게시기간</th>
+        <td id="ntceBgnde" colspan="2"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="text-end mb-4">
+    <button class="btn btn-primary">수정</button>
+    <button class="btn btn-danger">삭제</button>
+    <button class="btn btn-warning">답글</button>
+    <button class="btn btn-secondary" onclick="goBack()">목록</button>
+    <button class="btn btn-info">스크랩</button>
+  </div>
+
+  <h4>댓글 <span id="replyCount">0</span></h4>
+  <div id="replyList" class="border p-3 mb-3">댓글이 없습니다.</div>
+
+  <div class="mb-3">
+    <label for="replyContent">댓글내용 *</label>
+    <textarea id="replyContent" rows="3" class="form-control"></textarea>
+  </div>
+  <div class="text-end">
+    <button class="btn btn-primary">댓글등록</button>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const bbsId = urlParams.get("bbsId");
+    const nttId = urlParams.get("nttId");
+
+    if (!bbsId || !nttId) {
+      alert("필수 파라미터 누락");
+    }
+
+    fetch(`/muscat/board/articleDetail?bbsId=${bbsId}&nttId=${nttId}`)
+      .then(res => res.json())
+      .then(res => {
+        const data = res.article;
+
+        document.getElementById("nttSj").textContent = data.nttSj;
+        document.getElementById("frstRegisterNm").textContent = data.frstRegisterNm;
+        document.getElementById("frstRegisterPnttm").textContent = data.frstRegisterPnttm;
+        document.getElementById("inqireCo").textContent = data.inqireCo;
+        document.getElementById("nttCn").innerHTML = data.nttCn?.replace(/\n/g, "<br>");
+        document.getElementById("ntceBgnde").textContent = `${data.ntceBgnde} ~ ${data.ntceEndde}`;
+      });
+
+    function goBack() {
+      window.location.href = `/muscat/board/articleList.do?bbsId=${bbsId}`;
+    }
+  </script>
+</main>
+</html>
