@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>게시글 등록</title>
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+  <script src="https://cdn.ckeditor.com/4.25.1-lts/standard/ckeditor.js"></script>
+</head>
+
+<main layout:fragment="content" class="container mt-4">
+  <h2>📝 게시글 등록</h2>
+
+  <form id="articleForm" enctype="multipart/form-data">
+    <input type="hidden" name="bbsId" id="bbsId">
+
+    <div class="mb-3">
+      <label for="nttSj">제목 *</label>
+      <input type="text" class="form-control" id="nttSj" name="nttSj" required>
+    </div>
+
+    <div class="mb-3 form-check">
+      <input type="checkbox" class="form-check-input" id="sjBoldAt" name="sjBoldAt" value="Y">
+      <label class="form-check-label" for="sjBoldAt">제목 굵게</label>
+    </div>
+
+    <div class="mb-3">
+      <label for="nttCn">내용 *</label>
+      <textarea class="form-control" id="nttCn" name="nttCn" rows="10" required></textarea>
+    </div>
+
+    <div class="mb-3 form-check">
+      <input type="checkbox" class="form-check-input" id="noticeAt" name="noticeAt" value="Y">
+      <label class="form-check-label" for="noticeAt">공지글</label>
+    </div>
+
+    <div class="mb-3 form-check">
+      <input type="checkbox" class="form-check-input" id="secretAt" name="secretAt" value="Y">
+      <label class="form-check-label" for="secretAt">비밀글</label>
+    </div>
+
+    <div class="mb-3 form-check">
+      <input type="checkbox" class="form-check-input" id="anonymousAt" name="anonymousAt" value="Y">
+      <label class="form-check-label" for="anonymousAt">익명글</label>
+    </div>
+
+    <div class="mb-3">
+      <label for="ntceBgnde">게시기간</label>
+      <div class="d-flex">
+        <input type="text" class="form-control me-2" id="ntceBgnde" name="ntceBgnde" readonly>
+        <span class="mt-2">~</span>
+        <input type="text" class="form-control ms-2" id="ntceEndde" name="ntceEndde" readonly>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="file">첨부파일</label>
+      <input type="file" class="form-control" name="file" id="file" multiple>
+    </div>
+
+    <button type="submit" class="btn btn-primary">등록</button>
+    <a href="#" id="cancelBtn" class="btn btn-secondary">목록</a>
+  </form>
+
+  <script>
+    const bbsId = new URLSearchParams(location.search).get("bbsId");
+    document.getElementById("bbsId").value = bbsId;
+
+    $(function () {
+      $("#ntceBgnde, #ntceEndde").datepicker({ dateFormat: 'yy-mm-dd' });
+      CKEDITOR.replace("nttCn");
+    });
+
+    document.getElementById("cancelBtn").addEventListener("click", function (e) {
+      e.preventDefault();
+      location.href = `/muscat/board/articleList.do?bbsId=${bbsId}`;
+    });
+
+    document.getElementById("articleForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      // 게시기간 처리
+      const form = this;
+      const formData = new FormData(form);
+      formData.set("nttCn", CKEDITOR.instances.nttCn.getData());
+      formData.set("bbsId", bbsId);
+
+      try {
+        const res = await fetch("/muscat/board/articleInsert", {
+          method: "POST",
+          body: formData
+        });
+
+        const result = await res.json();
+
+        if (result.resultCode === "SUCCESS") {
+          Swal.fire("등록 완료", result.resultMessage, "success").then(() => {
+            location.href = `/muscat/board/articleList.do?bbsId=${bbsId}`;
+          });
+        } else {
+          Swal.fire("등록 실패", result.resultMessage || "오류 발생", "error");
+        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire("서버 오류", "게시글 등록 중 문제가 발생했습니다.", "error");
+      }
+    });
+  </script>
+</main>
+</html>

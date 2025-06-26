@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>게시글 목록</title>
+
+  <!-- DataTables 스타일 및 JS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
+</head>
+
+<main layout:fragment="content" class="container mt-4">
+  <!-- 게시판 이름 동적 표시 -->
+  <h2 id="boardTitle">📄 게시글 목록</h2>
+
+  <!-- 상단 버튼 -->
+  <div class="mb-3">
+    <a id="regBtn" class="btn btn-primary">+ 새글쓰기</a>
+  </div>
+
+  <!-- 게시글 목록 테이블 -->
+  <table id="articleTable" class="display table table-bordered w-100">
+    <thead>
+      <tr>
+        <th>번호</th>
+        <th>제목</th>
+        <th>작성자</th>
+        <th>작성일</th>
+        <th>조회수</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- 비동기로 로딩됨 -->
+    </tbody>
+  </table>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const bbsId = new URLSearchParams(location.search).get('bbsId');
+
+    if (!bbsId) {
+      alert('게시판 ID(bbsId)가 필요합니다.');
+      location.href = '/muscat/board/masterList.do'; // 게시판 목록으로 이동
+      return;
+    }
+
+    // 새글쓰기 버튼에 bbsId 포함
+    document.querySelector('#regBtn').addEventListener('click', () => {
+      location.href = `/muscat/board/articleRegist.do?bbsId=${bbsId}`;
+    });
+
+    // 게시글 목록 가져오기
+    fetch(`/muscat/board/articleList?bbsId=${bbsId}`)
+      .then(res => res.json())
+      .then(data => {
+        // 게시판 이름 있으면 제목에 추가
+        if (data.boardName) {
+          document.querySelector('#boardTitle').innerText = `📄 ${data.boardName} 게시글 목록`;
+        }
+
+        const tbody = document.querySelector('#articleTable tbody');
+        tbody.innerHTML = '';
+
+        if (data.resultList.length === 0) {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td colspan="5" class="text-center">게시글이 없습니다.</td>`;
+          tbody.appendChild(tr);
+        } else {
+          data.resultList.forEach((row, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${index + 1}</td>
+              <td><a href="/muscat/board/articleDetail.do?nttId=${row.nttId}&bbsId=${bbsId}">${row.nttSj}</a></td>
+              <td>${row.frstRegisterNm || ''}</td>
+              <td>${row.frstRegisterPnttm?.slice(0, 10) || ''}</td>
+              <td>${(row.inqireCo || 0).toLocaleString()}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+
+        new DataTable('#articleTable', {
+          language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/ko.json'
+          }
+        });
+      })
+      .catch(err => {
+        console.error('데이터 로딩 실패:', err);
+        alert('게시글 목록을 불러오지 못했습니다.');
+      });
+  });
+  </script>
+</main>
+</html>
