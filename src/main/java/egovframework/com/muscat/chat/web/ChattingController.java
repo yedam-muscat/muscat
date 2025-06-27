@@ -16,5 +16,7 @@ public class ChattingController {
 	public String chat() {
 		return "chat/chat.html";
 	}
+	
+	
 
 }
