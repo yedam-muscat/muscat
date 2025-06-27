@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+
+<main layout:fragment="content">
+
+	<table id="userListTable">
+		<thead>
+			<tr>
+				<th>유저 아이디</th>
+				<th>유저 이름</th>
+				<th>핸드폰번호</th>
+				<th>가입 상태</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+
+	<script src="//cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
+	<script>
+		let url = 'http://localhost:8082/muscat/admin/user/userList.do';
+		$.ajax({
+			type : "GET",
+			url : url,
+			data : {},
+		}).done(function(data, textStatus, xhr) {
+	        let tbody = $('#userListTable tbody');
+	        tbody.html('');
+	        
+	        console.log(data);
+	        
+	        data.forEach(item => {
+	          tbody.append(`<tr>
+	  	            <td>${item.userId}</td>
+	  	            <td>${item.userNm}</td>
+	  	            <td>${item.moblphonNo}</td>
+	  	            <td>${item.sttus}</td>
+	  	            </tr>
+	  	          `);
+	        });
+	        
+	        new DataTable('#userListTable', {
+	        	  language: {
+	        		    url: "https://cdn.datatables.net/plug-ins/2.0.0/i18n/ko.json"
+	        		  }});
+		}).fail(function() {
+			Swal.fire({
+				icon : "error",
+				title : "오류가 발생했습니다"
+			})
+		});
+	</script>
+
+</main>
+</html>

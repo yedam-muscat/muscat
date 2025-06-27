@@ -47,10 +47,10 @@
 							<!-- 일반회원 아이디 -->
 							<div class="row g-3 align-items-center mb-2">
 								<div class="col-2">
-									<label for="userId" class="col-form-label">아이디</label>
+									<label for="mberId" class="col-form-label">아이디</label>
 								</div>
 								<div class="col-auto">
-									<input type="text" id="userId" class="form-control">
+									<input type="text" id="mberId" class="form-control">
 								</div>
 								<div class="col-auto">
 									<button type="button"
@@ -62,10 +62,10 @@
 							<!-- 일반회원 이름 -->
 							<div class="row g-3 align-items-center mb-2">
 								<div class="col-2">
-									<label for="userName" class="col-form-label">이름</label>
+									<label for="mberNm" class="col-form-label">이름</label>
 								</div>
 								<div class="col-auto">
-									<input type="text" id="userName" class="form-control">
+									<input type="text" id="mberNm" class="form-control">
 								</div>
 								<div class="col-auto"></div>
 							</div>
@@ -106,8 +106,8 @@
 								<div class="col-auto">
 									<select class="form-select" id="passwordHint">
 										<option selected value="">--비밀번호 힌트 선택--</option>
-										<option th:each="item : ${passwordHint_result}" th:value="${item.code}"
-											th:text="${item.codeNm}"></option>
+										<option th:each="item : ${passwordHint_result}"
+											th:value="${item.code}" th:text="${item.codeNm}"></option>
 									</select>
 								</div>
 							</div>
@@ -115,24 +115,23 @@
 							<!-- 비밀번호 정답 -->
 							<div class="row g-3 align-items-center mb-2">
 								<div class="col-2">
-									<label for="passwordAnswer" class="col-form-label">힌트
-										정답</label>
+									<label for="passwordCnsr" class="col-form-label">힌트 정답</label>
 								</div>
 								<div class="col-auto">
-									<input type="text" id="passwordAnswer" class="form-control">
+									<input type="text" id="passwordCnsr" class="form-control">
 								</div>
 							</div>
 
 							<!-- 성별 -->
 							<div class="row g-3 align-items-center mb-2">
 								<div class="col-2">
-									<label for="genderCode" class="col-form-label">성별</label>
+									<label for="sexdstnCode" class="col-form-label">성별</label>
 								</div>
 								<div class="col-auto">
-									<select class="form-select" id="genderCode">
+									<select class="form-select" id="sexdstnCode">
 										<option selected value="">-- 성별 구분 --</option>
-										<option th:each="item : ${sexdstnCode_result}" th:value="${item.code}"
-											th:text="${item.codeNm}"></option>
+										<option th:each="item : ${sexdstnCode_result}"
+											th:value="${item.code}" th:text="${item.codeNm}"></option>
 									</select>
 								</div>
 							</div>
@@ -143,7 +142,7 @@
 									<label class="col-form-label">전화번호</label>
 								</div>
 								<div class="col-auto">
-									<select class="form-select" id="telStart">
+									<select class="form-select" id="areaNo">
 										<option value="">-- 번호 선택 --</option>
 										<option value="02">02 (서울)</option>
 										<option value="031">031 (경기)</option>
@@ -172,10 +171,10 @@
 
 								</div>
 								<div class="col-2">
-									<input type="text" class="form-control" id="telCenter">
+									<input type="text" class="form-control" id="middleTelno">
 								</div>
 								<div class="col-2">
-									<input type="text" class="form-control" id="telEnd">
+									<input type="text" class="form-control" id="endTelno">
 								</div>
 							</div>
 
@@ -206,20 +205,20 @@
 							<!-- 이메일 -->
 							<div class="row g-3 align-items-center mb-2">
 								<div class="col-2">
-									<label for="email" class="col-form-label">이메일</label>
+									<label for="mberEmailAdres" class="col-form-label">이메일</label>
 								</div>
 								<div class="col-auto">
-									<input type="email" id="email" class="form-control">
+									<input type="email" id="mberEmailAdres" class="form-control">
 								</div>
 							</div>
 
 							<!-- 우편번호 -->
 							<div class="row g-3 align-items-center mb-2">
 								<div class="col-2">
-									<label for="zipcode" class="col-form-label">우편번호</label>
+									<label for="zip" class="col-form-label">우편번호</label>
 								</div>
 								<div class="col-2">
-									<input type="text" id="zipcode" class="form-control" readonly>
+									<input type="text" id="zip" class="form-control" readonly>
 								</div>
 								<div class="col-auto">
 									<button type="button"
@@ -232,22 +231,24 @@
 							<!-- 주소 -->
 							<div class="row g-3 align-items-center mb-2">
 								<div class="col-2">
-									<label for="address" class="col-form-label">주소</label>
+									<label for="adres" class="col-form-label">주소</label>
 								</div>
 								<div class="col-6">
-									<input type="text" id="address" class="form-control" readonly>
+									<input type="text" id="adres" class="form-control" readonly>
 								</div>
 							</div>
 
 							<!-- 상세주소 -->
 							<div class="row g-3 align-items-center mb-4">
 								<div class="col-2">
-									<label for="addressDetail" class="col-form-label">상세주소</label>
+									<label for="detailAdres" class="col-form-label">상세주소</label>
 								</div>
 								<div class="col-10">
-									<input type="text" id="addressDetail" class="form-control">
+									<input type="text" id="detailAdres" class="form-control">
 								</div>
 							</div>
+
+							<input type="hidden" id="mberSttus" value="A">
 
 							<!-- 버튼 -->
 							<div class="d-flex justify-content-end">
@@ -262,6 +263,64 @@
 		</div>
 	</div>
 	<script th:inline="javascript">
+		$('document').ready(function() {
+			$('#postNumBtn').on('click', function() {
+				goAddSearch();
+			});
+
+			$('#checkIdButton').on('click', function() {
+				fn_id_check();
+			});
+			
+			$('#mberId').focus();
+			
+			$('#reqUserReg').on('click', function() {
+				userReg();
+			})
+		});
+		
+		function userReg() {
+			let url = 'http://localhost:8082/muscat/login/userReg.do';
+			$.ajax({
+				type: "POST",
+				url: url,
+				data: {
+					mberId : $('#mberId').val(),
+					mberNm : $('#mberNm').val(),
+					password : $('#password').val(),
+					passwordCnsr : $('#passwordCnsr').val(),
+					passwordHint : $('#passwordHint').val(),
+					mberEmailAdres : $('#mberEmailAdres').val(),
+					zip : $('#zip').val(),
+					adres : $('#adres').val(),
+					detailAdres : $('#detailAdres').val(),
+					areaNo : $('#areaNo').val(),
+					middleTelno : $('#middleTelno').val(),
+					endTelno : $('#endTelno').val(),
+					moblphonNo : getMoblphonNo(),
+					mberSttus : $('#mberSttus').val(),
+					sexdstnCode : $('#sexdstnCode').val(),
+				},
+				dataType: 'json',
+				timeout:(1000*30),
+				})
+				.done(function() {
+					Swal.fire({
+						icon : "success",
+						title : "회원 가입 요청이 완료되었습니다"
+					}).then(() => {
+						location.href = '/muscat/login/login.do';
+					})
+				  })
+				  .fail(function() {
+						Swal.fire({
+							icon : "error",
+							title : "오류가 발생했습니다"
+						})
+				  });
+		}
+		
+		
 		function goAddSearch() {
 		    var width = 570;
 		    var height = 420;
@@ -287,7 +346,7 @@
 			//console.log(bdNm);
 			//console.log(detBdNmList);
 			
-			$('#zipcode').val(zipNo);
+			$('#zip').val(zipNo);
 			formatAddress(roadFullAddr);
 			// 팝업페이지에서 주소입력한 정보를 받아서, 현 페이지에 정보를 등록합니다.
 			//document.zip.zip.value = zipNo; 										/* 우편번호 */
@@ -323,18 +382,25 @@
 			}
 			console.log(parts);
 
-			$('#address').val(parts[0]);
-			$('#addressDetail').val(parts[1]);
+			$('#adres').val(parts[0]);
+			$('#detailAdres').val(parts[1]);
 			
 		}
 		
 		function fn_id_check(){
+			let mberId = $("#mberId").val();
+			if (!mberId) {
+				Swal.fire({
+					icon : "warning",
+					title : "아이디를 입력해주세요"
+				})
+			} else {
 			let url = /*[[ @{/uss/umt/EgovIdDplctCnfirmAjax.do} ]]*/ '';
 			$.ajax({
 				type: "POST",
 				url: url,
 				data: {
-					"checkId": $("#userId").val()		
+					"checkId": mberId		
 				},
 				dataType:'json',
 				timeout:(1000*30),
@@ -362,19 +428,12 @@
 					} 
 				}
 				});
+			}
 		}
-
-		$('document').ready(function() {
-			$('#postNumBtn').on('click', function() {
-				goAddSearch();
-			});
-			
-
-			$('#checkIdButton').on('click', function() {
-				fn_id_check();
-			});
-		});
 		
+		function getMoblphonNo() {
+			return $('#mobileStart').val() + $('#mobileCenter').val() + $('#mobileEnd').val();
+		}
 	</script>
 	<script
 		th:src="@{/assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js}"></script>
