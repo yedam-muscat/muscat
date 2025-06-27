@@ -86,7 +86,9 @@
   display: flex;
   flex-direction: column;
 }
+
   </style>
+
 </head>
 <body>
 		<div id="chatContainer" style="display: flex; height: 80vh;">
@@ -104,39 +106,50 @@
 			<!-- 리사이저 -->
 			<div id="chatResizer"
 				style="width: 5px; cursor: col-resize; background: #ddd;"></div>
+
 			<!-- 그리드 시작 -->
 			<div id="gridContainer"
-				style="display: grid; grid-template-columns: 1fr 2fr; /* 카드:채팅방 비율 (1:2) */ gap: 10px; width: 100%; padding: 10px; box-sizing: border-box;">
+				style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px; width: 100%; padding: 10px; box-sizing: border-box;">
 
-				<!-- 상세카드 -->
-				<div id="employeeDetail"
-					style="min-width: 150px; max-width: 600px; background-color: #f8f9fa; border: 1px solid #ddd; padding: 20px; box-sizing: border-box; resize: both; overflow: auto;">
-					<div
-						style="border: 1px solid #ccc; border-radius: 10px; padding: 20px;">
-						<div style="text-align: center; margin-bottom: 10px;">
-							<img src="https://via.placeholder.com/120" alt="프로필 사진"
-								style="border-radius: 50%; width: 120px; height: 120px;">
+					<!-- 🔹 채팅방 목록 패널 (왼쪽 열) -->
+					<div id="chatListPanel"
+						style="background-color: #f8f9fa; border: 1px solid #ccc; border-radius: 5px; overflow-y: auto;">
+	
+						<div
+							style="background-color: #0d6efd; color: white; padding: 10px; position: relative;">
+							<h5 style="margin: 0;">채팅방 목록</h5>
+	
+							<!-- 메신저 아이콘 -->
+							<i id="openMessenger" class="bi bi-chat-dots"
+								style="position: absolute; top: 10px; right: 10px; font-size: 1.5rem; cursor: pointer;"
+								title="새 채팅 시작"></i>
 						</div>
-						<h4 id="empName">이름: -</h4>
-						<p id="empCompany">회사: -</p>
-						<p id="empDept">부서: -</p>
-						<p id="empTitle">직책: -</p>
-						<p id="empGroup">그룹: -</p>
-						<p id="empEmail">이메일: -</p>
-						<p id="empRole">직무: -</p>
-						<p id="empMemo">메모: -</p>
+	
+						<!-- 대화 상대 추가 목록 -->
+						<div id="chatListPopup" class="card shadow"
+							style="display: none; position: absolute; top: 60px; right: 10px; min-width: 150px; z-index: 1000;">
+							<div class="p-2 border-bottom">
+								<input type="text" id="chatSearchInput"
+									class="form-control form-control-sm" placeholder="이름 검색">
+							</div>
+							<ul class="list-group list-group-flush mb-0">
+								<li class="list-group-item chat-entry" data-user="아이유">아이유</li>
+								<li class="list-group-item chat-entry" data-user="박보검">박보검</li>
+								<li class="list-group-item chat-entry" data-user="김태리">김태리</li>
+							</ul>
+						</div>
+	
+						<!-- 실제 채팅방 리스트 -->
+						<ul id="chatListPopupItems" class="list-group list-group-flush mb-0">
+							<li class="list-group-item chat-entry" data-user="아이유">아이유</li>
+							<li class="list-group-item chat-entry" data-user="박보검">박보검</li>
+							<li class="list-group-item chat-entry" data-user="김태리">김태리</li>
+						</ul>
 					</div>
-
-					<div style="text-align: center; margin-top: 15px;">
-						<button id="openGridChat"
-							style="background-color: #198754; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">채팅</button>
-					</div>
-
-				</div>
 
 				<!-- 채팅방 -->
 				<div id="gridChatRoom"
-					style="display: flex; background: #fff; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); flex-direction: column; height: 100%; ">
+					style="display: flex; background: #fff; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); flex-direction: column; height: 100%;">
 
 					<div class="header"
 						style="background: #fff; color: black; padding: 10px; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center;">
@@ -147,9 +160,11 @@
 								<i id="gridAttachFileIcon" class="bi bi-paperclip"
 								style="cursor: pointer;" title="파일 첨부"></i>
 							</span>
+
 							<button class="btn btn-sm btn-primary" type="button"
 								id="gridOpenMemo">보고</button>
-							
+
+
 							<button id="closeGridChat"
 								style="background: none; border: none; color: black; font-weight: bold; cursor: pointer;">X</button>
 							<input type="file" id="gridFileInput" style="display: none;">
@@ -204,7 +219,7 @@
 									class="form-control">
 							</div>
 							<div class="mb-2">
-								<label class="form-label">보고대상자</label>
+								<label class="form-label">보고내용</label>
 								<textarea class="form-control" rows="2"></textarea>
 							</div>
 							<div class="mb-2">
@@ -284,70 +299,53 @@
 			    .on("ready.jstree", adjustSidebarWidth)
 			    .on("select_node.jstree", function (e, data) {
   
-			    	if(data.node && data.node.data) {
-			    		console.log(data)
-			    		  const d = data.node.data;
-			    		  $("#empName").text(`이름: ${d.name}`);
-			    		  $("#empCompany").text(`회사: ${d.company}`);
-			    		  $("#empDept").text(`부서: ${d.dept}`);
-			    		  $("#empTitle").text(`직책: ${d.title}`);
-			    		  $("#empGroup").text(`그룹: ${d.group}`);
-			    		  $("#empEmail").text(`이메일: ${d.email}`);
-			    		  $("#empRole").text(`직무: ${d.role}`);
-			    		  $("#empMemo").text(`메모: ${d.memo}`);
-									}
-								});
-		
-						// 자동 폭 조절 함수
-						function adjustSidebarWidth() {
-							let maxWidth = 250; // 초기값
-							$('#chatSidebar li > a').each(function() {
-								const tmp = $('<span>').text($(this).text()).css({
-									position : 'absolute',
-									visibility : 'hidden',
-									whiteSpace : 'nowrap'
-								}).appendTo('body');
-								const w = tmp.width() + 60; // 여유값 (아이콘 + 패딩)
-								if (w > maxWidth)
-									maxWidth = w;
-								tmp.remove();
-							});
-							if (maxWidth > 600)
-								maxWidth = 600; // 최대폭 제한
-							$('#chatSidebar').css('width', maxWidth + 'px');
-						}
-		
-						// 리사이저
-						let isResizing = false;
-						$('#chatResizer').on('mousedown', function(e) {
-							isResizing = true;
-							e.preventDefault();
-						});
-						$(document).on('mousemove', function(e) {
-							if (!isResizing)
-								return;
-							const containerOffset = $('#chatContainer').offset().left;
-							let newWidth = e.clientX - containerOffset;
-							if (newWidth < 150)
-								newWidth = 150;
-							if (newWidth > 600)
-								newWidth = 600;
-							$('#chatSidebar').css('width', newWidth + 'px');
-						});
-						$(document).on('mouseup', function() {
-							isResizing = false;
-						});
+			    	
 					});
-					// 상세 정보 카드 - 리사이저
-					$(function() {
-						$("#employeeDetail").resizable({
-							minWidth : 150,
-							minHeight : 200,
-							maxWidth : 600,
-							maxHeight : 600,
-							handles : "e, s, se" // 오른쪽, 아래, 오른쪽아래 방향으로만 리사이즈 가능
-						});
+					
 					});
+			// 대화 상대 추가
+			$('#openMessenger').on('click', function (e) {
+  e.stopPropagation();
+
+  const icon = $(this);
+  const popup = $('#chatListPopup');
+
+  if (popup.is(':visible')) {
+    popup.hide();
+    return;
+  }
+
+  const offset = icon.offset();
+  const height = icon.outerHeight();
+
+  popup.css({
+    top: offset.top + height + 10,
+    left: offset.left
+  }).show();
+
+  // 검색 초기화
+  $('#chatSearchInput').val('').focus();
+  $('#chatListPopupItems .chat-entry').show();
+});
+
+// 검색 필터
+$('#chatSearchInput').on('input', function () {
+  const keyword = $(this).val().trim().toLowerCase();
+  $('#chatListPopupItems .chat-entry').each(function () {
+    const name = $(this).text().trim().toLowerCase();
+    $(this).toggle(name.includes(keyword));
+  });
+});
+
+// 대화 상대 선택
+$('#chatListPopup').on('click', '.chat-entry', function () {
+  const userName = $(this).data('user');
+  $('#chatUserName').text(userName);
+  $('#chatRoom').show();
+  $('#chatInput').focus();
+  $('#chatListPopup').hide();
+});
+			
 					
 					//채팅방 
 					
@@ -523,6 +521,7 @@
 								    }
 								  });
 								});
+							
 							//업무보고상세모달, 보고모달 
 							$(function() {
 								  $('#fileAttachModal').on('shown.bs.modal', function() {
@@ -538,13 +537,14 @@
 								    });
 								  });
 								});
+							
 							// 모달이 화면을 벗어나지 않게
 							$('.modal-dialog', this).draggable({
 								  handle: ".modal-header",
 								  containment: "window"
 								});
 								
-							const loginUser = "홍길동";  // 로그인 사용자 이름 (이건 실제 로그인 값으로 설정)
+							const loginUser = "아이유";  // 로그인 사용자 이름 (이건 실제 로그인 값으로 설정)
 		
 						
 		
@@ -552,7 +552,8 @@
 							function appendChatMessage(sender, message) { // 메시지를 추가 한다.								
 							  const isMe = (sender === loginUser);
 							  const now = new Date();
-							  const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+							  const today = formatDate(now);
+							  const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0'); // 시간
 							  console.log(`sender: ${sender}, loginUser: ${loginUser}, isMe: ${isMe}`);
 							  const msgDiv = $('<div></div>')
 							                  .addClass(isMe ? 'my-message':'other-message' ) 
@@ -563,6 +564,18 @@
 							    color: '#555',
 							    marginTop: '2px'
 							  });
+							  
+							// 날짜 라벨 추가 (날짜가 바뀌었을 경우)
+								if (today !== lastDate) {
+									const dateLabel = $('<div></div>').text(today).css({
+										textAlign : 'center',
+										color : '#888',
+										fontSize : '0.8rem',
+										margin : '10px 0'
+									});
+									$('#gridChatMessages').append(dateLabel);
+									lastDate = today;
+								}
 
 							  msgDiv.append(textSpan).append(timeSpan);
 							  $("#gridChatMessages").append(msgDiv);
@@ -580,28 +593,156 @@
 							    $("#gridChatMessages").scrollTop($("#gridChatMessages")[0].scrollHeight);
 							  }
 							});
-		 */
+		 					*/
 							// 상대 메시지 호출
 							function receiveMessage(fromUser, text) {
 							  appendChatMessage(fromUser, text); // 내 메시지 호출
 							}
 							
+		 					//test
 							receiveMessage("아이유", "안녕하세요 홍길동님!");
 							receiveMessage("박보검", "지금 회의 중이에요");
 							appendChatMessage(loginUser, "넵 확인했습니다!");
-							
-							
-							
-							
+	
 							//접속 인원 표시
+							let currentChatTarget = "아이유"; // 또는 원하는 상대 이름
 							let currentUserCount = 0;
 
 							function updateUserCount(count) {
 							  currentUserCount = count;
-							  $("#gridChatUserName").text(`${currentChatTarget} (${currentUserCount}명 접속)`);
+							  $("#gridChatUserName").text(`${currentChatTarget} (${currentUserCount})`);
 							}
-							updateUserCount(3);
+							updateUserCount(3); // 만약 3명이 있으면,,,
+							/* // 예: 서버에서 받았을 때
+							socket.on("userCountUpdate", (count) => {
+							  updateUserCount(count);
+							}); */
+	
 			</script>
+			  <script>
+	//chat 팝업창을 여러개 띄우기 위함	
+	var webSocket = null;
+	$(document).ready(function() {
+		var url = 'ws://' + window.location.host + '/muscat/usersServerEndpoint';
+		webSocket = connection(url);
+		var connectionType;
+		
+		webSocket.onopen = function(){ processOpen(); };
+		webSocket.onmessage = function(message) { processMessage(message); };
+		webSocket.onerror = function(message) { processError(message); };
+		
+	});
+	//var webSocket = new WebSocket('ws://' + window.location.host + '/egov-messenger/usersServerEndpoint');
+	
+	
+	function connection(url) {
+		var webSocket = null;
+		if ('WebSocket' in window) {
+			webSocket = new WebSocket(url);
+		} else if ('MozWebSocket' in window) {
+			webSocket = new MozWebSocket(url);
+		} else {
+			Console.log('Error: WebSocket is not supported by this browser.');
+            return null;
+		}
+		return webSocket;
+	}
+	
+	function processOpen() {
+		connectionType = "firstConnection";
+		username = "${loginVO.name}";
+		webSocket.send(JSON.stringify({ "connectionType" : connectionType, "username" : username }));
+	}
+		
+	//server에서 메시지가 넘어왔을때
+	function processMessage(message) {
+		var jsonData = JSON.parse(message.data);
+		
+		if (jsonData.allUsers != null) {
+			//다른 사용자 접속 시,
+			displayUsers(jsonData.allUsers);
+		} 
+		
+		if (jsonData.disconnectedUser != null) {
+			//다른 사용자가 접속을 끊을 때,
+			$("#"+jsonData.disconnectedUser).remove();
+		}
+		
+		//다른 사용자와 대화하고자 시도할 때, 채팅창을 팝업
+		if (jsonData.enterChatId != null) {
+			//var roomId = jsonData.enterChatId;
+				var roomId = "12";
+			$("#roomId").val(roomId);
+			$("#username").val(jsonData.username);
+			openPopup(roomId);
+		}
+	}
+	
+	function openPopup(roomId) {
+		var popOptions = "width= 500, height= 700, resizable=yes, status= no, scrollbar= yes"; 
+		var targetTitle = random(roomId); //두명의 사용자가 다른 팝업으로 뜨기 위해서 targetTitle을 랜덤으로 만들어준다.
+		console.log(targetTitle)
+		popupPost("<c:url value='/cop/msg/websocketMessengePopup.do'/>", targetTitle, popOptions);
+	}
+	
+	function popupPost(url, target, option) {
+		window.open("", target, option);
+		
+		var form = $("form[name=usersForm]");
+		form.attr("target", target);
+		form.attr("action", url);
+		form.attr("method", "post");
+		form.submit();
+	}
+	
+	
+	function displayUsers(userList) {
+		var username;
+		$("#users tr:not(:first)").remove();
+		for (var i=0; i<userList.length; i++) {
+			if("${loginVO.name}"==userList[i]) {
+				username = userList[i]+"(me!)";
+			} else{
+				username = userList[i];
+			}
+			$.newTr = $("<tr id="+userList[i]+" onclick='trClick(this)'><td>"+username+"</td></tr>");
+			//append
+			$("#users").last().append($.newTr);
+			
+		}
+	}
+	
+	//다른 사용자 선택 시, 선택한 사용자 값을 서버에 전달
+	function trClick(selectedTr) {
+		if (selectedTr.id != null) {
+				connectionType = "chatConnection";
+				webSocket.send(JSON.stringify({ "connectionType" : connectionType, "connectingUser" : selectedTr.id }));
+			}
+	}
+	
+	function random(roomId) {
+		
+			let rUid = "12";
+		/* <%
+			Random rnd = new Random();
+			for(int i=0; i<8; i++) {
+				rnd.setSeed(System.currentTimeMillis());
+				rUid += (char)((rnd.nextDouble()*26)+97);//KISA 보안약점 조치 (2018-10-29, 윤창원)
+			}
+		%> */
+		return roomId+"."+rUid;
+	}
+	
+	function processError(message) {
+		/* messagesTextArea.value += "error...\n"; */
+	}
+
+	window.onbeforeunload = function() {
+		webSocket.close();
+	};
+</script>
+			
+			
 	</body>
 </main>
 </html>
