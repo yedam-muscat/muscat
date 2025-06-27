@@ -1,273 +1,282 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{layout/layout}">
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
 
 <head>
-<meta charset="UTF-8">
-<title>일정 등록</title>
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
-	rel="stylesheet" />
-<script
-	src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+  <meta charset="UTF-8">
+  <title>일정 등록</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 
-<style>
-* {
-	font-style: normal !important;
-}
+  <style>
+    * { font-style: normal !important; }
 
-html, body {
-	height: 100%;
-	margin: 0;
-	overflow: hidden;
-	font-size: 14px;
-}
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      font-size: 14px;
+    }
 
-.compact-form {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-	height: 100vh;
-	padding: 20px 40px;
-	width: 800px;
-	overflow-y: auto;
-}
+    .compact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      height: 100vh;
+      padding: 20px 40px;
+      width: 800px;
+      overflow-y: auto;
+    }
 
-.form-row {
-	display: flex;
-	gap: 10px;
-	align-items: center;
-}
+    .form-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
 
-.form-row label {
-	min-width: 80px;
-	margin-bottom: 0;
-}
+    .form-row label {
+      min-width: 80px;
+      margin-bottom: 0;
+    }
 
-.form-row input, .form-row select, .form-row textarea {
-	flex: 1;
-}
+    .form-row input, .form-row select, .form-row textarea {
+      flex: 1;
+    }
 
-.form-actions {
-	margin-top: auto;
-	display: flex;
-	justify-content: space-between;
-}
-
-textarea {
-	resize: none;
-}
-</style>
+    textarea { resize: none; }
+  </style>
 </head>
 
 <main layout:fragment="content">
-	<div class="container-fluid">
-		<div class="row min-vh-100">
-			<div class="col-lg-8 col-md-12 col-sm-14 p-7">
-				<div class="schedule-form">
-					<form id="scheduleForm" method="post" action="/cal/save"
-						enctype="multipart/form-data">
-						<div class="compact-form">
-							<div class="form-row">
-								<label for="title">제목</label> <input type="text" id="title"
-									class="form-control" required>
-							</div>
+  <div class="container-fluid">
+    <div class="row min-vh-100">
+      <div class="col-lg-8 col-md-12 col-sm-14 p-7">
+        <div class="schedule-form">
+          <form id="scheduleForm" method="post" enctype="multipart/form-data">
+            <div class="compact-form">
 
-							<div class="form-row">
-								<div class="mb-3">
-									<label for="start">시작일</label> <input type="date" id="start"
-										class="form-control" required> <label for="startTime"
-										class="mt-2">시작시간</label> <input type="time" id="startTime"
-										class="form-control" required>
-								</div>
-								<div class="mb-3">
-									<label for="end">종료일</label> <input type="date" id="end"
-										class="form-control" required> <label for="endTime"
-										class="mt-2">종료시간</label> <input type="time" id="endTime"
-										class="form-control" required>
-								</div>
-							</div>
+              <div class="form-row">
+                <label for="title">제목</label>
+                <input type="text" id="title" class="form-control" required>
+              </div>
 
-							<div class="form-row">
+              <div class="form-row">
+                <div class="mb-3">
+                  <label for="start">시작일</label>
+                  <input type="date" id="start" class="form-control" required>
+                  <label for="startTime" class="mt-2">시작시간</label>
+                  <input type="time" id="startTime" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                  <label for="end">종료일</label>
+                  <input type="date" id="end" class="form-control" required>
+                  <label for="endTime" class="mt-2">종료시간</label>
+                  <input type="time" id="endTime" class="form-control" required>
+                </div>
+              </div>
 
-								<div class="form-check me-2">
-									<input class="form-check-input" type="checkbox" id="allDay">
-									<label class="form-check-label" for="allDay">종일</label>
-								</div>
-								<div class="form-check me-2">
-									<input class="form-check-input" type="checkbox" id="private">
-									<label class="form-check-label" for="private">비공개</label>
-								</div>
-								<div class="form-check">
-									<input class="form-check-input" type="checkbox" id="repeat">
-									<label class="form-check-label" for="repeat">반복</label>
-								</div>
-							</div>
+              <div class="form-row">
+                <div class="form-check me-2">
+                  <input class="form-check-input" type="checkbox" id="allDay">
+                  <label class="form-check-label" for="allDay">종일</label>
+                </div>
+                <div class="form-check me-2">
+                  <input class="form-check-input" type="checkbox" id="private">
+                  <label class="form-check-label" for="private">비공개</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="repeat">
+                  <label class="form-check-label" for="repeat">반복</label>
+                </div>
+              </div>
 
-							<div class="form-row">
-								<label for="participantInput">참석자</label> <input type="text"
-									id="participantInput" class="form-control"
-									placeholder="이름 입력 후 추가 클릭">
-								<button type="button" class="btn btn-outline-secondary"
-									onclick="addParticipant()">+추가</button>
-							</div>
+              <div class="form-row">
+                <label for="participantInput">참석자</label>
+                <input type="text" id="participantInput" class="form-control" placeholder="이름 입력 후 추가 클릭">
+                <button type="button" class="btn btn-outline-secondary" onclick="addParticipant()">+추가</button>
+              </div>
 
-							<div id="participantList" class="form-row"></div>
+              <div id="participantList" class="form-row"></div>
 
-							<div class="form-row">
-								<label for="location">장소</label> <input type="text"
-									id="location" class="form-control">
-							</div>
+              <div class="form-row">
+                <label for="location">장소</label>
+                <input type="text" id="location" class="form-control">
+              </div>
 
-							<div class="form-row">
-								<label for="calendar">캘린더</label> <select id="calendar"
-									class="form-select">
-									<option>내 캘린더</option>
-								</select>
-							</div>
+              <div class="form-row">
+                <label for="calendar">캘린더</label>
+                <select id="calendar" class="form-select">
+                  <option value="">캘린더 선택</option>
+                </select>
+              </div>
 
-							<div class="form-row">
-								<label for="description">내용</label>
-								<textarea id="description" class="form-control" rows="2"></textarea>
-							</div>
+              <div class="form-row">
+                <label for="description">내용</label>
+                <textarea id="description" class="form-control" rows="2"></textarea>
+              </div>
 
-							<div class="form-row">
-								<label for="room">장소 예약</label> <select id="room"
-									class="form-select">
-									<option>1층 회의실</option>
-									<option>2층 강의실</option>
-								</select>
-							</div>
+              <div class="form-row">
+                <label for="room">장소 예약</label>
+                <select id="room" class="form-select">
+                  <option>1층 회의실</option>
+                  <option>2층 강의실</option>
+                </select>
+              </div>
 
-							<div class="form-row">
-								<label for="file">첨부파일</label> <input type="file" id="file"
-									class="form-control">
-							</div>
+              <div class="form-row">
+                <label for="file">첨부파일</label>
+                <input type="file" id="file" class="form-control">
+              </div>
 
-							<input type="hidden" id="startDateTime" name="startDateTime">
-							<input type="hidden" id="endDateTime" name="endDateTime">
+              <div class="form-row">
+                <button class="btn btn-success">등록</button>
+                <button type="button" class="btn btn-secondary" onclick="resetForm()">초기화</button>
+                <a href="calMonth.do" class="btn btn-outline-primary">캘린더</a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
 
-							<div class="form-row">
-								<button class="btn btn-success">등록</button>
-								<button type="button" class="btn btn-secondary"
-									onclick="resetForm()">초기화</button>
-								<a href="calMonth.do" class="btn btn-outline-primary">캘린더</a>
-							</div>
-						</div>
-					</form>
-				</div>
-			</div>
+      <div class="col-lg-6 d-none d-lg-block bg-light"></div>
+    </div>
+  </div>
 
-			<div class="col-lg-6 d-none d-lg-block bg-light"></div>
-		</div>
-	</div>
+  <script>
+    function addParticipant() {
+      const input = $('#participantInput');
+      const name = input.val().trim();
+      const list = $('#participantList');
 
-	<!-- 스크립트 영역 -->
-	<script>
-
-  	function addParticipant() {
-    	const input = document.getElementById('participantInput');
-    	const name = input.value.trim();
-    	const list = document.getElementById('participantList');
-
-    	if (name !== '') {
-      	const badge = document.createElement('span');
-      	badge.className = 'badge bg-secondary d-inline-flex align-items-center';
-      	badge.style.paddingRight = '8px';
-      	badge.innerHTML = `
-        	${name}
-        	<button type="button" class="btn-close btn-close-white btn-sm ms-2" aria-label="삭제"
-          	onclick="this.parentElement.remove()"></button>
-        	<input type="hidden" name="participants" value="${name}">
-      	`;
-      	list.appendChild(badge);
-      	input.value = '';
-    	}
-  	}
-
-  	function resetForm() {
-    	document.getElementById('scheduleForm').reset();
-    	document.getElementById('participantList').innerHTML = '';
-    	const repeatCycle = document.getElementById('repeatCycle');
-    	if (repeatCycle) repeatCycle.parentElement.remove();
-  	}
-
-  	document.getElementById('allDay').addEventListener('change', function () {
-    	const startInput = document.getElementById('start');
-    	const endInput = document.getElementById('end');
-    	if (this.checked) {
-      	const startDate = new Date(startInput.value);
-      	if (!isNaN(startDate)) {
-        	startDate.setHours(0, 0, 0, 0);
-        	startInput.value = startDate.toISOString().slice(0, 16);
-      	}
-      	const endDate = new Date(endInput.value);
-      		if (!isNaN(endDate)) {
-        			endDate.setHours(23, 59, 0, 0);
-        			endInput.value = endDate.toISOString().slice(0, 16);
-      		}
-    	}
-  	});
-
-  	document.getElementById('repeat').addEventListener('change', function () {
-    	if (this.checked) {
-      	if (!document.getElementById('repeatCycle')) {
-        	const div = document.createElement('div');
-        	div.className = 'form-section';
-        	div.innerHTML = `
-          		<label class="form-label">반복 주기</label>
-          	<select id="repeatCycle" name="repeatCycle" class="form-select" style="max-width: 200px;">
-            	<option value="none">선택 안함</option>
-            	<option value="daily">매일</option>
-            	<option value="weekly">매주</option>
-            	<option value="monthly">매월</option>
-            	<option value="yearly" selected>매년</option>
-          	</select>
-        	`;
-        	const repeatCheckSection = document.getElementById('repeat').closest('.form-check');
-        	repeatCheckSection.insertAdjacentElement('afterend', div);
-      	}
-    	} else {
-      		const repeatCycle = document.getElementById('repeatCycle');
-      		if (repeatCycle) repeatCycle.parentElement.remove();
-    	}
-  	});
-  
-
-  	function setDateOnly(inputId, datetimeStr) {
-      	if (!datetimeStr) return;
-      	const date = new Date(datetimeStr);
-      	if (!isNaN(date)) {
-        	const yyyyMMdd = date.toISOString().slice(0, 10); // YYYY-MM-DD
-        	document.getElementById(inputId).value = yyyyMMdd;
-      	}
+      if (name !== '') {
+        const badge = $(`
+          <span class="badge bg-secondary d-inline-flex align-items-center" style="padding-right:8px;">
+            ${name}
+            <button type="button" class="btn-close btn-close-white btn-sm ms-2" aria-label="삭제"></button>
+            <input type="hidden" name="participants" value="${name}">
+          </span>
+        `);
+        badge.find('button').click(() => badge.remove());
+        list.append(badge);
+        input.val('');
+      }
     }
-
-    // 날짜만 설정 (시간은 사용자가 입력)
-    window.addEventListener('DOMContentLoaded', () => {
-    	const params = new URLSearchParams(window.location.search);
-      	const start = params.get('start');
-      	const end = params.get('end');
-
-      	setDateOnly('start', start);
-      	setDateOnly('end', end);
-    });
-
-    // submit 전에 날짜 + 시간 합쳐서 hidden input에 넣기
-    document.getElementById('scheduleForm').addEventListener('submit', function (e) {
-      	const startDate = document.getElementById('start').value;
-      	const startTime = document.getElementById('startTime').value;
-      	const endDate = document.getElementById('end').value;
-      	const endTime = document.getElementById('endTime').value;
-
-      	document.getElementById('startDateTime').value = `${startDate}T${startTime}`;
-      	document.getElementById('endDateTime').value = `${endDate}T${endTime}`;
-    });
 
     function resetForm() {
-      	document.getElementById('scheduleForm').reset();
+      $('#scheduleForm')[0].reset();
+      $('#participantList').empty();
+      $('#repeatCycle')?.parent().remove();
     }
-</script>
+
+    $('#allDay').on('change', function () {
+      if (this.checked) {
+        const startVal = $('#start').val();
+        const endVal = $('#end').val();
+        if (startVal) $('#startTime').val('00:00');
+        if (endVal) $('#endTime').val('23:59');
+      }
+    });
+
+    $('#repeat').on('change', function () {
+      if (this.checked && !$('#repeatCycle').length) {
+        const html = `
+          <div class="form-section">
+            <label class="form-label">반복 주기</label>
+            <select id="repeatCycle" name="repeatCycle" class="form-select" style="max-width: 200px;">
+              <option value="none">선택 안함</option>
+              <option value="daily">매일</option>
+              <option value="weekly">매주</option>
+              <option value="monthly">매월</option>
+              <option value="yearly" selected>매년</option>
+            </select>
+          </div>`;
+        $('#repeat').closest('.form-check').after(html);
+      } else {
+        $('#repeatCycle')?.parent().remove();
+      }
+    });
+
+    function loadCalendars() {
+    	  $.ajax({
+    	    url: 'http://localhost:8082/muscat/cal/listCalendar',
+    	    type: 'GET',
+    	    dataType: 'json',
+    	    success: function (response) {
+    	      const calendars = Array.isArray(response.result) ? response.result : response;
+
+    	      $('#calendar').empty(); // 기존 항목 제거
+    	      $('#calendar').append(`<option value="">캘린더 선택</option>`); // 기본 선택지 추가
+
+    	      if (Array.isArray(calendars)) {
+    	        calendars.forEach(cal => {
+    	          const calId = (cal.CAL_ID || '').trim();
+    	          const calName = (cal.CAL_NAME || '').trim();
+    	          const color = (cal.COLOR || '#1e90ff').trim();
+
+    	          const option = $(`<option></option>`)
+    	            .val(calId)
+    	            .text(calName)
+    	            .css('color', color);
+
+    	          $('#calendar').append(option);
+    	        });
+    	      } else {
+    	        Swal.fire({
+    	          icon: 'error',
+    	          title: '캘린더 목록 오류',
+    	          text: '올바른 형식의 캘린더 데이터를 받아오지 못했습니다.'
+    	        });
+    	      }
+    	    },
+    	    error: function () {
+    	      Swal.fire({
+    	        icon: 'error',
+    	        title: '캘린더 목록 불러오기 실패',
+    	        text: '서버에서 캘린더 데이터를 가져오는 데 실패했습니다.'
+    	      });
+    	    }
+    	  });
+    	}
+
+    $('#scheduleForm').on('submit', function (e) {
+      e.preventDefault();
+
+      const data = {
+        schdulNm: $('#title').val(),
+        schdulPlace: $('#location').val(),
+        schdulCn: $('#description').val(),
+        frstRegisterId: "admin",
+        schdulBgnde: `${$('#start').val()}T${$('#startTime').val()}`,
+        schdulEndde: `${$('#end').val()}T${$('#endTime').val()}`,
+        calId: $('#calendar').val()
+      };
+
+      $.ajax({
+        url: 'http://localhost:8082/muscat/cal/insertSchedule',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function () {
+          alert('등록되었습니다.');
+          window.location.href = 'calMonth.do';
+        },
+        error: function (xhr) {
+          alert('등록 실패: ' + xhr.responseText);
+        }
+      });
+    });
+
+    $(document).ready(() => {
+      loadCalendars();
+
+      const params = new URLSearchParams(window.location.search);
+      const start = params.get('start');
+      const end = params.get('end');
+      if (start) $('#start').val(start.slice(0, 10));
+      if (end) $('#end').val(end.slice(0, 10));
+    });
+  </script>
 </main>
 </html>

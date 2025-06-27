@@ -11,6 +11,8 @@ public class ScudVO implements Serializable {
 	private String leaderId;
 	
 	private String schdulId;
+	
+	private String calId;
 
 	/** 일정구분(회의/교육/세미나/강의 기타) */
 	private String schdulSe;

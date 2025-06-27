@@ -35,22 +35,12 @@ public class CalController {
 	private CalMapper calMapper;
 
 	// 등록
-	@PostMapping("/cal/insertSchedule.json")
+	@PostMapping("/cal/insertSchedule")
 	@ResponseBody
-	public ResponseEntity<?> insertSchedule(@RequestBody ScudVO vo) throws Exception {
-		vo.setLeaderId("admin");
-		calMapper.insertSchedule(vo); // DB 저장
-		return ResponseEntity.ok().build();
+	public String insertSchedule(@RequestBody ScudVO vo) throws Exception {
+	    calService.insertSchedule(vo); // 오류 시 자동으로 예외 발생
+	    return "success";
 	}
-
-//    @GetMapping("/cal/listSchedule")
-//    public ModelAndView listSchedule(@RequestParam(required = false) String start,
-//                                     @RequestParam(required = false) String end) throws Exception {
-//    	ModelAndView mav = new ModelAndView("jsonView");
-//    	mav.addObject("list", calService.selectScheduleList());
-//    	
-//        return mav;
-//    }
 
 	// 조회
 	@GetMapping("/cal/listSchedule")
@@ -75,34 +65,14 @@ public class CalController {
 		return "cal/calMonth.html";
 	}
 
-	@PostMapping("cal/save")
-	public String saveSchedule(HttpServletRequest request, RedirectAttributes redirectAttributes) throws Exception {
-		ScudVO vo = new ScudVO();
-		vo.setSchdulId(UUID.randomUUID().toString().substring(0, 20));
-		vo.setSchdulNm(request.getParameter("title"));
-		vo.setSchdulPlace(request.getParameter("location"));
-		vo.setSchdulCn(request.getParameter("description"));
 
-		DateTimeFormatter inputFmt = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-		DateTimeFormatter dbFmt = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-
-		vo.setSchdulBgnde(LocalDateTime.parse(request.getParameter("start"), inputFmt).format(dbFmt));
-		vo.setSchdulEndde(LocalDateTime.parse(request.getParameter("end"), inputFmt).format(dbFmt));
-
-		vo.setFrstRegisterId("admin");
-		vo.setLeaderId("admin");
-
-		calMapper.insertSchedule(vo);
-		return "redirect:/cal/calMonth.html";
-	}
-
-	@GetMapping("/cal/listCalendar.json")
+	@GetMapping("/cal/listCalendar")
 	@ResponseBody
 	public List<Map> listCalendar() {
 	    return calService.selectCalendarList();
 	}
 	
-	@PostMapping("cal/insertCalendar.json")
+	@PostMapping("/cal/insertCalendar")
 	@ResponseBody
 	public ResponseEntity<String> insertCalendar(@RequestBody CalendarVO calendarVO) {
 	    try {
