@@ -22,6 +22,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <style>
+
 /* 모달 헤더 스타일 */
 * {
 	font-style: normal !important;
@@ -89,39 +90,23 @@
 
 <main layout:fragment="content">
 	<div class="calendar-sidebar">
-		<div class="p-1 border-end"
-			style="background-color: #f3fdee; width: 220px; height: 700px; float: left;">
-			<button class="btn btn-success w-100 mt-2"
-				onclick="location.href='calDetail.do'">일정등록</button>
-			<h6
-				class="border-top mt-2 d-flex justify-content-between align-items-center">
-				<strong>내 캘린더</strong>
-				<button class="btn btn-sm btn-outline-secondary py-0 px-2"
-					id="addMyCalendar">+</button>
-			</h6>
-			<div>
-				<input type="checkbox" class="calendar-toggle"
-					data-calendar-id="personal" checked> <span
-					style="color: #1e90ff;">●</span> 개인
-			</div>
-			<h6
-				class="border-top mt-2 d-flex justify-content-between align-items-center">
-				<strong>공유 캘린더</strong>
-				<button class="btn btn-sm btn-outline-secondary py-0 px-2"
-					id="addSharedCalendar">+</button>
-			</h6>
-			<div>
-				<input type="checkbox" class="calendar-toggle"
-					data-calendar-id="personal" checked> <span
-					style="color: #000000;">●</span> 전사함
-			</div>
-			<div>
-				<input type="checkbox" class="calendar-toggle"
-					data-calendar-id="personal" checked> <span
-					style="color: #1e90ff;">●</span> 회계부서
-			</div>
-		</div>
-	</div>
+  <div class="p-1 border-end"
+       style="background-color: #f3fdee; width: 220px; height: 700px; float: left;">
+    <button class="btn btn-success w-100 mt-2" onclick="location.href='calDetail.do'">일정등록</button>
+
+    <h6 class="my-calendar-header border-top mt-2 d-flex justify-content-between align-items-center">
+      <strong>내 캘린더</strong>
+      <button class="btn btn-sm btn-outline-secondary py-0 px-2" id="addMyCalendar">+</button>
+    </h6>
+    <div id="myCalendarList"></div> 
+
+    <h6 class="shared-calendar-header border-top mt-2 d-flex justify-content-between align-items-center">
+      <strong>공유 캘린더</strong>
+      <button class="btn btn-sm btn-outline-secondary py-0 px-2" id="addSharedCalendar">+</button>
+    </h6>
+    <div id="sharedCalendarList"></div>
+  </div>
+</div>
 	<div class="container-fluid" style="padding-right: 50px">
 		<div id="calendar" style="margin-left: 220px;"></div>
 	</div>
@@ -192,190 +177,226 @@
 	    return dateStr.replace(/-/g, '') + '000000';
 	  }
     document.addEventListener('DOMContentLoaded', function () {
+      let clickTimer = null;
+      
+      let isAll = false; 
       let calendarEl = document.getElementById('calendar');
       const calendarModal = new bootstrap.Modal(document.getElementById('calendarModal'));
-      let clickTimer = null;
 
     
       
-      let calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        locale: 'ko',
-        themeSystem: 'bootstrap5',
-        height: 700, 
-        dayMaxEventRows: true,
-        headerToolbar: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
-        },
-        events: 'http://localhost:8082/muscat/cal/listSchedule',
-        buttonText: {
-          today: '오늘',
-          month: '월간',
-          week: '주간',
-          day: '일간',
-          list: '목록'
-        },
-        selectable: true,
-        editable: true,
-        dateClick: function(info) {
-        	  if (clickTimer === null) {
-        	    clickTimer = setTimeout(function () {
-        	      clickTimer = null;
-
-        	      // 단일 클릭: 모달 열기
-        	      $('#eventTitle').val('').focus();
-        	      $('#eventContent').val('');
-        	      $('#eventLocation').val('');
-        	      $('#eventStart').val(info.dateStr);
-        	      $('#eventEnd').val('');
-        	      $('#eventAllDay').val(true);
-
-        	      const modal = new bootstrap.Modal(document.getElementById('eventModal'));
-        	      modal.show();
-
-        	    }, 200);
-        	  } else {
-        	    clearTimeout(clickTimer);
-        	    clickTimer = null;
-        	    const startDate = new Date(info.date);
-        	    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
-
-        	    const formatDateTimeLocal = (date) => date.toISOString().slice(0, 16);
-
-        	    const start = formatDateTimeLocal(startDate);
-        	    const end = formatDateTimeLocal(endDate);
-
-        	    window.location.href = `calDetail.do?start=${start}&end=${end}`;
-        	  }
-        	}
-      });
-
-      calendar.render();
+      const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+          initialView: 'dayGridMonth',
+          locale: 'ko',
+          themeSystem: 'bootstrap5',
+          height: 700,
+          fixedWeekCount: true,
+          dayMaxEventRows: true,
+          headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek' },
+          
+          events: function (fetchInfo, successCallback, failureCallback) {
+        	  $.ajax({
+        	    url: 'http://localhost:8082/muscat/cal/listSchedule',
+        	    type: 'GET',
+        	    dataType: 'json',
+        	    success: function (response) {
+        	      if (Array.isArray(response)) {
+        	        successCallback(response); // 배열일 경우 그대로 사용
+        	      } else if (Array.isArray(response.result)) {
+        	        successCallback(response.result); // result 키 내부가 배열일 경우
+        	      } else {
+        	        Swal.fire({
+        	          icon: 'error',
+        	          title: '이벤트 로딩 실패',
+        	          text: '일정 데이터가 올바르지 않습니다.'
+        	        });
+        	        failureCallback();
+        	      }
+        	    },
+        	    error: function () {
+        	      Swal.fire({
+        	        icon: 'error',
+        	        title: '이벤트 로딩 실패',
+        	        text: '서버로부터 일정을 가져오지 못했습니다.'
+        	      });
+        	      failureCallback();
+        	    }
+        	  });
+        	},
+          
+          selectable: true,
+          editable: true,
+          dateClick: function (info) {
+            if (clickTimer === null) {
+              clickTimer = setTimeout(() => {
+                clickTimer = null;
+                $('#eventTitle').val('').focus();
+                $('#eventContent').val('');
+                $('#eventLocation').val('');
+                $('#eventStart').val(info.dateStr);
+                $('#eventEnd').val('');
+                $('#eventAllDay').val(true);
+                new bootstrap.Modal(document.getElementById('eventModal')).show();
+              }, 200);
+            } else {
+              clearTimeout(clickTimer);
+              clickTimer = null;
+              const startDate = new Date(info.date);
+              const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+              const formatDateTimeLocal = date => date.toISOString().slice(0, 16);
+              const start = formatDateTimeLocal(startDate);
+              const end = formatDateTimeLocal(endDate);
+              window.location.href = `calDetail.do?start=${start}&end=${end}`;
+            }
+          }
+        });
+        calendar.render();
 
       
-      function loadCalendars() {
-    	    $.ajax({
-    	      url: 'http://localhost:8082/muscat/cal/listCalendar.json',
-    	      method: 'GET',
-    	      success: function(calendars) {
-    	        // 개인 캘린더, 공유 캘린더 각각 렌더링 영역 찾기
-    	        const myCalendarContainer = $('#addMyCalendar').closest('h6').nextUntil('h6').last();
-    	        const sharedCalendarContainer = $('#addSharedCalendar').closest('h6').nextUntil('h6').last();
+        function loadCalendars() {
+        	  $.ajax({
+        	    url: 'http://localhost:8082/muscat/cal/listCalendar',
+        	    method: 'GET',
+        	    success: function (response) {
+        	      // response.result가 배열인지, 아니면 response가 배열인지 판단
+        	      const calendars = Array.isArray(response.result) ? response.result : response;
+        	      console.log('캘린더 응답:', calendars);
 
-    	        myCalendarContainer.nextAll().remove(); // 기존 개인 캘린더 제거
-    	        sharedCalendarContainer.nextAll().remove(); // 기존 공유 캘린더 제거
+        	      // 리스트 초기화
+        	      $('#myCalendarList').empty();
+        	      $('#sharedCalendarList').empty();
 
-    	        calendars.forEach(cal => {
-    	          const html = `
-    	            <div>
-    	              <input type="checkbox" class="calendar-toggle" data-calendar-id="${cal.calId}" checked>
-    	              <span style="color: ${cal.color};">●</span> ${cal.calName}
-    	            </div>
-    	          `;
+        	      if (Array.isArray(calendars)) {
+        	        calendars.forEach(cal => {
+        	          // 공백 제거
+        	          const calId = (cal.CAL_ID || '').trim();
+        	          const color = (cal.COLOR || '#1e90ff').trim();
+        	          const calName = (cal.CAL_NAME || '').trim();
+        	          const ownerId = (cal.OWNER_ID || '').trim();
 
-    	          // ownerId에 따라 분류, 예: 'admin' 개인 캘린더, 아니면 공유 캘린더
-    	          if (cal.ownerId === 'admin') {
-    	            myCalendarContainer.after(html);
-    	          } else {
-    	            sharedCalendarContainer.after(html);
-    	          }
-    	        });
-    	      },
-    	      error: function() {
-    	        alert('캘린더 목록을 불러오는 데 실패했습니다.');
-    	      }
-    	    });
-    	  }
+        	          const html = `
+        	            <div>
+        	              <input type="checkbox" class="calendar-toggle" data-calendar-id="${calId}" checked>
+        	              <span style="color: ${color};">●</span> ${calName}
+        	            </div>`;
 
-    	  loadCalendars();
+        	          if (ownerId === 'admin') {
+        	            $('#myCalendarList').append(html);
+        	          } else {
+        	            $('#sharedCalendarList').append(html);
+        	          }
+        	        });
+        	      } else {
+        	        console.error('캘린더 배열이 아닙니다.');
+        	        Swal.fire({
+        	          icon: 'error',
+        	          title: '불러오기 실패',
+        	          text: '캘린더 목록을 불러오지 못했습니다.'
+        	        });
+        	      }
+        	    },
+        	    error: function () {
+        	      Swal.fire({
+        	        icon: 'error',
+        	        title: '불러오기 실패',
+        	        text: '서버에서 캘린더 목록을 불러오지 못했습니다.'
+        	      });
+        	    }
+        	  });
+        	}
+
+          loadCalendars();
+          
+          document.getElementById('saveEventBtn').addEventListener('click', function () {
+        	  const title = $('#eventTitle').val().trim();
+        	  const content = $('#eventContent').val().trim();
+        	  const location = $('#eventlocation').val().trim();
+        	  const startDate = $('#eventStart').val();
+        	  const startTime = $('#startTime').val();
+        	  const endTime = $('#endTime').val();
+
+        	  if (!title || !startDate || !startTime || !endTime) {
+        	    Swal.fire({
+        	      icon: 'warning',
+        	      title: '입력 누락',
+        	      text: '필수 정보를 모두 입력해 주세요.'
+        	    });
+        	    return;
+        	  }
+
+        	  const start = `${startDate}T${startTime}`;
+        	  const end = `${startDate}T${endTime}`;
+
+        	  const data = {
+        	    schdulNm: title,
+        	    schdulCn: content,
+        	    schdulPlace: location,
+        	    schdulBgnde: start,
+        	    schdulEndde: end,
+        	    frstRegisterId: 'admin'
+        	  };
+
+        	  $.ajax({
+        	    type: 'POST',
+        	    url: 'http://localhost:8082/muscat/cal/insertSchedule',
+        	    contentType: 'application/json',
+        	    data: JSON.stringify(data),
+        	    success: function () {
+        	      $('#eventModal').modal('hide');
+        	      Swal.fire({
+        	        icon: 'success',
+        	        title: '일정 등록 성공',
+        	        text: '일정이 등록되었습니다.'
+        	      }).then(() => {
+        	        location.reload(); // 캘린더 리로드
+        	      });
+        	    },
+        	    error: function () {
+        	      Swal.fire({
+        	        icon: 'error',
+        	        title: '등록 실패',
+        	        text: '일정 등록 중 오류가 발생했습니다.'
+        	      });
+        	    }
+        	  });
+        	});
     	  
-      // 저장 버튼
-      document.getElementById('saveCalendarBtn').addEventListener('click', function () {
-    const name = document.getElementById('calendarName').value.trim();
-    const color = document.getElementById('calendarColor').value;
-    const isAll = document.getElementById('calendarAllDay').checked;
+      
 
-    if (!name) {
-      Swal.fire({
-        icon: 'warning',
-        title: '입력 오류',
-        text: '캘린더 이름을 입력하세요.'
-      });
-      return;
-    }
+          document.getElementById('addMyCalendar').addEventListener('click', function () {
+              isAll = false;
+              $('#calendarName').val('');
+              $('#calendarColor').val('#1e90ff');
+              calendarModal.show();
+            });
 
-    const newId = 'calendar_' + Date.now();
+            // '공유 캘린더 +' 클릭
+            document.getElementById('addSharedCalendar').addEventListener('click', function () {
+              isAll = true; // 오타 수정: ture → true
+              $('#calendarName').val('');
+              $('#calendarColor').val('#1e90ff');
+              calendarModal.show();
+            });
 
-    $.ajax({
-      type: 'POST',
-      url: 'http://localhost:8082/muscat/cal/insertCalendar.json',
-      contentType: 'application/json',
-      data: JSON.stringify({
-        calId: newId,
-        calName: name,
-        color: color,
-        ownerId: 'admin'
-      }),
-      success: function () {
-        const html = `
-          <div>
-            <input type="checkbox" class="calendar-toggle" data-calendar-id="${newId}" checked>
-            <span style="color: ${color};">●</span> ${name}
-          </div>`;
+            // 캘린더 저장 버튼 (단일 리스너)
+            document.getElementById('saveCalendarBtn').addEventListener('click', function () {
+              const name = $('#calendarName').val().trim();
+              const color = $('#calendarColor').val();
 
-        if (isAll) {
-          $('#addSharedCalendar').closest('h6').nextUntil('h6').last().after(html);
-        } else {
-          $('#addMyCalendar').closest('h6').nextUntil('h6').last().after(html);
-        }
-
-        calendarModal.hide();
-        loadCalendars(); 
-
-        Swal.fire({
-          icon: 'success',
-          title: '등록 완료',
-          text: '캘린더가 성공적으로 등록되었습니다!'
-        });
-      },
-      error: function () {
-        Swal.fire({
-          icon: 'error',
-          title: '등록 실패',
-          text: '캘린더 저장에 실패했습니다.'
-        });
-      }
-    });
-});
-
-      document.getElementById('addMyCalendar').addEventListener('click', function () {
-          document.getElementById('calendarName').value = '';
-          document.getElementById('calendarColor').value = '#1e90ff';
-          calendarModal.show();
-        });
-
-        document.getElementById('addSharedCalendar').addEventListener('click', function () {
-          document.getElementById('calendarName').value = '';
-          document.getElementById('calendarColor').value = '#1e90ff';
-          calendarModal.show();
-        });
-
-        document.getElementById('saveCalendarBtn').addEventListener('click', function () {
-            const name = document.getElementById('calendarName').value.trim();
-            const color = document.getElementById('calendarColor').value;
-
-            if (!name) {
-              alert('캘린더 이름을 입력하세요.');
-              return;
-            }
+              if (!name) {
+            	    Swal.fire({
+            	      icon: 'warning',
+            	      title: '입력 오류',
+            	      text: '캘린더 이름을 입력하세요.'
+            	    });
+            	    return;
+            	  }
 
             const newId = 'cal_' + Date.now().toString(36).slice(-6);
 
             $.ajax({
               type: 'POST',
-              url: 'http://localhost:8082/muscat/cal/insertCalendar.json',
+              url: 'http://localhost:8082/muscat/cal/insertCalendar',
               contentType: 'application/json',
               data: JSON.stringify({
                 calId: newId,
@@ -397,10 +418,23 @@
                 }
 
                 calendarModal.hide();
-              },
-              error: function () {
-                alert('캘린더 저장 실패');
-              }
+               
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: '등록 완료',
+                    text: '캘린더가 성공적으로 등록되었습니다!'
+                  }).then(() => {
+                      location.reload(); // 새로고침
+                  });
+                },
+                error: function () {
+                  Swal.fire({
+                    icon: 'error',
+                    title: '저장 실패',
+                    text: '캘린더 저장에 실패했습니다.'
+                  });
+                }
             });
         });
     });
