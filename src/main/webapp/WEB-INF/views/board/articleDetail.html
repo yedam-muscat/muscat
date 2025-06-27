@@ -45,9 +45,9 @@
   </table>
 
   <div class="text-end mb-4">
-    <button class="btn btn-primary">수정</button>
-    <button class="btn btn-danger">삭제</button>
-    <button class="btn btn-warning">답글</button>
+    <button class="btn btn-primary" onclick="goEdit()">수정</button>
+    <button class="btn btn-danger" onclick="goDelete()">삭제</button>
+    <button class="btn btn-warning" onclick="goReply()">답글</button>
     <button class="btn btn-secondary" onclick="goBack()">목록</button>
     <button class="btn btn-info">스크랩</button>
   </div>
@@ -84,6 +84,33 @@
         document.getElementById("nttCn").innerHTML = data.nttCn?.replace(/\n/g, "<br>");
         document.getElementById("ntceBgnde").textContent = `${data.ntceBgnde} ~ ${data.ntceEndde}`;
       });
+
+    function goEdit() {
+      window.location.href = `/muscat/board/articleUpdt.do?bbsId=${bbsId}&nttId=${nttId}`;
+    }
+
+    function goDelete() {
+      if (confirm("정말 삭제하시겠습니까?")) {
+        fetch(`/muscat/board/articleDelete`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bbsId, nttId })
+        })
+        .then(res => res.json())
+        .then(res => {
+          if (res.resultCode === "SUCCESS") {
+            alert("삭제되었습니다.");
+            goBack();
+          } else {
+            alert("삭제 실패: " + res.resultMessage);
+          }
+        });
+      }
+    }
+
+    function goReply() {
+      window.location.href = `/muscat/board/articleReply.do?bbsId=${bbsId}&nttId=${nttId}`;
+    }
 
     function goBack() {
       window.location.href = `/muscat/board/articleList.do?bbsId=${bbsId}`;
