@@ -117,9 +117,11 @@ public class BoardMasterContoller {
 
 			// Blog 여부 보정
 			boardMaster.setBlogAt("Y".equals(boardMaster.getBlogAt()) ? "Y" : "N");
-
+			
+			// 실제 등록 서비스 호출
 			egovBBSMasterService.insertBBSMasterInf(boardMaster);
-
+			
+			// 성공 결과 응답 구성
 			resultMap.put("resultCode", "SUCCESS");
 			resultMap.put("resultMessage", "등록이 완료되었습니다.");
 		} catch (Exception e) {
