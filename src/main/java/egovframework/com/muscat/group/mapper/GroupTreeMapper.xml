@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.com.muscat.group.mapper.GroupTreeMapper">
+  
+  <select id="selectOrgChartData" resultType="map">
+    SELECT
+      ID AS id,
+      PARENT_ID AS parent,
+      NAME AS text,
+      TYPE AS type,
+      TITLE AS "data.title",
+      ROLE AS "data.role"
+    FROM ORG_CHART
+  </select>
+
+</mapper>

@@ -44,7 +44,9 @@
 				</a>
 					<ul class="submenu ">
 						<li class="submenu-item " id="masterList"><a
-							href="/muscat/board/masterList.do">게시판 하위항목</a></li>
+							href="/muscat/board/masterList.do">게시판</a></li>
+						<li class="submenu-item " id="articleList"><a
+							href="/muscat/board/articleList.do?bbsId=BBSMSTR_000000000041xmnHCdBjcH">게시글</a></li>
 					</ul></li>
 
 				<li class="sidebar-item  has-sub" id="cal"><a href="#"
@@ -52,9 +54,11 @@
 				</a>
 					<ul class="submenu ">
 						<li class="submenu-item " id="calMonth"><a
-							href="/muscat/cal/calMonth.do">일정 하위항목</a></li>
-
+							href="/muscat/cal/calMonth.do"></a></li>
 					</ul></li>
+
+				<li class="sidebar-item"><a href="/muscat/chat/chat.do"
+					class='sidebar-link'> <i class="bi bi-chat-dots"></i> <span>채팅</span></a></li>
 
 				<!-- 공통코드 -->
 				<!-- <li class="sidebar-item  has-sub"><a href="#"
@@ -86,6 +90,7 @@
 			<i data-feather="x"></i>
 		</button>
 	</div>
+	
 	<!-- 조직도 Modal -->
 	<div class="modal fade" id="staticBackdrop" data-bs-backdrop="false"
 		data-bs-keyboard="false" tabindex="-1"
@@ -117,7 +122,7 @@
 			<h5 class="card-title" id="empName">사원명</h5>
 			<p class="card-text" id="empDetail">부서 / 직급</p>
 			<div>
-				<i class="bi bi-envelope-at"></i> <span id="empEmail">email@example.com</span>
+				<span id="empEmail">email@example.com</span>
 			</div>
 			<div class="d-flex justify-content-start gap-2 mb-2">
 				<i class="bi bi-calendar3"></i> <a href="/muscat/cal/calMonth.do"
@@ -155,17 +160,17 @@
 								class="form-control form-control-sm" placeholder="이름 검색">
 						</div>
 						<ul class="list-group list-group-flush mb-0">
-							<li class="list-group-item chat-entry" data-user="홍길동">홍길동</li>
-							<li class="list-group-item chat-entry" data-user="김가">김가</li>
-							<li class="list-group-item chat-entry" data-user="김철수">김철수</li>
+							<li class="list-group-item chat-entry" data-user="아이유">아이유</li>
+							<li class="list-group-item chat-entry" data-user="박보검">박보검</li>
+							<li class="list-group-item chat-entry" data-user="김태리">김태리</li>
 						</ul>
 					</div>
 				</div>
 				<div class="modal-body">
 					<ul class="list-group" id="chatList">
-						<li class="list-group-item chat-entry" data-user="홍길동">홍길동</li>
-						<li class="list-group-item chat-entry" data-user="김가">김가</li>
-						<li class="list-group-item chat-entry" data-user="김철수">김철수</li>
+						<li class="list-group-item chat-entry" data-user="아이유">아이유</li>
+						<li class="list-group-item chat-entry" data-user="박보검">박보검</li>
+						<li class="list-group-item chat-entry" data-user="김태리">김태리</li>
 					</ul>
 				</div>
 			</div>
@@ -176,7 +181,7 @@
 
 	<!-- 채팅방 -->
 	<div id="chatRoom"
-		style="display: flex; position: fixed; bottom: 20px; right: 20px; width: 300px; height: 400px; background: #fff; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); z-index: 1045; flex-direction: column;">
+		style="display: none; position: fixed; bottom: 20px; right: 20px; width: 300px; height: 400px; background: #fff; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); z-index: 1045; flex-direction: column;">
 		<div class="header"
 			style="background: #fff; color: black; padding: 10px; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center;">
 
@@ -307,15 +312,16 @@
 				</div>
 				<div class="modal-footer">
 					<button id="approveReport" class="btn btn-success">승인</button>
+					<button id="holdReport" class="btn btn-warning">보류</button>
 					<button type="button" class="btn btn-secondary"
 						data-bs-dismiss="modal">닫기</button>
 				</div>
 			</div>
-		</div>
+</div>
 	</div>
 
-	<!-- Scripts -->
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<!-- <!-- Scripts -->
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
 	<!-- <script
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>  -->
 	<script
@@ -400,87 +406,32 @@
 		});
 
 		function initTree() {
-			$('#tree').jstree(
-					{
-						'core' : {
-							'data' : [ {
-								"id" : "CEO",
-								"parent" : "#",
-								"text" : "CEO",
-								"type" : "default",
-								"data" : {
-									"email" : "CEO@company.com",
-									"dept" : "CEO",
-									"title" : "대표이사"
-								}
-							}, {
-								"id" : "부서1",
-								"parent" : "CEO",
-								"text" : "부서1",
-								"type" : "default"
-							}, {
-								"id" : "부서2",
-								"parent" : "CEO",
-								"text" : "부서2",
-								"type" : "default"
-							}, {
-								"id" : "팀1",
-								"parent" : "부서1",
-								"text" : "팀1",
-								"type" : "user"
-							}, {
-								"id" : "팀2",
-								"parent" : "부서2",
-								"text" : "팀2",
-								"type" : "user"
-							}, {
-								"id" : "사원1",
-								"parent" : "팀1",
-								"text" : "홍길동",
-								"type" : "user",
-								"data" : {
-									"email" : "hong@company.com",
-									"dept" : "팀1",
-									"title" : "대리"
-								}
-							}, {
-								"id" : "사원2",
-								"parent" : "팀2",
-								"text" : "김가",
-								"type" : "user",
-								"data" : {
-									"email" : "kim@company.com",
-									"dept" : "팀2",
-									"title" : "과장"
-								}
-							}, ],
-							'themes' : {
-								'responsive' : false,
-								'variant' : 'small',
-								'stripes' : true
-							},
-							'check_callback' : true
-						},
-						'types' : {
-							'default' : {
-								'icon' : 'bi bi-folder'
-							},
-							'user' : {
-								'valid_children' : [],
-								'icon' : 'bi bi-person'
-							}
-						},
-						'plugins' : [ 'types', 'state', 'dnd', 'sort',
-								'contextmenu', 'unique' ]
-					}).on("select_node.jstree", function(e, data) {
-				if (data.node.type === "user") {
-					showEmployeeCard(data.node);
-				} else {
-					hideCard();
-				}
-			});
-		}
-
+			  $('#tree')
+			    .jstree({
+			      'core': {
+			        'data': {
+			          'url': '/group/chartData.do',  
+			          'dataType': 'json'
+			        },
+			        'themes': {
+			          'responsive': false
+			        }
+			      },
+			      'types': {
+			        'default': { 'icon': 'bi bi-folder' },
+			        'user': { 'icon': 'bi bi-person' }
+			      },
+			      'plugins': ['types']
+			    })
+			    .on("select_node.jstree", function(e, data) {
+			      if (data.node.type === "user") {
+			        showEmployeeCard(data.node);
+			      } else {
+			        hideCard();
+			      }
+			    });
+			}
+		
 		function showEmployeeCard(node) {
 			const card = document.getElementById('employeeCard');
 			document.getElementById('empName').innerText = node.text;
@@ -572,6 +523,7 @@
 		$('#closeChat').on('click', function() {
 			$('#chatRoom').hide();
 		});
+		
 
 		// 전송 버튼 클릭
 		$('#sendMsg').on('click', sendMessage);
@@ -759,12 +711,12 @@
 			  $('#chatListPopup').hide();
 			});
 
-			// 화면 클릭 시 팝업 닫기
+			/* // 화면 클릭 시 팝업 닫기
 			$(document).on('click', function(e) {
 			  if (!$(e.target).closest('#openMessenger, #chatListPopup').length) {
 			    $('#chatListPopup').hide();
 			  }
-			});
+			}); */
 			
 			//채팅방 파일 첨부 시작
 			$('#fileInput').on('change', function() {
@@ -796,8 +748,7 @@
 			
 			//보고 모달 열기
 			$('#attachFileIcon').on('click', function() {
-				  const modal = new bootstrap.Modal(document.getElementById('fileAttachModal'));
-				  modal.show();
+				  $('#fileInput').click();
 				});
 
 				$('#openMemoModal').on('click', function() {

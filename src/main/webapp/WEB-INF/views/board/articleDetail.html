@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>게시글 상세조회</title>
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
+  <script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    th {
+      width: 120px;
+      background-color: #f8f8f8;
+    }
+    #nttCn {
+      min-height: 300px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+
+<main layout:fragment="content">
+  <h2>▶ 게시글 상세조회</h2>
+
+  <table class="table table-bordered">
+    <tbody>
+      <tr>
+        <th>제목</th>
+        <td id="nttSj" colspan="5"></td>
+      </tr>
+      <tr>
+        <th>등록자</th>
+        <td id="frstRegisterNm"></td>
+        <th>등록일</th>
+        <td id="frstRegisterPnttm"></td>
+        <th>조회수</th>
+        <td id="inqireCo"></td>
+      </tr>
+      <tr>
+        <th>내용</th>
+        <td colspan="5">
+          <div id="nttCn"></div>
+        </td>
+      </tr>
+      <tr>
+        <th>게시기간</th>
+        <td id="ntceBgnde" colspan="2"></td>
+      </tr>
+      <tr>
+        <th>첨부파일</th>
+        <td id="atchFileArea" colspan="5"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="text-end mb-4">
+    <button class="btn btn-primary" onclick="goEdit()">수정</button>
+    <button class="btn btn-danger" onclick="goDelete()">삭제</button>
+    <button class="btn btn-warning" onclick="goReply()">답글</button>
+    <button class="btn btn-secondary" onclick="goBack()">목록</button>
+    <button class="btn btn-info">스크랩</button>
+  </div>
+
+  <h4>댓글 <span id="replyCount">0</span></h4>
+  <div id="replyList" class="border p-3 mb-3">댓글이 없습니다.</div>
+
+  <div class="mb-3">
+    <label for="replyContent">댓글내용 *</label>
+    <textarea id="replyContent" rows="3" class="form-control"></textarea>
+  </div>
+  <div class="text-end">
+    <button class="btn btn-primary">댓글등록</button>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const bbsId = urlParams.get("bbsId");
+    const nttId = urlParams.get("nttId");
+
+    if (!bbsId || !nttId) {
+      Swal.fire("오류", "필수 파라미터 누락", "error");
+    }
+
+    fetch(`/muscat/board/articleDetail?bbsId=${bbsId}&nttId=${nttId}`)
+      .then(res => res.json())
+      .then(res => {
+        const data = res.article;
+
+        document.getElementById("nttSj").textContent = data.nttSj;
+        document.getElementById("frstRegisterNm").textContent = data.frstRegisterNm;
+        document.getElementById("frstRegisterPnttm").textContent = data.frstRegisterPnttm;
+        document.getElementById("inqireCo").textContent = data.inqireCo;
+        document.getElementById("nttCn").innerHTML = data.nttCn?.replace(/\n/g, "<br>");
+        document.getElementById("ntceBgnde").textContent = `${data.ntceBgnde} ~ ${data.ntceEndde}`;
+
+        // ✅ 첨부파일 목록 출력
+        const atchFileArea = document.getElementById("atchFileArea");
+        if (data.files && data.files.length > 0) {
+          const fileList = data.files.map(file =>
+            `<a href="/muscat/board/fileDownload?fileId=${file.fileId}" target="_blank">${file.fileName}</a>`
+          ).join("<br>");
+          atchFileArea.innerHTML = fileList;
+        } else {
+          atchFileArea.textContent = "첨부된 파일이 없습니다.";
+        }
+      });
+
+    function goEdit() {
+      window.location.href = `/muscat/board/articleUpdt.do?bbsId=${bbsId}&nttId=${nttId}`;
+    }
+
+    function goDelete() {
+      Swal.fire({
+        title: "정말 삭제하시겠습니까?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "삭제",
+        cancelButtonText: "취소"
+      }).then(result => {
+        if (result.isConfirmed) {
+          fetch(`/muscat/board/articleDelete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ bbsId, nttId })
+          })
+          .then(res => res.json())
+          .then(res => {
+            if (res.resultCode === "SUCCESS") {
+              Swal.fire("삭제 완료", res.resultMessage, "success").then(() => {
+                goBack();
+              });
+            } else {
+              Swal.fire("삭제 실패", res.resultMessage || "오류 발생", "error");
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            Swal.fire("서버 오류", "삭제 요청 중 문제가 발생했습니다.", "error");
+          });
+        }
+      });
+    }
+
+    function goReply() {
+      window.location.href = `/muscat/board/articleReply.do?bbsId=${bbsId}&nttId=${nttId}`;
+    }
+
+    function goBack() {
+      window.location.href = `/muscat/board/articleList.do?bbsId=${bbsId}`;
+    }
+  </script>
+</main>
+</html>

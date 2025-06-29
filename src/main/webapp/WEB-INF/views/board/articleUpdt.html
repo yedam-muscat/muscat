@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>게시글 수정</title>
+
+  <!-- jQuery / UI / CKEditor / SweetAlert2 -->
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+  <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- CKEditor 경고창 제거용 CSS -->
+  <style>
+    .cke_top .cke_notification, 
+    .cke_notification_warning, 
+    .cke_notification_message {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+<main layout:fragment="content" class="container mt-4">
+  <h2>✏ 게시글 수정</h2>
+
+  <form id="editForm" enctype="multipart/form-data">
+    <!-- 숨겨진 필드 -->
+    <input type="hidden" name="bbsId" id="bbsId">
+    <input type="hidden" name="nttId" id="nttId">
+    <input type="hidden" name="anonymousAt" value="N">
+
+    <!-- 제목 -->
+    <div class="mb-3">
+      <label for="nttSj" class="form-label">제목 *</label>
+      <input type="text" class="form-control" id="nttSj" name="nttSj" required>
+    </div>
+
+    <!-- 제목 굵게 -->
+    <div class="mb-3 form-check">
+      <input type="checkbox" class="form-check-input" id="sjBoldAt" name="sjBoldAt" value="Y">
+      <label class="form-check-label" for="sjBoldAt">제목 굵게</label>
+    </div>
+
+    <!-- 내용 -->
+    <div class="mb-3">
+      <label for="nttCn" class="form-label">내용 *</label>
+      <textarea class="form-control" id="nttCn" name="nttCn" rows="10" required></textarea>
+    </div>
+
+    <!-- 공지/비밀 -->
+    <div class="mb-3 form-check">
+      <input type="checkbox" class="form-check-input" id="noticeAt" name="noticeAt" value="Y">
+      <label class="form-check-label" for="noticeAt">공지글</label>
+    </div>
+    <div class="mb-3 form-check">
+      <input type="checkbox" class="form-check-input" id="secretAt" name="secretAt" value="Y">
+      <label class="form-check-label" for="secretAt">비밀글</label>
+    </div>
+
+    <!-- 게시기간 -->
+    <div class="mb-3">
+      <label class="form-label">게시기간</label>
+      <div class="d-flex">
+        <input type="text" class="form-control me-2" id="ntceBgnde" name="ntceBgnde" readonly>
+        <span class="mt-2">~</span>
+        <input type="text" class="form-control ms-2" id="ntceEndde" name="ntceEndde" readonly>
+      </div>
+    </div>
+
+    <!-- 첨부파일 -->
+    <div class="mb-3">
+      <label for="file" class="form-label">첨부파일</label>
+      <input type="file" class="form-control" name="file" id="file" multiple>
+    </div>
+
+    <!-- 버튼 -->
+    <div class="mt-4">
+      <button type="submit" class="btn btn-primary">수정</button>
+      <a href="#" class="btn btn-secondary" id="backBtn">목록</a>
+    </div>
+  </form>
+
+  <script>
+    $(function () {
+      const bbsId = new URLSearchParams(location.search).get("bbsId");
+      const nttId = new URLSearchParams(location.search).get("nttId");
+      $("#bbsId").val(bbsId);
+      $("#nttId").val(nttId);
+
+      $("#ntceBgnde, #ntceEndde").datepicker({ dateFormat: 'yy-mm-dd' });
+
+      // CKEditor 설정
+      CKEDITOR.replace("nttCn");
+
+      // 상세 조회
+      fetch(`/muscat/board/articleDetail?bbsId=${bbsId}&nttId=${nttId}`)
+        .then(res => res.json())
+        .then(res => {
+          const data = res.article;
+          $("#nttSj").val(data.nttSj);
+          $("#sjBoldAt").prop("checked", data.sjBoldAt === 'Y');
+          $("#noticeAt").prop("checked", data.noticeAt === 'Y');
+          $("#secretAt").prop("checked", data.secretAt === 'Y');
+          $("#ntceBgnde").val(data.ntceBgnde);
+          $("#ntceEndde").val(data.ntceEndde);
+
+          const waitEditor = setInterval(() => {
+            const editor = CKEDITOR.instances["nttCn"];
+            if (editor && typeof editor.setData === "function") {
+              editor.setData(data.nttCn);
+              clearInterval(waitEditor);
+            }
+          }, 100);
+        });
+
+      // 목록으로
+      $("#backBtn").click(function (e) {
+        e.preventDefault();
+        location.href = `/muscat/board/articleList.do?bbsId=${bbsId}`;
+      });
+
+      // 수정 제출
+      $("#editForm").submit(async function (e) {
+        e.preventDefault();
+        const editor = CKEDITOR.instances["nttCn"];
+        if (!editor || typeof editor.updateElement !== "function") {
+          Swal.fire("에러", "에디터가 아직 초기화되지 않았습니다.", "error");
+          return;
+        }
+
+        editor.updateElement();
+        const formData = new FormData(this);
+        formData.set("nttCn", editor.getData());
+
+        try {
+          const res = await fetch("/muscat/board/articleUpdate.do", {
+            method: "POST",
+            body: formData
+          });
+          const result = await res.json();
+          if (result.resultCode === "SUCCESS") {
+            await Swal.fire("완료", "게시글이 수정되었습니다.", "success");
+            location.href = `/muscat/board/articleList.do?bbsId=${bbsId}`;
+          } else {
+            Swal.fire("수정 실패", result.resultMessage || "오류 발생", "error");
+          }
+        } catch (err) {
+          console.error(err);
+          Swal.fire("에러", "서버 통신 중 오류가 발생했습니다.", "error");
+        }
+      });
+    });
+  </script>
+</main>
+</body>
+</html>

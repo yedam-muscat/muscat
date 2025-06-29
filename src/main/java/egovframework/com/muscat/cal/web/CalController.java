@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import egovframework.com.muscat.cal.mapper.CalMapper;
+import egovframework.com.muscat.cal.mapper.CalendarVO;
 import egovframework.com.muscat.cal.mapper.ScudVO;
 import egovframework.com.muscat.cal.service.CalService;
 
@@ -29,30 +30,19 @@ public class CalController {
 
 	@Autowired
 	private CalService calService;
-	
-	@Autowired
-    private CalMapper calMapper;
-	
 
-	//등록
-	@PostMapping("/cal/insertSchedule.json")
+	@Autowired
+	private CalMapper calMapper;
+
+	// 등록
+	@PostMapping("/cal/insertSchedule")
 	@ResponseBody
-	public ResponseEntity<?> insertSchedule(@RequestBody ScudVO vo) throws Exception {
-		vo.setLeaderId("admin");
-	    calMapper.insertSchedule(vo); // DB 저장
-	    return ResponseEntity.ok().build();
+	public String insertSchedule(@RequestBody ScudVO vo) throws Exception {
+	    calService.insertSchedule(vo); // 오류 시 자동으로 예외 발생
+	    return "success";
 	}
 
-//    @GetMapping("/cal/listSchedule")
-//    public ModelAndView listSchedule(@RequestParam(required = false) String start,
-//                                     @RequestParam(required = false) String end) throws Exception {
-//    	ModelAndView mav = new ModelAndView("jsonView");
-//    	mav.addObject("list", calService.selectScheduleList());
-//    	
-//        return mav;
-//    }
-
-	//조회
+	// 조회
 	@GetMapping("/cal/listSchedule")
 	@ResponseBody
 	public List<Map> listSchedule(@RequestParam(required = false) String start,
@@ -62,8 +52,11 @@ public class CalController {
 	}
 
 	@RequestMapping("cal/calDetail.do")
-	public String calDetail(@RequestParam String date, Model model) {
-		model.addAttribute("date", date);
+	public String calDetail(@RequestParam(required = false) String start, @RequestParam(required = false) String end,
+			Model model) {
+
+		model.addAttribute("start", start);
+		model.addAttribute("end", end);
 		return "cal/calDetail.html";
 	}
 
@@ -71,47 +64,29 @@ public class CalController {
 	public String calMonth() {
 		return "cal/calMonth.html";
 	}
-	
-	@PostMapping("cal/save")
-	public String saveSchedule(HttpServletRequest request, RedirectAttributes redirectAttributes) {
-	    try {
-	        ScudVO scudVO = new ScudVO();
-	        scudVO.setSchdulId(UUID.randomUUID().toString().replace("-", "").substring(0, 20));
-	        scudVO.setSchdulNm(request.getParameter("title"));
-	        scudVO.setSchdulCn(request.getParameter("description"));
-	        scudVO.setSchdulPlace(request.getParameter("location"));
-	        scudVO.setSchdulDeptId("DEPT001"); // 실제 로그인 사용자 기준 설정
-	        scudVO.setSchdulChargerId("admin"); // 로그인 사용자 ID
 
-	        scudVO.setSchdulKindCode(request.getParameter("calendarId"));
 
-	        scudVO.setSchdulSe(request.getParameter("private") != null ? "PRIVATE" : "PUBLIC");
-
-	        scudVO.setSchdulIpcrCode(request.getParameter("companyEvent") != null ? "CORP" : "PERSONAL");
-
-	        scudVO.setReptitSeCode(request.getParameter("repeat") != null ? "REPEAT" : "ONCE");
-
-	        DateTimeFormatter inputFmt = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-	        DateTimeFormatter dbFmt = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-
-	        String start = request.getParameter("start");
-	        String end = request.getParameter("end");
-
-	        scudVO.setSchdulBgnde(LocalDateTime.parse(start, inputFmt).format(dbFmt));
-	        scudVO.setSchdulEndde(LocalDateTime.parse(end, inputFmt).format(dbFmt));
-
-	        scudVO.setFrstRegisterId("admin");
-
-	        calMapper.insertSchedule(scudVO);
-
-	        redirectAttributes.addFlashAttribute("success", true);
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        redirectAttributes.addFlashAttribute("success", false);
-	    }
-
-	    return "redirect:/cal/calMonth.html";
+	@GetMapping("/cal/listCalendar")
+	@ResponseBody
+	public List<Map> listCalendar() {
+	    return calService.selectCalendarList();
 	}
-
-
+	
+	@PostMapping("/cal/insertCalendar")
+	@ResponseBody
+	public ResponseEntity<String> insertCalendar(@RequestBody CalendarVO calendarVO) {
+	    try {
+	        if (calendarVO.getCalId() == null || calendarVO.getCalId().isEmpty()) {
+	            calendarVO.setCalId(UUID.randomUUID().toString().substring(0, 20));
+	        }
+	        if (calendarVO.getOwnerId() == null || calendarVO.getOwnerId().isEmpty()) {
+	            calendarVO.setOwnerId("admin");
+	        }
+	   
+	        calService.insertCalendar(calendarVO);
+	        return ResponseEntity.ok("등록 성공");
+	    } catch (Exception e) {
+	        return ResponseEntity.status(500).body("등록 실패: " + e.getMessage());
+	    }
+	}
 }
