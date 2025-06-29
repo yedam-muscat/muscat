@@ -44,7 +44,8 @@
 					<p class="auth-subtitle">Groupware for elegant work.</p>
 
 					<div class="card">
-						<form th:action="@{/uat/uia/actionLogin.do}" method="POST">
+						<form name="loginForm" th:action="@{/uat/uia/actionLogin.do}"
+							method="POST">
 							<div class="card-header"></div>
 
 							<div class="card-body">
@@ -77,8 +78,8 @@
 								</div>
 							</div>
 
-							<button class="btn btn-primary btn-block btn-lg shadow-lg"
-								type="submit">로그인</button>
+							<button type="button" class="btn btn-primary btn-block btn-lg shadow-lg"
+								onclick="actionLogin()">로그인</button>
 						</form>
 					</div>
 					<div class="text-center mt-5 fs-5">
@@ -100,37 +101,23 @@
 	</div>
 	<script>
 		function actionLogin() {
-
-			let id = $('#id').val();
-			let password = $('#password').val();
-
-			if (!id || !password) {
+			if (document.loginForm.id.value == "") {
 				Swal.fire({
 					icon : "warning",
-					title : "아이디와 비밀번호를 확인하세요"
+					title : "아이디를 입력해주세요"
 				})
-				return;
+			} else if (document.loginForm.password.value == "") {
+				Swal.fire({
+					icon : "warning",
+					title : "비밀번호를 입력해주세요"
+				})
+			} else {
+				document.loginForm.submit();
 			}
-
-			$.ajax({
-				type : "POST",
-				url : "/muscat/uat/uia/actionLogin.do",
-				data : {
-					id : id,
-					password : password,
-					userSe : $('[name="userType"]').val()
-				},
-				success : function(response) {
-					console.log("성공:", response);
-				},
-				error : function(xhr, status, error) {
-					console.error("에러:", error);
-				}
-			});
 		}
 
 		function goRegiUsr() {
-			location.href = "/muscat/login/userReg.do";
+			location.href = "/muscat/uat/uia/userReg.do";
 		}
 
 		function goResetPwd() {

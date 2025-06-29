@@ -153,7 +153,7 @@ public class LoginController {
 	 * @return String
 	 * @exception Exception
 	 */
-	@GetMapping("/login/userReg.do")
+	@GetMapping("/uat/uia/userReg.do")
 	public String userReg(HttpServletRequest request, ModelMap model) throws Exception {
 
 //        // 미인증 사용자에 대한 보안처리
@@ -185,7 +185,7 @@ public class LoginController {
 		return "login/userReg.html";
 	}
 
-	@PostMapping("/login/userReg.do")
+	@PostMapping("/uat/uia/userReg.do")
 	@ResponseBody
 	public ResultVO insertMber(MberManageVO mberManageVO) throws Exception {
 

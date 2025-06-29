@@ -51,11 +51,13 @@
 								</div>
 								<div class="col-auto">
 									<input type="text" id="mberId" class="form-control">
+									<div class="valid-feedback">사용 가능한 아이디입니다.</div>
+									<div class="invalid-feedback">이미 사용 중인 아이디입니다.</div>
 								</div>
 								<div class="col-auto">
 									<button type="button"
 										class="btn btn-outline-primary my-auto btn-sm"
-										id="checkIdButton">중복아이디 확인</button>
+										id="checkIdButton">아이디 중복확인</button>
 								</div>
 							</div>
 
@@ -80,8 +82,7 @@
 										aria-describedby="passwordHelpInline">
 								</div>
 								<div class="col-auto">
-									<span id="passwordHelpInline" class="form-text">영문자, 숫자,
-										특수문자 포함 8~20자리</span>
+									<span id="passwordHelpInline" class="form-text">영문자, 숫자 포함 4~10자리</span>
 								</div>
 							</div>
 
@@ -263,7 +264,11 @@
 		</div>
 	</div>
 	<script th:inline="javascript">
+	let checkId = false;
+	let availableId = false;
+	
 		$('document').ready(function() {
+			
 			$('#postNumBtn').on('click', function() {
 				goAddSearch();
 			});
@@ -275,12 +280,34 @@
 			$('#mberId').focus();
 			
 			$('#reqUserReg').on('click', function() {
-				userReg();
+				
+				if (!checkId) {
+					Swal.fire({
+						icon : "warning",
+						title : "아이디 중복확인을 해주세요"
+					})
+					
+					return;
+				}
+				
+				if (!availableId) {
+					Swal.fire({
+						icon : "error",
+						title : "사용할 수 없는 아이디입니다"
+					})
+					
+					return;
+				}
+				
+				if (validateSignupForm()) {
+					userReg();
+				}
+				
 			})
 		});
 		
 		function userReg() {
-			let url = 'http://localhost:8082/muscat/login/userReg.do';
+			let url = 'http://localhost:8082/muscat/uat/uia/userReg.do';
 			$.ajax({
 				type: "POST",
 				url: url,
@@ -387,53 +414,117 @@
 			
 		}
 		
-		function fn_id_check(){
-			let mberId = $("#mberId").val();
-			if (!mberId) {
-				Swal.fire({
-					icon : "warning",
-					title : "아이디를 입력해주세요"
-				})
-			} else {
-			let url = /*[[ @{/uss/umt/EgovIdDplctCnfirmAjax.do} ]]*/ '';
-			$.ajax({
-				type: "POST",
-				url: url,
-				data: {
-					"checkId": mberId		
+		function isValidId(id) {
+			  const idRegex = /^[a-zA-Z0-9]{4,10}$/;
+			  return idRegex.test(id);
+			}
+		
+		function fn_id_check() {
+			  const idInput = $("#mberId");
+			  const idValue = idInput.val().trim();
+
+			  if (!idValue) {
+			    idInput.addClass("is-invalid").removeClass("is-valid");
+			    idInput.nextAll(".invalid-feedback").first().text("아이디를 입력해주세요.");
+			    return;
+			  }
+			  
+			  if (!isValidId(idValue)) {
+				  idInput.addClass("is-invalid").removeClass("is-valid");
+				  idInput.nextAll(".invalid-feedback").first().text("영문자, 숫자 포함 4~10자여야 합니다.");
+				  idInput.focus();
+				  return;
+			  }
+			  
+			  let url = /*[[ @{/uss/umt/EgovIdDplctCnfirmAjax.do} ]]*/ '';
+
+			  $.ajax({
+			    url: url,
+			    type: "POST",
+			    data: {
+					"checkId": idValue		
 				},
 				dataType:'json',
 				timeout:(1000*30),
-				success:function(returnData, status){
-					if(status == "success") {
-						if (returnData.usedCnt > 0 ) {
-							//사용할수 없는 아이디입니다.
-				Swal.fire({
-					icon : "warning",
-					title : "사용할 수 없는 아이디입니다"
-				})
-						} else {
-							//사용가능한 아이디입니다.
-				Swal.fire({
-					icon : "success",
-					title : "사용할 수 있는 아이디입니다"
-				})
-						}
-					} else { 
-						Swal.fire({
-							icon : "error",
-							title : "오류가 발생했습니다"
-						})
-						return;
-					} 
-				}
-				});
-			}
+			    success: function (returnData, status) {
+			    	if (status == "success") {
+			    		if (returnData.usedCnt > 0 ) {
+			    			checkId = false;
+			    			availableId = false;
+					        idInput.removeClass("is-valid").addClass("is-invalid");
+					        idInput.nextAll(".invalid-feedback").first().text("이미 사용 중인 아이디입니다.");
+			    		} else {
+			    			checkId = true;
+			    			availableId = true;
+					        idInput.removeClass("is-invalid").addClass("is-valid");
+					        idInput.nextAll(".valid-feedback").first().text("사용 가능한 아이디입니다.");
+			    		}
+			    	}
+			    },
+			    error: function () {
+	    			checkId = false;
+	    			availableId = false;
+			      idInput.removeClass("is-valid").addClass("is-invalid");
+			      idInput.nextAll(".invalid-feedback").first().text("확인 중 오류가 발생했습니다.");
+			    }
+			  });
 		}
 		
 		function getMoblphonNo() {
 			return $('#mobileStart').val() + $('#mobileCenter').val() + $('#mobileEnd').val();
 		}
+		
+		function validateSignupForm() {
+			  const id = $("#mberId").val().trim();
+			  const name = $("#mberNm").val().trim();
+			  const pw = $("#password").val();
+			  const pwConfirm = $("#confirmPassword").val();
+			  const passwordHint = $("#passwordHint").val();
+			  const passwordCnsr = $("#passwordCnsr").val().trim();
+			  const sexdstnCode = $("#sexdstnCode").val();
+			  const areaNo = $("#areaNo").val();
+			  const middleTel = $("#middleTelno").val().trim();
+			  const endTel = $("#endTelno").val().trim();
+			  const mobileStart = $("#mobileStart").val();
+			  const mobileCenter = $("#mobileCenter").val().trim();
+			  const mobileEnd = $("#mobileEnd").val().trim();
+			  const email = $("#mberEmailAdres").val().trim();
+			  const zip = $("#zip").val();
+			  const adres = $("#adres").val();
+			  const detailAdres = $("#detailAdres").val();
+
+			  // 공백 체크
+			  if (!id) return alert("아이디를 입력하세요.");
+			  if (!name) return alert("이름을 입력하세요.");
+			  if (!pw) return alert("비밀번호를 입력하세요.");
+			  if (!pwConfirm) return alert("비밀번호 확인을 입력하세요.");
+			  if (!passwordHint) return alert("비밀번호 힌트를 선택하세요.");
+			  if (!passwordCnsr) return alert("힌트 정답을 입력하세요.");
+			  if (!sexdstnCode) return alert("성별을 선택하세요.");
+			  if (!areaNo || !middleTel || !endTel) return alert("전화번호를 모두 입력하세요.");
+			  if (!mobileStart || !mobileCenter || !mobileEnd) return alert("휴대폰 번호를 모두 입력하세요.");
+			  if (!email) return alert("이메일을 입력하세요.");
+			  if (!zip || !adres || !detailAdres) return alert("주소를 모두 입력하세요.");
+
+			  // 비밀번호 유효성
+			  //const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+=-]).{8,20}$/;
+			  const pwRegex = /^(?=.*[A-Za-z])(?=.*\d).{4,10}$/;
+			  if (!pwRegex.test(pw)) return alert("비밀번호는 영문자, 숫자 4~10자리여야 합니다.");
+			  if (pw !== pwConfirm) return alert("비밀번호가 일치하지 않습니다.");
+
+			  // 전화번호 숫자만
+			  const phoneRegex = /^\d+$/;
+			  if (!phoneRegex.test(middleTel) || !phoneRegex.test(endTel)) return alert("전화번호는 숫자만 입력하세요.");
+			  if (!phoneRegex.test(mobileCenter) || !phoneRegex.test(mobileEnd)) return alert("휴대폰 번호는 숫자만 입력하세요.");
+
+			  // 이메일 유효성
+			  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+			  if (!emailRegex.test(email)) return alert("유효한 이메일 형식이 아닙니다.");
+
+			  // 모든 조건 통과
+			  return true;
+			}
+
 	</script>
 	<script
 		th:src="@{/assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js}"></script>
