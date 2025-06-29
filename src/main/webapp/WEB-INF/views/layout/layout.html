@@ -34,6 +34,12 @@
 <script src="https://code.jquery.com/jquery-3.7.1.js"
 	integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
 	crossorigin="anonymous"></script>
+
+<style>
+.sidebar-hidden {
+	visibility: hidden;
+}
+</style>
 </head>
 <body>
 	<div id="app">
@@ -44,7 +50,7 @@
 			<div th:replace="layout/footer :: footer"></div>
 		</div>
 	</div>
-	
+
 	<script
 		th:src="@{/assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js}"></script>
 	<script th:src="@{/assets/js/bootstrap.bundle.min.js}"></script>
