@@ -26,7 +26,7 @@ import egovframework.com.cop.bbs.service.BoardMasterVO;
 import egovframework.com.cop.bbs.service.EgovBBSMasterService;
 
 @Controller
-public class BoardMasterContoller {
+public class BoardMasterController {
 
 	@Resource(name = "EgovBBSMasterService")
 	private EgovBBSMasterService egovBBSMasterService;

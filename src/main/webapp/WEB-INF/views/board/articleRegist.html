@@ -4,13 +4,20 @@
 	layout:decorate="~{layout/layout}">
 
 <head>
-<meta charset="UTF-8">
-<title>게시글 등록</title>
-<link rel="stylesheet"
-	href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
-<script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
+  <meta charset="UTF-8">
+  <title>게시글 등록</title>
+
+  <!-- ✅ jQuery UI 스타일 -->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
+
+  <!-- ✅ jQuery, jQuery UI 먼저 -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+  <script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
 </head>
 
+<body>
 <main layout:fragment="content">
   <h2>📝 게시글 등록</h2>
 
@@ -66,38 +73,37 @@
   </form>
 </main>
 
-<!-- ✅ 스크립트는 body 가장 끝에 배치 -->
+<!-- ✅ 기타 스크립트는 맨 마지막에 -->
 <script src="https://cdn.ckeditor.com/4.25.1/standard/ckeditor.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const bbsId = new URLSearchParams(location.search).get("bbsId");
-    document.getElementById("bbsId").value = bbsId;
-
-    // datepicker 초기화
+  $(function () {
+    // ✅ 달력 초기화
     $("#ntceBgnde, #ntceEndde").datepicker({ dateFormat: 'yy-mm-dd' });
 
-    // ✅ CKEditor 로딩 확인 후 초기화
+    const bbsId = new URLSearchParams(location.search).get("bbsId");
+    $("#bbsId").val(bbsId);
+
+    // ✅ CKEditor 로딩
     if (typeof CKEDITOR !== "undefined") {
       CKEDITOR.replace("nttCn");
     } else {
       console.error("CKEDITOR is not defined");
     }
 
-    // 목록으로 이동
-    document.getElementById("cancelBtn").addEventListener("click", function (e) {
+    // 목록 버튼
+    $("#cancelBtn").on("click", function (e) {
       e.preventDefault();
       location.href = `/muscat/board/articleList.do?bbsId=${bbsId}`;
     });
 
     // 등록 처리
-    document.getElementById("articleForm").addEventListener("submit", async function (e) {
+    $("#articleForm").on("submit", async function (e) {
       e.preventDefault();
-      const form = this;
-      const formData = new FormData(form);
 
-      // ✅ 에디터 내용 가져오기
+      const formData = new FormData(this);
+
       if (CKEDITOR.instances.nttCn) {
         formData.set("nttCn", CKEDITOR.instances.nttCn.getData());
       } else {
