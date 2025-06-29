@@ -47,25 +47,27 @@
 							<!-- 일반회원 아이디 -->
 							<div class="row g-3 align-items-center mb-2">
 								<div class="col-2">
-									<label for="userId" class="col-form-label">아이디</label>
+									<label for="mberId" class="col-form-label">아이디</label>
 								</div>
 								<div class="col-auto">
-									<input type="text" id="userId" class="form-control">
+									<input type="text" id="mberId" class="form-control">
+									<div class="valid-feedback">사용 가능한 아이디입니다.</div>
+									<div class="invalid-feedback">이미 사용 중인 아이디입니다.</div>
 								</div>
 								<div class="col-auto">
 									<button type="button"
 										class="btn btn-outline-primary my-auto btn-sm"
-										id="checkIdButton">중복아이디 확인</button>
+										id="checkIdButton">아이디 중복확인</button>
 								</div>
 							</div>
 
 							<!-- 일반회원 이름 -->
 							<div class="row g-3 align-items-center mb-2">
 								<div class="col-2">
-									<label for="userName" class="col-form-label">이름</label>
+									<label for="mberNm" class="col-form-label">이름</label>
 								</div>
 								<div class="col-auto">
-									<input type="text" id="userName" class="form-control">
+									<input type="text" id="mberNm" class="form-control">
 								</div>
 								<div class="col-auto"></div>
 							</div>
@@ -80,8 +82,7 @@
 										aria-describedby="passwordHelpInline">
 								</div>
 								<div class="col-auto">
-									<span id="passwordHelpInline" class="form-text">영문자, 숫자,
-										특수문자 포함 8~20자리</span>
+									<span id="passwordHelpInline" class="form-text">영문자, 숫자 포함 4~10자리</span>
 								</div>
 							</div>
 
@@ -106,8 +107,8 @@
 								<div class="col-auto">
 									<select class="form-select" id="passwordHint">
 										<option selected value="">--비밀번호 힌트 선택--</option>
-										<option th:each="item : ${passwordHint_result}" th:value="${item.code}"
-											th:text="${item.codeNm}"></option>
+										<option th:each="item : ${passwordHint_result}"
+											th:value="${item.code}" th:text="${item.codeNm}"></option>
 									</select>
 								</div>
 							</div>
@@ -115,24 +116,23 @@
 							<!-- 비밀번호 정답 -->
 							<div class="row g-3 align-items-center mb-2">
 								<div class="col-2">
-									<label for="passwordAnswer" class="col-form-label">힌트
-										정답</label>
+									<label for="passwordCnsr" class="col-form-label">힌트 정답</label>
 								</div>
 								<div class="col-auto">
-									<input type="text" id="passwordAnswer" class="form-control">
+									<input type="text" id="passwordCnsr" class="form-control">
 								</div>
 							</div>
 
 							<!-- 성별 -->
 							<div class="row g-3 align-items-center mb-2">
 								<div class="col-2">
-									<label for="genderCode" class="col-form-label">성별</label>
+									<label for="sexdstnCode" class="col-form-label">성별</label>
 								</div>
 								<div class="col-auto">
-									<select class="form-select" id="genderCode">
+									<select class="form-select" id="sexdstnCode">
 										<option selected value="">-- 성별 구분 --</option>
-										<option th:each="item : ${sexdstnCode_result}" th:value="${item.code}"
-											th:text="${item.codeNm}"></option>
+										<option th:each="item : ${sexdstnCode_result}"
+											th:value="${item.code}" th:text="${item.codeNm}"></option>
 									</select>
 								</div>
 							</div>
@@ -143,7 +143,7 @@
 									<label class="col-form-label">전화번호</label>
 								</div>
 								<div class="col-auto">
-									<select class="form-select" id="telStart">
+									<select class="form-select" id="areaNo">
 										<option value="">-- 번호 선택 --</option>
 										<option value="02">02 (서울)</option>
 										<option value="031">031 (경기)</option>
@@ -172,10 +172,10 @@
 
 								</div>
 								<div class="col-2">
-									<input type="text" class="form-control" id="telCenter">
+									<input type="text" class="form-control" id="middleTelno">
 								</div>
 								<div class="col-2">
-									<input type="text" class="form-control" id="telEnd">
+									<input type="text" class="form-control" id="endTelno">
 								</div>
 							</div>
 
@@ -206,20 +206,20 @@
 							<!-- 이메일 -->
 							<div class="row g-3 align-items-center mb-2">
 								<div class="col-2">
-									<label for="email" class="col-form-label">이메일</label>
+									<label for="mberEmailAdres" class="col-form-label">이메일</label>
 								</div>
 								<div class="col-auto">
-									<input type="email" id="email" class="form-control">
+									<input type="email" id="mberEmailAdres" class="form-control">
 								</div>
 							</div>
 
 							<!-- 우편번호 -->
 							<div class="row g-3 align-items-center mb-2">
 								<div class="col-2">
-									<label for="zipcode" class="col-form-label">우편번호</label>
+									<label for="zip" class="col-form-label">우편번호</label>
 								</div>
 								<div class="col-2">
-									<input type="text" id="zipcode" class="form-control" readonly>
+									<input type="text" id="zip" class="form-control" readonly>
 								</div>
 								<div class="col-auto">
 									<button type="button"
@@ -232,22 +232,24 @@
 							<!-- 주소 -->
 							<div class="row g-3 align-items-center mb-2">
 								<div class="col-2">
-									<label for="address" class="col-form-label">주소</label>
+									<label for="adres" class="col-form-label">주소</label>
 								</div>
 								<div class="col-6">
-									<input type="text" id="address" class="form-control" readonly>
+									<input type="text" id="adres" class="form-control" readonly>
 								</div>
 							</div>
 
 							<!-- 상세주소 -->
 							<div class="row g-3 align-items-center mb-4">
 								<div class="col-2">
-									<label for="addressDetail" class="col-form-label">상세주소</label>
+									<label for="detailAdres" class="col-form-label">상세주소</label>
 								</div>
 								<div class="col-10">
-									<input type="text" id="addressDetail" class="form-control">
+									<input type="text" id="detailAdres" class="form-control">
 								</div>
 							</div>
+
+							<input type="hidden" id="mberSttus" value="A">
 
 							<!-- 버튼 -->
 							<div class="d-flex justify-content-end">
@@ -262,6 +264,90 @@
 		</div>
 	</div>
 	<script th:inline="javascript">
+	let checkId = false;
+	let availableId = false;
+	
+		$('document').ready(function() {
+			
+			$('#postNumBtn').on('click', function() {
+				goAddSearch();
+			});
+
+			$('#checkIdButton').on('click', function() {
+				fn_id_check();
+			});
+			
+			$('#mberId').focus();
+			
+			$('#reqUserReg').on('click', function() {
+				
+				if (!checkId) {
+					Swal.fire({
+						icon : "warning",
+						title : "아이디 중복확인을 해주세요"
+					})
+					
+					return;
+				}
+				
+				if (!availableId) {
+					Swal.fire({
+						icon : "error",
+						title : "사용할 수 없는 아이디입니다"
+					})
+					
+					return;
+				}
+				
+				if (validateSignupForm()) {
+					userReg();
+				}
+				
+			})
+		});
+		
+		function userReg() {
+			let url = 'http://localhost:8082/muscat/uat/uia/userReg.do';
+			$.ajax({
+				type: "POST",
+				url: url,
+				data: {
+					mberId : $('#mberId').val(),
+					mberNm : $('#mberNm').val(),
+					password : $('#password').val(),
+					passwordCnsr : $('#passwordCnsr').val(),
+					passwordHint : $('#passwordHint').val(),
+					mberEmailAdres : $('#mberEmailAdres').val(),
+					zip : $('#zip').val(),
+					adres : $('#adres').val(),
+					detailAdres : $('#detailAdres').val(),
+					areaNo : $('#areaNo').val(),
+					middleTelno : $('#middleTelno').val(),
+					endTelno : $('#endTelno').val(),
+					moblphonNo : getMoblphonNo(),
+					mberSttus : $('#mberSttus').val(),
+					sexdstnCode : $('#sexdstnCode').val(),
+				},
+				dataType: 'json',
+				timeout:(1000*30),
+				})
+				.done(function() {
+					Swal.fire({
+						icon : "success",
+						title : "회원 가입 요청이 완료되었습니다"
+					}).then(() => {
+						location.href = '/muscat/login/login.do';
+					})
+				  })
+				  .fail(function() {
+						Swal.fire({
+							icon : "error",
+							title : "오류가 발생했습니다"
+						})
+				  });
+		}
+		
+		
 		function goAddSearch() {
 		    var width = 570;
 		    var height = 420;
@@ -287,7 +373,7 @@
 			//console.log(bdNm);
 			//console.log(detBdNmList);
 			
-			$('#zipcode').val(zipNo);
+			$('#zip').val(zipNo);
 			formatAddress(roadFullAddr);
 			// 팝업페이지에서 주소입력한 정보를 받아서, 현 페이지에 정보를 등록합니다.
 			//document.zip.zip.value = zipNo; 										/* 우편번호 */
@@ -323,58 +409,122 @@
 			}
 			console.log(parts);
 
-			$('#address').val(parts[0]);
-			$('#addressDetail').val(parts[1]);
+			$('#adres').val(parts[0]);
+			$('#detailAdres').val(parts[1]);
 			
 		}
 		
-		function fn_id_check(){
-			let url = /*[[ @{/uss/umt/EgovIdDplctCnfirmAjax.do} ]]*/ '';
-			$.ajax({
-				type: "POST",
-				url: url,
-				data: {
-					"checkId": $("#userId").val()		
+		function isValidId(id) {
+			  const idRegex = /^[a-zA-Z0-9]{4,10}$/;
+			  return idRegex.test(id);
+			}
+		
+		function fn_id_check() {
+			  const idInput = $("#mberId");
+			  const idValue = idInput.val().trim();
+
+			  if (!idValue) {
+			    idInput.addClass("is-invalid").removeClass("is-valid");
+			    idInput.nextAll(".invalid-feedback").first().text("아이디를 입력해주세요.");
+			    return;
+			  }
+			  
+			  if (!isValidId(idValue)) {
+				  idInput.addClass("is-invalid").removeClass("is-valid");
+				  idInput.nextAll(".invalid-feedback").first().text("영문자, 숫자 포함 4~10자여야 합니다.");
+				  idInput.focus();
+				  return;
+			  }
+			  
+			  let url = /*[[ @{/uss/umt/EgovIdDplctCnfirmAjax.do} ]]*/ '';
+
+			  $.ajax({
+			    url: url,
+			    type: "POST",
+			    data: {
+					"checkId": idValue		
 				},
 				dataType:'json',
 				timeout:(1000*30),
-				success:function(returnData, status){
-					if(status == "success") {
-						if (returnData.usedCnt > 0 ) {
-							//사용할수 없는 아이디입니다.
-				Swal.fire({
-					icon : "warning",
-					title : "사용할 수 없는 아이디입니다"
-				})
-						} else {
-							//사용가능한 아이디입니다.
-				Swal.fire({
-					icon : "success",
-					title : "사용할 수 있는 아이디입니다"
-				})
-						}
-					} else { 
-						Swal.fire({
-							icon : "error",
-							title : "오류가 발생했습니다"
-						})
-						return;
-					} 
-				}
-				});
+			    success: function (returnData, status) {
+			    	if (status == "success") {
+			    		if (returnData.usedCnt > 0 ) {
+			    			checkId = false;
+			    			availableId = false;
+					        idInput.removeClass("is-valid").addClass("is-invalid");
+					        idInput.nextAll(".invalid-feedback").first().text("이미 사용 중인 아이디입니다.");
+			    		} else {
+			    			checkId = true;
+			    			availableId = true;
+					        idInput.removeClass("is-invalid").addClass("is-valid");
+					        idInput.nextAll(".valid-feedback").first().text("사용 가능한 아이디입니다.");
+			    		}
+			    	}
+			    },
+			    error: function () {
+	    			checkId = false;
+	    			availableId = false;
+			      idInput.removeClass("is-valid").addClass("is-invalid");
+			      idInput.nextAll(".invalid-feedback").first().text("확인 중 오류가 발생했습니다.");
+			    }
+			  });
 		}
-
-		$('document').ready(function() {
-			$('#postNumBtn').on('click', function() {
-				goAddSearch();
-			});
-			
-
-			$('#checkIdButton').on('click', function() {
-				fn_id_check();
-			});
-		});
 		
+		function getMoblphonNo() {
+			return $('#mobileStart').val() + $('#mobileCenter').val() + $('#mobileEnd').val();
+		}
+		
+		function validateSignupForm() {
+			  const id = $("#mberId").val().trim();
+			  const name = $("#mberNm").val().trim();
+			  const pw = $("#password").val();
+			  const pwConfirm = $("#confirmPassword").val();
+			  const passwordHint = $("#passwordHint").val();
+			  const passwordCnsr = $("#passwordCnsr").val().trim();
+			  const sexdstnCode = $("#sexdstnCode").val();
+			  const areaNo = $("#areaNo").val();
+			  const middleTel = $("#middleTelno").val().trim();
+			  const endTel = $("#endTelno").val().trim();
+			  const mobileStart = $("#mobileStart").val();
+			  const mobileCenter = $("#mobileCenter").val().trim();
+			  const mobileEnd = $("#mobileEnd").val().trim();
+			  const email = $("#mberEmailAdres").val().trim();
+			  const zip = $("#zip").val();
+			  const adres = $("#adres").val();
+			  const detailAdres = $("#detailAdres").val();
+
+			  // 공백 체크
+			  if (!id) return alert("아이디를 입력하세요.");
+			  if (!name) return alert("이름을 입력하세요.");
+			  if (!pw) return alert("비밀번호를 입력하세요.");
+			  if (!pwConfirm) return alert("비밀번호 확인을 입력하세요.");
+			  if (!passwordHint) return alert("비밀번호 힌트를 선택하세요.");
+			  if (!passwordCnsr) return alert("힌트 정답을 입력하세요.");
+			  if (!sexdstnCode) return alert("성별을 선택하세요.");
+			  if (!areaNo || !middleTel || !endTel) return alert("전화번호를 모두 입력하세요.");
+			  if (!mobileStart || !mobileCenter || !mobileEnd) return alert("휴대폰 번호를 모두 입력하세요.");
+			  if (!email) return alert("이메일을 입력하세요.");
+			  if (!zip || !adres || !detailAdres) return alert("주소를 모두 입력하세요.");
+
+			  // 비밀번호 유효성
+			  //const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+=-]).{8,20}$/;
+			  const pwRegex = /^(?=.*[A-Za-z])(?=.*\d).{4,10}$/;
+			  if (!pwRegex.test(pw)) return alert("비밀번호는 영문자, 숫자 4~10자리여야 합니다.");
+			  if (pw !== pwConfirm) return alert("비밀번호가 일치하지 않습니다.");
+
+			  // 전화번호 숫자만
+			  const phoneRegex = /^\d+$/;
+			  if (!phoneRegex.test(middleTel) || !phoneRegex.test(endTel)) return alert("전화번호는 숫자만 입력하세요.");
+			  if (!phoneRegex.test(mobileCenter) || !phoneRegex.test(mobileEnd)) return alert("휴대폰 번호는 숫자만 입력하세요.");
+
+			  // 이메일 유효성
+			  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+			  if (!emailRegex.test(email)) return alert("유효한 이메일 형식이 아닙니다.");
+
+			  // 모든 조건 통과
+			  return true;
+			}
+
 	</script>
 	<script
 		th:src="@{/assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js}"></script>

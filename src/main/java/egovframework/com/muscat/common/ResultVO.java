@@ -7,6 +7,9 @@ import lombok.Data;
 @AllArgsConstructor
 public class ResultVO {
 
+	public ResultVO() {
+		// TODO Auto-generated constructor stub
+	}
 	private boolean resultSuccess;
 	private String resultCode;
 	private String resultMsg;

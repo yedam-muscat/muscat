@@ -80,8 +80,6 @@
 		$("#logout").on('click', function(event) {
 			event.preventDefault();
 			
-			console.log('logout?');
-			
 			Swal.fire({
 				icon : "question",
 				title : "로그아웃 하시겠습니까?",
@@ -90,7 +88,7 @@
 				confirmButtonText: "로그아웃",
 			}).then((result) => {
 				  if (result.isConfirmed) {
-					location.href = "/muscat/login/actionLogout.do";
+					location.href = "/muscat/uat/uia/actionLogout.do";
 				  } 
 				});
 		});

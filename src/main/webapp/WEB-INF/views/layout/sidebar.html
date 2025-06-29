@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<div id="sidebar" class="active" th:fragment="sidebar">
+<div id="sidebar" class="active sidebar-hidden" th:fragment="sidebar">
 	<div class="sidebar-wrapper active">
 		<div class="sidebar-header">
 			<div class="d-flex justify-content-between">
@@ -16,13 +16,13 @@
 		</div>
 		<div class="sidebar-menu">
 			<ul class="menu">
-				<li class="sidebar-item  has-sub"><a
-					href="/muscat/appr/apprMain.do" class='sidebar-link'> <i
-						class="bi bi-stack"></i> <span>전자결재</span>
+				<li class="sidebar-item  has-sub" id="appr"><a href="#"
+					class='sidebar-link'> <i class="bi bi-stack"></i> <span>전자결재</span>
 				</a>
 					<ul class="submenu ">
-						<li class="submenu-item "><a href="/muscat/appr/apprMain.do">전자결재</a></li>
-						<li class="submenu-item "><a href="/muscat/appr/apprMain.do">임시저장</a></li>
+						<li class="submenu-item " id="apprMain"><a
+							href="/muscat/appr/apprMain.do">전자결재</a></li>
+						<!--  <li class="submenu-item "><a href="/muscat/appr/apprMain.do">임시저장</a></li>
 						<li class="submenu-item "><a href="/muscat/appr/apprMain.do">결재대기</a></li>
 						<li class="submenu-item "><a
 							href="/muscat/appr/apprHistory.do">기안문서함</a></li>
@@ -33,28 +33,28 @@
 						<li class="submenu-item "><a
 							href="/muscat/appr/apprHistory.do">부서문서함</a></li>
 						<li class="submenu-item "><a
-							href="/muscat/appr/docFormMng.do">문서양식관리</a></li>
-						<li class="submenu-item "><a
+							href="/muscat/appr/docFormMng.do">문서양식관리</a></li> -->
+						<li class="submenu-item " id="docFormReg"><a
 							href="/muscat/appr/docFormReg.do">문서양식등록</a></li>
 					</ul></li>
 
 
-				<li class="sidebar-item  has-sub"><a href="#"
+				<li class="sidebar-item  has-sub" id="board"><a href="#"
 					class='sidebar-link'> <i class="bi bi-collection-fill"></i> <span>게시판</span>
 				</a>
 					<ul class="submenu ">
-						<li class="submenu-item "><a
+						<li class="submenu-item " id="masterList"><a
 							href="/muscat/board/masterList.do">게시판</a></li>
-						<li class="submenu-item "><a
+						<li class="submenu-item " id="articleList"><a
 							href="/muscat/board/articleList.do?bbsId=BBSMSTR_000000000041xmnHCdBjcH">게시글</a></li>
 					</ul></li>
 
-				<li class="sidebar-item  has-sub"><a href="#"
+				<li class="sidebar-item  has-sub" id="cal"><a href="#"
 					class='sidebar-link'> <i class="bi bi-grid-1x2-fill"></i> <span>일정</span>
 				</a>
 					<ul class="submenu ">
-						<li class="submenu-item "><a href="/muscat/cal/calMonth.do">일정
-								하위항목</a></li>
+						<li class="submenu-item " id="calMonth"><a
+							href="/muscat/cal/calMonth.do"></a></li>
 					</ul></li>
 
 				<li class="sidebar-item"><a href="/muscat/chat/chat.do"
@@ -320,7 +320,6 @@
 </div>
 	</div>
 
-
 	<!-- <!-- Scripts -->
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
 	<!-- <script
@@ -337,6 +336,67 @@
 		href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
 		rel="stylesheet"> -->
 	<script>
+	$(document).ready(function () {
+		  const STORAGE_KEY_PARENT = "activeSidebarParentId";
+		  const STORAGE_KEY_CHILD = "activeSidebarChildId";
+
+		  const parentId = sessionStorage.getItem(STORAGE_KEY_PARENT);
+		  const childId = sessionStorage.getItem(STORAGE_KEY_CHILD);
+
+		  if (parentId) {
+		    const $parentLi = $("#" + parentId);
+		    $parentLi.addClass("active");
+		    $parentLi.find("> .sidebar-link").addClass("active");
+
+		    // 👉 하위 메뉴 강제로 열기
+		    $parentLi.find(".submenu").css("display", "block");
+
+		    if (childId) {
+		      $("#" + childId).addClass("active");
+		    }
+		  }
+
+		  // 자식 메뉴 클릭 시 ID 저장
+		  $(".submenu-item").on("click", function () {
+		    const childId = $(this).attr("id");
+		    const parentId = $(this).closest(".has-sub").attr("id");
+
+		    sessionStorage.setItem(STORAGE_KEY_PARENT, parentId);
+		    sessionStorage.setItem(STORAGE_KEY_CHILD, childId);
+		  });
+
+		  // 부모 메뉴 클릭 시 toggle (펼치기/닫기)
+		  $(".sidebar-item.has-sub > .sidebar-link").on("click", function (e) {
+			  e.preventDefault();
+
+			  const $clickedParent = $(this).closest(".has-sub");
+			  const $clickedSubmenu = $clickedParent.find(".submenu");
+
+			  const $currentlyOpen = $(".sidebar-item.has-sub.active");
+
+			  // 현재 클릭한 메뉴가 이미 열려있으면 토글로 닫기
+			  if ($clickedParent.hasClass("active")) {
+			    $clickedSubmenu.slideUp(200);
+			    $clickedParent.removeClass("active");
+			  } else {
+			    // 다른 메뉴가 열려 있다면 닫기
+			    $currentlyOpen.each(function () {
+			      if (!$(this).is($clickedParent)) {
+			        $(this).removeClass("active");
+			        $(this).find(".submenu").slideUp(200);
+			      }
+			    });
+
+			    // 현재 클릭한 메뉴 열기
+			    $clickedParent.addClass("active");
+			    $clickedSubmenu.stop(true, true).slideDown(200);
+			  }
+			});
+		  
+		  $("#sidebar").removeClass("sidebar-hidden");
+		});
+
+	
 		$(function() {
 			$('#staticBackdrop').on('shown.bs.modal', function() {
 				if (!$('#tree').jstree(true)) {

@@ -44,40 +44,43 @@
 					<p class="auth-subtitle">Groupware for elegant work.</p>
 
 					<div class="card">
-						<div class="card-header"></div>
+						<form name="loginForm" th:action="@{/uat/uia/actionLogin.do}"
+							method="POST">
+							<div class="card-header"></div>
 
-						<div class="card-body">
-							<div class="row">
-								<div class="form-check col-6">
-									<input class="form-check-input" type="radio" name="userType"
-										id="typeGnr" value="GNR" checked> <label
-										class="form-check-label" for="flexRadioDefault1">
-										일반사용자 </label>
+							<div class="card-body">
+								<div class="row">
+									<div class="form-check col-6">
+										<input class="form-check-input" type="radio" name="userSe"
+											id="typeGnr" value="GNR" checked> <label
+											class="form-check-label" for="flexRadioDefault1">
+											일반사용자 </label>
+									</div>
+									<div class="form-check col-6">
+										<input class="form-check-input" type="radio" name="userSe"
+											id="typeUsr" value="USR"> <label
+											class="form-check-label" for="flexRadioDefault2"> 관리자</label>
+									</div>
 								</div>
-								<div class="form-check col-6">
-									<input class="form-check-input" type="radio" name="userType"
-										id="typeUsr" value="USR"> <label
-										class="form-check-label" for="flexRadioDefault2"> 관리자</label>
+							</div>
+							<div class="form-group position-relative has-icon-left mb-4">
+								<input type="text" class="form-control form-control-xl"
+									name="id" id="id" placeholder="ID">
+								<div class="form-control-icon">
+									<i class="bi bi-person"></i>
 								</div>
 							</div>
-						</div>
-						<div class="form-group position-relative has-icon-left mb-4">
-							<input type="text" class="form-control form-control-xl" name="id"
-								id="id" placeholder="ID">
-							<div class="form-control-icon">
-								<i class="bi bi-person"></i>
+							<div class="form-group position-relative has-icon-left mb-4">
+								<input type="password" class="form-control form-control-xl"
+									name="password" id="password" placeholder="PASSWORD">
+								<div class="form-control-icon">
+									<i class="bi bi-shield-lock"></i>
+								</div>
 							</div>
-						</div>
-						<div class="form-group position-relative has-icon-left mb-4">
-							<input type="password" class="form-control form-control-xl"
-								name="password" id="password" placeholder="PASSWORD">
-							<div class="form-control-icon">
-								<i class="bi bi-shield-lock"></i>
-							</div>
-						</div>
 
-						<button class="btn btn-primary btn-block btn-lg shadow-lg"
-							onclick="actionLogin()">로그인</button>
+							<button type="button" class="btn btn-primary btn-block btn-lg shadow-lg"
+								onclick="actionLogin()">로그인</button>
+						</form>
 					</div>
 					<div class="text-center mt-5 fs-5">
 						<p class="text-gray-600">
@@ -98,81 +101,27 @@
 	</div>
 	<script>
 		function actionLogin() {
-
-			let id = $('#id').val();
-			let password = $('#password').val();
-			
-			if (!id || !password) {
+			if (document.loginForm.id.value == "") {
 				Swal.fire({
 					icon : "warning",
-					title : "아이디와 비밀번호를 확인하세요"
+					title : "아이디를 입력해주세요"
 				})
-				return;
+			} else if (document.loginForm.password.value == "") {
+				Swal.fire({
+					icon : "warning",
+					title : "비밀번호를 입력해주세요"
+				})
+			} else {
+				document.loginForm.submit();
 			}
-
-			$.ajax({
-				type : "POST",
-				url : "/muscat/login/actionLogin.do",
-				data : {
-					id : id,
-					password : password,
-					userSe : $('[name="userType"]').val()
-				},
-				success : function(response) {
-					console.log("성공:", response);
-
-					if (response.id) {
-						Swal.fire({
-							icon : "success",
-							title : "로그인 성공"
-						}).then((result) => {
-							  if (result.isConfirmed) {
-								location.href = "/muscat/main.do";
-							  } 
-							});
-
-					} else {
-						Swal.fire({
-							icon : "error",
-							title : "로그인 실패"
-						})
-					}
-
-				},
-				error : function(xhr, status, error) {
-					console.error("에러:", error);
-				}
-			});
 		}
 
 		function goRegiUsr() {
-			location.href = "/muscat/login/userReg.do";
+			location.href = "/muscat/uat/uia/userReg.do";
 		}
 
 		function goResetPwd() {
 
-		}
-
-		function setCookie(name, value, expires) {
-			document.cookie = name + "=" + escape(value) + "; path=/; expires="
-					+ expires.toGMTString();
-		}
-
-		function getCookie(Name) {
-			var search = Name + "=";
-			if (document.cookie.length > 0) { // 쿠키가 설정되어 있다면
-				offset = document.cookie.indexOf(search);
-				if (offset != -1) { // 쿠키가 존재하면
-					offset += search.length;
-					// set index of beginning of value
-					end = document.cookie.indexOf(";", offset);
-					// 쿠키 값의 마지막 위치 인덱스 번호 설정
-					if (end == -1)
-						end = document.cookie.length;
-					return unescape(document.cookie.substring(offset, end));
-				}
-			}
-			return "";
 		}
 	</script>
 	<script

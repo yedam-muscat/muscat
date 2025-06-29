@@ -11,9 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -78,7 +76,7 @@ public class LoginController {
 	 * @return 로그인 페이지
 	 * @exception Exception
 	 */
-	@RequestMapping(value = "/login/login.do")
+	@GetMapping("/uat/uia/login.do")
 	public String loginUsrView(@ModelAttribute("loginVO") LoginVO loginVO, HttpServletRequest request,
 			HttpServletResponse response, ModelMap model) throws Exception {
 		if (EgovComponentChecker.hasComponent("mberManageService")) {
@@ -155,7 +153,7 @@ public class LoginController {
 	 * @return String
 	 * @exception Exception
 	 */
-	@GetMapping("/login/userReg.do")
+	@GetMapping("/uat/uia/userReg.do")
 	public String userReg(HttpServletRequest request, ModelMap model) throws Exception {
 
 //        // 미인증 사용자에 대한 보안처리
@@ -187,58 +185,21 @@ public class LoginController {
 		return "login/userReg.html";
 	}
 
-	@PostMapping("/login/userReg.do")
+	@PostMapping("/uat/uia/userReg.do")
 	@ResponseBody
-	public ResultVO insertMber(@ModelAttribute("mberManageVO") MberManageVO mberManageVO, BindingResult bindingResult,
-			Model model) throws Exception {
+	public ResultVO insertMber(MberManageVO mberManageVO) throws Exception {
 
-		// 미인증 사용자에 대한 보안처리
-//        Boolean isAuthenticated = EgovUserDetailsHelper.isAuthenticated();
-//        if (!isAuthenticated) {
-//            return "index";
-//        }
+		ResultVO resultVO = new ResultVO();
 
-//        beanValidator.validate(mberManageVO, bindingResult);
-//        if (bindingResult.hasErrors()) {
-//
-//            ComDefaultCodeVO comDefaultCodeVO = new ComDefaultCodeVO();
-//
-//            // 패스워드힌트목록을 코드정보로부터 조회
-//            comDefaultCodeVO.setCodeId("COM022");
-//            List<CmmnDetailCode> passwordHint_result = cmmUseService.selectCmmCodeDetail(comDefaultCodeVO);
-//            // 성별구분코드를 코드정보로부터 조회
-//            comDefaultCodeVO.setCodeId("COM014");
-//            List<CmmnDetailCode> sexdstnCode_result = cmmUseService.selectCmmCodeDetail(comDefaultCodeVO);
-//            // 사용자상태코드를 코드정보로부터 조회
-//            comDefaultCodeVO.setCodeId("COM013");
-//            List<CmmnDetailCode> mberSttus_result = cmmUseService.selectCmmCodeDetail(comDefaultCodeVO);
-//            // 그룹정보를 조회 - GROUP_ID정보
-//            comDefaultCodeVO.setTableNm("COMTNORGNZTINFO");
-//            List<CmmnDetailCode> groupId_result = cmmUseService.selectGroupIdDetail(comDefaultCodeVO);
-//
-//            model.addAttribute("passwordHint_result", passwordHint_result); // 패스워트힌트목록
-//            model.addAttribute("sexdstnCode_result", sexdstnCode_result); // 성별구분코드목록
-//            model.addAttribute("mberSttus_result", mberSttus_result); // 사용자상태코드목록
-//            model.addAttribute("groupId_result", groupId_result); // 그룹정보 목록
-//
-//            return "egovframework/com/uss/umt/EgovMberInsert";
-//        } else {
-//            if ("".equals(mberManageVO.getGroupId())) {// KISA 보안약점 조치 (2018-10-29, 윤창원)
-//                mberManageVO.setGroupId(null);
-//            }
-//            mberManageService.insertMber(mberManageVO);
-//            // Exception 없이 진행시 등록 성공메시지
-//            model.addAttribute("resultMsg", "success.common.insert");
-//        }
+		if ("".equals(mberManageVO.getGroupId())) {// KISA 보안약점 조치 (2018-10-29, 윤창원)
+			mberManageVO.setGroupId(null);
+		}
+		mberManageService.insertMber(mberManageVO);
 
-//        if ("".equals(mberManageVO.getGroupId())) {// KISA 보안약점 조치 (2018-10-29, 윤창원)
-//            mberManageVO.setGroupId(null);
-//        }
-//        mberManageService.insertMber(mberManageVO);
-		// Exception 없이 진행시 등록 성공메시지
-//        model.addAttribute("resultMsg", "success.common.insert");
+		resultVO.setResultSuccess(true);
+		resultVO.setResultCode("REQUSRREG_SUCCESS");
+		resultVO.setResultMsg("회원가입 요청이 완료되었습니다");
 
-		ResultVO resultVO = new ResultVO(true, "REQUSRREG_SUCCESS", "회원가입 요청이 완료되었습니다");
 		return resultVO;
 	}
 
