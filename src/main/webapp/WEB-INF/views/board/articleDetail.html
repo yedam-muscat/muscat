@@ -5,13 +5,17 @@
 <head>
   <meta charset="UTF-8">
   <title>게시글 상세조회</title>
-  <link rel="stylesheet"
-        href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
   <script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     th {
       width: 120px;
       background-color: #f8f8f8;
+    }
+    #nttCn {
+      min-height: 300px;
+      white-space: pre-wrap;
     }
   </style>
 </head>
@@ -35,11 +39,17 @@
       </tr>
       <tr>
         <th>내용</th>
-        <td id="nttCn" colspan="5"></td>
+        <td colspan="5">
+          <div id="nttCn"></div>
+        </td>
       </tr>
       <tr>
         <th>게시기간</th>
         <td id="ntceBgnde" colspan="2"></td>
+      </tr>
+      <tr>
+        <th>첨부파일</th>
+        <td id="atchFileArea" colspan="5"></td>
       </tr>
     </tbody>
   </table>
@@ -69,7 +79,7 @@
     const nttId = urlParams.get("nttId");
 
     if (!bbsId || !nttId) {
-      alert("필수 파라미터 누락");
+      Swal.fire("오류", "필수 파라미터 누락", "error");
     }
 
     fetch(`/muscat/board/articleDetail?bbsId=${bbsId}&nttId=${nttId}`)
@@ -83,6 +93,17 @@
         document.getElementById("inqireCo").textContent = data.inqireCo;
         document.getElementById("nttCn").innerHTML = data.nttCn?.replace(/\n/g, "<br>");
         document.getElementById("ntceBgnde").textContent = `${data.ntceBgnde} ~ ${data.ntceEndde}`;
+
+        // ✅ 첨부파일 목록 출력
+        const atchFileArea = document.getElementById("atchFileArea");
+        if (data.files && data.files.length > 0) {
+          const fileList = data.files.map(file =>
+            `<a href="/muscat/board/fileDownload?fileId=${file.fileId}" target="_blank">${file.fileName}</a>`
+          ).join("<br>");
+          atchFileArea.innerHTML = fileList;
+        } else {
+          atchFileArea.textContent = "첨부된 파일이 없습니다.";
+        }
       });
 
     function goEdit() {
@@ -90,22 +111,35 @@
     }
 
     function goDelete() {
-      if (confirm("정말 삭제하시겠습니까?")) {
-        fetch(`/muscat/board/articleDelete`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ bbsId, nttId })
-        })
-        .then(res => res.json())
-        .then(res => {
-          if (res.resultCode === "SUCCESS") {
-            alert("삭제되었습니다.");
-            goBack();
-          } else {
-            alert("삭제 실패: " + res.resultMessage);
-          }
-        });
-      }
+      Swal.fire({
+        title: "정말 삭제하시겠습니까?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "삭제",
+        cancelButtonText: "취소"
+      }).then(result => {
+        if (result.isConfirmed) {
+          fetch(`/muscat/board/articleDelete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ bbsId, nttId })
+          })
+          .then(res => res.json())
+          .then(res => {
+            if (res.resultCode === "SUCCESS") {
+              Swal.fire("삭제 완료", res.resultMessage, "success").then(() => {
+                goBack();
+              });
+            } else {
+              Swal.fire("삭제 실패", res.resultMessage || "오류 발생", "error");
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            Swal.fire("서버 오류", "삭제 요청 중 문제가 발생했습니다.", "error");
+          });
+        }
+      });
     }
 
     function goReply() {
