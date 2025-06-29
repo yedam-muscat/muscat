@@ -9,6 +9,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
   
+  
   <style>
     /* 채팅방 스타일 */
     #chatRoom {
@@ -111,7 +112,7 @@
 			<div id="gridContainer"
 				style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px; width: 100%; padding: 10px; box-sizing: border-box;">
 
-					<!-- 🔹 채팅방 목록 패널 (왼쪽 열) -->
+					<!--  채팅방 목록 패널 (왼쪽 열) -->
 					<div id="chatListPanel"
 						style="background-color: #f8f9fa; border: 1px solid #ccc; border-radius: 5px; overflow-y: auto;">
 	
@@ -123,7 +124,37 @@
 							<i id="openMessenger" class="bi bi-chat-dots"
 								style="position: absolute; top: 10px; right: 10px; font-size: 1.5rem; cursor: pointer;"
 								title="새 채팅 시작"></i>
-						</div>
+					</div>
+								
+								<!-- 모달 구조 -->
+<div class="modal fade" id="selectUserModal" tabindex="-1" aria-labelledby="selectUserLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="selectUserLabel">대화상대 선택</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+      </div>
+
+      <div class="modal-body p-3">
+        <input type="search" id="searchUserInput" class="form-control mb-3" placeholder="이름으로 검색" autocomplete="off">
+
+        <div id="userCount" class="mb-2 text-secondary small">친구 0</div>
+
+        <ul id="userList" class="list-group" style="max-height: 300px; overflow-y: auto;">
+          <!-- JS로 여기 사용자 리스트 동적 생성 -->
+        </ul>
+      </div>
+
+      <div class="modal-footer d-flex justify-content-between">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">취소</button>
+        <button type="button" class="btn btn-primary" id="nextBtn" disabled>다음</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 	
 						<!-- 대화 상대 추가 목록 -->
 						<div id="chatListPopup" class="card shadow"
@@ -139,12 +170,22 @@
 							</ul>
 						</div>
 	
-						<!-- 실제 채팅방 리스트 -->
+						<!-- 채팅방 리스트 (안 읽은 메시지 수 표시 포함) -->
 						<ul id="chatListPopupItems" class="list-group list-group-flush mb-0">
-							<li class="list-group-item chat-entry" data-user="아이유">아이유</li>
-							<li class="list-group-item chat-entry" data-user="박보검">박보검</li>
-							<li class="list-group-item chat-entry" data-user="김태리">김태리</li>
+						  <li class="list-group-item chat-entry d-flex justify-content-between align-items-center" data-user="아이유">
+						    아이유
+						    <span class="badge bg-danger">3</span>
+						  </li>
+						  <li class="list-group-item chat-entry d-flex justify-content-between align-items-center" data-user="박보검">
+						    박보검
+						    <span class="badge bg-danger">1</span>
+						  </li>
+						  <li class="list-group-item chat-entry d-flex justify-content-between align-items-center" data-user="김태리">
+						    김태리
+						    <span class="badge bg-danger">0</span>
+						  </li>
 						</ul>
+
 					</div>
 
 				<!-- 채팅방 -->
@@ -235,6 +276,26 @@
 					</div>
 				</div>
 			</div>
+			
+			<!-- 이미지 미리보기  -->
+			<div class="modal fade" id="imagePreviewModal" tabindex="-1"
+				aria-hidden="true">
+				<div class="modal-dialog modal-lg modal-dialog-centered">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title">이미지 미리보기</h5>
+							<button class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+						</div>
+						<div class="modal-body text-center">
+							<img id="previewImage" src=""
+								style="max-width: 100%; max-height: 70vh;" />
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			
+
 
 			<script>
 			$(function() {
@@ -365,6 +426,37 @@ $('#chatListPopup').on('click', '.chat-entry', function () {
 						$("#gridAttachFileIcon").on("click", function() {
 						  $("#gridFileInput").click();
 						});
+						// 오늘 여기 추가 했음.
+						let attachedFiles = [];
+
+						$('#gridFileInput').on('change', function (event) {
+						  const files = event.target.files;
+						  attachedFiles = [];
+
+						  $('#gridChatInput').val('');
+						  $('#gridSendMsg').prop('disabled', false);
+
+						  for (const file of files) {
+						    const reader = new FileReader();
+
+						    reader.onload = function (e) {
+						      attachedFiles.push({
+						        name: file.name,
+						        type: file.type,
+						        size: file.size,
+						        dataUrl: e.target.result
+						      });
+						    };
+
+						    reader.readAsDataURL(file);
+						  }
+
+						  // 채팅 입력창에 미리보기 이름들
+						  const fileNames = Array.from(files).map(f => f.name).join(', ');
+						  $('#gridChatInput').val(`[첨부됨] ${fileNames}`);
+						});
+
+						
 		
 						// 입력값에 따라 전송 버튼 활성화
 						$("#gridChatInput").on("input", function() {
@@ -373,14 +465,60 @@ $('#chatListPopup').on('click', '.chat-entry', function () {
 						});
 		
 						// 전송 버튼 클릭 시 (여기엔 메시지 처리 로직 추가 가능)
-						$("#gridSendMsg").on("click", function() {
-						  const msg = $("#gridChatInput").val().trim();
-						  if (msg) {
-						    appendChatMessage(loginUser, msg);  // 반드시 appendChatMessage를 호출
-						    $("#gridChatInput").val('');
-						    $(this).prop("disabled", true);
-						  }
-						});
+					
+
+$("#gridSendMsg").on("click", function () {
+  const msg = $("#gridChatInput").val().trim();
+
+  // 아무 내용도 없으면 리턴
+  if (!msg && attachedFiles.length === 0) return;
+
+  const chatContainer = $('<div class="chat-message my-1 d-flex justify-content-end"></div>');
+  const bubble = $('<div class="message-bubble p-2 rounded" style="max-width: 70%; background-color: #DCF8C6;"></div>');
+
+  // 첨부된 파일 처리
+  if (attachedFiles.length > 0) {
+    for (const file of attachedFiles) {
+      const ext = file.name.split('.').pop().toLowerCase();
+
+      if (file.type.startsWith('image/')) {
+        const img = $('<img>')
+          .attr('src', file.dataUrl)
+          .css({ maxWidth: '150px', borderRadius: '10px', cursor: 'pointer', marginBottom: '5px' })
+          .on('click', function () {
+            $('#previewImage').attr('src', file.dataUrl);
+            const modal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
+            modal.show();
+          });
+        bubble.append(img);
+      } else {
+        const link = $('<a>')
+          .attr('href', file.dataUrl)
+          .attr('download', file.name)
+          .text(file.name)
+          .css({ display: 'block', marginTop: '5px', textDecoration: 'underline', color: '#0d6efd' });
+        bubble.append($('<div><i class="bi bi-file-earmark"></i> </div>').append(link));
+      }
+    }
+  }
+
+  // 메시지가 있다면 추가
+  if (msg) {
+    bubble.append(`<div style="margin-top:5px;">${msg}</div>`);
+  }
+
+  // 조립 & 출력
+  chatContainer.append(bubble);
+  $('#gridChatMessages').append(chatContainer);
+  $('#gridChatMessages').scrollTop($('#gridChatMessages')[0].scrollHeight);
+
+  // 초기화
+  $("#gridChatInput").val('');
+  $(this).prop("disabled", true);
+  $("#gridFileInput").val('');
+  attachedFiles = [];
+});
+
 						// 엔터키 입력 시 전송
 						$("#gridChatInput").on("keypress", function(e) {
 						  if (e.which === 13 && !$("#gridSendMsg").prop("disabled")) {
@@ -457,8 +595,8 @@ $('#chatListPopup').on('click', '.chat-entry', function () {
 								  });
 								});
 							
-							// 승인 시
-							$('#approveReport').on('click', function() {
+							//승인 
+							$('#approveReport').on('click', function () {
 								  Swal.fire({
 								    title: '승인하시겠습니까?',
 								    icon: 'question',
@@ -466,61 +604,101 @@ $('#chatListPopup').on('click', '.chat-entry', function () {
 								    confirmButtonText: '승인',
 								    cancelButtonText: '취소'
 								  }).then((result) => {
-								    if (result.isConfirmed) {
-								      const fileIconContainer = $('#gridChatMessages > div').last();
-								
-								      if (fileIconContainer.length) {
-								        // 이미 체크 아이콘이 있으면 승인되었다고 알림
-								        if (fileIconContainer.find('.check-badge').length > 0) {
-								          Swal.fire({
-								            icon: 'info',
-								            title: '이미 승인된 보고입니다.',
-								            text: '이 보고서는 이미 승인 처리되었습니다.',
-								            confirmButtonText: '확인'
-								          });
-								          return;  // 더 이상 처리하지 않음
-								        }
-								
-								        // 승인 체크 표시 추가
-								        const checkBadge = $('<i class="bi bi-check-circle-fill check-badge"></i>').css({
-								          position: 'absolute',
-								          top: '0',
-								          right: '0',
-								          fontSize: '1rem',
-								          color: 'green'
-								        });
-								        fileIconContainer.find('div').append(checkBadge);
-								      }
-								
+								    if (!result.isConfirmed) return;
+
+								    const fileIconContainer = $('#gridChatMessages > div').last();
+
+								    if (!fileIconContainer.length) return;
+
+								    if (fileIconContainer.find('.check-badge').length > 0) {
 								      Swal.fire({
-								        icon: 'success',
-								        title: '승인 완료',
-								        text: '보고서가 승인되었습니다.',
+								        icon: 'info',
+								        title: '이미 승인된 보고입니다.',
+								        text: '이 보고서는 이미 승인 처리되었습니다.',
 								        confirmButtonText: '확인'
 								      });
-								
-								      const modalInstance = bootstrap.Modal.getInstance(document.getElementById('reportDetailModal'));
-								      if (modalInstance) modalInstance.hide();
-								 
-								      
-								      // 파일 아이콘 클릭 이벤트
-								        fileIcon.on('click', function() {
-								            const detailModal = new bootstrap.Modal(document.getElementById('reportDetailModal'));
-								            detailModal.show();
-								        });
-								      
-								      
-								      // 체크 표시 (초기에는 숨김)
-								        const checkBadge = $('<i class="bi bi-check-circle-fill" style="color: green; font-size: 1rem; position: absolute; top: -5px; right: -5px; display: none;"></i>');
-								        // 조립
-								        fileIconContainer.append(fileIcon).append(checkBadge);
-								        fileIconContainer.data('checkBadge', checkBadge);
-					
-		
-								      $('#reportDetailModal').modal('hide');
+								      return;
 								    }
+								    
+								 // 보류 배지 있으면 제거 
+							        fileIconContainer.find('.hold-badge').remove();
+
+								    // 	승인 체크 표시 추가
+								    const checkBadge = $('<i class="bi bi-check-circle-fill check-badge"></i>').css({
+								      position: 'absolute',
+								      top: '0',
+								      right: '0',
+								      fontSize: '1rem',
+								      color: 'green'
+								    });
+								    fileIconContainer.find('div').append(checkBadge);
+
+								    Swal.fire({
+								      icon: 'success',
+								      title: '승인 완료',
+								      text: '보고서가 승인되었습니다.',
+								      confirmButtonText: '확인'
+								    });
+
+								    const modalInstance = bootstrap.Modal.getInstance(document.getElementById('reportDetailModal'));
+								    if (modalInstance) modalInstance.hide();
 								  });
 								});
+							//보류 시 
+							$('#holdReport').on('click', function () {
+								  Swal.fire({
+								    title: '보류하시겠습니까?',
+								    icon: 'warning',	
+								    showCancelButton: true,
+								    confirmButtonText: '보류',
+								    cancelButtonText: '취소'
+								  }).then((result) => {
+								    if (!result.isConfirmed) return;
+
+								    const opinionText = result.value;
+								    const fileIconContainer = $('#gridChatMessages > div').last();
+
+								    if (fileIconContainer.length) {
+								      // 이미 보류 아이콘이 있는지 체크
+								      if (fileIconContainer.find('.hold-badge').length > 0) {
+								        Swal.fire({
+								          icon: 'info',
+								          title: '이미 보류된 보고입니다.',
+								          text: '이 보고서는 이미 보류 처리되었습니다.',
+								          confirmButtonText: '확인'
+								        });
+								        return;
+								      }
+								      
+								   
+
+
+								      // 보류 아이콘 추가
+								      const holdBadge = $('<i class="bi bi-exclamation-circle-fill hold-badge"></i>').css({
+								        position: 'absolute',
+								        top: '0',
+								        right: '0',
+								        fontSize: '1rem',
+								        color: 'orange'
+								      });
+
+								      fileIconContainer.find('div').append(holdBadge);
+								      fileIconContainer.data('holdOpinion', opinionText);
+								    }
+
+								    Swal.fire({
+								      icon: 'success',
+								      title: '보류 완료',
+								      text: '보고서가 보류되었습니다.',
+								      confirmButtonText: '확인'
+								    });
+
+								    const modalInstance = bootstrap.Modal.getInstance(document.getElementById('reportDetailModal'));
+								    if (modalInstance) modalInstance.hide();
+								  });
+								});
+
+
 							
 							//업무보고상세모달, 보고모달 
 							$(function() {
@@ -605,7 +783,7 @@ $('#chatListPopup').on('click', '.chat-entry', function () {
 							appendChatMessage(loginUser, "넵 확인했습니다!");
 	
 							//접속 인원 표시
-							let currentChatTarget = "아이유"; // 또는 원하는 상대 이름
+							let currentChatTarget = null; // 또는 원하는 상대 이름
 							let currentUserCount = 0;
 
 							function updateUserCount(count) {
@@ -617,6 +795,96 @@ $('#chatListPopup').on('click', '.chat-entry', function () {
 							socket.on("userCountUpdate", (count) => {
 							  updateUserCount(count);
 							}); */
+							
+							
+						
+							
+							
+							document.addEventListener("DOMContentLoaded", () => {
+							    const users = [
+							      { name: "아이유 ", avatar: "https://randomuser.me/api/portraits/men/10.jpg" },
+							      { name: "박보검 ", avatar: "" },
+							      { name: "송중기 ", avatar: "https://randomuser.me/api/portraits/men/20.jpg" },
+							      { name: "고윤정 ", avatar: "https://randomuser.me/api/portraits/men/30.jpg" },
+							      { name: "보영 ", avatar: "" }
+							      // 더 추가 가능
+							    ];
+
+							    const userList = document.getElementById("userList");
+							    const searchInput = document.getElementById("searchUserInput");
+							    const userCount = document.getElementById("userCount");
+							    const nextBtn = document.getElementById("nextBtn");
+
+							    let selectedUser = null;
+
+							    function renderList(filter = "") {
+							      userList.innerHTML = "";
+							      const filtered = users.filter(u => u.name.includes(filter));
+							      userCount.textContent = `친구 ${filtered.length}`;
+
+							      filtered.forEach((user, index) => {
+							        const li = document.createElement("li");
+							        li.className = "list-group-item d-flex align-items-center";
+
+							        // 아바타 이미지 or 기본 아이콘
+							        const img = document.createElement("img");
+							        img.src = user.avatar || "https://cdn-icons-png.flaticon.com/512/149/149071.png"; // 기본 아이콘
+							        img.alt = user.name;
+							        img.style.width = "40px";
+							        img.style.height = "40px";
+							        img.style.borderRadius = "50%";
+							        img.style.objectFit = "cover";
+							        img.classList.add("me-3");
+
+							        // 이름
+							        const nameSpan = document.createElement("span");
+							        nameSpan.textContent = user.name;
+							        nameSpan.style.flexGrow = "1";
+
+							        // 라디오 버튼
+							        const radio = document.createElement("input");
+							        radio.type = "radio";
+							        radio.name = "selectUser";
+							        radio.value = index;
+							        radio.classList.add("form-check-input");
+
+							        radio.addEventListener("change", () => {
+							          selectedUser = user;
+							          nextBtn.disabled = false;
+							        });
+
+							        li.appendChild(img);
+							        li.appendChild(nameSpan);
+							        li.appendChild(radio);
+
+							        userList.appendChild(li);
+							      });
+							    }
+
+							    searchInput.addEventListener("input", (e) => {
+							      renderList(e.target.value);
+							    });
+
+							    nextBtn.addEventListener("click", () => {
+							      if (selectedUser) {
+							        alert(`선택한 사용자: ${selectedUser.name}`);
+							        // 여기서 채팅방 생성 등 다음 단계 처리
+							        const modalEl = document.getElementById('selectUserModal');
+							        const modal = bootstrap.Modal.getInstance(modalEl);
+							        modal.hide();
+							      }
+							    });
+
+							    // 초기 렌더링
+							    renderList();
+
+							    // 모달 띄우기 (필요시, 예: 버튼 클릭 이벤트 안에서)
+							    // const modal = new bootstrap.Modal(document.getElementById('selectUserModal'));
+							    // modal.show();
+							  });
+							
+
+
 	
 			</script>
 			  <script>
@@ -630,7 +898,32 @@ $('#chatListPopup').on('click', '.chat-entry', function () {
 		webSocket.onopen = function(){ processOpen(); };
 		webSocket.onmessage = function(message) { processMessage(message); };
 		webSocket.onerror = function(message) { processError(message); };
-		
+		// 메시지 입력 시 전송 버튼 활성화
+		$("#gridChatInput").on("input", function () {
+		    const hasText = $(this).val().trim().length > 0;
+		    $("#gridSendMsg").prop("disabled", !hasText);
+		});
+
+		// 전송 버튼 클릭 시 메시지 전송
+		$("#gridSendMsg").on("click", function () {
+		    const msg = $("#gridChatInput").val().trim();
+		    const sender = "${loginVO.name}";
+		    const receiver = currentChatTarget;
+
+		    if (msg && receiver && webSocket) {
+		        // 서버로 메시지 전송
+		        webSocket.send(JSON.stringify({
+		            connectionType: "chatMessage",
+		            sender: sender,
+		            receiver: receiver,
+		            message: msg
+		        }));
+
+		        appendChatMessage(sender, msg); // 채팅 UI에 나의 메시지 표시
+		        $("#gridChatInput").val('');
+		        $(this).prop("disabled", true);
+		    }
+		});
 	});
 	//var webSocket = new WebSocket('ws://' + window.location.host + '/egov-messenger/usersServerEndpoint');
 	
@@ -651,7 +944,7 @@ $('#chatListPopup').on('click', '.chat-entry', function () {
 	function processOpen() {
 		connectionType = "firstConnection";
 		username = "${loginVO.name}";
-		webSocket.send(JSON.stringify({ "connectionType" : connectionType, "username" : username }));
+		webSocket.send(JSON.stringify({ "connectionType" : connectionType}));
 	}
 		
 	//server에서 메시지가 넘어왔을때
@@ -676,6 +969,10 @@ $('#chatListPopup').on('click', '.chat-entry', function () {
 			$("#username").val(jsonData.username);
 			openPopup(roomId);
 		}
+		// 💬 메시지 수신 처리
+	    if (jsonData.message) {
+	        appendChatMessage(jsonData.sender, jsonData.message);
+	    }
 	}
 	
 	function openPopup(roomId) {
@@ -715,6 +1012,7 @@ $('#chatListPopup').on('click', '.chat-entry', function () {
 	//다른 사용자 선택 시, 선택한 사용자 값을 서버에 전달
 	function trClick(selectedTr) {
 		if (selectedTr.id != null) {
+			currentChatTarget = selectedTr.id; // 클릭한 유저를 저장
 				connectionType = "chatConnection";
 				webSocket.send(JSON.stringify({ "connectionType" : connectionType, "connectingUser" : selectedTr.id }));
 			}
@@ -740,9 +1038,14 @@ $('#chatListPopup').on('click', '.chat-entry', function () {
 	window.onbeforeunload = function() {
 		webSocket.close();
 	};
+	
+
+	
 </script>
 			
-			
+		<!-- Bootstrap JS (반드시 포함) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>	
 	</body>
+	
 </main>
 </html>
