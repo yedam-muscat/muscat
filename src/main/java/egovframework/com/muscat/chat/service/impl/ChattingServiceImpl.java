@@ -11,6 +11,18 @@ public class ChattingServiceImpl implements ChattingService{
 		
 		return "chat";
 	}
+
+	@Override
+	public String getRoomId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getUsername() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 
 }

@@ -109,6 +109,8 @@
 							placeholder="이름/아이디/부서/직위/직책/전화 등 입력해주세요">
 					</div>
 					<div id="tree"></div>
+					 <div id="treeTextResult">
+  					</div>
 				</div>
 			</div>
 		</div>
@@ -348,7 +350,7 @@
 		    $parentLi.addClass("active");
 		    $parentLi.find("> .sidebar-link").addClass("active");
 
-		    // 👉 하위 메뉴 강제로 열기
+		    // 하위 메뉴 강제로 열기
 		    $parentLi.find(".submenu").css("display", "block");
 
 		    if (childId) {
@@ -397,41 +399,64 @@
 		});
 
 	
-		$(function() {
+	
 			$('#staticBackdrop').on('shown.bs.modal', function() {
 				if (!$('#tree').jstree(true)) {
 					initTree();
 				}
 			});
-		});
 
-		function initTree() {
-			  $('#tree')
-			    .jstree({
-			      'core': {
-			        'data': {
-			          'url': '/group/chartData.do',  
-			          'dataType': 'json'
-			        },
-			        'themes': {
-			          'responsive': false
-			        }
-			      },
-			      'types': {
-			        'default': { 'icon': 'bi bi-folder' },
-			        'user': { 'icon': 'bi bi-person' }
-			      },
-			      'plugins': ['types']
-			    })
-			    .on("select_node.jstree", function(e, data) {
-			      if (data.node.type === "user") {
-			        showEmployeeCard(data.node);
-			      } else {
-			        hideCard();
-			      }
-			    });
-			}
-		
+			function initTree() {
+				let originalGroupData = [];
+				 $.getJSON('/muscat/group/groupData.do', function(data) {
+				        originalGroupData = data;  // ✅ 여기에 원본 저장
+				      });
+				 
+				  
+				  $('#tree')
+				  .jstree({
+				    'core': {
+				      'data': {
+				        'url': '/muscat/group/groupData.do',
+				        'dataType': 'json'
+				      },
+				      'themes': {
+				        'responsive': false
+				      }
+				    },
+				    'types': {
+				      'default': { 'icon': 'bi bi-folder' },
+				      'user': { 'icon': 'bi bi-person' }
+				    },
+				    'plugins': ['types']
+				  })
+				  .on('loaded.jstree', async function (e, data) {
+				    console.log("트리 로딩 완료");
+
+				    // 자식 노드를 동적으로 로딩하기 위해 클릭한 후 get_json을 호출
+				    $('#tree').jstree(true).open_all();  // 모든 노드를 펼침
+
+				    const result = $('#tree').jstree(true).get_json('#', { flat: false });
+				    console.log("🎯 트리 데이터 로딩 후:", result);
+				   
+				    // 결과값을 트리 옆에 표시 (혹은 다른 처리)
+				    for(let idx in result){
+				      $(`#${result[idx].id}`).append(' '+originalGroupData[idx].deptName);  // 각 노드에 데이터 출력
+				    }
+				  })
+				  .on("select_node.jstree", function (e, data) {
+				    console.log("선택된 노드:", data.node.original);
+				    if (data.node.type === "user") {
+				      showEmployeeCard(data.node);
+				    } else {
+				      hideCard();
+				    }
+				  });
+
+
+				}
+
+	
 		function showEmployeeCard(node) {
 			const card = document.getElementById('employeeCard');
 			document.getElementById('empName').innerText = node.text;
