@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,7 +32,6 @@ import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.util.EgovUserDetailsHelper;
 import egovframework.com.cmm.util.EgovXssChecker;
 import egovframework.com.cop.bbs.service.Board;
-import egovframework.com.cop.bbs.service.BoardMaster;
 import egovframework.com.cop.bbs.service.BoardMasterVO;
 import egovframework.com.cop.bbs.service.BoardVO;
 import egovframework.com.cop.bbs.service.EgovArticleService;
@@ -61,9 +59,10 @@ public class BoardArticleController {
 
 	@Resource(name = "egovMessageSource")
 	EgovMessageSource egovMessageSource;
-
+	
 	@Autowired
 	private DefaultBeanValidator beanValidator;
+
 
 	/** XSS 방지 필터링 */
 	protected String unscript(String data) {
@@ -183,54 +182,58 @@ public class BoardArticleController {
 		return "board/articleRegist.html";
 	}
 
-	/** ✅ 게시글 등록 처리 */
+	/** ✅ 게시글 등록 처리 (AJAX) */
 	@PostMapping("/board/articleInsert.do")
-	public String insertArticle(final MultipartHttpServletRequest multiRequest,
-			@ModelAttribute("searchVO") BoardVO boardVO, @ModelAttribute("bdMstr") BoardMaster bdMstr,
-			@ModelAttribute("board") BoardVO board, BindingResult bindingResult, ModelMap model) throws Exception {
+	@ResponseBody
+	public Map<String, Object> insertArticleAjax(final MultipartHttpServletRequest multiRequest) {
+		Map<String, Object> resultMap = new HashMap<>();
 
-		if (!EgovUserDetailsHelper.isAuthenticated()) {
-			return "redirect:/uat/uia/egovLoginUsr.do";
-		}
-		LoginVO user = (LoginVO) EgovUserDetailsHelper.getAuthenticatedUser();
-
-		beanValidator.validate(board, bindingResult);
-		if (bindingResult.hasErrors()) {
-			BoardMasterVO masterVO = new BoardMasterVO();
-			masterVO.setBbsId(boardVO.getBbsId());
-			masterVO.setUniqId(user.getUniqId());
-			BoardMasterVO master = egovBBSMasterService.selectBBSMasterInf(masterVO);
-
-			if (master.getTmplatCours() == null || master.getTmplatCours().isEmpty()) {
-				master.setTmplatCours("/css/egovframework/com/cop/tpl/egovBaseTemplate.css");
+		try {
+			if (!EgovUserDetailsHelper.isAuthenticated()) {
+				resultMap.put("resultCode", "FAIL");
+				resultMap.put("resultMessage", "로그인이 필요합니다.");
+				return resultMap;
 			}
-			model.addAttribute("boardMasterVO", master);
-			return "egovframework/com/cop/bbs/EgovArticleRegist";
+
+			LoginVO user = (LoginVO) EgovUserDetailsHelper.getAuthenticatedUser();
+
+			BoardVO board = new BoardVO();
+			board.setBbsId(multiRequest.getParameter("bbsId"));
+			board.setNttSj(multiRequest.getParameter("nttSj"));
+			board.setNttCn(unscript(multiRequest.getParameter("nttCn")));
+			board.setNoticeAt(multiRequest.getParameter("noticeAt") != null ? "Y" : "N");
+			board.setSecretAt(multiRequest.getParameter("secretAt") != null ? "Y" : "N");
+			board.setAnonymousAt(multiRequest.getParameter("anonymousAt") != null ? "Y" : "N");
+			board.setSjBoldAt(multiRequest.getParameter("sjBoldAt") != null ? "Y" : "N");
+			board.setNtceBgnde(multiRequest.getParameter("ntceBgnde"));
+			board.setNtceEndde(multiRequest.getParameter("ntceEndde"));
+
+			// 등록자 처리
+			if ("Y".equals(board.getAnonymousAt())) {
+				board.setNtcrId("anonymous");
+				board.setNtcrNm("익명");
+				board.setFrstRegisterId("anonymous");
+			} else {
+				board.setNtcrId(user.getUniqId());
+				board.setNtcrNm(user.getName());
+				board.setFrstRegisterId(user.getUniqId());
+			}
+
+			// 첨부파일
+			List<MultipartFile> files = multiRequest.getFiles("file");
+
+			egovArticleService.insertArticleAndFiles(board, files);
+
+			resultMap.put("resultCode", "SUCCESS");
+			resultMap.put("resultMessage", "게시글이 등록되었습니다.");
+
+		} catch (Exception e) {
+			resultMap.put("resultCode", "FAIL");
+			resultMap.put("resultMessage", "등록 중 오류 발생");
+			e.printStackTrace();
 		}
 
-		board.setBbsId(boardVO.getBbsId());
-		board.setFrstRegisterId(user.getUniqId());
-
-		if ("Y".equals(board.getAnonymousAt())) {
-			board.setNtcrId("anonymous");
-			board.setNtcrNm("익명");
-			board.setFrstRegisterId("anonymous");
-		} else {
-			board.setNtcrId(user.getUniqId());
-			board.setNtcrNm(user.getName());
-		}
-
-		board.setNttCn(unscript(board.getNttCn()));
-
-		List<MultipartFile> files = multiRequest.getFiles("file_1");
-		egovArticleService.insertArticleAndFiles(board, files);
-
-		model.addAttribute("bbsId", boardVO.getBbsId());
-		model.addAttribute("searchCnd", boardVO.getSearchCnd());
-		model.addAttribute("searchWrd", boardVO.getSearchWrd());
-		model.addAttribute("pageIndex", boardVO.getPageIndex());
-
-		return "redirect:articleList.do";
+		return resultMap;
 	}
 
 	/** ✏️ 게시글 수정 화면 */
@@ -355,4 +358,5 @@ public class BoardArticleController {
 
 		return resultMap;
 	}
+    
 }
