@@ -23,7 +23,8 @@ SELECT * FROM ( SELECT rownum rn, TB.* FROM (
         MBTLNUM               as MOBLPHON_NO,
         GROUP_ID              as GROUP_ID,
         MBER_STTUS            as STTUS,
-        SBSCRB_DE             as SBSCRB_DE
+        SBSCRB_DE             as SBSCRB_DE,
+        DEPT_ID               as DEPT_ID
     FROM    COMTNGNRLMBER
     WHERE 1=1
         <if test='sbscrbSttus != null and sbscrbSttus neq "0" and sbscrbSttus neq ""'>
