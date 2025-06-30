@@ -17,6 +17,10 @@
       min-height: 300px;
       white-space: pre-wrap;
     }
+    .reply-btn {
+      font-size: 0.8rem;
+      margin-left: 8px;
+    }
   </style>
 </head>
 
@@ -25,32 +29,15 @@
 
   <table class="table table-bordered">
     <tbody>
+      <tr><th>제목</th><td id="nttSj" colspan="5"></td></tr>
       <tr>
-        <th>제목</th>
-        <td id="nttSj" colspan="5"></td>
+        <th>등록자</th><td id="frstRegisterNm"></td>
+        <th>등록일</th><td id="frstRegisterPnttm"></td>
+        <th>조회수</th><td id="inqireCo"></td>
       </tr>
-      <tr>
-        <th>등록자</th>
-        <td id="frstRegisterNm"></td>
-        <th>등록일</th>
-        <td id="frstRegisterPnttm"></td>
-        <th>조회수</th>
-        <td id="inqireCo"></td>
-      </tr>
-      <tr>
-        <th>내용</th>
-        <td colspan="5">
-          <div id="nttCn"></div>
-        </td>
-      </tr>
-      <tr>
-        <th>게시기간</th>
-        <td id="ntceBgnde" colspan="2"></td>
-      </tr>
-      <tr>
-        <th>첨부파일</th>
-        <td id="atchFileArea" colspan="5"></td>
-      </tr>
+      <tr><th>내용</th><td colspan="5"><div id="nttCn"></div></td></tr>
+      <tr><th>게시기간</th><td id="ntceBgnde" colspan="2"></td></tr>
+      <tr><th>첨부파일</th><td id="atchFileArea" colspan="5"></td></tr>
     </tbody>
   </table>
 
@@ -62,15 +49,19 @@
     <button class="btn btn-info">스크랩</button>
   </div>
 
+  <!-- 댓글 영역 -->
   <h4>댓글 <span id="replyCount">0</span></h4>
   <div id="replyList" class="border p-3 mb-3">댓글이 없습니다.</div>
+
+  <!-- 페이징 버튼 -->
+  <div class="d-flex justify-content-center mb-3" id="replyPagination"></div>
 
   <div class="mb-3">
     <label for="replyContent">댓글내용 *</label>
     <textarea id="replyContent" rows="3" class="form-control"></textarea>
   </div>
   <div class="text-end">
-    <button class="btn btn-primary">댓글등록</button>
+    <button class="btn btn-primary" onclick="submitReply()">댓글등록</button>
   </div>
 
   <script>
@@ -86,7 +77,6 @@
       .then(res => res.json())
       .then(res => {
         const data = res.article;
-
         document.getElementById("nttSj").textContent = data.nttSj;
         document.getElementById("frstRegisterNm").textContent = data.frstRegisterNm;
         document.getElementById("frstRegisterPnttm").textContent = data.frstRegisterPnttm;
@@ -94,7 +84,6 @@
         document.getElementById("nttCn").innerHTML = data.nttCn?.replace(/\n/g, "<br>");
         document.getElementById("ntceBgnde").textContent = `${data.ntceBgnde} ~ ${data.ntceEndde}`;
 
-        // ✅ 첨부파일 목록 출력
         const atchFileArea = document.getElementById("atchFileArea");
         if (data.files && data.files.length > 0) {
           const fileList = data.files.map(file =>
@@ -105,6 +94,134 @@
           atchFileArea.textContent = "첨부된 파일이 없습니다.";
         }
       });
+
+    let allReplies = [];
+    const replyPageSize = 5;
+    let currentPage = 1;
+
+    function loadReplies(page = 1) {
+      fetch(`/muscat/board/replyList?bbsId=${bbsId}&nttId=${nttId}`)
+        .then(res => res.json())
+        .then(res => {
+          allReplies = res.comments || [];
+          currentPage = page;
+          const total = allReplies.length;
+          const totalPages = Math.ceil(total / replyPageSize);
+          const replyListEl = document.getElementById("replyList");
+          const countEl = document.getElementById("replyCount");
+          const paginationEl = document.getElementById("replyPagination");
+
+          countEl.textContent = total;
+
+          if (total === 0) {
+            replyListEl.innerHTML = "댓글이 없습니다.";
+            paginationEl.innerHTML = "";
+            return;
+          }
+
+          const start = (page - 1) * replyPageSize;
+          const end = start + replyPageSize;
+          const list = allReplies.slice(start, end);
+
+          replyListEl.innerHTML = list.map(reply => `
+            <div class="border-bottom mb-2 pb-2">
+              <strong>${reply.wrterNm}</strong> <span class="text-muted small">(${reply.frstRegisterPnttm})</span>
+              <p>${reply.commentCn}</p>
+              <div class="text-end">
+                <button class="btn btn-sm btn-outline-secondary reply-btn" onclick="editReply('${reply.commentNo}', \`${reply.commentCn?.replace(/`/g, '\\`')}\`)">수정</button>
+                <button class="btn btn-sm btn-outline-danger reply-btn" onclick="deleteReply('${reply.commentNo}')">삭제</button>
+              </div>
+            </div>
+          `).join("");
+
+          // 페이지네이션
+          paginationEl.innerHTML = '';
+          for (let i = 1; i <= totalPages; i++) {
+            paginationEl.innerHTML += `<button class="btn btn-sm ${i === page ? 'btn-primary' : 'btn-outline-primary'} me-1" onclick="loadReplies(${i})">${i}</button>`;
+          }
+        });
+    }
+
+    function submitReply() {
+      const commentCn = document.getElementById("replyContent").value.trim();
+      if (!commentCn) {
+        Swal.fire("입력 오류", "댓글 내용을 입력해주세요.", "warning");
+        return;
+      }
+
+      fetch(`/muscat/board/replyInsert`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bbsId, nttId, commentCn })
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.status === "success") {
+          Swal.fire("등록 완료", res.message, "success");
+          document.getElementById("replyContent").value = "";
+          loadReplies(1); // 첫 페이지로 다시 로딩
+        } else {
+          Swal.fire("등록 실패", res.message, "error");
+        }
+      });
+    }
+
+    function editReply(commentNo, commentCn) {
+      Swal.fire({
+        title: "댓글 수정",
+        input: "textarea",
+        inputLabel: "댓글 내용",
+        inputValue: commentCn,
+        showCancelButton: true,
+        confirmButtonText: "수정",
+        cancelButtonText: "취소"
+      }).then(result => {
+        if (result.isConfirmed) {
+          fetch(`/muscat/board/replyUpdate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ commentNo, commentCn: result.value })
+          })
+          .then(res => res.json())
+          .then(res => {
+            if (res.status === "success") {
+              Swal.fire("수정 완료", res.message, "success");
+              loadReplies(currentPage);
+            } else {
+              Swal.fire("수정 실패", res.message, "error");
+            }
+          });
+        }
+      });
+    }
+
+    function deleteReply(commentNo) {
+      Swal.fire({
+        title: "댓글 삭제",
+        text: "정말 삭제하시겠습니까?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "삭제",
+        cancelButtonText: "취소"
+      }).then(result => {
+        if (result.isConfirmed) {
+          fetch(`/muscat/board/replyDelete`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ commentNo })
+          })
+          .then(res => res.json())
+          .then(res => {
+            if (res.status === "success") {
+              Swal.fire("삭제 완료", res.message, "success");
+              loadReplies(currentPage);
+            } else {
+              Swal.fire("삭제 실패", res.message, "error");
+            }
+          });
+        }
+      });
+    }
 
     function goEdit() {
       window.location.href = `/muscat/board/articleUpdt.do?bbsId=${bbsId}&nttId=${nttId}`;
@@ -127,16 +244,10 @@
           .then(res => res.json())
           .then(res => {
             if (res.resultCode === "SUCCESS") {
-              Swal.fire("삭제 완료", res.resultMessage, "success").then(() => {
-                goBack();
-              });
+              Swal.fire("삭제 완료", res.resultMessage, "success").then(() => goBack());
             } else {
               Swal.fire("삭제 실패", res.resultMessage || "오류 발생", "error");
             }
-          })
-          .catch(err => {
-            console.error(err);
-            Swal.fire("서버 오류", "삭제 요청 중 문제가 발생했습니다.", "error");
           });
         }
       });
@@ -149,6 +260,8 @@
     function goBack() {
       window.location.href = `/muscat/board/articleList.do?bbsId=${bbsId}`;
     }
+
+    document.addEventListener("DOMContentLoaded", () => loadReplies(1));
   </script>
 </main>
 </html>

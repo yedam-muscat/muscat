@@ -4,93 +4,99 @@
 	layout:decorate="~{layout/layout}">
 
 <head>
-  <meta charset="UTF-8">
-  <title>게시글 등록</title>
+<meta charset="UTF-8">
+<title>게시글 등록</title>
 
-  <!-- ✅ jQuery UI 스타일 -->
-  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
-  <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
-
-  <!-- ✅ jQuery, jQuery UI 먼저 -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-  <script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
-</head>
-
-<body>
-<main layout:fragment="content">
-  <h2>📝 게시글 등록</h2>
-
-  <form id="articleForm" action="articleInsert.do" enctype="multipart/form-data" method="post">
-    <input type="hidden" name="bbsId" id="bbsId" th:value="${boardMasterVO.bbsId}">
-
-    <div class="mb-3">
-      <label for="nttSj">제목 *</label>
-      <input type="text" class="form-control" id="nttSj" name="nttSj" required>
-    </div>
-
-    <div class="mb-3 form-check">
-      <input type="checkbox" class="form-check-input" id="sjBoldAt" name="sjBoldAt" value="Y">
-      <label class="form-check-label" for="sjBoldAt">제목 굵게</label>
-    </div>
-
-    <div class="mb-3">
-      <label for="nttCn">내용 *</label>
-      <textarea class="form-control" id="nttCn" name="nttCn" rows="10" required></textarea>
-    </div>
-
-    <div class="mb-3 form-check">
-      <input type="checkbox" class="form-check-input" id="noticeAt" name="noticeAt" value="Y">
-      <label class="form-check-label" for="noticeAt">공지글</label>
-    </div>
-
-    <div class="mb-3 form-check">
-      <input type="checkbox" class="form-check-input" id="secretAt" name="secretAt" value="Y">
-      <label class="form-check-label" for="secretAt">비밀글</label>
-    </div>
-
-    <div class="mb-3 form-check">
-      <input type="checkbox" class="form-check-input" id="anonymousAt" name="anonymousAt" value="Y">
-      <label class="form-check-label" for="anonymousAt">익명글</label>
-    </div>
-
-    <div class="mb-3">
-      <label for="ntceBgnde">게시기간</label>
-      <div class="d-flex">
-        <input type="text" class="form-control me-2" id="ntceBgnde" name="ntceBgnde" readonly>
-        <span class="mt-2">~</span>
-        <input type="text" class="form-control ms-2" id="ntceEndde" name="ntceEndde" readonly>
-      </div>
-    </div>
-
-    <div class="mb-3">
-      <label for="file">첨부파일</label>
-      <input type="file" class="form-control" name="file" id="file" multiple>
-    </div>
-
-    <button type="submit" class="btn btn-primary">등록</button>
-    <a href="#" id="cancelBtn" class="btn btn-secondary">목록</a>
-  </form>
-</main>
-
-<!-- ✅ 기타 스크립트는 맨 마지막에 -->
-<script src="https://cdn.ckeditor.com/4.25.1/standard/ckeditor.js"></script>
+<!-- jQuery / UI / CKEditor / SweetAlert2 -->
+<link rel="stylesheet"
+	href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+<script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
+<!-- CKEditor 경고창 제거용 CSS -->
+<style>
+.cke_top .cke_notification, .cke_notification_warning,
+	.cke_notification_message {
+	display: none !important;
+}
+</style>
+</head>
+<body>
+	<main layout:fragment="content">
+		<h2>📝 게시글 등록</h2>
+
+		<form id="articleForm" action="articleInsert.do"
+			enctype="multipart/form-data" method="post">
+			<input type="hidden" name="bbsId" id="bbsId"
+				th:value="${boardMasterVO.bbsId}">
+
+			<div class="mb-3">
+				<label for="nttSj">제목 *</label> <input type="text"
+					class="form-control" id="nttSj" name="nttSj" required>
+			</div>
+
+			<div class="mb-3 form-check">
+				<input type="checkbox" class="form-check-input" id="sjBoldAt"
+					name="sjBoldAt" value="Y"> <label class="form-check-label"
+					for="sjBoldAt">제목 굵게</label>
+			</div>
+
+			<div class="mb-3">
+				<label for="nttCn">내용 *</label>
+				<textarea class="form-control" id="nttCn" name="nttCn" rows="10"
+					required></textarea>
+			</div>
+
+			<div class="mb-3 form-check">
+				<input type="checkbox" class="form-check-input" id="noticeAt"
+					name="noticeAt" value="Y"> <label class="form-check-label"
+					for="noticeAt">공지글</label>
+			</div>
+
+			<div class="mb-3 form-check">
+				<input type="checkbox" class="form-check-input" id="secretAt"
+					name="secretAt" value="Y"> <label class="form-check-label"
+					for="secretAt">비밀글</label>
+			</div>
+
+			<div class="mb-3 form-check">
+				<input type="checkbox" class="form-check-input" id="anonymousAt"
+					name="anonymousAt" value="Y"> <label
+					class="form-check-label" for="anonymousAt">익명글</label>
+			</div>
+
+			<div class="mb-3">
+				<label for="ntceBgnde">게시기간</label>
+				<div class="d-flex">
+					<input type="text" class="form-control me-2" id="ntceBgnde"
+						name="ntceBgnde" readonly> <span class="mt-2">~</span> <input
+						type="text" class="form-control ms-2" id="ntceEndde"
+						name="ntceEndde" readonly>
+				</div>
+			</div>
+
+			<div class="mb-3">
+				<label for="file">첨부파일</label> <input type="file"
+					class="form-control" name="file" id="file" multiple>
+			</div>
+
+			<button type="submit" class="btn btn-primary">등록</button>
+			<a href="#" id="cancelBtn" class="btn btn-secondary">목록</a>
+		</form>
+
+
+		<script>
   $(function () {
     // ✅ 달력 초기화
     $("#ntceBgnde, #ntceEndde").datepicker({ dateFormat: 'yy-mm-dd' });
 
     const bbsId = new URLSearchParams(location.search).get("bbsId");
     $("#bbsId").val(bbsId);
-
-    // ✅ CKEditor 로딩
-    if (typeof CKEDITOR !== "undefined") {
-      CKEDITOR.replace("nttCn");
-    } else {
-      console.error("CKEDITOR is not defined");
-    }
+    
+    // CKEditor 설정
+    CKEDITOR.replace("nttCn");
 
     // 목록 버튼
     $("#cancelBtn").on("click", function (e) {
@@ -114,7 +120,7 @@
       formData.set("bbsId", bbsId);
 
       try {
-        const res = await fetch("/muscat/board/articleInsert", {
+        const res = await fetch("/muscat/board/articleInsert.do", {
           method: "POST",
           body: formData
         });
@@ -135,5 +141,6 @@
     });
   });
 </script>
+	</main>
 </body>
 </html>
