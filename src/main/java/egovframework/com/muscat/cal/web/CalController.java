@@ -38,17 +38,23 @@ public class CalController {
 	@PostMapping("/cal/insertSchedule")
 	@ResponseBody
 	public String insertSchedule(@RequestBody ScudVO vo) throws Exception {
-	    calService.insertSchedule(vo); // 오류 시 자동으로 예외 발생
+	    if (vo.getSchdulId() == null || vo.getSchdulId().isEmpty()) {
+	        vo.setSchdulId(UUID.randomUUID().toString().replace("-", "").substring(0, 20));
+	    }
+
+	    if (vo.getLeaderId() == null || vo.getLeaderId().isEmpty()) {
+	        vo.setLeaderId("admin"); // 또는 로그인 사용자 ID 등
+	    }
+
+	    calService.insertSchedule(vo);
 	    return "success";
 	}
 
 	// 조회
 	@GetMapping("/cal/listSchedule")
 	@ResponseBody
-	public List<Map> listSchedule(@RequestParam(required = false) String start,
-			@RequestParam(required = false) String end) throws Exception {
-
-		return calService.selectScheduleList();
+	public List<Map> listSchedule() throws Exception {
+	    return calService.selectScheduleList();
 	}
 
 	@RequestMapping("cal/calDetail.do")

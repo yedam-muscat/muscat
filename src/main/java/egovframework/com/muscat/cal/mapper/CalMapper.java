@@ -16,4 +16,6 @@ public interface CalMapper {
     void insertCalendar(CalendarVO calendarVO);
 
 	List<Map> selectCalendarList();
+
+	String getNextScheduleId();
 }
