@@ -4,40 +4,67 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="egovframework.com.muscat.cal.mapper.CalMapper">
-	
 
-	<insert id="insertSchedule" parameterType="egovframework.com.muscat.cal.mapper.ScudVO">
+
+	<insert id="insertSchedule"
+		parameterType="egovframework.com.muscat.cal.mapper.ScudVO">
 		INSERT INTO COMTNLEADERSCHDUL (
 		SCHDUL_ID,
+		SCHDUL_SE,
 		SCHDUL_NM,
-		SCHDUL_PLACE,
 		SCHDUL_CN,
-		FRST_REGISTER_ID,
+		SCHDUL_PLACE,
+		LEADER_ID,
+		REPTIT_SE_CODE,
 		SCHDUL_BGNDE,
 		SCHDUL_ENDDE,
+		SCHDUL_CHARGER_ID,
+		FRST_REGISTER_ID,
+		LAST_UPDUSR_ID,
+		LAST_UPDT_PNTTM,
 		CAL_ID
 		) VALUES (
 		#{schdulId},
+		#{schdulSe},
 		#{schdulNm},
-		#{schdulPlace},
 		#{schdulCn},
-		#{frstRegisterId},
+		#{schdulPlace},
+		#{leaderId},
+		#{reptitSeCode},
 		#{schdulBgnde},
 		#{schdulEndde},
+		#{schdulChargerId},
+		#{frstRegisterId},
+		#{lastUpdusrId},
+		CURRENT_TIMESTAMP,
 		#{calId}
 		)
 	</insert>
 
+
 	<select id="selectScheduleList" resultType="map">
 		SELECT
-		SCHDUL_ID,
-		SCHDUL_NM "title",
-		to_char(to_date(SCHDUL_BGNDE,'yyyymmddHH24miss'),'yyyy-mm-dd"T"HH24:mi:ss')"start"
-		,
-		to_char(to_date(SCHDUL_ENDDE,'yyyymmddHH24miss'),'yyyy-mm-dd"T"HH24:mi:ss')"end",
-		SCHDUL_PLACE,
-		SCHDUL_CN
-		FROM COMTNLEADERSCHDUL
+		s.SCHDUL_ID AS
+		"schdul_id",
+		s.SCHDUL_NM AS "title",
+		CASE
+		WHEN s.SCHDUL_BGNDE IS NOT NULL AND LENGTH(TRIM(s.SCHDUL_BGNDE)) = 14 THEN
+		TO_CHAR(TO_DATE(s.SCHDUL_BGNDE, 'YYYYMMDDHH24MISS'),
+		'YYYY-MM-DD"T"HH24:MI:SS')
+		ELSE NULL
+		END AS "start_dt",
+		CASE
+		WHEN s.SCHDUL_ENDDE IS NOT NULL AND LENGTH(TRIM(s.SCHDUL_ENDDE)) = 14 THEN
+		TO_CHAR(TO_DATE(s.SCHDUL_ENDDE, 'YYYYMMDDHH24MISS'),
+		'YYYY-MM-DD"T"HH24:MI:SS')
+		ELSE NULL
+		END AS "end_dt",
+		s.SCHDUL_PLACE AS "schdul_place",
+		s.SCHDUL_CN AS "schdul_cn",
+		s.CAL_ID AS "calId",
+		c.COLOR AS "color"
+		FROM COMTNLEADERSCHDUL s
+		JOIN CALENDAR c ON s.CAL_ID = c.CAL_ID
 	</select>
 
 	<insert id="insertCalendar" parameterType="map">
@@ -61,7 +88,8 @@
 	</insert>
 
 	<select id="selectCalendarList" resultType="map">
-		SELECT cal_id, cal_name, color, owner_id
+		SELECT cal_id,
+		cal_name, color, owner_id
 		FROM CALENDAR
 		ORDER BY cal_name
 	</select>
