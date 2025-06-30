@@ -23,6 +23,8 @@ public class MberManageVO extends UserDefaultVO{
 
 	/** 이전비밀번호 - 비밀번호 변경시 사용*/
     private String oldPassword = "";
+    
+    private int deptId;
 
     /**
 	 * 사용자고유아이디
@@ -420,6 +422,12 @@ public class MberManageVO extends UserDefaultVO{
 	 */
 	public void setMberEmailAdres(String mberEmailAdres) {
 		this.mberEmailAdres = mberEmailAdres;
+	}
+	public int getDeptId() {
+		return deptId;
+	}
+	public void setDeptId(int deptId) {
+		this.deptId = deptId;
 	}
 
 }
