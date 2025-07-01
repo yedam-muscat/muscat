@@ -70,6 +70,12 @@ public class GroupController {
 	 return groupService.getGroupData();
  }
  
+ @GetMapping("/userData.do")
+ @ResponseBody
+ public List<GroupVO> selectGroupUser() {
+	 return groupService.getselectGroupUser();
+ }
+ 
 //user 목록 조회
 	@GetMapping("/admin/user/userList.do")
 	@ResponseBody

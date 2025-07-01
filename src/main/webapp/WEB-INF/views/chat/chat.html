@@ -905,7 +905,7 @@ $("#gridSendMsg").on("click", function () {
 	var webSocket = null;
 	$(document).ready(function() {
 		var url = 'ws://' + window.location.host + '/muscat/usersServerEndpoint';
-		webSocket = connection(url);
+		//webSocket = connection(url);
 		var connectionType;
 		
 		webSocket.onopen = function(){ processOpen(); };
@@ -956,7 +956,7 @@ $("#gridSendMsg").on("click", function () {
 	
 	function processOpen() {
 		connectionType = "firstConnection";
-		username = "${loginVO.name}";
+		username = /*[[${session.loginVO.id}]]*/'';
 		webSocket.send(JSON.stringify({ "connectionType" : connectionType}));
 	}
 		
@@ -1048,18 +1048,11 @@ $("#gridSendMsg").on("click", function () {
 		/* messagesTextArea.value += "error...\n"; */
 	}
 
-	window.onbeforeunload = function() {
+	/* window.onbeforeunload = function() {
 		webSocket.close();
 	};
-
-	const socket = new WebSocket("ws://localhost:8082/프로젝트명/muscatUsersEndpoint");
-
-	socket.onopen = function () {
-	    socket.send(JSON.stringify({
-	        connectionType: "firstConnection",
-	        username: "홍길동"
-	    }));
-	};
+ */
+	
 
 	socket.onmessage = function (event) {
 	    console.log("서버 응답:", event.data);
@@ -1076,7 +1069,7 @@ $("#gridSendMsg").on("click", function () {
 	      console.log("WebSocket 연결 성공");
 	      connectionType = "firstConnection";
 	      // 로그인 사용자명 서버에서 JSP등으로 넣어주세요 (예: '${loginVO.name}')
-	      var username = "${loginVO.name}" || "홍길동";
+	      var username =  username || "홍길동";
 	      webSocket.send(JSON.stringify({ "connectionType": connectionType, "username": username }));
 	    };
 
@@ -1119,16 +1112,22 @@ $("#gridSendMsg").on("click", function () {
 	          connectingUser: selectedUser
 	        }));
 	      }
+	      e.preventDefault(); // 링크 기본 동작 막기
+			$('#employeeCard').fadeOut();
+			$('#staticBackdrop').fadeOut();
+			const modal = new bootstrap.Modal(document
+					.getElementById('chatListModal'));
+			modal.show();
 	    });
 
 	    // 채팅 메시지 전송 UI 부분(팝업 내에 구현해야 하므로 별도)
 
 	    // 페이지 닫기 직전 WebSocket 닫기
-	    window.onbeforeunload = function() {
+	    /* window.onbeforeunload = function() {
 	      if (webSocket) {
 	        webSocket.close();
 	      }
-	    };
+	    }; */
 	  });
 
 	  // WebSocket 연결 생성 함수
@@ -1146,7 +1145,7 @@ $("#gridSendMsg").on("click", function () {
 	  // 사용자 목록 화면 표시 함수
 	  function displayUsers(userList) {
 	    $("#users tr:not(:first)").remove();
-	    var loginName = "${loginVO.name}" || "홍길동";
+	    var loginName = username || "홍길동";
 	    userList.forEach(function(user) {
 	      var displayName = (user === loginName) ? user + " (나)" : user;
 	      var tr = $("<tr>").attr("id", user).css("cursor", "pointer").text(displayName);

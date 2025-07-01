@@ -4,37 +4,56 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="egovframework.com.muscat.group.mapper.GroupMapper">
-  
-  <select id="selectGroupChart" resultType="egovframework.com.muscat.group.service.GroupVO">
-    <!-- 부서 목록 조회 -->
-    SELECT
-      TO_CHAR(DEPT_ID) AS id,
-      CASE 
-        WHEN PARENT_DEPT_ID IS NULL THEN '#' 
-        ELSE TO_CHAR(PARENT_DEPT_ID)
-      END AS parent,
-      DEPT_NAME AS text
-    FROM DEPARTMENT
-    WHERE USE_YN = 'Y'
-  </select>
-  
-  <select id="selectgetGroupData" resultType="egovframework.com.muscat.group.service.GroupwithVO">
-   SELECT 
-        ESNTL_ID              as UNIQ_ID,
-        'USR01'               as USER_TY,
-        MBER_ID               as USER_ID,
-        MBER_NM               as USER_NM,
-        MBER_EMAIL_ADRES      as EMAIL_ADRES,
-        AREA_NO               as AREA_NO,
-        MIDDLE_TELNO          as MIDDLE_TELNO,
-        END_TELNO             as END_TELNO,
-        MBTLNUM               as MOBLPHON_NO,
-        GROUP_ID              as GROUP_ID,
-        MBER_STTUS            as STTUS,
-        SBSCRB_DE             as SBSCRB_DE,
-        d.Dept_id				  as dept_id,
-        d.dept_name
-    FROM    COMTNGNRLMBER c join department d on c.dept_id = d.dept_id
-    WHERE MBER_STTUS = 'P'
-    </select>
+	<resultMap type="egovframework.com.muscat.group.service.GroupVO" id="detailUser">
+	<result property="id" column="id"/>
+	<result property="text" column="text"/>
+	<result property="parent" column="parent"/>
+	<result property="type" column="type"/>
+	
+	<association property="data" javaType="egovframework.com.muscat.group.service.UserVO">
+    <result property="rank" column="rank"/>
+    <result property="job" column="job"/>
+    <result property="name" column="name"/>
+    <result property="dept" column="dept"/>
+    <result property="rank_nm" column="rank_nm"/>
+  </association>
+	
+	
+	</resultMap>
+	
+	
+	<select id="selectGroupChart" resultType="egovframework.com.muscat.group.service.GroupVO">
+		<!-- 부서 목록 조회 -->
+		Select * 
+		from vw_department
+	</select>
+
+	<select id="selectgetGroupData"
+		resultType="egovframework.com.muscat.group.service.GroupwithVO">
+		select
+		d.dept_id,
+		d.dept_name,
+		d.sort_order,
+		s.dept_id,
+		s.dept_name,
+		s.sort_order,
+		s.parent_dept_id
+
+		from department d join subdepartment s on d.dept_id = s.parent_dept_id
+	</select>
+
+	<select id="selectGroupUser" resultMap="detailUser" >
+		select v.id || gu.mber_id as id,
+		gu.mber_id as text,
+		gu.dept_id as parent,
+		'user' as type,
+		gu.rank,
+		gu.job,
+		gu.mber_id as name,
+		gu.dept_id as dept ,
+		find_codename(rank) rank_nm
+		FROM COMTNGNRLMBER gu join vw_department v on v.id = gu.dept_id
+	</select>
+
 </mapper>
+

@@ -8,6 +8,6 @@ public class GroupVO {
     private String parent;
     private String text;
     private String type;
-    
+    UserVO data;
 }
 
