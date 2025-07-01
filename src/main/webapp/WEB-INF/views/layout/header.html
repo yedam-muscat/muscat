@@ -15,8 +15,9 @@
 			</button>
 			<div class="collapse navbar-collapse" id="navbarSupportedContent">
 
+
 				<ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-					<li class="nav-item dropdown me-1"><a
+					<!-- <li class="nav-item dropdown me-1"><a
 						class="nav-link active dropdown-toggle" href="#"
 						data-bs-toggle="dropdown" aria-expanded="false"> <i
 							class='bi bi-envelope bi-sub fs-4 text-gray-600'></i>
@@ -27,7 +28,7 @@
 								<h6 class="dropdown-header">Mail</h6>
 							</li>
 							<li><a class="dropdown-item" href="#">No new mail</a></li>
-						</ul></li>
+						</ul></li> -->
 					<li class="nav-item dropdown me-3"><a
 						class="nav-link active dropdown-toggle" href="#"
 						data-bs-toggle="dropdown" aria-expanded="false"> <i
@@ -41,13 +42,25 @@
 							<li><a class="dropdown-item">No notification available</a></li>
 						</ul></li>
 				</ul>
+				<div class="dropdown me-3">
+					<div class="user-menu d-flex">
+						<div id="sessionInfo" class="user-name text-end me-3">
+							<h6 class="mb-0 text-gray-600">남은 세션 시간</h6>
+							<h6 id="leftTimeInfo" class="mb-0 text-gray-600">00:00</h6>
+						</div>
+						<div class="user-img d-flex align-items-center">
+							<button type="button" class="btn btn-sm btn-outline-secondary"
+								onclick="reqTimeAjax(event); return false;">시간 연장</button>
+						</div>
+					</div>
+				</div>
 				<div class="dropdown">
 					<a href="#" data-bs-toggle="dropdown" aria-expanded="false">
 						<div class="user-menu d-flex">
-							<div class="user-name text-end me-3" th:if="${session.loginVO != null}">
+							<div class="user-name text-end me-3"
+								th:if="${session.loginVO != null}">
 								<h6 class="mb-0 text-gray-600" th:text="${session.loginVO.id}"></h6>
 								<h6 class="mb-0 text-gray-600" th:text="${session.loginVO.name}"></h6>
-								<p class="mb-0 text-sm text-gray-600" th:text="${session.loginVO.userSe}"></p>
 							</div>
 							<div class="user-img d-flex align-items-center">
 								<div class="avatar avatar-md">
@@ -77,6 +90,14 @@
 			</div>
 		</div>
 	</nav>
+	<script th:inline="javascript">
+		let egovLatestServerTime = /*[[${egovLatestServerTime}]]*/ "";
+		let egovExpireSessionTime = /*[[${egovExpireSessionTime}]]*/ "";
+		let url = /*[[ @{/uat/uia/refreshSessionTimeout.do} ]]*/ '';
+		
+		console.log('egovLatestServerTime init', egovLatestServerTime);
+		console.log('egovExpireSessionTime init', egovExpireSessionTime);
+	</script>
 	<script>
 		$("#logout").on('click', function(event) {
 			event.preventDefault();
@@ -93,6 +114,107 @@
 				  } 
 				});
 		});
+		
+		init();
+		
+		function getCookie(cname) {
+		 	  var name = cname + "=";
+		 	  var decodedCookie = decodeURIComponent(document.cookie);
+		 	  var ca = decodedCookie.split(';');
+		 	  for(var i = 0; i <ca.length; i++) {
+		 	    var c = ca[i];
+		 	    while (c.charAt(0) == ' ') {
+		 	      c = c.substring(1);
+		 	    }
+		 	    if (c.indexOf(name) == 0) {
+		 	      return c.substring(name.length, c.length);
+		 	    }
+		 	  }
+		 	  return "";
+		 	}
+		  
+		  	function pad(n, width) {
+		  	  n = n + '';
+		  	  return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
+		  	}
+		  
+			var objLeftTime;
+			var objClickInfo;
+			var latestTime;
+			var expireTime;
+			var timeInterval = 1000; // 1초 간격 호출
+			var firstLocalTime = 0;
+			var elapsedLocalTime = 0;
+			var stateExpiredTime = false;
+			var timer;
+		  	
+			function init() {
+				objLeftTime = document.getElementById("leftTimeInfo");
+				if (!objLeftTime) return;
+
+				latestTime = Number(egovLatestServerTime);
+				expireTime = Number(egovExpireSessionTime);
+
+				console.log("latestServerTime =", latestTime);
+				console.log("expireSessionTime =", expireTime);
+
+				if (isNaN(latestTime) || isNaN(expireTime)) {
+					console.warn("시간 값이 유효하지 않습니다");
+					return;
+				}
+
+				firstLocalTime = Date.now();
+				showRemaining();
+				timer = setInterval(showRemaining, timeInterval);
+			}
+
+			function showRemaining() {
+				const now = Date.now();
+				const timeRemaining = expireTime - now;
+
+				if (timeRemaining < timeInterval) {
+					console.log("세션 만료");
+					clearInterval(timer);
+					objLeftTime.innerHTML = "00:00";
+					stateExpiredTime = true;
+					return;
+				}
+
+				const timeHour = Math.floor(timeRemaining / 1000 / 60 / 60);
+				const timeMin = Math.floor((timeRemaining / 1000 / 60) % 60);
+				const timeSec = Math.floor((timeRemaining / 1000) % 60);
+				objLeftTime.innerHTML = pad(timeMin, 2) + ":" + pad(timeSec, 2);
+			}
+		  
+			function reqTimeAjax(event) {
+				if (event) event.target.blur();
+			  	
+			  	if (stateExpiredTime==true) {
+			  		alert('시간을 연장할수 없습니다.');
+			  		return;
+			  	}
+			  	
+				$.ajax({
+				    url: url, //request 보낼 서버의 경로
+				    type:'get', // 메소드(get, post, put 등)
+				    data:{}, //보낼 데이터
+				    success: function(data) {
+				        //서버로부터 정상적으로 응답이 왔을 때 실행
+			        	egovLatestServerTime = data.egovLatestServerTime;
+			        	egovExpireSessionTime = data.egovExpireSessionTime;
+			        	//console.log("new latestServerTime = " + egovLatestServerTime);
+			        	//console.log("new expireSessionTime = " + egovExpireSessionTime);
+			        	init();
+				        //alert("정상수신 , data = "+data);
+				    },
+				    error: function(err) {
+				    	alert("err : "+err);
+				        //서버로부터 응답이 정상적으로 처리되지 못햇을 때 실행
+				    	//alert("오류발생 , error="+err.state());
+				    }
+				});
+				return false;
+			}
 	</script>
 </header>
 </html>
