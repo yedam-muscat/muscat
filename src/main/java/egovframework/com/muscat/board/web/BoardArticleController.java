@@ -1,5 +1,6 @@
 package egovframework.com.muscat.board.web;
 
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import org.egovframe.rte.fdl.cryptography.EgovEnvCryptoService;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.slf4j.Logger;
@@ -29,8 +31,10 @@ import egovframework.com.cmm.EgovMessageSource;
 import egovframework.com.cmm.LoginVO;
 import egovframework.com.cmm.service.EgovFileMngService;
 import egovframework.com.cmm.service.EgovFileMngUtil;
+import egovframework.com.cmm.service.FileVO;
 import egovframework.com.cmm.util.EgovUserDetailsHelper;
 import egovframework.com.cmm.util.EgovXssChecker;
+import egovframework.com.cmm.web.EgovFileMngController;
 import egovframework.com.cop.bbs.service.Board;
 import egovframework.com.cop.bbs.service.BoardMasterVO;
 import egovframework.com.cop.bbs.service.BoardVO;
@@ -62,7 +66,17 @@ public class BoardArticleController {
 	
 	@Autowired
 	private DefaultBeanValidator beanValidator;
+	
+	// 파일 관련 서비스
+	private static EgovEnvCryptoService cryptoService;
 
+	@Resource(name = "EgovFileMngService")
+	private EgovFileMngService fileService;
+
+	@Resource(name = "egovEnvCryptoService")
+	public void setEgovEnvCryptoService(EgovEnvCryptoService cryptoService) {
+		BoardArticleController.cryptoService = cryptoService;
+	}
 
 	/** XSS 방지 필터링 */
 	protected String unscript(String data) {
@@ -139,15 +153,32 @@ public class BoardArticleController {
 	/** 📑 게시글 상세 정보 (JSON) */
 	@GetMapping("/board/articleDetail")
 	@ResponseBody
-	public Map<String, Object> articleDetail(@RequestParam("bbsId") String bbsId, @RequestParam("nttId") int nttId) {
+	public Map<String, Object> articleDetail(@RequestParam("bbsId") String bbsId, @RequestParam("nttId") int nttId, HttpServletRequest request) {
 		Map<String, Object> result = new HashMap<>();
 		try {
 			BoardVO vo = new BoardVO();
 			vo.setBbsId(bbsId);
 			vo.setNttId(nttId);
 
+			BoardVO article = egovArticleService.selectArticleDetail(vo);
+			
+			FileVO fileVO = new FileVO();
+			fileVO.setAtchFileId(article.getAtchFileId());
+			List<FileVO> fileList = fileService.selectFileInfs(fileVO);
+
+			// FileId를 유추하지 못하도록 세션ID와 함께 암호화하여 표시한다. (2022.12.06 추가) - 파일아이디가 유추 불가능하도록 조치
+			for (FileVO file : fileList) {
+				String sessionId = request.getSession().getId();
+				String toEncrypt = sessionId + "|" + file.atchFileId;
+				file.setAtchFileId(Base64.getEncoder().encodeToString(cryptoService.encrypt(toEncrypt).getBytes()));
+			}
+
+			result.put("fileList", fileList);
+			result.put("fileListCnt", fileList.size());
+			
 			result.put("resultCode", "SUCCESS");
-			result.put("article", egovArticleService.selectArticleDetail(vo));
+			result.put("article", article);
+		
 		} catch (Exception e) {
 			result.put("resultCode", "FAIL");
 			result.put("resultMessage", "오류 발생: " + e.getMessage());

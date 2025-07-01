@@ -3,68 +3,90 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/layout}">
 <head>
-  <meta charset="UTF-8">
-  <title>게시글 상세조회</title>
-  <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
-  <script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <style>
-    th {
-      width: 120px;
-      background-color: #f8f8f8;
-    }
-    #nttCn {
-      min-height: 300px;
-      white-space: pre-wrap;
-    }
-    .reply-btn {
-      font-size: 0.8rem;
-      margin-left: 8px;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>게시글 상세조회</title>
+<link rel="stylesheet"
+	href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
+<script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+th {
+	width: 120px;
+	background-color: #f8f8f8;
+}
+
+#nttCn {
+	min-height: 300px;
+	white-space: pre-wrap;
+}
+
+.reply-btn {
+	font-size: 0.8rem;
+	margin-left: 8px;
+}
+</style>
 </head>
 
 <main layout:fragment="content">
-  <h2>▶ 게시글 상세조회</h2>
+	<h2>▶ 게시글 상세조회</h2>
 
-  <table class="table table-bordered">
-    <tbody>
-      <tr><th>제목</th><td id="nttSj" colspan="5"></td></tr>
-      <tr>
-        <th>등록자</th><td id="frstRegisterNm"></td>
-        <th>등록일</th><td id="frstRegisterPnttm"></td>
-        <th>조회수</th><td id="inqireCo"></td>
-      </tr>
-      <tr><th>내용</th><td colspan="5"><div id="nttCn"></div></td></tr>
-      <tr><th>게시기간</th><td id="ntceBgnde" colspan="2"></td></tr>
-      <tr><th>첨부파일</th><td id="atchFileArea" colspan="5"></td></tr>
-    </tbody>
-  </table>
+	<table class="table table-bordered">
+		<tbody>
+			<tr>
+				<th>제목</th>
+				<td id="nttSj" colspan="5"></td>
+			</tr>
+			<tr>
+				<th>등록자</th>
+				<td id="frstRegisterNm"></td>
+				<th>등록일</th>
+				<td id="frstRegisterPnttm"></td>
+				<th>조회수</th>
+				<td id="inqireCo"></td>
+			</tr>
+			<tr>
+				<th>내용</th>
+				<td colspan="5"><div id="nttCn"></div></td>
+			</tr>
+			<tr>
+				<th>게시기간</th>
+				<td id="ntceBgnde" colspan="2"></td>
+			</tr>
+			<tr>
+				<th>첨부파일</th>
+				<td id="atchFileArea" colspan="5"></td>
+			</tr>
+		</tbody>
+	</table>
 
-  <div class="text-end mb-4">
-    <button class="btn btn-primary" onclick="goEdit()">수정</button>
-    <button class="btn btn-danger" onclick="goDelete()">삭제</button>
-    <button class="btn btn-warning" onclick="goReply()">답글</button>
-    <button class="btn btn-secondary" onclick="goBack()">목록</button>
-    <button class="btn btn-info">스크랩</button>
-  </div>
+	<div class="text-end mb-4">
+		<button class="btn btn-primary" onclick="goEdit()">수정</button>
+		<button class="btn btn-danger" onclick="goDelete()">삭제</button>
+		<button class="btn btn-warning" onclick="goReply()">답글</button>
+		<button class="btn btn-secondary" onclick="goBack()">목록</button>
+		<button class="btn btn-info">스크랩</button>
+	</div>
 
-  <!-- 댓글 영역 -->
-  <h4>댓글 <span id="replyCount">0</span></h4>
-  <div id="replyList" class="border p-3 mb-3">댓글이 없습니다.</div>
+	<!-- 댓글 영역 -->
+	<h4>
+		댓글 <span id="replyCount">0</span>
+	</h4>
+	<div id="replyList" class="border p-3 mb-3">댓글이 없습니다.</div>
 
-  <!-- 페이징 버튼 -->
-  <div class="d-flex justify-content-center mb-3" id="replyPagination"></div>
+	<!-- 페이징 버튼 -->
+	<div class="d-flex justify-content-center mb-3" id="replyPagination"></div>
 
-  <div class="mb-3">
-    <label for="replyContent">댓글내용 *</label>
-    <textarea id="replyContent" rows="3" class="form-control"></textarea>
-  </div>
-  <div class="text-end">
-    <button class="btn btn-primary" onclick="submitReply()">댓글등록</button>
-  </div>
-
-  <script>
+	<div class="mb-3">
+		<label for="replyContent">댓글내용 *</label>
+		<textarea id="replyContent" rows="3" class="form-control"></textarea>
+	</div>
+	<div class="text-end">
+		<button class="btn btn-primary" onclick="submitReply()">댓글등록</button>
+	</div>
+	<script th:inline="javascript">
+		const downloadBaseUrl = /*[[@{/cmm/fms/FileDown.do}]]*/ '';
+	</script>
+	<script>
     const urlParams = new URLSearchParams(window.location.search);
     const bbsId = urlParams.get("bbsId");
     const nttId = urlParams.get("nttId");
@@ -76,6 +98,7 @@
     fetch(`/muscat/board/articleDetail?bbsId=${bbsId}&nttId=${nttId}`)
       .then(res => res.json())
       .then(res => {
+    	  console.log(res);
         const data = res.article;
         document.getElementById("nttSj").textContent = data.nttSj;
         document.getElementById("frstRegisterNm").textContent = data.frstRegisterNm;
@@ -83,14 +106,50 @@
         document.getElementById("inqireCo").textContent = data.inqireCo;
         document.getElementById("nttCn").innerHTML = data.nttCn?.replace(/\n/g, "<br>");
         document.getElementById("ntceBgnde").textContent = `${data.ntceBgnde} ~ ${data.ntceEndde}`;
-
-        const atchFileArea = document.getElementById("atchFileArea");
-
-        atchFileArea.textContent = "첨부된 파일이 없습니다.";
+        
+        if (!data.fileList || data.fileList.size > 0) {
+            renderFileList(res.fileList);
+        } else {
+        	document.getElementById("atchFileArea").textContent = '첨부 파일이 없습니다';
+        }
+        
+        
       });
     
-    
+    function renderFileList(fileList) {
+    	  const cell = document.getElementById('atchFileArea');
+    	  cell.innerHTML = '';
+    	  const ul = document.createElement('ul');
 
+    	  fileList.forEach(f => {
+    	    const li = document.createElement('li');
+
+    	    const a  = document.createElement('a');
+    	    a.href = '#';                                  // 기본 이동 무효링크
+    	    a.textContent =
+    	      `${f.orignlFileNm} [${(f.fileMg).toLocaleString()} byte]`;
+
+    	    a.dataset.atchFileId = f.atchFileId;
+    	    a.dataset.fileSn     = f.fileSn;
+
+    	    a.addEventListener('click', function (e) {
+    	      e.preventDefault();                          // ★ 필수
+    	      fn_egov_downFile(this.dataset.atchFileId,
+    	                       this.dataset.fileSn);
+    	    });
+
+    	    li.appendChild(a);
+    	    ul.appendChild(li);
+    	  });
+
+    	  cell.appendChild(ul);
+    	}
+
+    function fn_egov_downFile(id, sn) {
+      const url = `${downloadBaseUrl}?atchFileId=${id}&fileSn=${sn}`;
+      window.open(url, '_blank');   // 팝업 차단 우회 위해 _blank 권장
+    }
+    
     let allReplies = [];
     const replyPageSize = 5;
     let currentPage = 1;
