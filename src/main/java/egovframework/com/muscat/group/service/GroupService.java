@@ -8,4 +8,6 @@ public interface GroupService {
 	List<GroupVO> getGroupChartData(); // 부서
 	
 	List<GroupwithVO> getGroupData(); // 부서 + 사원
+	
+	List<GroupVO> getselectGroupUser(); // 부서 + 사원
 }

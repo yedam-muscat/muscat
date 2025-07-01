@@ -26,4 +26,12 @@ public class GroupServiceImpl implements GroupService {
 		return groupMapper.selectgetGroupData(); // 부서 + 사원
 	}
 
+	@Override
+	public List<GroupVO> getselectGroupUser() {
+		List<GroupVO> dept = groupMapper.selectGroupChart();
+		List<GroupVO> user = groupMapper.selectGroupUser(); // 부서
+		dept.addAll(user);
+		return dept;
+	}
+
 }

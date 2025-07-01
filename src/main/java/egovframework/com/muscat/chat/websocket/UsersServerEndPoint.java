@@ -197,6 +197,6 @@ public class UsersServerEndPoint {
 		for (int i = 0; i < 8; i++) {
 			chatroomId += (char)((rnd.nextDouble() * 26) + 97);//KISA 보안약점 조치 (2018-10-29, 윤창원)
 		}
-		return chatroomId;
+		return "muscat";//chatroomId;
 	}
 }

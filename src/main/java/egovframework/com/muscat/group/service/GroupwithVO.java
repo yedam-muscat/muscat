@@ -10,4 +10,6 @@ public class GroupwithVO{
 	private String moblphonNo;
 	private int deptId;
 	private String deptName;
+   	
 }
+
