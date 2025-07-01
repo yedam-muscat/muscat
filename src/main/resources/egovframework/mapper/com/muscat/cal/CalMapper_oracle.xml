@@ -48,23 +48,28 @@
 		"schdul_id",
 		s.SCHDUL_NM AS "title",
 		CASE
-		WHEN s.SCHDUL_BGNDE IS NOT NULL AND LENGTH(TRIM(s.SCHDUL_BGNDE)) = 14 THEN
+		WHEN s.SCHDUL_BGNDE IS NOT NULL
+		AND LENGTH(TRIM(s.SCHDUL_BGNDE)) = 14 THEN
 		TO_CHAR(TO_DATE(s.SCHDUL_BGNDE, 'YYYYMMDDHH24MISS'),
 		'YYYY-MM-DD"T"HH24:MI:SS')
 		ELSE NULL
 		END AS "start_dt",
 		CASE
-		WHEN s.SCHDUL_ENDDE IS NOT NULL AND LENGTH(TRIM(s.SCHDUL_ENDDE)) = 14 THEN
+		WHEN
+		s.SCHDUL_ENDDE IS NOT NULL AND LENGTH(TRIM(s.SCHDUL_ENDDE)) = 14 THEN
 		TO_CHAR(TO_DATE(s.SCHDUL_ENDDE, 'YYYYMMDDHH24MISS'),
 		'YYYY-MM-DD"T"HH24:MI:SS')
 		ELSE NULL
 		END AS "end_dt",
-		s.SCHDUL_PLACE AS "schdul_place",
+		s.SCHDUL_PLACE AS
+		"schdul_place",
 		s.SCHDUL_CN AS "schdul_cn",
 		s.CAL_ID AS "calId",
-		c.COLOR AS "color"
+		c.COLOR
+		AS "color"
 		FROM COMTNLEADERSCHDUL s
-		JOIN CALENDAR c ON s.CAL_ID = c.CAL_ID
+		JOIN CALENDAR c ON s.CAL_ID =
+		c.CAL_ID
 	</select>
 
 	<insert id="insertCalendar" parameterType="map">
@@ -94,5 +99,18 @@
 		ORDER BY cal_name
 	</select>
 
+	<select id="selectAvailableRooms" parameterType="string"
+		resultType="map">
+		SELECT m.MTGRUM_ID, m.MTGRUM_NM
+		FROM COMTNMTGPLACEMANAGE m
+		WHERE NOT EXISTS (
+		SELECT 1
+		FROM COMTNLEADERSCHDUL s
+		WHERE s.RESERVED_ROOM = m.MTGRUM_ID
+		AND s.SCHDUL_BGNDE <![CDATA[<=]]> #{reserveDateTime}
+		AND s.SCHDUL_ENDDE > #{reserveDateTime}
+		)
+		ORDER BY m.MTGRUM_NM
+	</select>
 </mapper>
 

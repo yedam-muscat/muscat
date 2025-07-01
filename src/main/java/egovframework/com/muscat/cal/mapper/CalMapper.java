@@ -18,4 +18,8 @@ public interface CalMapper {
 	List<Map> selectCalendarList();
 
 	String getNextScheduleId();
+
+	List<Map<String, Object>> selectAvailableRooms(String reserveDateTime);
+
+	void insertRoomReserve(ReservationVO reservationVO);
 }
