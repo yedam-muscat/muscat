@@ -59,6 +59,9 @@
   </div>
 
   <!-- 스크립트 -->
+  <script th:inline="javascript">
+		const downloadBaseUrl = /*[[@{/cmm/fms/FileDown.do}]]*/ '';
+	</script>
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const bbsId = urlParams.get("bbsId");
@@ -73,6 +76,7 @@
     fetch(`/muscat/board/articleDetail?bbsId=${bbsId}&nttId=${nttId}`)
       .then(res => res.json())
       .then(res => {
+    	  console.log(res);
         const data = res.article;
         document.getElementById("nttSj").textContent = data.nttSj;
         document.getElementById("frstRegisterNm").textContent = data.frstRegisterNm;
@@ -80,8 +84,53 @@
         document.getElementById("inqireCo").textContent = data.inqireCo;
         document.getElementById("nttCn").innerHTML = data.nttCn?.replace(/\n/g, "<br>");
         document.getElementById("ntceBgnde").textContent = `${data.ntceBgnde} ~ ${data.ntceEndde}`;
-        document.getElementById("atchFileArea").textContent = "첨부된 파일이 없습니다.";
+        
+        if (!data.fileList || data.fileList.size > 0) {
+            renderFileList(res.fileList);
+        } else {
+        	document.getElementById("atchFileArea").textContent = '첨부 파일이 없습니다';
+        }
+        
+        
       });
+    
+    function renderFileList(fileList) {
+    	  const cell = document.getElementById('atchFileArea');
+    	  cell.innerHTML = '';
+    	  const ul = document.createElement('ul');
+
+    	  fileList.forEach(f => {
+    	    const li = document.createElement('li');
+
+    	    const a  = document.createElement('a');
+    	    a.href = '#';                                  // 기본 이동 무효링크
+    	    a.textContent =
+    	      `${f.orignlFileNm} [${(f.fileMg).toLocaleString()} byte]`;
+
+    	    a.dataset.atchFileId = f.atchFileId;
+    	    a.dataset.fileSn     = f.fileSn;
+
+    	    a.addEventListener('click', function (e) {
+    	      e.preventDefault();                          // ★ 필수
+    	      fn_egov_downFile(this.dataset.atchFileId,
+    	                       this.dataset.fileSn);
+    	    });
+
+    	    li.appendChild(a);
+    	    ul.appendChild(li);
+    	  });
+
+    	  cell.appendChild(ul);
+    	}
+
+    function fn_egov_downFile(id, sn) {
+      const url = `${downloadBaseUrl}?atchFileId=${id}&fileSn=${sn}`;
+      window.open(url, '_blank');   // 팝업 차단 우회 위해 _blank 권장
+    }
+    
+    let allReplies = [];
+    const replyPageSize = 5;
+    let currentPage = 1;
 
     // 댓글 로딩
     function loadReplies(page = 1) {

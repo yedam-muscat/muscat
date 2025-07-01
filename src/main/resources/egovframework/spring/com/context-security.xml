@@ -27,7 +27,7 @@
 
 	<egov-security:config id="securityConfig"
 		loginUrl="/uat/uia/login.do" logoutSuccessUrl="/main.do"
-		loginFailureUrl="/uat/uia/egovLoginUsr.do?login_error=1"
+		loginFailureUrl="/uat/uia/login.do"
 		accessDeniedUrl="/sec/ram/accessDenied.do"
 
 		dataSource="egov.dataSource"

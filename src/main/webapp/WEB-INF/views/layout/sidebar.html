@@ -84,6 +84,16 @@
 						class="bi bi-life-preserver"></i> <span>조직도</span>
 				</a></li>
 
+				<!-- 관리자 페이지 메뉴 -->
+				<li class="sidebar-item  has-sub" id="admin"><a href="#"
+					class='sidebar-link'> <i class="bi bi-grid-1x2-fill"></i> <span>관리자페이지</span>
+				</a>
+					<ul class="submenu ">
+						<li class="submenu-item " id="userMng"><a
+							th:href="@{/admin/user/userMng.do}">사용자관리</a></li>
+						<li class="submenu-item " id="codeMng"><a
+							th:href="@{/admin/user/userMng.do}">공통코드관리</a></li>
+					</ul></li>
 			</ul>
 		</div>
 		<button class="sidebar-toggler btn x">
@@ -109,8 +119,7 @@
 							placeholder="이름/아이디/부서/직위/직책/전화 등 입력해주세요">
 					</div>
 					<div id="tree"></div>
-					 <div id="treeTextResult">
-  					</div>
+					<div id="treeTextResult"></div>
 				</div>
 			</div>
 		</div>
@@ -399,8 +408,6 @@
 		  $("#sidebar").removeClass("sidebar-hidden");
 		});
 
-	
-	
 			$('#staticBackdrop').on('shown.bs.modal', function() {
 				if (!$('#tree').jstree(true)) {
 					initTree();
