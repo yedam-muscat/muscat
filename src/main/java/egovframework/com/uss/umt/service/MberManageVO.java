@@ -20,6 +20,8 @@ package egovframework.com.uss.umt.service;
 public class MberManageVO extends UserDefaultVO{
 
 	private static final long serialVersionUID = -4255594107023139972L;
+	
+	private int deptId;
 
 	/** 이전비밀번호 - 비밀번호 변경시 사용*/
     private String oldPassword = "";
