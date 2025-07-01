@@ -86,4 +86,7 @@ public class ScudVO implements Serializable {
 
 	/** 담당자명 */
 	private String schdulChargerName = "";
+	
+	private String reservedRoom;
+
 }

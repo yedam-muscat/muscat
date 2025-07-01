@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import egovframework.com.muscat.cal.mapper.CalendarVO;
+import egovframework.com.muscat.cal.mapper.ReservationVO;
 import egovframework.com.muscat.cal.mapper.ScudVO;
 
 public interface CalService {
@@ -15,4 +16,8 @@ public interface CalService {
 	 void insertCalendar(CalendarVO calendarVO);
 
 	List<Map> selectCalendarList();
+
+	List<Map<String, Object>> selectAvailableRooms(String reserveDateTime);
+
+	void insertRoomReserve(ReservationVO vo) throws Exception;
 }

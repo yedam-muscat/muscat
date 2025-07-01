@@ -1,150 +1,158 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/layout}">
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
 
 <head>
-  <meta charset="UTF-8">
-  <title>일정 등록</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+<meta charset="UTF-8">
+<title>일정 등록</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+	rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script
+	src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 
-  <style>
-    * { font-style: normal !important; }
+<style>
+* {
+	font-style: normal !important;
+}
 
-    html, body {
-      height: 100%;
-      margin: 0;
-      overflow: hidden;
-      font-size: 14px;
-    }
+html, body {
+	height: 100%;
+	margin: 0;
+	overflow: hidden;
+	font-size: 14px;
+}
 
-    .compact-form {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      height: 100vh;
-      padding: 20px 40px;
-      width: 800px;
-      overflow-y: auto;
-    }
+.compact-form {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	height: 100vh;
+	padding: 20px 40px;
+	width: 800px;
+	overflow-y: auto;
+}
 
-    .form-row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
+.form-row {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+}
 
-    .form-row label {
-      min-width: 80px;
-      margin-bottom: 0;
-    }
+.form-row label {
+	min-width: 80px;
+	margin-bottom: 0;
+}
 
-    .form-row input, .form-row select, .form-row textarea {
-      flex: 1;
-    }
+.form-row input, .form-row select, .form-row textarea {
+	flex: 1;
+}
 
-    textarea { resize: none; }
-  </style>
+textarea {
+	resize: none;
+}
+</style>
 </head>
 
 <main layout:fragment="content">
-  <div class="container-fluid">
-    <div class="row min-vh-100">
-      <div class="col-lg-8 col-md-12 col-sm-14 p-7">
-        <div class="schedule-form">
-          <form id="scheduleForm" method="post" enctype="multipart/form-data">
-            <div class="compact-form">
+	<div class="container-fluid">
+		<div class="row min-vh-100">
+			<div class="col-lg-8 col-md-12 col-sm-14 p-7">
+				<div class="schedule-form">
+					<form id="scheduleForm" method="post" enctype="multipart/form-data">
+						<div class="compact-form">
 
-              <div class="form-row">
-                <label for="title">제목</label>
-                <input type="text" id="title" class="form-control" required>
-              </div>
+							<div class="form-row">
+								<label for="title">제목</label> <input type="text" id="title"
+									class="form-control" required>
+							</div>
 
-              <div class="form-row">
-                <div class="mb-3">
-                  <label for="start">시작일</label>
-                  <input type="date" id="start" class="form-control" required>
-                  <label for="startTime" class="mt-2">시작시간</label>
-                  <input type="time" id="startTime" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                  <label for="end">종료일</label>
-                  <input type="date" id="end" class="form-control" required>
-                  <label for="endTime" class="mt-2">종료시간</label>
-                  <input type="time" id="endTime" class="form-control" required>
-                </div>
-              </div>
+							<div class="form-row">
+								<div class="mb-3">
+									<label for="start">시작일</label> <input type="date" id="start"
+										class="form-control" required> <label for="startTime"
+										class="mt-2">시작시간</label> <input type="time" id="startTime"
+										class="form-control" required>
+								</div>
+								<div class="mb-3">
+									<label for="end">종료일</label> <input type="date" id="end"
+										class="form-control" required> <label for="endTime"
+										class="mt-2">종료시간</label> <input type="time" id="endTime"
+										class="form-control" required>
+								</div>
+							</div>
 
-              <div class="form-row">
-                <div class="form-check me-2">
-                  <input class="form-check-input" type="checkbox" id="allDay">
-                  <label class="form-check-label" for="allDay">종일</label>
-                </div>
-                <div class="form-check me-2">
-                  <input class="form-check-input" type="checkbox" id="private">
-                  <label class="form-check-label" for="private">비공개</label>
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="repeat">
-                  <label class="form-check-label" for="repeat">반복</label>
-                </div>
-              </div>
+							<div class="form-row">
+								<div class="form-check me-2">
+									<input class="form-check-input" type="checkbox" id="allDay">
+									<label class="form-check-label" for="allDay">종일</label>
+								</div>
+								<div class="form-check me-2">
+									<input class="form-check-input" type="checkbox" id="private">
+									<label class="form-check-label" for="private">비공개</label>
+								</div>
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" id="repeat">
+									<label class="form-check-label" for="repeat">반복</label>
+								</div>
+							</div>
 
-              <div class="form-row">
-                <label for="participantInput">참석자</label>
-                <input type="text" id="participantInput" class="form-control" placeholder="이름 입력 후 추가 클릭">
-                <button type="button" class="btn btn-outline-secondary" onclick="addParticipant()">+추가</button>
-              </div>
+							<div class="form-row">
+								<label for="participantInput">참석자</label> <input type="text"
+									id="participantInput" class="form-control"
+									placeholder="이름 입력 후 추가 클릭">
+								<button type="button" class="btn btn-outline-secondary"
+									onclick="addParticipant()">+추가</button>
+							</div>
 
-              <div id="participantList" class="form-row"></div>
+							<div id="participantList" class="form-row"></div>
 
-              <div class="form-row">
-                <label for="location">장소</label>
-                <input type="text" id="location" class="form-control">
-              </div>
+							<div class="form-row">
+								<label for="location">장소</label> <input type="text"
+									id="location" class="form-control">
+							</div>
 
-              <div class="form-row">
-                <label for="calendar">캘린더</label>
-                <select id="calendar" class="form-select">
-                  <option value="">캘린더 선택</option>
-                </select>
-              </div>
+							<div class="form-row">
+								<label for="calendar">캘린더</label> <select id="calendar"
+									class="form-select">
+									<option value="">캘린더 선택</option>
+								</select>
+							</div>
 
-              <div class="form-row">
-                <label for="description">내용</label>
-                <textarea id="description" class="form-control" rows="2"></textarea>
-              </div>
+							<div class="form-row">
+								<label for="description">내용</label>
+								<textarea id="description" class="form-control" rows="2"></textarea>
+							</div>
 
-              <div class="form-row">
-                <label for="room">장소 예약</label>
-                <select id="room" class="form-select">
-                  <option>1층 회의실</option>
-                  <option>2층 강의실</option>
-                </select>
-              </div>
+							<div class="form-row">
+								<label for="room">장소 예약</label> <select id="room"
+									class="form-select">
+								</select>
+							</div>
 
-              <div class="form-row">
-                <label for="file">첨부파일</label>
-                <input type="file" id="file" class="form-control">
-              </div>
+							<div class="form-row">
+								<label for="file">첨부파일</label> <input type="file" id="file"
+									class="form-control">
+							</div>
 
-              <div class="form-row">
-                <button class="btn btn-success">등록</button>
-                <button type="button" class="btn btn-secondary" onclick="resetForm()">초기화</button>
-                <a href="calMonth.do" class="btn btn-outline-primary">캘린더</a>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
+							<div class="form-row">
+								<button class="btn btn-success">등록</button>
+								<button type="button" class="btn btn-secondary"
+									onclick="resetForm()">초기화</button>
+								<a href="calMonth.do" class="btn btn-outline-primary">캘린더</a>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
 
-      <div class="col-lg-6 d-none d-lg-block bg-light"></div>
-    </div>
-  </div>
+			<div class="col-lg-6 d-none d-lg-block bg-light"></div>
+		</div>
+	</div>
 
-  <script>
+	<script>
     function addParticipant() {
       const input = $('#participantInput');
       const name = input.val().trim();
@@ -214,6 +222,7 @@
     	          const calId = (cal.CAL_ID || '').trim();
     	          const calName = (cal.CAL_NAME || '').trim();
     	          const color = (cal.COLOR || '#1e90ff').trim();
+    	          
 
     	          const option = $(`<option></option>`)
     	            .val(calId)
@@ -241,42 +250,118 @@
     	}
 
     $('#scheduleForm').on('submit', function (e) {
-      e.preventDefault();
+    	  e.preventDefault();
 
-      const data = {
-        schdulNm: $('#title').val(),
-        schdulPlace: $('#location').val(),
-        schdulCn: $('#description').val(),
-        frstRegisterId: "admin",
-        schdulBgnde: `${$('#start').val()}T${$('#startTime').val()}`,
-        schdulEndde: `${$('#end').val()}T${$('#endTime').val()}`,
-        calId: $('#calendar').val()
-      };
+    	  const formatDateTime = (date, time) => date.replace(/-/g, '') + time.replace(/[-:T]/g, '') + '00';
+    	  const schdulId = 'sch_' + Date.now().toString().slice(-6); // ID 생성
 
-      $.ajax({
-        url: 'http://localhost:8082/muscat/cal/insertSchedule',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(data),
-        success: function () {
-          alert('등록되었습니다.');
-          window.location.href = 'calMonth.do';
-        },
-        error: function (xhr) {
-          alert('등록 실패: ' + xhr.responseText);
-        }
-      });
-    });
+    	  const repeatMap = {
+    	    none: 'N',
+    	    daily: 'D',
+    	    weekly: 'W',
+    	    monthly: 'M',
+    	    yearly: 'Y'
+    	  };
 
+    	  const reptitSeCode = $('#repeat').is(':checked') ? repeatMap[$('#repeatCycle').val()] : 'N';
+    	  const data = {
+    	    schdulId: schdulId,
+    	    schdulNm: $('#title').val(),
+    	    schdulPlace: $('#location').val(),
+    	    schdulCn: $('#description').val(),
+    	    schdulBgnde: formatDateTime($('#start').val(), $('#startTime').val()),
+    	    schdulEndde: formatDateTime($('#end').val(), $('#endTime').val()),
+    	    frstRegisterId: 'admin',
+    	    leaderId: 'admin',
+    	    schdulChargerId: 'admin',
+    	    calId: $('#calendar').val(),
+    	    reptitSeCode: reptitSeCode 
+    	  };
+
+    	  $.ajax({
+    	    url: 'http://localhost:8082/muscat/cal/insertSchedule',
+    	    type: 'POST',
+    	    contentType: 'application/json',
+    	    data: JSON.stringify(data),
+    	    success: function () {
+    	      alert('등록되었습니다.');
+    	      window.location.href = 'calMonth.do';
+    	    },
+    	    error: function (xhr) {
+    	      alert('등록 실패: ' + xhr.responseText);
+    	    }
+    	  });
+    	});
+
+    $('#start, #startTime, #end, #endTime').on('change', loadAvailableRooms);
+    function loadAvailableRooms() {
+    	  const start = $('#start').val();
+    	  const startTime = $('#startTime').val();
+    	  if (!start || !startTime) {
+    	    console.log('start 또는 startTime 값이 없습니다. AJAX 호출 중단');
+    	    return;
+    	  }
+
+    	  const dt = start.replace(/-/g, "") + startTime.replace(/:/g, "") + "00";
+
+    	  $.ajax({
+    	    url: 'http://localhost:8082/muscat/cal/availableRooms',
+    	    type: 'GET',
+    	    data: { reserveDateTime: dt },
+    	    success: function(response) {
+    	    	let rooms;
+
+    	    	  if (Array.isArray(response)) {
+    	    	    rooms = response;
+    	    	  } else if (response && Array.isArray(response.result)) {
+    	    	    rooms = response.result;
+    	    	  } else {
+    	    	    rooms = [];
+    	    	  }
+
+    	    	  if (rooms.length === 0) {
+    	    	    alert('회의실 데이터가 없습니다.');
+    	    	    return;
+    	    	  }
+    	      const sel = $('#room');
+    	      sel.empty().append('<option value="">선택 안 함</option>');
+
+    	      rooms.forEach(room => {
+    	        sel.append(`<option value="${room.MTGRUM_ID}">${room.MTGRUM_NM}</option>`);
+    	      });
+    	    },
+    	    error: function() {
+    	      alert('회의실 목록을 불러오는 데 실패했습니다.');
+    	    }
+    	  });
+    	}
     $(document).ready(() => {
-      loadCalendars();
+    	const today = new Date().toISOString().slice(0, 10);
+    	  
+    	  if (!$('#start').val()) $('#start').val(today);
+    	  if (!$('#end').val()) $('#end').val(today);
 
+    	  if (!$('#startTime').val()) $('#startTime').val('09:00');
+    	  if (!$('#endTime').val()) $('#endTime').val('10:00');
+      loadCalendars();
+      loadAvailableRooms();
+
+      $('#room').on('change', function () {
+    	    const selectedRoomName = $(this).find('option:selected').text();
+    	    if (selectedRoomName === '선택 안 함') {
+    	      $('#location').val('');
+    	    } else {
+    	      $('#location').val(selectedRoomName);
+    	    }
+    	  });
       const params = new URLSearchParams(window.location.search);
       const start = params.get('start');
       const end = params.get('end');
       if (start) $('#start').val(start.slice(0, 10));
       if (end) $('#end').val(end.slice(0, 10));
     });
+    
+
   </script>
 </main>
 </html>
