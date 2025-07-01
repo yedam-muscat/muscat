@@ -86,7 +86,8 @@ SELECT * FROM ( SELECT rownum rn, TB.* FROM (
                     MBER_EMAIL_ADRES ,
                     MIDDLE_TELNO     ,
                     SBSCRB_DE        ,
-                    CHG_PWD_LAST_PNTTM		)
+                    CHG_PWD_LAST_PNTTM,
+                    DEPT_ID		)
               VALUES(
                     #{uniqId},
                     #{mberId},
@@ -108,7 +109,8 @@ SELECT * FROM ( SELECT rownum rn, TB.* FROM (
                     #{mberEmailAdres},
                     #{middleTelno},
                     sysdate,
-                    sysdate  )
+                    sysdate,
+                    #{deptId}  )
         
     </insert>
     

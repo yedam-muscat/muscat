@@ -30,6 +30,8 @@ import egovframework.com.cmm.service.CmmnDetailCode;
 import egovframework.com.cmm.service.EgovCmmUseService;
 import egovframework.com.cmm.service.EgovProperties;
 import egovframework.com.muscat.common.ResultVO;
+import egovframework.com.muscat.group.service.GroupService;
+import egovframework.com.muscat.group.service.GroupVO;
 import egovframework.com.uat.uia.service.EgovLoginService;
 import egovframework.com.uss.umt.service.EgovMberManageService;
 import egovframework.com.uss.umt.service.MberManageVO;
@@ -68,6 +70,10 @@ public class LoginController {
 
 	/** log */
 	private static final Logger LOGGER = LoggerFactory.getLogger(LoginController.class);
+	
+	/** */
+	@Autowired
+	private GroupService groupService;
 
 	/**
 	 * 로그인 화면으로 들어간다
@@ -176,11 +182,15 @@ public class LoginController {
 		// 그룹정보를 조회 - GROUP_ID정보
 		comDefaultCodeVO.setTableNm("COMTNORGNZTINFO");
 		List<CmmnDetailCode> groupId_result = cmmUseService.selectGroupIdDetail(comDefaultCodeVO);
+		
+		// 부서정보 조회
+		List<GroupVO> dept_result = groupService.getGroupChartData();
 
 		model.addAttribute("passwordHint_result", passwordHint_result); // 패스워트힌트목록
 		model.addAttribute("sexdstnCode_result", sexdstnCode_result); // 성별구분코드목록
 		model.addAttribute("mberSttus_result", mberSttus_result); // 사용자상태코드목록
 		model.addAttribute("groupId_result", groupId_result); // 그룹정보 목록
+		model.addAttribute("dept_result", dept_result);
 
 		return "login/userReg.html";
 	}

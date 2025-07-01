@@ -21,6 +21,9 @@ public class MberManageVO extends UserDefaultVO{
 
 	private static final long serialVersionUID = -4255594107023139972L;
 	
+    /**
+	 * 부서
+	 */
 	private int deptId;
 
 	/** 이전비밀번호 - 비밀번호 변경시 사용*/
@@ -423,9 +426,11 @@ public class MberManageVO extends UserDefaultVO{
 	public void setMberEmailAdres(String mberEmailAdres) {
 		this.mberEmailAdres = mberEmailAdres;
 	}
+	
 	public int getDeptId() {
 		return deptId;
 	}
+	
 	public void setDeptId(int deptId) {
 		this.deptId = deptId;
 	}
