@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import egovframework.com.muscat.cal.mapper.CalMapper;
 import egovframework.com.muscat.cal.mapper.CalendarVO;
+import egovframework.com.muscat.cal.mapper.ReservationVO;
 import egovframework.com.muscat.cal.mapper.ScudVO;
 import egovframework.com.muscat.cal.service.CalService;
 
@@ -35,5 +36,14 @@ public class CalServiceImpl implements CalService {
 	@Override
 	public List<Map> selectCalendarList() {
 		return calMapper.selectCalendarList();
+	}
+	
+	@Override
+	public List<Map<String, Object>> selectAvailableRooms(String reserveDateTime) {
+	    return calMapper.selectAvailableRooms(reserveDateTime);
+	}
+	@Override
+	public void insertRoomReserve(ReservationVO vo) throws Exception {
+	    calMapper.insertRoomReserve(vo);
 	}
 }

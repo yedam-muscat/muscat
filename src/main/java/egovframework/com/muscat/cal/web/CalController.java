@@ -22,6 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import egovframework.com.muscat.cal.mapper.CalMapper;
 import egovframework.com.muscat.cal.mapper.CalendarVO;
+import egovframework.com.muscat.cal.mapper.ReservationVO;
 import egovframework.com.muscat.cal.mapper.ScudVO;
 import egovframework.com.muscat.cal.service.CalService;
 
@@ -46,7 +47,78 @@ public class CalController {
 	        vo.setLeaderId("admin"); // 또는 로그인 사용자 ID 등
 	    }
 
+	    // 기본 일정 저장
 	    calService.insertSchedule(vo);
+
+	    // 반복 일정 로직 (예: 1년 동안 12개 반복 생성) - 원하는 기간만큼 조절 가능
+	    String reptitSeCode = vo.getReptitSeCode();
+	    if (reptitSeCode != null && !"N".equalsIgnoreCase(reptitSeCode)) {
+	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+	        LocalDateTime startDate = LocalDateTime.parse(vo.getSchdulBgnde(), formatter);
+	        LocalDateTime endDate = LocalDateTime.parse(vo.getSchdulEndde(), formatter);
+
+	        // 반복 횟수 (예: 12회 반복)
+	        int repeatCount = 12;
+
+	        for (int i = 1; i < repeatCount; i++) {
+	            LocalDateTime newStart = null;
+	            LocalDateTime newEnd = null;
+
+	            switch (reptitSeCode.toUpperCase()) {
+	                case "D": // 매일
+	                    newStart = startDate.plusDays(i);
+	                    newEnd = endDate.plusDays(i);
+	                    break;
+	                case "W": // 매주
+	                    newStart = startDate.plusWeeks(i);
+	                    newEnd = endDate.plusWeeks(i);
+	                    break;
+	                case "M": // 매월
+	                    newStart = startDate.plusMonths(i);
+	                    newEnd = endDate.plusMonths(i);
+	                    break;
+	                case "Y": // 매년
+	                    newStart = startDate.plusYears(i);
+	                    newEnd = endDate.plusYears(i);
+	                    break;
+	                default:
+	                    // 반복 없음
+	                    break;
+	            }
+
+	            if (newStart != null && newEnd != null) {
+	                ScudVO repeatVo = new ScudVO();
+	                repeatVo.setSchdulId(UUID.randomUUID().toString().replace("-", "").substring(0, 20));
+	                repeatVo.setSchdulNm(vo.getSchdulNm());
+	                repeatVo.setSchdulPlace(vo.getSchdulPlace());
+	                repeatVo.setSchdulCn(vo.getSchdulCn());
+	                repeatVo.setSchdulBgnde(newStart.format(formatter));
+	                repeatVo.setSchdulEndde(newEnd.format(formatter));
+	                repeatVo.setLeaderId(vo.getLeaderId());
+	                repeatVo.setSchdulChargerId(vo.getSchdulChargerId());
+	                repeatVo.setFrstRegisterId(vo.getFrstRegisterId());
+	                repeatVo.setLastUpdusrId(vo.getLastUpdusrId());
+	                repeatVo.setCalId(vo.getCalId());
+	                repeatVo.setReptitSeCode(vo.getReptitSeCode());
+
+	                calService.insertSchedule(repeatVo);
+	            }
+	        }
+	        if (vo.getReservedRoom() != null && !vo.getReservedRoom().isEmpty()) {
+	            // 예약 DB에 일정 일시 기록
+	            ReservationVO r = new ReservationVO();
+	            r.setResveId(UUID.randomUUID().toString().substring(0,20));
+	            r.setMtgrumId(vo.getReservedRoom());
+	            r.setRsvctmId(vo.getLeaderId());
+	            r.setResveDe(vo.getSchdulBgnde().substring(0,8));
+	            r.setResveBeginTm(vo.getSchdulBgnde().substring(8,14));
+	            r.setResveEndTm(vo.getSchdulEndde().substring(8,14));
+	            r.setFrstRegisterId(vo.getFrstRegisterId());
+	            r.setLastUpdusrId(vo.getLastUpdusrId());
+	            calService.insertRoomReserve(r);
+	        }
+	    }
+
 	    return "success";
 	}
 
@@ -94,5 +166,11 @@ public class CalController {
 	    } catch (Exception e) {
 	        return ResponseEntity.status(500).body("등록 실패: " + e.getMessage());
 	    }
+	}
+	
+	@GetMapping("/cal/availableRooms")
+	@ResponseBody
+	public List<Map<String, Object>> availableRooms(@RequestParam String reserveDateTime) {
+	    return calService.selectAvailableRooms(reserveDateTime);
 	}
 }

@@ -41,7 +41,7 @@ public class BoardReplyController {
         return "board/replyList.html";
     }
 
-    /** ✅ 댓글 목록 조회 (AJAX) */
+ // 댓글 목록 조회 
     @GetMapping("/board/replyList")
     @ResponseBody
     public Map<String, Object> commentList(
@@ -55,25 +55,28 @@ public class BoardReplyController {
         CommentVO searchVO = new CommentVO();
         searchVO.setBbsId(bbsId);
         searchVO.setNttId(Long.parseLong(nttId));
-        searchVO.setSubPageIndex(pageIndex);               // ✅ 현재 페이지
-        searchVO.setSubPageUnit(pageSize);                 // ✅ 한 페이지당 댓글 수
-        searchVO.setSubPageSize(1);                        // 페이지 블록 수
+        searchVO.setSubPageIndex(pageIndex);
+        searchVO.setSubPageUnit(pageSize);
+        searchVO.setSubPageSize(1);
 
-        // 페이징 계산
         int firstIndex = (pageIndex - 1) * pageSize;
         searchVO.setSubFirstIndex(firstIndex);
         searchVO.setSubLastIndex(firstIndex + pageSize);
         searchVO.setSubRecordCountPerPage(pageSize);
 
         Map<String, Object> map = commentService.selectArticleCommentList(searchVO);
-        int totalCount = Integer.parseInt((String) map.get("resultCnt"));
+        int totalCount = 0;
+        try {
+            totalCount = Integer.parseInt((String) map.get("resultCnt"));
+        } catch (Exception e) {
+            totalCount = 0;
+        }
 
         result.put("status", "success");
-        result.put("comments", map.get("resultList"));
-        result.put("totalCount", totalCount);       // ✅ 총 댓글 수
+        result.put("comments", map.getOrDefault("resultList", new java.util.ArrayList<>()));
+        result.put("totalCount", totalCount);
         result.put("pageIndex", pageIndex);
         result.put("pageSize", pageSize);
-
         return result;
     }
 

@@ -8,7 +8,7 @@ import egovframework.com.muscat.group.service.GroupwithVO;
 public interface GroupMapper {
 	
 	List<GroupVO> selectGroupChart();
-
 	List<GroupwithVO> selectgetGroupData();
+	List<GroupVO> selectGroupUser();
 	}
 

@@ -136,10 +136,11 @@
 				<span id="empEmail">email@example.com</span>
 			</div>
 			<div class="d-flex justify-content-start gap-2 mb-2">
-				<i class="bi bi-calendar3"></i> <a href="/muscat/cal/calMonth.do"
-					target="_blank">캘린더</a> <i class="sidebar-item"
-					id="sidebarMessengerBtn" style="cursor: pointer;"></i> <a href="#"><i
-					class="bi bi-chat-dots"></i> <span>메신저</span></a>
+				<i class="bi bi-calendar3"></i> 
+				<a href="/muscat/cal/calMonth.do" target="_blank">캘린더</a> 
+				<i class="sidebar-item"style="cursor: pointer;"></i> 
+				<a href="#"><i	class="bi bi-chat-dots"></i> <span 	id="sidebarMessengerBtn">메신저</span>
+				</a>
 			</div>
 		</div>
 	</div>
@@ -415,7 +416,7 @@
 
 			function initTree() {
 				let originalGroupData = [];
-				 $.getJSON('/muscat/group/groupData.do', function(data) {
+				 $.getJSON('/muscat/group/userData.do', function(data) {
 				        originalGroupData = data;  // ✅ 여기에 원본 저장
 				      });
 				 
@@ -424,7 +425,7 @@
 				  .jstree({
 				    'core': {
 				      'data': {
-				        'url': '/muscat/group/groupData.do',
+				        'url': '/muscat/group/userData.do',
 				        'dataType': 'json'
 				      },
 				      'themes': {
@@ -443,13 +444,13 @@
 				    // 자식 노드를 동적으로 로딩하기 위해 클릭한 후 get_json을 호출
 				    $('#tree').jstree(true).open_all();  // 모든 노드를 펼침
 
-				    const result = $('#tree').jstree(true).get_json('#', { flat: false });
-				    console.log("🎯 트리 데이터 로딩 후:", result);
+				    //const result = $('#tree').jstree(true).get_json('#', { flat: false });
+				    //console.log("🎯 트리 데이터 로딩 후:", result);
 				   
 				    // 결과값을 트리 옆에 표시 (혹은 다른 처리)
-				    for(let idx in result){
-				      $(`#${result[idx].id}`).append(' '+originalGroupData[idx].deptName);  // 각 노드에 데이터 출력
-				    }
+				    //for(let idx in result){
+				    //  $(`#${result[idx].id}`).append(' '+originalGroupData[idx].deptName);  // 각 노드에 데이터 출력
+				    //}
 				  })
 				  .on("select_node.jstree", function (e, data) {
 				    console.log("선택된 노드:", data.node.original);
@@ -473,8 +474,7 @@
 					|| "";
 
 			// 모달 위치 + 옆에 카드 띄우기
-			const modal = document
-					.querySelector('#staticBackdrop .modal-dialog');
+			const modal = document.querySelector('#staticBackdrop .modal-dialog');
 			const rect = modal.getBoundingClientRect();
 
 			card.style.left = (rect.right + 10) + 'px';
@@ -509,47 +509,45 @@
 		});
 
 		//Enter 치면 메시지 추가
-		$('#chatInput').on(
-				'keypress',
-				function(e) {
-					if (e.which === 13 && this.value.trim() !== '') {
-						const msg = $('<div>').text(this.value.trim());
-						$('#chatMessages').append(msg);
-						this.value = '';
-						$('#chatMessages').scrollTop(
-								$('#chatMessages')[0].scrollHeight);
-					}
-				});
+		$('#chatInput').on(	'keypress', function(e) {
+			if (e.which === 13 && this.value.trim() !== '') {
+				//const msg = $('<div>').text(this.value.trim());
+				//$('#chatMessages').append(msg);
+				//$('#chatMessages').scrollTop($('#chatMessages')[0].scrollHeight)
+				sendMessage();
+				//this.value = '';
+				e.preventDefault();
+			}
+		});
 
 		// 사이드바 메신저 클릭 → 채팅방 목록 모달 열기
 		$(function() {
-			$('#sidebarMessengerBtn').on(
-					'click',
-					function(e) {
+			$('#sidebarMessengerBtn').on('click', function(e) {
 						e.preventDefault(); // 링크 기본 동작 막기
 						$('#employeeCard').fadeOut();
 						$('#staticBackdrop').fadeOut();
-						const modal = new bootstrap.Modal(document
-								.getElementById('chatListModal'));
-						modal.show();
+						//const modal = new bootstrap.Modal(document.getElementById('chatListModal'));
+						
+						//modal.show();
+						showchatroom();
+						socketopen();
+						
 					});
 		});
 
 		// 목록 클릭 → 채팅방 열기
-		$('#chatList').on(
-				'click',
-				'.chat-entry',
-				function() {
-					const userName = $(this).data('user');
-					const total = $('#chatList .chat-entry').length;
-					$('#chatUserName').text(`${userName} ${total}`);
-					$('#chatRoom').show();
-					$('#chatInput').focus();
+		$('#chatList').on('click', '.chat-entry',	()=>{});
+		
+		function showchatroom() {
+			//const userName = $(this).data('user');
+			const total = $('#chatList .chat-entry').length;
+			$('#chatUserName').text(`${username} ${total}`);
+			$('#chatRoom').show();
+			$('#chatInput').focus();
 
-					const modal = bootstrap.Modal.getInstance(document
-							.getElementById('chatListModal'));
-					modal.hide();
-				});
+			//const modal = bootstrap.Modal.getInstance(document.getElementById('chatListModal'));
+			//modal.hide();
+		}	
 
 		// 채팅방 닫기
 		$('#closeChat').on('click', function() {
@@ -560,13 +558,7 @@
 		// 전송 버튼 클릭
 		$('#sendMsg').on('click', sendMessage);
 
-		// 엔터 키 누르면 전송
-		$('#chatInput').on('keydown', function(e) {
-			if (e.key === 'Enter') {
-				sendMessage();
-				e.preventDefault();
-			}
-		});
+		
 		$(document).ready(function() {
 			// 채팅방 기본 숨김
 			$('#chatRoom').hide();
@@ -667,14 +659,6 @@
 
 		// 전송 버튼
 		$('#sendMsg').on('click', sendMessage);
-
-		// 엔터키
-		$('#chatInput').on('keydown', function(e) {
-			if (e.key === 'Enter') {
-				sendMessage();
-				e.preventDefault();
-			}
-		});
 
 		//버튼 비활성화/ 활성화 설정
 		$('#chatInput').on('input', function() {
@@ -925,5 +909,120 @@
 
 
 	</script>
+	
+	
+	<script type="text/javascript">
+	var websocket = null;
+	var first = "true";
+	var username = /*[[${session.loginVO.id}]]*/'';
+	var roomId = 'muscat'; 
+	$('#sendBtn').attr("disabled", true);
+	
+	
+	function socketopen() {
+		var url = 'ws://' + window.location.host + `/muscat/chatroom/${roomId}`;
+		websocket = connection(url);
+		
+		websocket.onopen = function(){			
+			console.log('Info: WebSocket open.');
+			//send(username);
+			$('#sendBtn').attr("disabled", false);
+		};
+
+		websocket.onmessage = function(message) {
+			processMessage(message);
+		};
+		
+		websocket.onclose = function() {
+			console.log('Info: WebSocket closed.');
+		};
+		
+		websocket.onerror = function(message) {
+			console.log(message)
+			processError(message);
+		};
+		
+		$('#sendBtn').click(function() {
+			send(textMessage.value);
+			textMessage.value = "";
+		});
+		
+		$('#textMessage').keypress(function(e) {
+			if(e.which==13) {
+				send(textMessage.value);
+				textMessage.value = "";
+			}
+		});
+		
+		/* $('#leaveBtn').click(function() {
+			websocket.close();
+			window.close();
+		}); */
+	};
+
+	function processMessage(message) {
+		var jsonData = JSON.parse(message.data);
+		//alert("jsonData: " + jsonData.messageType + "," + jsonData.name +  "," + jsonData.message + "," + jsonData.users  );
+		if (jsonData.messageType == "ChatMessage") {
+			message = jsonData.name + " : "+ jsonData.message + '\n';
+			display(message);
+			
+			displaybubble(jsonData);
+		} else if (jsonData.messageType == "UsersMessage") {
+			var other = "";
+			for(var i=0; i<jsonData.users.length; i++) {
+				if ("${loginVO.name}"!=jsonData.users[i]) {
+					$('#users').append(jsonData.users[i]+"님과 대화중입니다."); 
+					other = jsonData.users[i];
+					first = "false";
+				}
+			}
+			if(first=="false" && other=="") {
+				$('#users').empty();
+				$('#users').append("대화상대가 아무도 없습니다.");
+			} 
+		}
+	}
+	
+	function connection(url) {
+		var websocket = null;
+		if ('WebSocket' in window) {
+			websocket = new WebSocket(url);
+		} else if ('MozWebSocket' in window) {
+			websocket = new MozWebSocket(url);
+		} else {
+			Console.log('Error: WebSocket is not supported by this browser.');
+            return null;
+		}
+		console.log(websocket)
+		return websocket;
+	}
+
+	function send(message) {
+		websocket.send(JSON.stringify({ 'message' : message , 'room' : roomId}));
+	}
+	
+	function display(message) {
+		
+	}
+	
+	function displaybubble(data) {
+		//message = jsonData.name + " : "+ jsonData.message + '\n';
+		if (data.name == "${loginVO.name}") {
+			$('#chat').append(data.name+"(me)<br/><div class='bubble right'><span class='tail'>&nbsp;</span>"+data.message +"</div>");
+	      	    
+		} else {
+		    $('#chat').append(data.name+"<br/><div class='bubble left'><span class='tail'>&nbsp;</span>"+data.message+"</div>");
+		}
+	}
+
+	function processError(message) {
+	}
+
+ 	window.onbeforeunload = function() {
+		websocket.close();
+		
+	};  
+</script>
 </div>
 </html>

@@ -42,6 +42,7 @@ public class ChatServerEndPoint {
 	 */
 	@OnOpen
 	public void handleOpen(Session userSession, @PathParam("room") final String room) throws IOException, EncodeException {
+		System.out.println(room+"======================");
 		userSession.getUserProperties().put("room", room);
 		chatroomUsers.add(userSession);
 	}
