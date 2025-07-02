@@ -317,69 +317,35 @@
 			$(function() {
 			  $('#chatTree').jstree({
 			    'core': {
-			      'data':[
-			    	  { "id": "CEO", "parent": "#", "text": "CEO", "type": "default" },
-		
-			    	  { "id": "기술본부", "parent": "CEO", "text": "기술본부", "type": "default" },
-			    	  { "id": "개발1팀", "parent": "기술본부", "text": "개발1팀", "type": "default" },
-			    	  { "id": "개발2팀", "parent": "기술본부", "text": "개발2팀", "type": "default" },
-		
-			    	  { "id": "영업본부", "parent": "CEO", "text": "영업본부", "type": "default" },
-			    	  { "id": "국내영업팀", "parent": "영업본부", "text": "국내영업팀", "type": "default" },
-			    	  { "id": "해외영업팀", "parent": "영업본부", "text": "해외영업팀", "type": "default" },
-		
-			    	  { "id": "디자인본부", "parent": "CEO", "text": "디자인본부", "type": "default" },
-			    	  { "id": "UIUX팀", "parent": "디자인본부", "text": "UI/UX팀", "type": "default" },
-			    	  { "id": "콘텐츠팀", "parent": "디자인본부", "text": "콘텐츠팀", "type": "default" },
-		
-			    	  // 개발1팀
-			    	  { "id": "개발1_1", "parent": "개발1팀", "text": "아이유", "type": "user", "data": { "name": "아이유", "company": "스타컴퍼니", "dept": "개발1팀", "title": "대리",  "group": "개발본부", "email": "iu@example.com",  "role": "프론트엔드 개발자",  "memo": "React 전문가" } },
-			    	  { "id": "개발1_2", "parent": "개발1팀", "text": "박보검", "type": "user", "data": { "company": "스타컴퍼니", "dept": "개발1팀","title": "사원", "group": "개발본부", "email": "bogum@example.com", "role": "백엔드 개발자", "memo": "Node.js 담당"	 } },
-			    	  { "id": "개발1_3", "parent": "개발1팀", "text": "김태리", "type": "user", "data": { "title": "과장", "role": "모바일 앱 개발" } },
-			    	  { "id": "개발1_4", "parent": "개발1팀", "text": "정해인", "type": "user", "data": { "title": "주임", "role": "API 개발" } },
-			    	  { "id": "개발1_5", "parent": "개발1팀", "text": "수지", "type": "user", "data": { "title": "대리", "role": "데이터베이스 관리" } },
-		
-			    	  // 개발2팀
-			    	  { "id": "개발2_1", "parent": "개발2팀", "text": "송중기", "type": "user", "data": { "title": "대리", "role": "서버 관리" } },
-			    	  { "id": "개발2_2", "parent": "개발2팀", "text": "한지민", "type": "user", "data": { "title": "과장", "role": "보안 엔지니어" } },
-			    	  { "id": "개발2_3", "parent": "개발2팀", "text": "이종석", "type": "user", "data": { "title": "주임", "role": "DevOps" } },
-			    	  { "id": "개발2_4", "parent": "개발2팀", "text": "박신혜", "type": "user", "data": { "title": "대리", "role": "AI 개발" } },
-			    	  { "id": "개발2_5", "parent": "개발2팀", "text": "조인성", "type": "user", "data": { "title": "사원", "role": "테스트 엔지니어" } },
-		
-			    	  // 국내영업팀
-			    	  { "id": "국내영업_1", "parent": "국내영업팀", "text": "김수현", "type": "user", "data": { "title": "사원", "role": "국내 B2B 영업" } },
-			    	  { "id": "국내영업_2", "parent": "국내영업팀", "text": "윤아", "type": "user", "data": { "title": "주임", "role": "국내 B2C 영업" } },
-			    	  { "id": "국내영업_3", "parent": "국내영업팀", "text": "강동원", "type": "user", "data": { "title": "대리", "role": "영업 기획" } },
-			    	  { "id": "국내영업_4", "parent": "국내영업팀", "text": "전지현", "type": "user", "data": { "title": "과장", "role": "대형 고객 관리" } },
-			    	  { "id": "국내영업_5", "parent": "국내영업팀", "text": "지민", "type": "user", "data": { "title": "사원", "role": "영업 지원" } },
-		
-			    	  // UI/UX팀
-			    	  { "id": "UIUX_1", "parent": "UIUX팀", "text": "제니", "type": "user", "data": { "title": "대리", "role": "UX 설계" } },
-			    	  { "id": "UIUX_2", "parent": "UIUX팀", "text": "차은우", "type": "user", "data": { "title": "주임", "role": "UI 디자인" } },
-			    	  { "id": "UIUX_3", "parent": "UIUX팀", "text": "혜리", "type": "user", "data": { "title": "사원", "role": "프로토타입 제작" } },
-			    	  { "id": "UIUX_4", "parent": "UIUX팀", "text": "박서준", "type": "user", "data": { "title": "과장", "role": "사용자 조사" } },
-			    	  { "id": "UIUX_5", "parent": "UIUX팀", "text": "슬기", "type": "user", "data": { "title": "대리", "role": "비주얼 디자인" } }
-			    	],
+			      'data':{
+				        'url': '/muscat/group/userData.do',
+				        'dataType': 'json'
+				      },
 			    	'themes': {
 			        'responsive': false,
-			        'variant': 'small',
-			        'stripes': true
 			      },
-			      'check_callback': true
 			    },
 			    'types': {
 			      'default': { 'icon': 'bi bi-folder' },
 			      'user': { 'icon': 'bi bi-person' }
 			    },
-			    plugins: ['types', 'state']
-			  }).on("after_open.jstree", adjustSidebarWidth)
-			    .on("ready.jstree", adjustSidebarWidth)
-			    .on("select_node.jstree", function (e, data) {
-  
-			    	
-					});
+			    'plugins': ['types']
+			  })
+			  .on('loaded.jstree', async function (e, data) {
+
+				    $('#chatTree').jstree(true).open_all(); 
+
+				  })
+				  .on("select_node.jstree", function (e, data) {
+				    console.log("선택된 노드:", data.node.original);
+				    if (data.node.type === "user") {
+				      showEmployeeCard(data.node);
+				    } else {
+				      hideCard();
+				    }
+				  });
 					
-					});
+			});
 			// 대화 상대 추가
 			$('#openMessenger').on('click', function (e) {
   e.stopPropagation();

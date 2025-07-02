@@ -2,6 +2,7 @@ package egovframework.com.muscat.login.web;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -70,7 +71,7 @@ public class LoginController {
 
 	/** log */
 	private static final Logger LOGGER = LoggerFactory.getLogger(LoginController.class);
-	
+
 	/** */
 	@Autowired
 	private GroupService groupService;
@@ -182,15 +183,22 @@ public class LoginController {
 		// 그룹정보를 조회 - GROUP_ID정보
 		comDefaultCodeVO.setTableNm("COMTNORGNZTINFO");
 		List<CmmnDetailCode> groupId_result = cmmUseService.selectGroupIdDetail(comDefaultCodeVO);
-		
+
 		// 부서정보 조회
 		List<GroupVO> dept_result = groupService.getGroupChartData();
+
+		Map<Boolean, List<GroupVO>> part = dept_result.stream().filter(d -> !d.getId().equals("1"))
+				.collect(Collectors.partitioningBy(d -> "#".equals(d.getParent())));
+
+		List<GroupVO> parent = part.get(true); // 20세 이상
+		List<GroupVO> child = part.get(false); // 20세 미만
 
 		model.addAttribute("passwordHint_result", passwordHint_result); // 패스워트힌트목록
 		model.addAttribute("sexdstnCode_result", sexdstnCode_result); // 성별구분코드목록
 		model.addAttribute("mberSttus_result", mberSttus_result); // 사용자상태코드목록
 		model.addAttribute("groupId_result", groupId_result); // 그룹정보 목록
-		model.addAttribute("dept_result", dept_result);
+		model.addAttribute("parent_dept_result", parent);
+		model.addAttribute("child_dept_result", child);
 
 		return "login/userReg.html";
 	}

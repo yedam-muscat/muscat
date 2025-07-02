@@ -4,9 +4,10 @@
 	layout:decorate="~{layout/layout}">
 
 <main layout:fragment="content">
+	<h2 id="boardTitle">📄 사용자 목록</h2>
 
-	<table id="userListTable">
-		<thead>
+	<table class="table table-bordered">
+		<thead class="table-light">
 			<tr>
 				<th>유저 아이디</th>
 				<th>유저 이름</th>
@@ -14,24 +15,41 @@
 				<th>가입 상태</th>
 			</tr>
 		</thead>
-		<tbody>
+		<tbody id="userListBody">
+
 		</tbody>
 	</table>
 
-	<script src="//cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
+	<nav>
+		<ul class="pagination justify-content-center" id="pagination"></ul>
+	</nav>
+
+	<script th:inline="javascript">
+		let userListUrl = /*[[ @{/admin/user/userList.do} ]]*/ '';
+	</script>
 	<script>
-		let url = 'http://localhost:8082/muscat/admin/user/userList.do';
-		$.ajax({
+    const pageSize = 10;
+    let currentPage = 1;
+
+    // 게시글 목록 로딩
+    function loadUserList(page = 1) {
+    	$.ajax({
 			type : "GET",
-			url : url,
-			data : {},
+			url : userListUrl,
+			data : {
+				pageIndex : page,
+			},
 		}).done(function(data, textStatus, xhr) {
-	        let tbody = $('#userListTable tbody');
+	        let tbody = $('#userListBody');
 	        tbody.html('');
 	        
 	        console.log(data);
 	        
-	        data.forEach(item => {
+	        const resultList = data.resultList || [];
+	        const totalCount = parseInt(data.resultCnt || 0);
+	        const totalPages = Math.ceil(totalCount / pageSize);
+	        
+	        resultList.forEach(item => {
 	          tbody.append(`<tr>
 	  	            <td>${item.userId}</td>
 	  	            <td>${item.userNm}</td>
@@ -40,18 +58,61 @@
 	  	            </tr>
 	  	          `);
 	        });
-	        
-	        new DataTable('#userListTable', {
-	        	  language: {
-	        		    url: "https://cdn.datatables.net/plug-ins/2.0.0/i18n/ko.json"
-	        		  }});
+
+	        //renderPagination(page, totalPages);
 		}).fail(function() {
 			Swal.fire({
 				icon : "error",
 				title : "오류가 발생했습니다"
 			})
 		});
-	</script>
+    }
 
+    // 페이징 UI 렌더링
+    function renderPagination(currentPage, totalPages) {
+      const paginationEl = document.getElementById('pagination');
+      paginationEl.innerHTML = '';
+
+      const createPageItem = (label, page, isActive = false, isDisabled = false) => {
+        const li = document.createElement('li');
+        li.className = `page-item ${isActive ? 'active' : ''} ${isDisabled ? 'disabled' : ''}`;
+        const a = document.createElement('a');
+        a.className = 'page-link';
+        a.href = '#';
+        a.textContent = label;
+        a.addEventListener('click', e => {
+          e.preventDefault();
+          if (!isDisabled && page !== currentPage) {
+        	  loadUserList(page);
+          }
+        });
+        li.appendChild(a);
+        return li;
+      };
+
+      // 이전 버튼
+      paginationEl.appendChild(createPageItem('«', currentPage - 1, false, currentPage === 1));
+
+      // 번호 버튼
+      const maxButtons = 5;
+      let start = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+      let end = Math.min(totalPages, start + maxButtons - 1);
+      if (end - start < maxButtons - 1) {
+        start = Math.max(1, end - maxButtons + 1);
+      }
+
+      for (let i = start; i <= end; i++) {
+        paginationEl.appendChild(createPageItem(i, i, i === currentPage));
+      }
+
+      // 다음 버튼
+      paginationEl.appendChild(createPageItem('»', currentPage + 1, false, currentPage === totalPages));
+    }
+
+    // 초기 로딩
+    document.addEventListener('DOMContentLoaded', () => {
+    	loadUserList();
+    });
+  </script>
 </main>
 </html>
