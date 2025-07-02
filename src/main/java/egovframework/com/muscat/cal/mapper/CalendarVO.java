@@ -2,6 +2,7 @@ package egovframework.com.muscat.cal.mapper;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 
@@ -17,5 +18,5 @@ public class CalendarVO implements Serializable {
 
 	private String shareId;
 	private String authority;
-	private Date shDe;
+	private List<String> sharedUserIds;
 }
