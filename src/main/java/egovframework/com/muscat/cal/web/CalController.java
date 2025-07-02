@@ -6,19 +6,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import egovframework.com.muscat.cal.mapper.CalMapper;
 import egovframework.com.muscat.cal.mapper.CalendarVO;
@@ -128,6 +127,13 @@ public class CalController {
 	public List<Map> listSchedule() throws Exception {
 	    return calService.selectScheduleList();
 	}
+	//단건조회
+	@GetMapping("/cal/calDetail.do")
+	public String getScheduleDetail(@RequestParam("scheduleId") String scheduleId, Model model) {
+	    ScudVO schedule = calService.selectScheduleById(scheduleId);
+	    model.addAttribute("schedule", schedule);
+	    return "cal/calDetail";  // ← Thymeleaf 템플릿 이름
+	}
 
 	@RequestMapping("cal/calDetail.do")
 	public String calDetail(@RequestParam(required = false) String start, @RequestParam(required = false) String end,
@@ -171,6 +177,28 @@ public class CalController {
 	@GetMapping("/cal/availableRooms")
 	@ResponseBody
 	public List<Map<String, Object>> availableRooms(@RequestParam String reserveDateTime) {
-	    return calService.selectAvailableRooms(reserveDateTime);
+		return calService.selectAvailableRooms(reserveDateTime);
 	}
+	@GetMapping("/cal/allRooms")
+	@ResponseBody
+	public List<Map> getAllRooms() {
+	    return calMapper.selectAllRooms();
+	}
+	
+	@PostMapping("/cal/updateSchedule")
+	@ResponseBody
+	public ResponseEntity<String> updateSchedule(@RequestBody ScudVO vo) {
+	    int result = calService.updateSchedule(vo);
+	    if (result > 0) return ResponseEntity.ok("수정 성공");
+	    return ResponseEntity.status(404).body("찾을 수 없는 일정입니다.");
+	}
+
+	@DeleteMapping("/cal/deleteSchedule")
+	@ResponseBody
+	public ResponseEntity<String> deleteSchedule(@RequestParam String schdulId) {
+	    int result = calService.deleteSchedule(schdulId);
+	    if (result > 0) return ResponseEntity.ok("삭제 성공");
+	    return ResponseEntity.status(404).body("찾을 수 없는 일정입니다.");
+	}
+	
 }

@@ -46,4 +46,24 @@ public class CalServiceImpl implements CalService {
 	public void insertRoomReserve(ReservationVO vo) throws Exception {
 	    calMapper.insertRoomReserve(vo);
 	}
+	@Override
+    public List<Map> getAllRooms() {
+        return calMapper.selectAllRooms();
+    }
+	
+	@Override
+	public int updateSchedule(ScudVO vo) {
+	    return calMapper.updateSchedule(vo);
+	}
+
+	@Override
+	public int deleteSchedule(String schdulId) {
+	    return calMapper.deleteSchedule(schdulId);
+	}
+	
+	@Override
+	public ScudVO selectScheduleById(String schdulId) {
+	    return calMapper.selectScheduleById(schdulId);
+	}
+	
 }
