@@ -268,21 +268,29 @@
 			      },
 			    	'themes': {
 			        'responsive': false,			        
-			      },			   
+			      },		
 			    },
 			    'types': {
 			      'default': { 'icon': 'bi bi-folder' },
 			      'user': { 'icon': 'bi bi-person' }
 			    },
-			    plugins: ['types', 'state']
-			  }).on("after_open.jstree", adjustSidebarWidth)
-			    .on("ready.jstree", adjustSidebarWidth)
-			    .on("select_node.jstree", function (e, data) {
-  
-			    	
-					});
+			    'plugins': ['types']
+			  })
+			  .on('loaded.jstree', async function (e, data) {
+
+				    $('#chatTree').jstree(true).open_all(); 
+
+				  })
+				  .on("select_node.jstree", function (e, data) {
+				    console.log("선택된 노드:", data.node.original);
+				    if (data.node.type === "user") {
+				      showEmployeeCard(data.node);
+				    } else {
+				      hideCard();
+				    }
+				  });
 					
-					});
+			});
 			// 대화 상대 추가
 			$('#openMessenger').on('click', function (e) {
   e.stopPropagation();

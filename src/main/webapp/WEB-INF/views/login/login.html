@@ -78,18 +78,19 @@
 								</div>
 							</div>
 
-							<button type="button" class="btn btn-primary btn-block btn-lg shadow-lg"
+							<button type="button"
+								class="btn btn-primary btn-block btn-lg shadow-lg"
 								onclick="actionLogin()">로그인</button>
 						</form>
 					</div>
 					<div class="text-center mt-5 fs-5">
 						<p class="text-gray-600">
-							계정이 없으신가요? <a href="#" onclick="goRegiUsr(); return false;"
+							계정이 없으신가요? <a href="#" onclick="goUserReg(); return false;"
 								class="font-bold">회원가입</a>
 						</p>
 						<p>
 							<a class="font-bold" href="#"
-								onclick="goResetPwd(); return false;">비밀번호를 잊으셨나요?</a>
+								onclick="goPasswordReset(); return false;">비밀번호를 잊으셨나요?</a>
 						</p>
 					</div>
 				</div>
@@ -99,7 +100,19 @@
 			</div>
 		</div>
 	</div>
+	<script th:inline="javascript">
+		let userRegUrl = /*[[ @{/uat/uia/userReg.do} ]]*/'';
+	</script>
 	<script>
+		$(function() {
+			$('#password').on('keyup', function(e) {
+				if (e.key === 'Enter') {
+					e.preventDefault();
+					actionLogin();
+				}
+			});
+		});
+
 		function actionLogin() {
 			if (document.loginForm.id.value == "") {
 				Swal.fire({
@@ -116,11 +129,11 @@
 			}
 		}
 
-		function goRegiUsr() {
-			location.href = "/muscat/uat/uia/userReg.do";
+		function goUserReg() {
+			location.href = userRegUrl;
 		}
 
-		function goResetPwd() {
+		function goPasswordReset() {
 
 		}
 	</script>

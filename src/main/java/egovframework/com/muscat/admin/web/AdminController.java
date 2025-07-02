@@ -1,6 +1,8 @@
 package egovframework.com.muscat.admin.web;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +20,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springmodules.validation.commons.DefaultBeanValidator;
 
 import egovframework.com.cmm.ComDefaultCodeVO;
-import egovframework.com.cmm.LoginVO;
 import egovframework.com.cmm.service.CmmnDetailCode;
 import egovframework.com.cmm.service.EgovCmmUseService;
 import egovframework.com.cmm.util.EgovUserDetailsHelper;
@@ -62,19 +63,10 @@ public class AdminController {
 			throws Exception {
 
 		// 미인증 사용자에 대한 보안처리
-//		Boolean isAuthenticated = EgovUserDetailsHelper.isAuthenticated();
-//		if (!isAuthenticated) {
-//			return "/main.do";
-//		}
-
-//		List<MberManageVO> resultList = mberManageService.selectMberList(userSearchVO);
-//		model.addAttribute("resultList", resultList);
-
-		// 일반회원 상태코드를 코드정보로부터 조회
-		ComDefaultCodeVO comDefaultCodeVO = new ComDefaultCodeVO();
-		comDefaultCodeVO.setCodeId("COM013");
-		List<CmmnDetailCode> mberSttus_result = cmmUseService.selectCmmCodeDetail(comDefaultCodeVO);
-		model.addAttribute("entrprsMberSttus_result", mberSttus_result);// 기업회원상태코드목록
+		Boolean isAuthenticated = EgovUserDetailsHelper.isAuthenticated();
+		if (!isAuthenticated) {
+			return "/main.do";
+		}
 
 		return "admin/userMng.html";
 	}
@@ -82,9 +74,11 @@ public class AdminController {
 	// user 목록 조회
 	@GetMapping("/admin/user/userList.do")
 	@ResponseBody
-	public List<MberManageVO> userList(@ModelAttribute("userSearchVO") UserDefaultVO userSearchVO)
+	public Map<String, Object> userList(@ModelAttribute("userSearchVO") UserDefaultVO userSearchVO)
 			throws Exception {
 		
+		Map<String, Object> resultMap = new HashMap<>();		
+
         /** EgovPropertyService */
         userSearchVO.setPageUnit(propertiesService.getInt("pageUnit"));
         userSearchVO.setPageSize(propertiesService.getInt("pageSize"));
@@ -100,8 +94,19 @@ public class AdminController {
         userSearchVO.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
 
         List<MberManageVO> resultList = mberManageService.selectMberList(userSearchVO);
-        
-		return resultList;
+        resultMap.put("resultList", resultList);
+
+        int totCnt = mberManageService.selectMberListTotCnt(userSearchVO);
+        paginationInfo.setTotalRecordCount(totCnt);
+        resultMap.put("paginationInfo", paginationInfo);
+
+        // 일반회원 상태코드를 코드정보로부터 조회
+//        ComDefaultCodeVO comDefaultCodeVO = new ComDefaultCodeVO();
+//        comDefaultCodeVO.setCodeId("COM013");
+//        List<CmmnDetailCode> mberSttus_result = cmmUseService.selectCmmCodeDetail(comDefaultCodeVO);
+//        resultMap.put("entrprsMberSttus_result", mberSttus_result);// 기업회원상태코드목록
+
+		return resultMap;
 	}
 	
 	// user 상세 조회

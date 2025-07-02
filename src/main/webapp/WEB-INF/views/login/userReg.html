@@ -123,8 +123,27 @@
 								</div>
 							</div>
 							
-							<!-- 성별 -->
+							<!-- 상위 -->
 							<div class="row g-3 align-items-center mb-2">
+								<div class="col-2">
+									<label for="deptId" class="col-form-label">부서</label>
+								</div>
+								<div class="col-auto">
+									<select class="form-select" id="parentDept">
+										<option selected value="">-- 상위 부서 --</option>
+										<option th:each="item : ${parent_dept_result}"
+											th:value="${item.id}" th:text="${item.text}"></option>
+									</select>
+								</div>
+								<div class="col-auto">
+									<select class="form-select" id="childDept">
+										<option selected value="">-- 하위 부서 --</option>
+									</select>
+								</div>
+							</div>
+							
+							<!-- 하위 부서 -->
+							<!-- <div class="row g-3 align-items-center mb-2">
 								<div class="col-2">
 									<label for="deptId" class="col-form-label">성별</label>
 								</div>
@@ -135,7 +154,7 @@
 											th:value="${item.id}" th:text="${item.text}"></option>
 									</select>
 								</div>
-							</div>
+							</div> -->
 
 							<!-- 성별 -->
 							<div class="row g-3 align-items-center mb-2">
@@ -278,6 +297,7 @@
 		</div>
 	</div>
 	<script th:inline="javascript">
+	let childDeptList = /*[[${child_dept_result}]]*/ "";
 	let checkId = false;
 	let availableId = false;
 	
@@ -318,10 +338,35 @@
 				}
 				
 			})
+			
+			$('#parentDept').on('change', function(event) {
+				
+			    const parentId = $(event.target).val();
+			    
+				let childDept = $('#childDept');
+				childDept.html('');
+				
+			    childDept.empty().append('<option value="">-- 하위 부서 --</option>');
+
+			    if (!parentId) {
+			    	childDept.prop('disabled', true);
+			    } else {
+			    	childDept.prop('disabled', false);
+			    }
+
+			    const filtered = childDeptList.filter(d => d.parent == parentId);
+
+
+			    filtered.forEach(d => {
+			    	childDept.append(`<option value="${d.id}">${d.text}</option>`);
+			    });
+							
+			});
+			
 		});
 		
 		function userReg() {
-			let url = 'http://localhost:8082/muscat/uat/uia/userReg.do';
+			let url = /*[[ @{/uat/uia/userReg.do} ]]*/ '';
 			$.ajax({
 				type: "POST",
 				url: url,
@@ -341,7 +386,7 @@
 					moblphonNo : getMoblphonNo(),
 					mberSttus : $('#mberSttus').val(),
 					sexdstnCode : $('#sexdstnCode').val(),
-					deptId : $('#deptId').val(),
+					deptId : $('#childDept').val(),
 				},
 				dataType: 'json',
 				timeout:(1000*30),
@@ -507,7 +552,7 @@
 			  const zip = $("#zip").val();
 			  const adres = $("#adres").val();
 			  const detailAdres = $("#detailAdres").val();
-			  const deptId = $("#deptId").val();
+			  const deptId = $("#childDept").val();
 
 			  // 공백 체크
 			  if (!id) return alert("아이디를 입력하세요.");
