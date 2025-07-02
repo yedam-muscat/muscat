@@ -70,12 +70,7 @@
 						<li class="submenu-item "><a href="/muscat/cal/calMonth.do">공통상세코드</a></li>
 
 					</ul></li> -->
-				<li class="sidebar-item"><a href="#" class='sidebar-link'
-					data-bs-toggle="modal" data-bs-target="#chatListModal"
-					onclick="event.preventDefault();"> <i class="bi bi-chat-dots"></i>
-						<span>채팅</span>
-				</a></li>
-
+				
 
 				<!-- 사이드바 조직도 메뉴 -->
 				<li class="sidebar-item"><a href="#" class="sidebar-link"
@@ -126,7 +121,7 @@
 	</div>
 	<!-- 조직도 카드 -->
 	<div id="employeeCard" class="card border border-secondary"
-		style="position: absolute; display: none; width: 500px; z-index: 2000;">
+		style="position: absolute; display: none; width: 250px; z-index: 1500;">
 		<div class="card-body">
 			<button type="button" class="btn btn-Light" style="float: right;"
 				onclick="hideCard()">X</button>
@@ -590,6 +585,7 @@
 			const msg = input.val().trim();
 			if (!msg)
 				return;
+			send(msg);
 			const now = new Date();
 			const today = formatDate(now);
 			const timeStr = now.toTimeString().substring(0,5); // 시간 출력
@@ -920,7 +916,7 @@
 	
 	
 	function socketopen() {
-		var url = 'ws://' + window.location.host + `/muscat/chatroom/${roomId}`;
+		var url = 'ws://' + window.location.host + `/muscat/chat/${roomId}`;
 		websocket = connection(url);
 		
 		websocket.onopen = function(){			
@@ -1009,10 +1005,10 @@
 	function displaybubble(data) {
 		//message = jsonData.name + " : "+ jsonData.message + '\n';
 		if (data.name == "${loginVO.name}") {
-			$('#chat').append(data.name+"(me)<br/><div class='bubble right'><span class='tail'>&nbsp;</span>"+data.message +"</div>");
+			$('#chatMessages').append(data.name+"(me)<br/><div class='bubble right'><span class='tail'>&nbsp;</span>"+data.message +"</div>");
 	      	    
 		} else {
-		    $('#chat').append(data.name+"<br/><div class='bubble left'><span class='tail'>&nbsp;</span>"+data.message+"</div>");
+		    $('#chatMessages').append(data.name+"<br/><div class='bubble left'><span class='tail'>&nbsp;</span>"+data.message+"</div>");
 		}
 	}
 
