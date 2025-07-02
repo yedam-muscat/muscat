@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="egovframework.com.muscat.chat.mapper.RoomMapper">
+	<!-- 조회 -->
+	
+	
+	
+	<!-- 방등록 -->
+	<insert id="roomi" parameterType="roomVO">
+	insert into room (room_id, room_name, mg_date,room_pw)
+ values (#{roomId}, #{roomName},#{mgDate},#{roomPw})
+	</insert>
+	
+	<!-- 수정 -->
+	
+	
+	
+	<!-- 삭제 -->
+	
+	
+	
+	<!-- 사용자 등록 -->
+	<insert id="insertUser" parameterType="userVO">
+	insert into users (user_id, room_id, last_channel_info, status )
+	values (#{userId), #{roomId),null, 'Y') 
+	</insert>
+	
+	
+	<!--  메시지 등록 -->
+	<insert id="insertMessage" parameterType="MessageVO">
+	insert into Message (message_id, room_id, mg_file_info, mg_count_num, mg_photo, mg_type,user_id )
+	values (#{messageId},#{roomId},#{mgFileInfo},#{mgCountNum},#{mgPhoto},#{mgType},#{userId})
+	</insert>
+	
+</mapper>

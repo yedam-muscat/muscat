@@ -16,6 +16,9 @@
 		<typeAlias alias="FileVO"			type="egovframework.com.cmm.service.FileVO" />
 		<typeAlias alias="ComDefaultCodeVO" type="egovframework.com.cmm.ComDefaultCodeVO" />
 		<typeAlias alias="comDefaultVO"		type="egovframework.com.cmm.ComDefaultVO" />
+		<typeAlias alias="roomVO"		type="egovframework.com.muscat.chat.service.RoomVO" />
+		<typeAlias alias="userVO"		type="egovframework.com.muscat.chat.service.UserVO" />
+		<typeAlias alias="messageVO"		type="egovframework.com.muscat.chat.service.MessageVO" />
 	</typeAliases>
     
 </configuration>
