@@ -103,14 +103,75 @@
 		resultType="map">
 		SELECT m.MTGRUM_ID, m.MTGRUM_NM
 		FROM COMTNMTGPLACEMANAGE m
-		WHERE NOT EXISTS (
+		WHERE NOT
+		EXISTS (
 		SELECT 1
 		FROM COMTNLEADERSCHDUL s
-		WHERE s.RESERVED_ROOM = m.MTGRUM_ID
-		AND s.SCHDUL_BGNDE <![CDATA[<=]]> #{reserveDateTime}
+		WHERE s.RESERVED_ROOM =
+		m.MTGRUM_ID
+		AND s.SCHDUL_BGNDE <![CDATA[<=]]>
+		#{reserveDateTime}
 		AND s.SCHDUL_ENDDE > #{reserveDateTime}
 		)
-		ORDER BY m.MTGRUM_NM
+		ORDER BY
+		m.MTGRUM_NM
+	</select>
+
+	<select id="selectAllRooms" resultType="map">
+		SELECT MTGRUM_ID,
+		MTGRUM_NM
+		FROM COMTNMTGPLACEMANAGE
+		ORDER BY MTGRUM_NM
+	</select>
+
+	<insert id="insertCalendarShare" parameterType="map">
+		INSERT INTO
+		CALENDAR_SHARE (
+		SHARE_ID, AUTHORITY, CAL_ID, MBER_ID, SH_DE
+		) VALUES (
+		#{shareId},
+		#{authority},
+		#{calId},
+		#{mberId},
+		SYSDATE
+		)
+	</insert>
+
+	<update id="updateSchedule"
+		parameterType="egovframework.com.muscat.cal.mapper.ScudVO">
+		UPDATE COMTNLEADERSCHDUL
+		SET
+		SCHDUL_NM = #{schdulNm},
+		SCHDUL_CN = #{schdulCn},
+		SCHDUL_PLACE = #{schdulPlace},
+		SCHDUL_BGNDE =
+		#{schdulBgnde},
+		SCHDUL_ENDDE = #{schdulEndde},
+		LAST_UPDUSR_ID =
+		#{lastUpdusrId},
+		LAST_UPDT_PNTTM = CURRENT_TIMESTAMP
+		WHERE SCHDUL_ID =
+		#{schdulId}
+	</update>
+
+	<delete id="deleteSchedule" parameterType="string">
+		DELETE FROM
+		COMTNLEADERSCHDUL
+		WHERE SCHDUL_ID = #{schdulId}
+	</delete>
+
+	<select id="selectScheduleById" parameterType="string"
+		resultType="egovframework.com.muscat.cal.mapper.ScudVO">
+		SELECT
+		SCHDUL_ID AS schdulId,
+		SCHDUL_NM AS schdulNm,
+		SCHDUL_CN AS schdulCn,
+		SCHDUL_PLACE AS schdulPlace,
+		SCHDUL_BGNDE AS schdulBgnde,
+		SCHDUL_ENDDE AS schdulEndde,
+		CAL_ID AS calId
+		FROM COMTNLEADERSCHDUL
+		WHERE SCHDUL_ID = #{schdulId}
 	</select>
 </mapper>
 

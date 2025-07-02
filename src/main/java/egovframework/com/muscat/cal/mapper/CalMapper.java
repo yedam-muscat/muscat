@@ -22,4 +22,12 @@ public interface CalMapper {
 	List<Map<String, Object>> selectAvailableRooms(String reserveDateTime);
 
 	void insertRoomReserve(ReservationVO reservationVO);
+
+	List<Map> selectAllRooms();
+	
+	int updateSchedule(ScudVO vo);
+	
+	int deleteSchedule(String schdulId);
+	
+	ScudVO selectScheduleById(String schdulId);
 }
