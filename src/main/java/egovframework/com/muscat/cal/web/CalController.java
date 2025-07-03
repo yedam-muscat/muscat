@@ -6,11 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,113 +35,116 @@ public class CalController {
 	@Autowired
 	private CalMapper calMapper;
 
+	/** log */
+	private static final Logger LOGGER = LoggerFactory.getLogger(CalController.class);
+
 	// 등록
 	@PostMapping("/cal/insertSchedule")
 	@ResponseBody
 	public String insertSchedule(@RequestBody ScudVO vo) throws Exception {
-	    if (vo.getSchdulId() == null || vo.getSchdulId().isEmpty()) {
-	        vo.setSchdulId(UUID.randomUUID().toString().replace("-", "").substring(0, 20));
-	    }
+		if (vo.getSchdulId() == null || vo.getSchdulId().isEmpty()) {
+			vo.setSchdulId(UUID.randomUUID().toString().replace("-", "").substring(0, 20));
+		}
 
-	    if (vo.getLeaderId() == null || vo.getLeaderId().isEmpty()) {
-	        vo.setLeaderId("admin"); // 또는 로그인 사용자 ID 등
-	    }
+		if (vo.getLeaderId() == null || vo.getLeaderId().isEmpty()) {
+			vo.setLeaderId("admin"); // 또는 로그인 사용자 ID 등
+		}
 
-	    // 기본 일정 저장
-	    calService.insertSchedule(vo);
+		// 기본 일정 저장
+		calService.insertSchedule(vo);
 
-	    // 반복 일정 로직 (예: 1년 동안 12개 반복 생성) - 원하는 기간만큼 조절 가능
-	    String reptitSeCode = vo.getReptitSeCode();
-	    if (reptitSeCode != null && !"N".equalsIgnoreCase(reptitSeCode)) {
-	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-	        LocalDateTime startDate = LocalDateTime.parse(vo.getSchdulBgnde(), formatter);
-	        LocalDateTime endDate = LocalDateTime.parse(vo.getSchdulEndde(), formatter);
+		// 반복 일정 로직 (예: 1년 동안 12개 반복 생성) - 원하는 기간만큼 조절 가능
+		String reptitSeCode = vo.getReptitSeCode();
+		if (reptitSeCode != null && !"N".equalsIgnoreCase(reptitSeCode)) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+			LocalDateTime startDate = LocalDateTime.parse(vo.getSchdulBgnde(), formatter);
+			LocalDateTime endDate = LocalDateTime.parse(vo.getSchdulEndde(), formatter);
 
-	        // 반복 횟수 (예: 12회 반복)
-	        int repeatCount = 12;
+			// 반복 횟수 (예: 12회 반복)
+			int repeatCount = 12;
 
-	        for (int i = 1; i < repeatCount; i++) {
-	            LocalDateTime newStart = null;
-	            LocalDateTime newEnd = null;
+			for (int i = 1; i < repeatCount; i++) {
+				LocalDateTime newStart = null;
+				LocalDateTime newEnd = null;
 
-	            switch (reptitSeCode.toUpperCase()) {
-	                case "D": // 매일
-	                    newStart = startDate.plusDays(i);
-	                    newEnd = endDate.plusDays(i);
-	                    break;
-	                case "W": // 매주
-	                    newStart = startDate.plusWeeks(i);
-	                    newEnd = endDate.plusWeeks(i);
-	                    break;
-	                case "M": // 매월
-	                    newStart = startDate.plusMonths(i);
-	                    newEnd = endDate.plusMonths(i);
-	                    break;
-	                case "Y": // 매년
-	                    newStart = startDate.plusYears(i);
-	                    newEnd = endDate.plusYears(i);
-	                    break;
-	                default:
-	                    // 반복 없음
-	                    break;
-	            }
+				switch (reptitSeCode.toUpperCase()) {
+				case "D": // 매일
+					newStart = startDate.plusDays(i);
+					newEnd = endDate.plusDays(i);
+					break;
+				case "W": // 매주
+					newStart = startDate.plusWeeks(i);
+					newEnd = endDate.plusWeeks(i);
+					break;
+				case "M": // 매월
+					newStart = startDate.plusMonths(i);
+					newEnd = endDate.plusMonths(i);
+					break;
+				case "Y": // 매년
+					newStart = startDate.plusYears(i);
+					newEnd = endDate.plusYears(i);
+					break;
+				default:
+					// 반복 없음
+					break;
+				}
 
-	            if (newStart != null && newEnd != null) {
-	                ScudVO repeatVo = new ScudVO();
-	                repeatVo.setSchdulId(UUID.randomUUID().toString().replace("-", "").substring(0, 20));
-	                repeatVo.setSchdulNm(vo.getSchdulNm());
-	                repeatVo.setSchdulPlace(vo.getSchdulPlace());
-	                repeatVo.setSchdulCn(vo.getSchdulCn());
-	                repeatVo.setSchdulBgnde(newStart.format(formatter));
-	                repeatVo.setSchdulEndde(newEnd.format(formatter));
-	                repeatVo.setLeaderId(vo.getLeaderId());
-	                repeatVo.setSchdulChargerId(vo.getSchdulChargerId());
-	                repeatVo.setFrstRegisterId(vo.getFrstRegisterId());
-	                repeatVo.setLastUpdusrId(vo.getLastUpdusrId());
-	                repeatVo.setCalId(vo.getCalId());
-	                repeatVo.setReptitSeCode(vo.getReptitSeCode());
+				if (newStart != null && newEnd != null) {
+					ScudVO repeatVo = new ScudVO();
+					repeatVo.setSchdulId(UUID.randomUUID().toString().replace("-", "").substring(0, 20));
+					repeatVo.setSchdulNm(vo.getSchdulNm());
+					repeatVo.setSchdulPlace(vo.getSchdulPlace());
+					repeatVo.setSchdulCn(vo.getSchdulCn());
+					repeatVo.setSchdulBgnde(newStart.format(formatter));
+					repeatVo.setSchdulEndde(newEnd.format(formatter));
+					repeatVo.setLeaderId(vo.getLeaderId());
+					repeatVo.setSchdulChargerId(vo.getSchdulChargerId());
+					repeatVo.setFrstRegisterId(vo.getFrstRegisterId());
+					repeatVo.setLastUpdusrId(vo.getLastUpdusrId());
+					repeatVo.setCalId(vo.getCalId());
+					repeatVo.setReptitSeCode(vo.getReptitSeCode());
 
-	                calService.insertSchedule(repeatVo);
-	            }
-	        }
-	        if (vo.getReservedRoom() != null && !vo.getReservedRoom().isEmpty()) {
-	            // 예약 DB에 일정 일시 기록
-	            ReservationVO r = new ReservationVO();
-	            r.setResveId(UUID.randomUUID().toString().substring(0,20));
-	            r.setMtgrumId(vo.getReservedRoom());
-	            r.setRsvctmId(vo.getLeaderId());
-	            r.setResveDe(vo.getSchdulBgnde().substring(0,8));
-	            r.setResveBeginTm(vo.getSchdulBgnde().substring(8,14));
-	            r.setResveEndTm(vo.getSchdulEndde().substring(8,14));
-	            r.setFrstRegisterId(vo.getFrstRegisterId());
-	            r.setLastUpdusrId(vo.getLastUpdusrId());
-	            calService.insertRoomReserve(r);
-	        }
-	    }
+					calService.insertSchedule(repeatVo);
+				}
+			}
+			if (vo.getReservedRoom() != null && !vo.getReservedRoom().isEmpty()) {
+				// 예약 DB에 일정 일시 기록
+				ReservationVO r = new ReservationVO();
+				r.setResveId(UUID.randomUUID().toString().substring(0, 20));
+				r.setMtgrumId(vo.getReservedRoom());
+				r.setRsvctmId(vo.getLeaderId());
+				r.setResveDe(vo.getSchdulBgnde().substring(0, 8));
+				r.setResveBeginTm(vo.getSchdulBgnde().substring(8, 14));
+				r.setResveEndTm(vo.getSchdulEndde().substring(8, 14));
+				r.setFrstRegisterId(vo.getFrstRegisterId());
+				r.setLastUpdusrId(vo.getLastUpdusrId());
+				calService.insertRoomReserve(r);
+			}
+		}
 
-	    return "success";
+		return "success";
 	}
 
 	// 조회
 	@GetMapping("/cal/listSchedule")
 	@ResponseBody
 	public List<Map> listSchedule() throws Exception {
-	    return calService.selectScheduleList();
+		return calService.selectScheduleList();
 	}
-	//단건조회
+	// 단건조회
+//	@GetMapping("/cal/calDetail.do")
+//	public String getScheduleDetail(@RequestParam("scheduleId") String scheduleId, Model model) {
+//	    ScudVO schedule = calService.selectScheduleById(scheduleId);
+//	    model.addAttribute("schedule", schedule);
+//	    return "cal/calDetail";  // ← Thymeleaf 템플릿 이름
+//	}
+
 	@GetMapping("/cal/calDetail.do")
-	public String getScheduleDetail(@RequestParam("scheduleId") String scheduleId, Model model) {
-	    ScudVO schedule = calService.selectScheduleById(scheduleId);
-	    model.addAttribute("schedule", schedule);
-	    return "cal/calDetail";  // ← Thymeleaf 템플릿 이름
-	}
+	public String calDetail(@RequestParam(required = false) String scheduleId, Model model) {
 
-	@RequestMapping("cal/calDetail.do")
-	public String calDetail(@RequestParam(required = false) String start, @RequestParam(required = false) String end,
-			Model model) {
-
-		model.addAttribute("start", start);
-		model.addAttribute("end", end);
+		LOGGER.debug("scheduleId : " + scheduleId);
+		ScudVO schedule = calService.selectScheduleById(scheduleId);
+		model.addAttribute("schedule", schedule);
 		return "cal/calDetail.html";
 	}
 
@@ -149,56 +153,58 @@ public class CalController {
 		return "cal/calMonth.html";
 	}
 
-
 	@GetMapping("/cal/listCalendar")
 	@ResponseBody
 	public List<Map> listCalendar() {
-	    return calService.selectCalendarList();
+		return calService.selectCalendarList();
 	}
-	
+
 	@PostMapping("/cal/insertCalendar")
 	@ResponseBody
 	public ResponseEntity<String> insertCalendar(@RequestBody CalendarVO calendarVO) {
-	    try {
-	        if (calendarVO.getCalId() == null || calendarVO.getCalId().isEmpty()) {
-	            calendarVO.setCalId(UUID.randomUUID().toString().substring(0, 20));
-	        }
-	        if (calendarVO.getOwnerId() == null || calendarVO.getOwnerId().isEmpty()) {
-	            calendarVO.setOwnerId("admin");
-	        }
-	   
-	        calService.insertCalendar(calendarVO);
-	        return ResponseEntity.ok("등록 성공");
-	    } catch (Exception e) {
-	        return ResponseEntity.status(500).body("등록 실패: " + e.getMessage());
-	    }
+		try {
+			if (calendarVO.getCalId() == null || calendarVO.getCalId().isEmpty()) {
+				calendarVO.setCalId(UUID.randomUUID().toString().substring(0, 20));
+			}
+			if (calendarVO.getOwnerId() == null || calendarVO.getOwnerId().isEmpty()) {
+				calendarVO.setOwnerId("admin");
+			}
+
+			calService.insertCalendar(calendarVO);
+			return ResponseEntity.ok("등록 성공");
+		} catch (Exception e) {
+			return ResponseEntity.status(500).body("등록 실패: " + e.getMessage());
+		}
 	}
-	
+
 	@GetMapping("/cal/availableRooms")
 	@ResponseBody
 	public List<Map<String, Object>> availableRooms(@RequestParam String reserveDateTime) {
 		return calService.selectAvailableRooms(reserveDateTime);
 	}
+
 	@GetMapping("/cal/allRooms")
 	@ResponseBody
 	public List<Map> getAllRooms() {
-	    return calMapper.selectAllRooms();
+		return calMapper.selectAllRooms();
 	}
-	
+
 	@PostMapping("/cal/updateSchedule")
 	@ResponseBody
 	public ResponseEntity<String> updateSchedule(@RequestBody ScudVO vo) {
-	    int result = calService.updateSchedule(vo);
-	    if (result > 0) return ResponseEntity.ok("수정 성공");
-	    return ResponseEntity.status(404).body("찾을 수 없는 일정입니다.");
+		int result = calService.updateSchedule(vo);
+		if (result > 0)
+			return ResponseEntity.ok("수정 성공");
+		return ResponseEntity.status(404).body("찾을 수 없는 일정입니다.");
 	}
 
 	@DeleteMapping("/cal/deleteSchedule")
 	@ResponseBody
 	public ResponseEntity<String> deleteSchedule(@RequestParam String schdulId) {
-	    int result = calService.deleteSchedule(schdulId);
-	    if (result > 0) return ResponseEntity.ok("삭제 성공");
-	    return ResponseEntity.status(404).body("찾을 수 없는 일정입니다.");
+		int result = calService.deleteSchedule(schdulId);
+		if (result > 0)
+			return ResponseEntity.ok("삭제 성공");
+		return ResponseEntity.status(404).body("찾을 수 없는 일정입니다.");
 	}
-	
+
 }

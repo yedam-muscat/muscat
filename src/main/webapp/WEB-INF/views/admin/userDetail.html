@@ -3,55 +3,393 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/layout}">
 
+
 <main layout:fragment="content">
+	<div id="auth">
+		<div class="row h-100">
+			<div class="col-lg-8 col-12 mx-auto">
+				<div id="auth-left px-2 py-2">
+					<div class="card">
+						<div class="card-header text-white">
+							<h5 class="mb-0">회원정보</h5>
+						</div>
+						<div class="card-body">
 
-	<table id="userListTable">
-		<thead>
-			<tr>
-				<th>유저 아이디</th>
-				<th>유저 이름</th>
-				<th>핸드폰번호</th>
-				<th>가입 상태</th>
-			</tr>
-		</thead>
-		<tbody>
-		</tbody>
-	</table>
+							<!-- 일반회원 아이디 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="mberId" class="col-form-label">아이디</label>
+								</div>
+								<div class="col-auto">
+									<input type="text" id="mberId" class="form-control"
+										th:value="${mberManageVO.mberId}" readonly>
+								</div>
+								<div class="col-auto"></div>
+							</div>
 
-	<script src="//cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
-	<script>
-		let url = 'http://localhost:8082/muscat/admin/user/userList.do';
-		$.ajax({
-			type : "GET",
-			url : url,
-			data : {},
-		}).done(function(data, textStatus, xhr) {
-	        let tbody = $('#userListTable tbody');
-	        tbody.html('');
-	        
-	        console.log(data);
-	        
-	        data.forEach(item => {
-	          tbody.append(`<tr>
-	  	            <td>${item.userId}</td>
-	  	            <td>${item.userNm}</td>
-	  	            <td>${item.moblphonNo}</td>
-	  	            <td>${item.sttus}</td>
-	  	            </tr>
-	  	          `);
-	        });
-	        
-	        new DataTable('#userListTable', {
-	        	  language: {
-	        		    url: "https://cdn.datatables.net/plug-ins/2.0.0/i18n/ko.json"
-	        		  }});
-		}).fail(function() {
-			Swal.fire({
-				icon : "error",
-				title : "오류가 발생했습니다"
-			})
+							<!-- 일반회원 이름 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="mberNm" class="col-form-label">이름</label>
+								</div>
+								<div class="col-auto">
+									<input type="text" id="mberNm" class="form-control"
+										th:value="${mberManageVO.mberNm}" readonly>
+								</div>
+								<div class="col-auto"></div>
+							</div>
+
+							<!-- 부서 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="deptId" class="col-form-label">부서</label>
+								</div>
+								<div class="col-auto">
+									<select class="form-select" id="parentDept">
+										<option selected value="">-- 상위 부서 --</option>
+										<option th:each="item : ${parent_dept_result}"
+											th:value="${item.id}" th:text="${item.text}"></option>
+									</select>
+								</div>
+								<div class="col-auto">
+									<select class="form-select" id="childDept">
+										<option selected value="">-- 하위 부서 --</option>
+									</select>
+								</div>
+							</div>
+
+							<!-- 직급  -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="grade" class="col-form-label">직급</label>
+								</div>
+								<div class="col-auto">
+									<select class="form-select" id="rank">
+										<option selected value="">-- 직급 구분 --</option>
+										<option th:each="item : ${rank_result}"
+											th:value="${item.code}" th:text="${item.codeNm}"
+											th:selected="${item.code == mberManageVO.rank}"></option>
+									</select>
+								</div>
+							</div>
+
+							<!-- 성별 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="sexdstnCode" class="col-form-label">성별</label>
+								</div>
+								<div class="col-auto">
+									<input type="text" class="form-control" id="sexdstnCode"
+										th:value="${mberManageVO.sexdstnCode}" readonly>
+								</div>
+							</div>
+
+							<!-- 전화번호 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label class="col-form-label">전화번호</label>
+								</div>
+								<div class="col-auto">
+									<input type="text" class="form-control" id="telno"
+										th:value="${mberManageVO.areaNo + '-' + mberManageVO.middleTelno + '-' + mberManageVO.endTelno }"
+										readonly>
+								</div>
+							</div>
+
+							<!-- 핸드폰번호 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="mobile" class="col-form-label">핸드폰</label>
+								</div>
+								<div class="col-auto">
+									<input type="text" class="form-control" id="moblphonNo"
+										th:value="${mberManageVO.moblphonNo}" readonly>
+								</div>
+							</div>
+
+							<!-- 이메일 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="mberEmailAdres" class="col-form-label">이메일</label>
+								</div>
+								<div class="col-auto">
+									<input type="email" id="mberEmailAdres" class="form-control"
+										th:value="${mberManageVO.mberEmailAdres}" readonly>
+								</div>
+							</div>
+
+							<!-- 우편번호 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="zip" class="col-form-label">우편번호</label>
+								</div>
+								<div class="col-2">
+									<input type="text" id="zip" class="form-control"
+										th:value="${mberManageVO.zip}" readonly>
+								</div>
+								<div class="col-auto"></div>
+							</div>
+
+							<!-- 주소 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="adres" class="col-form-label">주소</label>
+								</div>
+								<div class="col-6">
+									<input type="text" id="adres" class="form-control"
+										th:value="${mberManageVO.adres}" readonly>
+								</div>
+							</div>
+
+							<!-- 상세주소 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="detailAdres" class="col-form-label">상세주소</label>
+								</div>
+								<div class="col-9">
+									<input type="text" id="detailAdres" class="form-control"
+										th:value="${mberManageVO.detailAdres}" readonly>
+								</div>
+							</div>
+
+							<!-- 회원 가입 승인 여부 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="mberSttus" class="col-form-label">회원 가입 상태</label>
+								</div>
+								<div class="col-auto">
+									<select class="form-select" id="mberSttus">
+										<option selected value="">-- 상태 구분 --</option>
+										<option th:each="item : ${mberSttus_result}"
+											th:value="${item.code}" th:text="${item.codeNm}"
+											th:selected="${item.code == mberManageVO.mberSttus}"></option>
+									</select>
+								</div>
+							</div>
+
+							<!-- <input type="hidden" id="mberSttus" value="A"> -->
+
+							<!-- 권한  -->
+							<!-- <div class="row g-3 align-items-center mb-2">
+								<div class="col-2">
+									<label for="sexdstnCode" class="col-form-label">권한</label>
+								</div>
+								<div class="col-auto">
+									<select class="form-select" id="sexdstnCode">
+										<option selected value="">-- 권한 구분 --</option>
+										<option th:each="item : ${sexdstnCode_result}"
+											th:value="${item.code}" th:text="${item.codeNm}"></option>
+									</select>
+								</div>
+							</div> -->
+
+							<!-- 버튼 -->
+							<div class="d-flex justify-content-end">
+								<button class="btn btn-primary me-2" id="confirmModifyUser">수정</button>
+								<button class="btn btn-outline-secondary" id="cancelModifyUser">취소</button>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script th:inline="javascript">
+	let selectedParentDeptId = /*[[${mberManageVO.parentDeptId}]]*/ "";
+	let selectedDeptId = /*[[${mberManageVO.deptId}]]*/ "";
+	let parent_dept_result = /*[[${parent_dept_result}]]*/ "";
+	let childDeptList = /*[[${child_dept_result}]]*/ "";
+	
+		$('document').ready(function() {
+
+			console.log(selectedParentDeptId)
+			console.log(selectedDeptId)
+			console.log(parent_dept_result)
+			console.log(childDeptList)
+			
+			if (selectedParentDeptId) {
+				$('#parentDept').val(selectedParentDeptId);
+				
+				let childDept = $('#childDept');
+				childDept.html('');
+				
+			    childDept.empty().append('<option value="">-- 하위 부서 --</option>');
+
+			    const filtered = childDeptList.filter(d => d.parent == selectedParentDeptId);
+
+			    filtered.forEach(d => {
+			    	childDept.append(`<option value="${d.id}">${d.text}</option>`);
+			    });
+				
+				$('#childDept').val(selectedDeptId);
+			} else {
+				$('#parentDept').val(selectedDeptId);
+			}			
+			
+			$('#parentDept').on('change', function(event) {
+				
+			    const parentId = $(event.target).val();
+			    
+				let childDept = $('#childDept');
+				childDept.html('');
+				
+			    childDept.empty().append('<option value="">-- 하위 부서 --</option>');
+
+			    const filtered = childDeptList.filter(d => d.parent == parentId);
+
+
+			    filtered.forEach(d => {
+			    	childDept.append(`<option value="${d.id}">${d.text}</option>`);
+			    });
+							
+			});
+			
 		});
-	</script>
+		
+		function confirmModifyUser() {}
+		function cancelModifyUser() {}
+		
+		function userReg() {
+			let url = /*[[ @{/uat/uia/userReg.do} ]]*/ '';
+			$.ajax({
+				type: "POST",
+				url: url,
+				data: {
+					mberId : $('#mberId').val(),
+					mberNm : $('#mberNm').val(),
+					password : $('#password').val(),
+					passwordCnsr : $('#passwordCnsr').val(),
+					passwordHint : $('#passwordHint').val(),
+					mberEmailAdres : $('#mberEmailAdres').val(),
+					zip : $('#zip').val(),
+					adres : $('#adres').val(),
+					detailAdres : $('#detailAdres').val(),
+					areaNo : $('#areaNo').val(),
+					middleTelno : $('#middleTelno').val(),
+					endTelno : $('#endTelno').val(),
+					moblphonNo : getMoblphonNo(),
+					mberSttus : $('#mberSttus').val(),
+					sexdstnCode : $('#sexdstnCode').val(),
+					parentDeptId : $('#parentDept').val(),
+					deptId : $('#childDept').val(),
+				},
+				dataType: 'json',
+				timeout:(1000*30),
+				})
+				.done(function() {
+					Swal.fire({
+						icon : "success",
+						title : "회원 가입 요청이 완료되었습니다"
+					}).then(() => {
+						location.href = '/muscat/login/login.do';
+					})
+				  })
+				  .fail(function() {
+						Swal.fire({
+							icon : "error",
+							title : "오류가 발생했습니다"
+						})
+				  });
+		}		
+		
+		function isValidId(id) {
+			  const idRegex = /^[a-zA-Z0-9]{4,10}$/;
+			  return idRegex.test(id);
+			}
+		
+		function fn_id_check() {
+			  			  
+			  let url = /*[[ @{/uss/umt/EgovIdDplctCnfirmAjax.do} ]]*/ '';
 
+			  $.ajax({
+			    url: url,
+			    type: "POST",
+			    data: {
+					"checkId": idValue		
+				},
+				dataType:'json',
+				timeout:(1000*30),
+			    success: function (returnData, status) {
+			    	if (status == "success") {
+			    		if (returnData.usedCnt > 0 ) {
+			    			checkId = false;
+			    			availableId = false;
+					        idInput.removeClass("is-valid").addClass("is-invalid");
+					        idInput.nextAll(".invalid-feedback").first().text("이미 사용 중인 아이디입니다.");
+			    		} else {
+			    			checkId = true;
+			    			availableId = true;
+					        idInput.removeClass("is-invalid").addClass("is-valid");
+					        idInput.nextAll(".valid-feedback").first().text("사용 가능한 아이디입니다.");
+			    		}
+			    	}
+			    },
+			    error: function () {
+	    			checkId = false;
+	    			availableId = false;
+			      idInput.removeClass("is-valid").addClass("is-invalid");
+			      idInput.nextAll(".invalid-feedback").first().text("확인 중 오류가 발생했습니다.");
+			    }
+			  });
+		}
+		
+		function getMoblphonNo() {
+			return $('#mobileStart').val() + '-' + $('#mobileCenter').val() + '-' + $('#mobileEnd').val();
+		}
+		
+		function validateSignupForm() {
+			  const id = $("#mberId").val().trim();
+			  const name = $("#mberNm").val().trim();
+			  const pw = $("#password").val();
+			  const pwConfirm = $("#confirmPassword").val();
+			  const passwordHint = $("#passwordHint").val();
+			  const passwordCnsr = $("#passwordCnsr").val().trim();
+			  const sexdstnCode = $("#sexdstnCode").val();
+			  const areaNo = $("#areaNo").val();
+			  const middleTel = $("#middleTelno").val().trim();
+			  const endTel = $("#endTelno").val().trim();
+			  const mobileStart = $("#mobileStart").val();
+			  const mobileCenter = $("#mobileCenter").val().trim();
+			  const mobileEnd = $("#mobileEnd").val().trim();
+			  const email = $("#mberEmailAdres").val().trim();
+			  const zip = $("#zip").val();
+			  const adres = $("#adres").val();
+			  const detailAdres = $("#detailAdres").val();
+			  const deptId = $("#parentDept").val();
+
+			  // 공백 체크
+			  if (!id) return alert("아이디를 입력하세요.");
+			  if (!name) return alert("이름을 입력하세요.");
+			  if (!pw) return alert("비밀번호를 입력하세요.");
+			  if (!pwConfirm) return alert("비밀번호 확인을 입력하세요.");
+			  if (!passwordHint) return alert("비밀번호 힌트를 선택하세요.");
+			  if (!passwordCnsr) return alert("힌트 정답을 입력하세요.");
+			  if (!sexdstnCode) return alert("성별을 선택하세요.");
+			  if (!areaNo || !middleTel || !endTel) return alert("전화번호를 모두 입력하세요.");
+			  if (!mobileStart || !mobileCenter || !mobileEnd) return alert("휴대폰 번호를 모두 입력하세요.");
+			  if (!email) return alert("이메일을 입력하세요.");
+			  if (!zip || !adres || !detailAdres) return alert("주소를 모두 입력하세요.");
+			  if (!deptId) return alert("부서를 선택하세요.");
+			 
+			  // 비밀번호 유효성
+			  const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+=-]).{8,20}$/;
+			  //const pwRegex = /^(?=.*[A-Za-z])(?=.*\d).{4,10}$/;
+			  if (!pwRegex.test(pw)) return alert("비밀번호 양식이 일치하지 않습니다.");
+			  if (pw !== pwConfirm) return alert("비밀번호가 일치하지 않습니다.");
+
+			  // 전화번호 숫자만
+			  const phoneRegex = /^\d+$/;
+			  if (!phoneRegex.test(middleTel) || !phoneRegex.test(endTel)) return alert("전화번호는 숫자만 입력하세요.");
+			  if (!phoneRegex.test(mobileCenter) || !phoneRegex.test(mobileEnd)) return alert("휴대폰 번호는 숫자만 입력하세요.");
+
+			  // 이메일 유효성
+			  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+			  if (!emailRegex.test(email)) return alert("유효한 이메일 형식이 아닙니다.");
+
+			  // 모든 조건 통과
+			  return true;
+			}
+
+	</script>
 </main>
-</html>

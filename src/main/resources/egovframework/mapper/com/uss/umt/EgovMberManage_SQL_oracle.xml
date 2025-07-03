@@ -87,6 +87,7 @@ SELECT * FROM ( SELECT rownum rn, TB.* FROM (
                     MIDDLE_TELNO     ,
                     SBSCRB_DE        ,
                     CHG_PWD_LAST_PNTTM,
+                    PARENT_DEPT_ID,
                     DEPT_ID		)
               VALUES(
                     #{uniqId},
@@ -110,6 +111,7 @@ SELECT * FROM ( SELECT rownum rn, TB.* FROM (
                     #{middleTelno},
                     sysdate,
                     sysdate,
+                    #{parentDeptId},
                     #{deptId}  )
         
     </insert>
@@ -145,7 +147,10 @@ SELECT * FROM ( SELECT rownum rn, TB.* FROM (
                 MBER_EMAIL_ADRES mberEmailAdres,
                 MIDDLE_TELNO     middleTelno,
                 SBSCRB_DE        sbscrbDe,
-                LOCK_AT          lockAt
+                LOCK_AT          lockAt,
+                PARENT_DEPT_ID   parentDeptId,
+                DEPT_ID          deptId,
+                RANK             rank
             FROM COMTNGNRLMBER
             WHERE ESNTL_ID=#{uniqId}
         

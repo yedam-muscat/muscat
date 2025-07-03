@@ -26,6 +26,7 @@
 
 	<script th:inline="javascript">
 		let userListUrl = /*[[ @{/admin/user/userList.do} ]]*/ '';
+		let userDetailUrl = /*[[ @{/admin/user/userDetail.do} ]]*/ '';
 	</script>
 	<script>
     const pageSize = 10;
@@ -50,7 +51,7 @@
 	        const totalPages = Math.ceil(totalCount / pageSize);
 	        
 	        resultList.forEach(item => {
-	          tbody.append(`<tr>
+	          tbody.append(`<tr data-user-id="${item.uniqId}">
 	  	            <td>${item.userId}</td>
 	  	            <td>${item.userNm}</td>
 	  	            <td>${item.moblphonNo}</td>
@@ -58,6 +59,11 @@
 	  	            </tr>
 	  	          `);
 	        });
+	        
+	        tbody.on('click', 'tr', function () {
+	        	  const uniqId = $(this).data('user-id');
+	        	  window.location.href = `${userDetailUrl}?selectedId=${encodeURIComponent(uniqId)}`;
+	        	});
 
 	        //renderPagination(page, totalPages);
 		}).fail(function() {
