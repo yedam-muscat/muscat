@@ -44,13 +44,13 @@ public class ChattingServiceImpl implements ChattingService{
 	}
 
 	@Override
-	public String insertUsers(List<UserVO> usered, RoomVO room) {
+	public String insertUsers(RoomVO room) {
 		String rommId ="room";
 		room.setRoomId(rommId);
 		int rooms = heyroom.roomi(room);
 		
 		if(rooms > 0) {
-			for(UserVO user : usered) {
+			for(UserVO user : room.getUsered()) {
 				user.setRoomId(rommId);
 				heyroom.insertUser(user);
 			}

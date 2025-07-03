@@ -66,11 +66,11 @@ public class ChattingController {
     //사용자 등록
     @ResponseBody
     @RequestMapping("chat/insertUser.do")
-    public Map<String, String > insertuser (@RequestBody List<UserVO> usered, RoomVO room ){
+    public Map<String, String> insertuser (@RequestBody RoomVO room ){
     	Map<String, String > map = new HashMap<String, String>();
     	
     	
-    	map.put("result",chattingService.insertUsers(usered, room));
+    	map.put("result",chattingService.insertUsers(room));
     	
     	
     	return map;
