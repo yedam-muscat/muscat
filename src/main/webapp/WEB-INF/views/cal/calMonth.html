@@ -415,6 +415,7 @@
 	      },
 	      eventClick: function(info) {
 	    	  const event = info.event;
+	    	  console.log('클릭한 이벤트 ID:', event.id);
 	    	  $('#detailScheduleId').val(event.id);
 	    	  $('#detailTitle').text(event.title);
 	    	  $('#detailContent').text(event.extendedProps.content || '');
@@ -636,18 +637,18 @@
 		    cancelButtonText: '취소'
 		  }).then((result) => {
 		    if (result.isConfirmed) {
-		      $.ajax({
-		        url: 'http://localhost:8082/muscat/cal/deleteSchedule?schdulId=' + scheduleId,
-		        type: 'DELETE',
-		        success: function () {
-		          Swal.fire('삭제 완료', '일정이 삭제되었습니다.', 'success');
-		          calendar.refetchEvents();
-		          $('#eventDetailModal').modal('hide');
-		        },
-		        error: function () {
-		          Swal.fire('삭제 실패', '일정 삭제 중 오류가 발생했습니다.', 'error');
-		        }
-		      });
+		    	$.ajax({
+		    		  url: 'http://localhost:8082/muscat/cal/deleteSchedule?schdulId=' + scheduleId,
+		    		  type: 'DELETE',
+		    		  success: function () {
+		    		    Swal.fire('삭제 완료', '일정이 삭제되었습니다.', 'success');
+		    		    calendar.refetchEvents();
+		    		    $('#eventDetailModal').modal('hide');
+		    		  },
+		    		  error: function () {
+		    		    Swal.fire('삭제 실패', '일정 삭제 중 오류가 발생했습니다.', 'error');
+		    		  }
+		    		});
 		    }
 		  });
 		});
