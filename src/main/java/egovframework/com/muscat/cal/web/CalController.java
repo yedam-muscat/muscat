@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -136,15 +137,16 @@ public class CalController {
 //	public String getScheduleDetail(@RequestParam("scheduleId") String scheduleId, Model model) {
 //	    ScudVO schedule = calService.selectScheduleById(scheduleId);
 //	    model.addAttribute("schedule", schedule);
-//	    return "cal/calDetail";  // ← Thymeleaf 템플릿 이름
+//	    return "cal/calDetail";  
 //	}
 
-	@GetMapping("/cal/calDetail.do")
-	public String calDetail(@RequestParam(required = false) String scheduleId, Model model) {
+	@RequestMapping("cal/calDetail.do")
+	public String calDetail(String scheduleId, Model model) {
 
-		LOGGER.debug("scheduleId : " + scheduleId);
-		ScudVO schedule = calService.selectScheduleById(scheduleId);
-		model.addAttribute("schedule", schedule);
+		if (scheduleId != null) {
+			ScudVO schedule = calService.selectScheduleById(scheduleId);
+			model.addAttribute("schedule", schedule);
+		}
 		return "cal/calDetail.html";
 	}
 

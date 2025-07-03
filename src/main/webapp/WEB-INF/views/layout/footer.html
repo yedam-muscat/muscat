@@ -30,7 +30,14 @@
 	opacity: 0;
 	transform: translateY(20px);
 	transition: opacity 0.3s ease, transform 0.3s ease;
-	overflow: hidden;
+
+	/* ✅ 아래 5줄 추가로 리사이즈 가능하게 설정 */
+	resize: both;
+	overflow: auto;
+	min-width: 250px;
+	min-height: 300px;
+	max-width: 500px;
+	max-height: 700px;
 }
 
 #chatbot-modal.show {
@@ -87,6 +94,41 @@
 .chatbot-footer button:hover {
 	background-color: #0056b3;
 }
+/* 공통 스타일 */
+.message {
+  display: flex;
+  margin: 6px 0;
+}
+
+.message .bubble {
+  padding: 8px 12px;
+  border-radius: 15px;
+  max-width: 70%;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* 사용자 메시지: 오른쪽 */
+.message.user {
+  justify-content: flex-end;
+}
+
+.message.user .bubble {
+  background-color: #d1e7ff;
+  color: black;
+  border-bottom-right-radius: 0;
+}
+
+/* 챗봇 메시지: 왼쪽 */
+.message.bot {
+  justify-content: flex-start;
+}
+
+.message.bot .bubble {
+  background-color: #e9ecef;
+  color: black;
+  border-bottom-left-radius: 0;
+}
 
 </style>
 
@@ -100,7 +142,7 @@
 			<!-- 💬 모달 챗봇창 -->
 			<div id="chatbot-modal">
 
-				<div class="chatbot-header">하리봇</div>
+				<div class="chatbot-header">하리</div>
 				<div class="chatbot-body" id="chat-log"
 					style="flex: 1; padding: 10px; overflow-y: auto;"></div>
 
@@ -161,21 +203,20 @@
     	  const isBot = sender === '챗봇';
     	  div.className = isBot ? 'message bot' : 'message user';
 
-    	  div.innerHTML = `
-    	    <div class="bubble">
-    	      <strong>${sender}:</strong> ${message}
-    	    </div>
-    	  `;
 
+    	  // 줄바꿈 처리
+    	  const formatted = message.replace(/\n/g, "<br>");
+
+    	  div.innerHTML = `<div class="bubble"><strong>${sender}:</strong><br>${formatted}`;
     	  log.appendChild(div);
     	  log.scrollTop = log.scrollHeight;
     	}
-
+    
 
 
     function sendMessageToBot(msg) {
     	  $.ajax({
-    	    url: 'http://localhost:8080/chatbot/message',
+    	    url: 'http://localhost:8082/muscat/chatbot/chatbot/message.do',
     	    type: 'POST',
     	    contentType: 'application/json',
     	    data: JSON.stringify({ message: msg }),
@@ -189,20 +230,24 @@
     	  });
     	}
     
-    document.addEventListener('DOMContentLoaded', function () {
-    	  const icon = document.getElementById('chatbot-icon');
+    document.addEventListener('DOMContentLoaded', () => {
+    	  const icon  = document.getElementById('chatbot-icon');
     	  const modal = document.getElementById('chatbot-modal');
+    	  const input = document.getElementById('chat-input');
 
-    	  icon.addEventListener('click', function () {
-    	    if (modal.classList.contains('show')) {
-    	      // 닫기: fade-out 후 display: none 처리
+    	  icon.addEventListener('click', () => {
+    	    const isOpen = modal.classList.contains('show');
+
+    	    if (isOpen) {
+    	      /* 닫기 */
     	      modal.classList.remove('show');
-    	      setTimeout(() => { modal.style.display = 'none'; }, 300); // 트랜지션 시간과 맞춤
+    	      setTimeout(() => { modal.style.display = 'none'; }, 300);
     	    } else {
-    	      // 열기
-    	      modal.style.display = 'flex';
-    	      requestAnimationFrame(() => {
-    	        modal.classList.add('show');
+    	      /* 열기 */
+    	      modal.style.display = 'flex';          // 먼저 화면에 표시
+    	      requestAnimationFrame(() => {          // 다음 페인트 주기에…
+    	        modal.classList.add('show');         // 트랜지션 시작
+    	        input.focus();                       // 그리고 즉시 포커스!
     	      });
     	    }
     	  });

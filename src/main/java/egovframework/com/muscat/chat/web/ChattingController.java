@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import egovframework.com.cmm.LoginVO;
 import egovframework.com.muscat.chat.service.ChattingService;
 import egovframework.com.muscat.chat.service.MessageVO;
-import egovframework.com.muscat.chat.service.RoomVO;
 import egovframework.com.muscat.chat.service.UserVO;
 
 @Controller
@@ -50,33 +50,31 @@ public class ChattingController {
     //채팅방 등록
     @ResponseBody
     @RequestMapping("chat/insertroom.do")
-    public Map<String, String >yuyu(@RequestBody RoomVO toto ) {
-    	
-    	
-    	Map<String, String > map = new HashMap<String, String>();
-    	
-    	
-    	map.put("result",chattingService.insertRoom(toto) );
-    	
-    	
-    	
-    	return map;
+    public Map<String, String> insertRoom(@RequestBody List<String> users, HttpSession session) {
+        Map<String, String> resultMap = new HashMap<>();
+        LoginVO loginVO = (LoginVO) session.getAttribute("loginVO");
+        String roomId = chattingService.insertRoom(loginVO, users);
+        
+        resultMap.put("result", roomId != null ? "SUCCESS" : "FAIL");
+        resultMap.put("roomId", roomId);  // 클라이언트에 방 ID 제공
+        return resultMap;
     }
     
-    //사용자 등록
+    //사용자 등록(초대)
     @ResponseBody
     @RequestMapping("chat/insertUser.do")
-    public Map<String, String > insertuser (@RequestBody List<UserVO> usered, RoomVO room ){
+    public Map<String, String> insertuser (@RequestBody List<String> userList){
     	Map<String, String > map = new HashMap<String, String>();
     	
-    	
-    	map.put("result",chattingService.insertUsers(usered, room));
+    	String roomId ="";
+    	map.put("result",chattingService.insertUsers( roomId,userList));
     	
     	
     	return map;
   
     };
     
+    //메시지 등록
     @ResponseBody
     @RequestMapping("chat/insertMessage.do")
     public Map<String, String> insertMessage (@RequestBody MessageVO messaged){
@@ -91,5 +89,15 @@ public class ChattingController {
     	
     	return map;
     }
+    //채팅방 조회
+    @ResponseBody
+    @RequestMapping("chat/findroom.do")
+    public Map<String, Object> findroom (UserVO findroom){
     
+    	Map<String, Object> map = new HashMap<String, Object>();
+    	
+    	map.put("result",chattingService.findroom(findroom));
+    	return map;
+    }
+   
 }

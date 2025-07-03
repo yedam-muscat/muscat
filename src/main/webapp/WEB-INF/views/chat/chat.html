@@ -96,65 +96,80 @@
 	display: flex;
 	flex-direction: column;
 }
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 </style>
-
-
-
 	</head>
+	
 	<body>
-		<div id="chatContainer" style="display: flex; height: 80vh;">
-			<!-- 사이드바 -->
-			<div id="chatSidebar"
-				style="width: 250px; min-width: 150px; max-width: 600px; background-color: #f8f9fa; border-right: 1px solid #ddd; overflow-y: auto;">
-				<div class="p-3" style="background-color: #0d6efd; color: white;">
-					<h5>선택할 사람</h5>
-				</div>
-				<div class="p-2">
-					<div id="chatTree"></div>
-				</div>
-			</div>
-
-			<!-- 리사이저 -->
-			<div id="chatResizer"
-				style="width: 5px; cursor: col-resize; background: #ddd;"></div>
-
 			<!-- 그리드 시작 -->
 			<div id="gridContainer"
-				style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px; width: 100%; padding: 10px; box-sizing: border-box;">
+				style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px; width: 100%; padding: 10px; box-sizing: border-box; height: 100vh;">
 
-				<!--  채팅방 목록 패널 (왼쪽 열) -->
-				<div id="chatListPanel"
-					style="background-color: #f8f9fa; border: 1px solid #ccc; border-radius: 5px; overflow-y: auto;">
+			<!--  채팅방 목록 패널 (왼쪽 열) -->
+			<div id="chatListPanel"
+				style="background-color: #f8f9fa; border: 1px solid #ccc; border-radius: 5px; overflow-y: auto; height: 80%;">
 
-					<div
-						style="background-color: #0d6efd; color: white; padding: 10px; position: relative;">
-						<h5 style="margin: 0;">채팅방 목록</h5>
-
-					</div>
-
-	
-					<!-- 채팅방 리스트 (안 읽은 메시지 수 표시 포함) -->
-					<ul id="chatListPopupItems"
-						class="list-group list-group-flush mb-0">
-						<li
-							class="list-group-item chat-entry d-flex justify-content-between align-items-center"
-							data-user="아이유">아이유 <span class="badge bg-danger">3</span>
-						</li>
-						<li
-							class="list-group-item chat-entry d-flex justify-content-between align-items-center"
-							data-user="박보검">박보검 <span class="badge bg-danger">1</span>
-						</li>
-						<li
-							class="list-group-item chat-entry d-flex justify-content-between align-items-center"
-							data-user="김태리">김태리 <span class="badge bg-danger">0</span>
-						</li>
-					</ul>
-
+				<div class="d-flex justify-content-between align-items-center mb-2" style="background-color: #0d6efd; color: white; padding: 10px; position: relative;">
+					<h5 style="margin:0;">채팅방 목록</h5>
+					
+					<button id="openModalBtn" class="btn btn-primary btn-sm" style="color: #0d6efd;">➕</button>
 				</div>
 
-				<!-- 채팅방 -->
+				<!-- 채팅방 리스트 (안 읽은 메시지 수 표시 포함) -->
+				<!-- 채팅방 리스트 -->
+				<ul id="chatListPopupItems" class="list-group list-group-flush mb-0">
+					<li
+						class="list-group-item chat-entry d-flex justify-content-between align-items-center"
+						data-user="아이유">아이유 <span class="badge bg-danger">3</span>
+					</li>
+					<li
+						class="list-group-item chat-entry d-flex justify-content-between align-items-center"
+						data-user="박보검">박보검 <span class="badge bg-danger">1</span>
+					</li>
+					<li
+						class="list-group-item chat-entry d-flex justify-content-between align-items-center"
+						data-user="김태리">김태리 <span class="badge bg-danger">0</span>
+					</li>
+				</ul>
+
+			</div>
+			
+			<!-- 채팅방 생성 모달 -->
+			<div id="chatModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+			  background: rgba(0,0,0,0.5); z-index: 999; justify-content: center; align-items: center;">
+			  <div style="background: white; width: 500px; border-radius: 10px; overflow: hidden;">
+			    
+			    <!-- 모달 헤더 -->
+			    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: #f5f5f5;">
+			      <span style="font-weight: bold;">새 채팅 시작</span>
+			      <div>
+			        <button id="orgIcon">🏢</button>
+			        <button id="listIcon">📃</button>
+			        <button id="createChatBtn" style="margin-right: 5px;">확인</button> <!-- 추가된 버튼 -->
+			        <button onclick="closeModal()">❌</button>
+			      </div>
+			    </div>
+			
+			    <!-- 필터 인풋 -->
+			    <div style="padding: 10px 20px;">
+			      <input type="text" id="searchInput" placeholder="사원 이름 검색" style="width: 100%; padding: 8px;">
+			    </div>
+			
+			    <!-- 리스트 영역 -->
+			    <div id="userList" style="max-height: 300px; overflow-y: auto; padding: 0 20px 20px;">
+			      <!-- JS에서 동적으로 생성됨 -->
+			    </div>
+			  </div>
+			</div>
+
+			<!-- 채팅방 -->
 				<div id="gridChatRoom"
-					style="display: flex; background: #fff; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); flex-direction: column; height: 100%;">
+					style="display: flex; background: #fff; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); flex-direction: column; height: 80%;">
 
 					<div class="header"
 						style="background: #fff; color: black; padding: 10px; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center;">
@@ -258,7 +273,7 @@
 				</div>
 			</div>
 
-			<script>
+			<script th:inline = "javascript">
 			$(function() {
 			  $('#chatTree').jstree({
 			    'core': {
@@ -744,10 +759,10 @@ $("#gridSendMsg").on("click", function () {
 							  appendChatMessage(fromUser, text); // 내 메시지 호출
 							}
 							
-		 					//test
+		 					/* //test
 							receiveMessage("아이유", "안녕하세요 홍길동님!");
 							receiveMessage("박보검", "지금 회의 중이에요");
-							appendChatMessage(loginUser, "넵 확인했습니다!");
+							appendChatMessage(loginUser, "넵 확인했습니다!"); */
 	
 							//접속 인원 표시
 							let currentChatTarget = null; // 또는 원하는 상대 이름
@@ -769,6 +784,7 @@ $("#gridSendMsg").on("click", function () {
 								  const chatRoom = document.getElementById("chatRoom");
 								  const chatUserNameSpan = document.getElementById("chatUserName");
 								  const chatMessages = document.getElementById("chatMessages");
+								  const searchInput = document.getElementById("searchInput");
 
 								  chatUsers.forEach(function (user) {
 								    user.addEventListener("click", function () {
@@ -781,10 +797,10 @@ $("#gridSendMsg").on("click", function () {
 								      // 채팅방 열기
 								      chatRoom.style.display = "flex";
 
-								      // 이전 메시지 불러오기 (예: 서버에서 AJAX 요청)
+								      // 이전 메시지 불러오기 
 								      loadChatMessages(userId);
 
-								      // 현재 상대방 ID 기억 (전송시 사용)
+								      // 현재 상대방 ID 기억 
 								      chatRoom.dataset.chatWith = userId;
 								    });
 								  });
@@ -810,6 +826,101 @@ $("#gridSendMsg").on("click", function () {
 							    // const modal = new bootstrap.Modal(document.getElementById('selectUserModal'));
 							    // modal.show();
 							  });
+							const employees = ["아이유", "박보검", "김태리", "정해인", "장원영", "전지현"];
+							let selectedUsers = new Set();
+
+							function renderUserList(filter = "") {
+							  const listContainer = document.getElementById("userList");
+							  listContainer.innerHTML = "";
+
+							  employees
+							    .filter(name => name.includes(filter))
+							    .forEach(name => {
+							      const isSelected = selectedUsers.has(name);
+							      const div = document.createElement("div");
+							      div.style = "display: flex; justify-content: space-between; align-items: center; padding: 8px 0;";
+							      
+							      div.innerHTML = `
+							        <span>${name}</span>
+							        <div onclick="toggleUser('${name}')" style="
+							          width: 20px; height: 20px; border: 2px solid #007bff; border-radius: 50%;
+							          background: ${isSelected ? '#007bff' : 'transparent'};
+							          cursor: pointer;">
+							        </div>
+							      `;
+							      listContainer.appendChild(div);
+							    });
+							}
+
+							function toggleUser(name) {
+							  if (selectedUsers.has(name)) {
+							    selectedUsers.delete(name);
+							  } else {
+							    selectedUsers.add(name);
+							  }
+							  renderUserList(document.getElementById("searchInput").value);
+							}
+
+							function openModal() {
+							  document.getElementById("chatModal").style.display = "flex";
+							  renderUserList();
+							}
+
+							function closeModal() {
+							  document.getElementById("chatModal").style.display = "none";
+							}
+
+							// 이벤트 바인딩
+							document.getElementById("openModalBtn").addEventListener("click", openModal);
+							document.getElementById("searchInput").addEventListener("input", (e) => {
+							  renderUserList(e.target.value);
+							});
+
+							// 조직도 / 리스트 뷰 토글 버튼 (현재는 단순 alert)
+							document.getElementById("orgIcon").addEventListener("click", () => alert("조직도 보기"));
+							document.getElementById("listIcon").addEventListener("click", () => alert("리스트 보기"));
+							
+							
+							
+							document.getElementById("createChatBtn").addEventListener("click", function () {
+								  const userArray = Array.from(selectedUsers); // Set → Array로 변환
+
+								  if (userArray.length === 0) {
+								    alert("대화할 사용자를 선택하세요.");
+								    return;
+								  }
+								  
+								  userArray.push(/*[[${session.loginVO.id}]]*/'')
+
+								  fetch("/muscat/chat/insertroom.do", {
+								    method: "POST",
+								    headers: {
+								      "Content-Type": "application/json"
+								    },
+								    body: JSON.stringify(userArray)
+								  })
+								    .then(res => res.json())
+								    .then(data => {
+								      if (data.result === "SUCCESS") {
+								        alert("채팅방이 생성되었습니다.");
+								        closeModal();
+
+								        // 선택 초기화
+								        selectedUsers.clear();
+								        renderUserList();  // 선택 UI 초기화
+
+								        // 필요 시 채팅방으로 이동 or 새로고침
+								        // location.href = `/chat/room.do?roomId=${data.roomId}`;
+								      } else {
+								        alert("채팅방 생성 실패");
+								      }
+								    })
+								    .catch(error => {
+								      console.error("에러:", error);
+								      alert("서버 오류");
+								    });
+								});
+								</script>
 							
 
 
