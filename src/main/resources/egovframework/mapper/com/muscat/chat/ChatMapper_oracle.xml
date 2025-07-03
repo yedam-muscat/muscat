@@ -3,13 +3,21 @@
 <mapper
 	namespace="egovframework.com.muscat.chat.mapper.RoomMapper">
 	<!-- 조회 -->
-	
+	<select id="findroom" parameterType="UserVO" resultType="roomVO">
+	select *
+	from room r join users u on r.room_id = u.room_id
+	where user_id = #{userId} and status = 'Y'
+	</select>
 	
 	
 	<!-- 방등록 -->
 	<insert id="roomi" parameterType="roomVO">
-	insert into room (room_id, room_name, mg_date,room_pw)
- values (#{roomId}, #{roomName},#{mgDate},#{roomPw})
+	<selectKey keyProperty="roomId" resultType="String" order="BEFORE">
+			SELECT NVL(MAX(to_number(room_id)),0)+1 AS room_id  
+			FROM room
+		</selectKey>
+	insert into room (room_id, room_name, mg_date)
+ values (#{roomId}, #{roomName},sysdate)
 	</insert>
 	
 	<!-- 수정 -->
@@ -23,7 +31,7 @@
 	<!-- 사용자 등록 -->
 	<insert id="insertUser" parameterType="userVO">
 	insert into users (user_id, room_id, last_channel_info, status )
-	values (#{userId), #{roomId),null, 'Y') 
+	values (#{userId}, #{roomId},null, 'Y') 
 	</insert>
 	
 	

@@ -120,25 +120,60 @@
 		</div>
 	</div>
 	<!-- 조직도 카드 -->
-	<div id="employeeCard" class="card border border-secondary"
-		style="position: absolute; display: none; width: 250px; z-index: 1500;">
-		<div class="card-body">
-			<button type="button" class="btn btn-Light" style="float: right;"
-				onclick="hideCard()">X</button>
-			<h5 class="card-title" id="empName">사원명</h5>
-			<p class="card-text" id="empDetail">부서 / 직급</p>
-			<div>
-				<span id="empEmail">email@example.com</span>
-			</div>
-			<div class="d-flex justify-content-start gap-2 mb-2">
-				<i class="bi bi-calendar3"></i> 
-				<a href="/muscat/cal/calMonth.do" target="_blank">캘린더</a> 
-				<i class="sidebar-item"style="cursor: pointer;"></i> 
-				<a href="#"><i	class="bi bi-chat-dots"></i> <span 	id="sidebarMessengerBtn">메신저</span>
-				</a>
-			</div>
-		</div>
-	</div>
+<div id="employeeCard" class="card shadow"
+     style="display: none; position: absolute; width: 300px; z-index: 1500; animation: fadeSlideIn 0.3s ease-out; border-radius: 12px; background-color: #fff; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); font-family: 'Segoe UI', 'Pretendard', sans-serif;">
+
+  <div class="card-body p-3">
+    <button type="button" class="btn-close float-end" aria-label="Close" onclick="hideCard()"
+      style="font-size: 0.7rem;"></button>
+
+    <div class="d-flex align-items-center mb-3">
+      <img id="empPhoto" src="/images/default-profile.png"
+        style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid #dee2e6; background-color: #f8f9fa; object-fit: cover; margin-right: 12px;">
+      <div>
+        <h5 id="empName" style="margin-bottom: 0; font-size: 1.1rem; font-weight: bold; color: #007bff;">사원명</h5>
+        <div id="empDetail" style="font-size: 0.85rem; color: #6c757d;">부서 / 직급</div>
+        <div id="empPosition" style="font-size: 0.85rem; color: #6c757d;">직책</div>
+      </div>
+    </div>
+
+    <div class="mb-2" style="font-size: 0.85rem; color: #212529;">
+      <i class="bi bi-envelope" style="font-size: 1rem; color: #6c757d; margin-right: 6px;"></i>
+      <span id="empEmail">email@example.com</span>
+    </div>
+
+    <div class="mb-3" style="font-size: 0.85rem; color: #212529;">
+      <i class="bi bi-telephone" style="font-size: 1rem; color: #6c757d; margin-right: 6px;"></i>
+      <span id="empPhone">010-0000-0000</span>
+    </div>
+
+    <hr>
+
+    <div class="d-flex justify-content-start gap-3" style="font-size: 0.85rem;">
+      <a href="/muscat/cal/calMonth.do" target="_blank" style="text-decoration: none; color: #0dcaf0;">
+        <i class="bi bi-calendar3"></i> 캘린더
+      </a>
+      <a href="#" style="text-decoration: none; color: #198754;">
+        <i class="bi bi-chat-dots"></i> <span 	id="sidebarMessengerBtn">메신저</span>
+
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- 카드 애니메이션을 위한 키프레임 정의 (필수) -->
+<style>
+  @keyframes fadeSlideIn {
+    0% {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
 
 	<!-- 채팅방 목록 모달 -->
 	<div class="modal fade" id="chatListModal" tabindex="-1"
@@ -450,7 +485,7 @@
 				  .on("select_node.jstree", function (e, data) {
 				    console.log("선택된 노드:", data.node.original);
 				    if (data.node.type === "user") {
-				      showEmployeeCard(data.node);
+				      showEmployeeCard(data.node,e.event);
 				    } else {
 				      hideCard();
 				    }
@@ -460,22 +495,39 @@
 				}
 
 	
-		function showEmployeeCard(node) {
-			const card = document.getElementById('employeeCard');
-			document.getElementById('empName').innerText = node.text;
-			document.getElementById('empDetail').innerText = (node.data.dept || "")
-					+ " / " + (node.data.title || "");
-			document.getElementById('empEmail').innerText = node.data.email
-					|| "";
+			function showEmployeeCard(node, event) {
+				  const card = document.getElementById('employeeCard');
+				  const data = node.data || {};
 
-			// 모달 위치 + 옆에 카드 띄우기
-			const modal = document.querySelector('#staticBackdrop .modal-dialog');
-			const rect = modal.getBoundingClientRect();
+				  // 데이터 설정
+				  document.getElementById('empName').innerText = node.text || "";
+				  document.getElementById('empDetail').innerText = `${data.dept || ""} / ${data.title || ""}`;
+				  document.getElementById('empPosition').innerText = data.position || "";
+				  document.getElementById('empEmail').innerText = data.email || "-";
+				  document.getElementById('empPhone').innerText = data.phone || "-";
+				  document.getElementById('empPhoto').src = data.photoUrl || "/images/default-profile.png";
 
-			card.style.left = (rect.right + 10) + 'px';
-			card.style.top = (rect.top) + 'px';
-			card.style.display = 'block';
-		}
+				// 위치 계산
+				  let x = 100;
+				  let y = 100;
+
+				  if (event && event.pageX && event.pageY) {
+				    x = event.pageX + 10;
+				    y = event.pageY;
+				  } else {
+				    // fallback: 노드 위치 기준
+				   const treeNodeEl = document.querySelector(`#${CSS.escape(node.id)}`);
+				    if (treeNodeEl) {
+				      const rect = treeNodeEl.getBoundingClientRect();
+				      x = rect.right + 10 + window.scrollX;
+				      y = rect.top + window.scrollY;
+				    }
+				  }
+
+				  card.style.left = x + 'px';
+				  card.style.top = y + 'px';
+				  card.style.display = 'block';
+				}
 
 		function hideCard() {
 			document.getElementById('employeeCard').style.display = 'none';

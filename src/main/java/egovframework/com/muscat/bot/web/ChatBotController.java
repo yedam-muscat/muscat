@@ -1,5 +1,10 @@
 package egovframework.com.muscat.bot.web;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -11,6 +16,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 @CrossOrigin(origins = "*")
@@ -48,6 +56,11 @@ public class ChatBotController {
 	            return getKoreanTime();
 	        }
 	    }
+	    
+	    if (message.contains("날씨") || message.contains("서울 날씨")) {
+	        // 서울 = 대략 nx=60, ny=127
+	        return getWeather("60", "127");
+	    }
 
 	    // ✅ 3. 기본 응답
 	    return "무엇을 도와드릴까요?";
@@ -82,4 +95,60 @@ public class ChatBotController {
             sydney.format(fmt)
         );
     }
+    
+    //날씨
+    private String getWeather(String nx, String ny) {
+        String serviceKey = "zLzDOKLTH0MnOy%2FJvMhvAEg1nkrknsHN1qxM%2BolnBQqGf0Ode1qcka7A9PfgCO9UK8u4F%2By1PD1yntKEheP83Q%3D%3D"; // 인코딩된 키 사용
+        String baseDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String baseTime = "0800"; // 예: 오전 8시 기준
+
+        String apiUrl = String.format(
+            "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst" +
+            "?serviceKey=%s&numOfRows=10&pageNo=1&dataType=JSON&base_date=%s&base_time=%s&nx=%s&ny=%s",
+            serviceKey, baseDate, baseTime, nx, ny
+        );
+
+        try {
+            URL url = new URL(apiUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            BufferedReader br = new BufferedReader(
+                new InputStreamReader(conn.getInputStream(), "UTF-8")
+            );
+
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                response.append(line);
+            }
+            br.close();
+
+            // 응답 파싱 (기온, 강수량 등 추출)
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(response.toString());
+            JsonNode items = root.at("/response/body/items/item");
+
+            StringBuilder result = new StringBuilder("🌦️ 현재 날씨 정보\n");
+            for (JsonNode item : items) {
+                String category = item.get("category").asText();
+                String obsrValue = item.get("obsrValue").asText();
+
+                switch (category) {
+                    case "T1H": result.append("🌡️ 기온: ").append(obsrValue).append("℃\n"); break;
+                    case "RN1": result.append("☔ 1시간 강수량: ").append(obsrValue).append("mm\n"); break;
+                    case "REH": result.append("💧 습도: ").append(obsrValue).append("%\n"); break;
+                    case "WSD": result.append("💨 풍속: ").append(obsrValue).append("m/s\n"); break;
+                }
+            }
+
+            return result.toString().trim();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "⚠️ 날씨 정보를 불러오는 중 오류가 발생했어요.";
+        }
+    }
+
+    
 }
