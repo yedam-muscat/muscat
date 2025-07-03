@@ -202,6 +202,8 @@ public class BoardMasterController {
 			}
 
 			// 최종 수정자 ID 설정
+			// 로그인한 사용자 ID를 가져와서 LastUpdusrId 필드에 저장
+			// 나중에 "누가 수정했는지" DB에 남길 수 있음
 			boardMaster.setLastUpdusrId(user != null ? user.getUniqId() : "");
 
 			// 옵션값 비어있으면 기본값 처리
