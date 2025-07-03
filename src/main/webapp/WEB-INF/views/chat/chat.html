@@ -12,8 +12,6 @@
 <link
 	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
 	rel="stylesheet" />
-
-
 <style>
 /* 채팅방 스타일 */
 #chatRoom {
@@ -100,6 +98,8 @@
 }
 </style>
 
+
+
 	</head>
 	<body>
 		<div id="chatContainer" style="display: flex; height: 80vh;">
@@ -107,7 +107,7 @@
 			<div id="chatSidebar"
 				style="width: 250px; min-width: 150px; max-width: 600px; background-color: #f8f9fa; border-right: 1px solid #ddd; overflow-y: auto;">
 				<div class="p-3" style="background-color: #0d6efd; color: white;">
-					<h5>채팅방 목록</h5>
+					<h5>선택할 사람</h5>
 				</div>
 				<div class="p-2">
 					<div id="chatTree"></div>
@@ -130,64 +130,9 @@
 						style="background-color: #0d6efd; color: white; padding: 10px; position: relative;">
 						<h5 style="margin: 0;">채팅방 목록</h5>
 
-						<!-- 메신저 아이콘 -->
-						<i id="openMessenger" class="bi bi-chat-dots"
-							style="position: absolute; top: 10px; right: 10px; font-size: 1.5rem; cursor: pointer;"
-							title="새 채팅 시작"></i>
 					</div>
 
-					<!-- 모달 구조 -->
-					<div class="modal fade" id="selectUserModal" tabindex="-1"
-						aria-labelledby="selectUserLabel" aria-hidden="true">
-						<div class="modal-dialog modal-dialog-scrollable">
-							<div class="modal-content">
-
-								<div class="modal-header">
-									<h5 class="modal-title" id="selectUserLabel">대화상대 선택</h5>
-									<button type="button" class="btn-close" data-bs-dismiss="modal"
-										aria-label="닫기"></button>
-								</div>
-
-								<div class="modal-body p-3">
-									<input type="search" id="searchUserInput"
-										class="form-control mb-3" placeholder="이름으로 검색"
-										autocomplete="off">
-
-									<div id="userCount" class="mb-2 text-secondary small">친구
-										0</div>
-
-									<ul id="userList" class="list-group"
-										style="max-height: 300px; overflow-y: auto;">
-										<!-- JS로 여기 사용자 리스트 동적 생성 -->
-									</ul>
-								</div>
-
-								<div class="modal-footer d-flex justify-content-between">
-									<button type="button" class="btn btn-outline-secondary"
-										data-bs-dismiss="modal">취소</button>
-									<button type="button" class="btn btn-primary" id="nextBtn"
-										disabled>다음</button>
-								</div>
-
-							</div>
-						</div>
-					</div>
-
-
-					<!-- 대화 상대 추가 목록 -->
-					<div id="chatListPopup" class="card shadow"
-						style="display: none; position: absolute; top: 60px; right: 10px; min-width: 150px; z-index: 1000;">
-						<div class="p-2 border-bottom">
-							<input type="text" id="chatSearchInput"
-								class="form-control form-control-sm" placeholder="이름 검색">
-						</div>
-						<ul class="list-group list-group-flush mb-0">
-							<li class="list-group-item chat-entry" data-user="아이유">아이유</li>
-							<li class="list-group-item chat-entry" data-user="박보검">박보검</li>
-							<li class="list-group-item chat-entry" data-user="김태리">김태리</li>
-						</ul>
-					</div>
-
+	
 					<!-- 채팅방 리스트 (안 읽은 메시지 수 표시 포함) -->
 					<ul id="chatListPopupItems"
 						class="list-group list-group-flush mb-0">
@@ -318,12 +263,12 @@
 			  $('#chatTree').jstree({
 			    'core': {
 			      'data':{
-				        'url': '/muscat/group/userData.do',
+			    	  'url': '/muscat/group/userData.do',
 				        'dataType': 'json'
-				      },
-			    	'themes': {
-			        'responsive': false,
 			      },
+			    	'themes': {
+			        'responsive': false,			        
+			      },		
 			    },
 			    'types': {
 			      'default': { 'icon': 'bi bi-folder' },
@@ -379,6 +324,46 @@ $('#chatSearchInput').on('input', function () {
     $(this).toggle(name.includes(keyword));
   });
 });
+
+//리스트에서 행 클릭 시 채팅방 open
+ document.addEventListener('DOMContentLoaded', function () {
+    const chatList = document.getElementById('chatListPopupItems');
+
+    const chatRoom = document.getElementById('gridChatRoom');
+    const chatUserName = document.getElementById('gridChatUserName');
+    const chatInput = document.getElementById('gridChatInput');
+    const closeBtn = document.getElementById('closeGridChat');
+
+    // 채팅방 초기에는 숨겨진 상태로 설정 (선택)
+    chatRoom.style.display = 'none';
+
+    // 채팅방 리스트 클릭 이벤트
+    chatList.addEventListener('click', function (event) {
+      const clickedItem = event.target.closest('.chat-entry');
+      if (!clickedItem) return;
+
+      const userName = clickedItem.getAttribute('data-user');
+      openChatRoom(userName);
+    });
+
+    // 채팅방 열기 함수
+    function openChatRoom(userName) {
+      chatUserName.textContent = userName;         // 상단 사용자 이름 변경
+      chatRoom.style.display = 'flex';             // 채팅방 보이기
+      chatInput.disabled = false;
+      chatInput.focus();                           // 입력창 포커스
+      document.getElementById('gridSendMsg').disabled = false;
+
+      // TODO: 여기서 이전 채팅 메시지 불러오는 코드 추가 가능
+      // loadChatHistory(userName);
+    }
+
+    // 채팅방 닫기 버튼
+    closeBtn.addEventListener('click', function () {
+      chatRoom.style.display = 'none';
+    });
+  });
+
 
 // 대화 상대 선택
 $('#chatListPopup').on('click', '.chat-entry', function () {
@@ -779,66 +764,30 @@ $("#gridSendMsg").on("click", function () {
 							}); */
 							
 		
-							document.addEventListener("DOMContentLoaded", () => {
-							    const users = [
-							      { name: "아이유 ", avatar: "https://randomuser.me/api/portraits/men/10.jpg" },
-							      { name: "박보검 ", avatar: "" },
-							      { name: "송중기 ", avatar: "https://randomuser.me/api/portraits/men/20.jpg" },
-							      { name: "고윤정 ", avatar: "https://randomuser.me/api/portraits/men/30.jpg" },
-							      { name: "보영 ", avatar: "" }
-							      // 더 추가 가능
-							    ];
+							document.addEventListener("DOMContentLoaded", function () {
+								  const chatUsers = document.querySelectorAll(".chat-user");
+								  const chatRoom = document.getElementById("chatRoom");
+								  const chatUserNameSpan = document.getElementById("chatUserName");
+								  const chatMessages = document.getElementById("chatMessages");
 
-							    const userList = document.getElementById("userList");
-							    const searchInput = document.getElementById("searchUserInput");
-							    const userCount = document.getElementById("userCount");
-							    const nextBtn = document.getElementById("nextBtn");
+								  chatUsers.forEach(function (user) {
+								    user.addEventListener("click", function () {
+								      const userId = user.getAttribute("data-user-id");
+								      const userName = user.getAttribute("data-user-name");
 
-							    let selectedUser = null;
+								      // 채팅방 제목에 이름 표시
+								      chatUserNameSpan.textContent = userName;
 
-							    function renderList(filter = "") {
-							      userList.innerHTML = "";
-							      const filtered = users.filter(u => u.name.includes(filter));
-							      userCount.textContent = `친구 ${filtered.length}`;
+								      // 채팅방 열기
+								      chatRoom.style.display = "flex";
 
-							      filtered.forEach((user, index) => {
-							        const li = document.createElement("li");
-							        li.className = "list-group-item d-flex align-items-center";
+								      // 이전 메시지 불러오기 (예: 서버에서 AJAX 요청)
+								      loadChatMessages(userId);
 
-							        // 아바타 이미지 or 기본 아이콘
-							        const img = document.createElement("img");
-							        img.src = user.avatar || "https://cdn-icons-png.flaticon.com/512/149/149071.png"; // 기본 아이콘
-							        img.alt = user.name;
-							        img.style.width = "40px";
-							        img.style.height = "40px";
-							        img.style.borderRadius = "50%";
-							        img.style.objectFit = "cover";
-							        img.classList.add("me-3");
-
-							        // 이름
-							        const nameSpan = document.createElement("span");
-							        nameSpan.textContent = user.name;
-							        nameSpan.style.flexGrow = "1";
-
-							        // 라디오 버튼
-							        const radio = document.createElement("input");
-							        radio.type = "radio";
-							        radio.name = "selectUser";
-							        radio.value = index;
-							        radio.classList.add("form-check-input");
-
-							        radio.addEventListener("change", () => {
-							          selectedUser = user;
-							          nextBtn.disabled = false;
-							        });
-
-							        li.appendChild(img);
-							        li.appendChild(nameSpan);
-							        li.appendChild(radio);
-
-							        userList.appendChild(li);
-							      });
-							    }
+								      // 현재 상대방 ID 기억 (전송시 사용)
+								      chatRoom.dataset.chatWith = userId;
+								    });
+								  });
 
 							    searchInput.addEventListener("input", (e) => {
 							      renderList(e.target.value);

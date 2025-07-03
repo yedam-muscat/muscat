@@ -1,156 +1,143 @@
+<!-- /WEB-INF/views/board/articleList.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/layout}">
+
 <head>
   <meta charset="UTF-8">
   <title>게시글 목록</title>
 
-  <!-- Bootstrap & jQuery -->
+  <!-- 부트스트랩 & jQuery -->
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- 🔧 링크 스타일 제거 -->
+  <!-- 링크 기본 스타일 제거 -->
   <style>
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
-    a:hover {
-      text-decoration: none;
-      color: inherit;
-    }
+    a { color:inherit;text-decoration:none }
+    a:hover { text-decoration:underline }
+    /* 제목 셀 한 줄 유지(말줄임 옵션 주고 싶다면 ellipsis 적용) */
+    td.title-cell { white-space:nowrap; }
   </style>
 </head>
 
 <main layout:fragment="content" class="container mt-4">
-  <!-- 게시판 이름 동적 표시 -->
-  <h2 id="boardTitle">📄 게시글 목록</h2>
 
-  <!-- 상단 버튼 -->
+  <!-- 동적 게시판 이름 -->
+  <h2 id="boardTitle" class="fw-bold mb-3">📄 게시글 목록</h2>
+
+  <!-- 새글 버튼 -->
   <div class="mb-3">
-    <a id="regBtn" class="btn btn-primary">+ 새글쓰기</a>
+    <button id="regBtn" class="btn btn-primary">+ 새글쓰기</button>
   </div>
 
-  <!-- 게시글 목록 테이블 -->
-  <table class="table table-bordered">
-    <thead class="table-light">
+  <!-- 목록 테이블 -->
+  <table class="table table-bordered align-middle">
+    <thead class="table-light text-center">
       <tr>
-        <th>번호</th>
+        <th style="width:80px">번호</th>
         <th>제목</th>
-        <th>작성자</th>
-        <th>작성일</th>
-        <th>조회수</th>
+        <th style="width:120px">작성자</th>
+        <th style="width:120px">작성일</th>
+        <th style="width:90px">조회수</th>
       </tr>
     </thead>
-    <tbody id="articleBody">
-      <!-- 비동기 데이터 렌더링 -->
-    </tbody>
+    <tbody id="articleBody"></tbody>
   </table>
 
-  <!-- 페이징 영역 -->
-  <nav>
-    <ul class="pagination justify-content-center" id="pagination"></ul>
-  </nav>
+  <!-- 페이지네이션 -->
+  <nav><ul id="pagination" class="pagination justify-content-center"></ul></nav>
 
   <script>
+    /* ---------------- 변수 ---------------- */
     const pageSize = 10;
-    let currentPage = 1;
-    let bbsId = '';
+    let   bbsId    = '';
+    let   currentPage = 1;
 
-    // 게시글 목록 로딩
-    function loadArticleList(page = 1) {
+    /* ---------------- 리스트 호출 ---------------- */
+    function loadArticleList(page = 1){
       fetch(`/muscat/board/articleList?bbsId=${bbsId}&pageIndex=${page}&pageSize=${pageSize}`)
-        .then(res => res.json())
-        .then(data => {
-          const tbody = document.getElementById('articleBody');
-          tbody.innerHTML = '';
+        .then(r=>r.json())
+        .then(d=>{
+          const body = document.getElementById('articleBody');
+          body.innerHTML = '';
+          const list  = d.resultList || [];
+          const total = parseInt(d.resultCnt||0);
+          const totalPages = Math.ceil(total / pageSize);
+          currentPage = page;
 
-          const resultList = data.resultList || [];
-          const totalCount = parseInt(data.resultCnt || 0);
-          const totalPages = Math.ceil(totalCount / pageSize);
-
-          if (data.boardName) {
-            document.getElementById('boardTitle').innerText = `📄 ${data.boardName} 게시글 목록`;
+          /* 게시판 이름 표시(주석 필요 시) */
+          if(d.boardInfo?.bbsNm){
+            document.getElementById('boardTitle').textContent = '📄 '+d.boardInfo.bbsNm+' 게시글 목록';
           }
 
-          if (resultList.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center">게시글이 없습니다.</td></tr>';
-          } else {
-            resultList.forEach((row, idx) => {
+          /* 레코드가 없을 때 */
+          if(list.length===0){
+            body.innerHTML = '<tr><td colspan="5" class="text-center">게시글이 없습니다.</td></tr>';
+          }else{
+            list.forEach((row,idx)=>{
+              /* ① 답글 들여쓰기 & 아이콘 */
+              const depth   = Number(row.replyLc||0);          // 0,1,2…
+              const indent  = '&nbsp;'.repeat(depth*4);        // 4칸×깊이
+              const icon    = depth>0 ? '↳&nbsp;' : '';        // 화살표
+              const title   = `${indent}${icon}${row.nttSj}`;
+
+              /* ② TR 작성 */
               const tr = document.createElement('tr');
+              tr.className = 'text-center';
               tr.innerHTML = `
-                <td>${totalCount - ((page - 1) * pageSize) - idx}</td>
-                <td><a href="/muscat/board/articleDetail.do?nttId=${row.nttId}&bbsId=${bbsId}">${row.nttSj}</a></td>
-                <td>${row.frstRegisterNm || ''}</td>
-                <td>${row.frstRegisterPnttm?.slice(0, 10) || ''}</td>
-                <td>${(row.inqireCo || 0).toLocaleString()}</td>
-              `;
-              tbody.appendChild(tr);
+                <td>${total - ((page-1)*pageSize) - idx}</td>
+                <td class="text-start title-cell">
+                    <a href="/muscat/board/articleDetail.do?bbsId=${bbsId}&nttId=${row.nttId}">
+                      ${title}
+                    </a>
+                </td>
+                <td>${row.frstRegisterNm||''}</td>
+                <td>${(row.frstRegisterPnttm||'').slice(0,10)}</td>
+                <td>${(row.inqireCo||0).toLocaleString()}</td>`;
+              body.appendChild(tr);
             });
           }
-
-          renderPagination(page, totalPages);
+          renderPagination(totalPages);
         })
-        .catch(err => {
-          console.error('게시글 목록 로딩 실패:', err);
-          alert('게시글 목록을 불러오는 중 오류가 발생했습니다.');
-        });
+        .catch(()=>alert('목록 로딩 중 오류가 발생했습니다.'));
     }
 
-    // 페이징 UI 렌더링
-    function renderPagination(currentPage, totalPages) {
-      const paginationEl = document.getElementById('pagination');
-      paginationEl.innerHTML = '';
+    /* ---------------- 페이지네이션 ---------------- */
+    function renderPagination(totalPages){
+      const pagEl = document.getElementById('pagination');
+      pagEl.innerHTML = '';
 
-      const createPageItem = (label, page, isActive = false, isDisabled = false) => {
+      const addItem = (label,page,disabled=false,active=false)=>{
         const li = document.createElement('li');
-        li.className = `page-item ${isActive ? 'active' : ''} ${isDisabled ? 'disabled' : ''}`;
-        const a = document.createElement('a');
-        a.className = 'page-link';
-        a.href = '#';
-        a.textContent = label;
-        a.addEventListener('click', e => {
+        li.className = `page-item ${active?'active':''} ${disabled?'disabled':''}`;
+        li.innerHTML = `<a class="page-link" href="#">${label}</a>`;
+        li.querySelector('a').addEventListener('click',e=>{
           e.preventDefault();
-          if (!isDisabled && page !== currentPage) {
-            loadArticleList(page);
-          }
+          if(!disabled && !active) loadArticleList(page);
         });
-        li.appendChild(a);
-        return li;
+        pagEl.appendChild(li);
       };
 
-      // 이전 버튼
-      paginationEl.appendChild(createPageItem('«', currentPage - 1, false, currentPage === 1));
+      addItem('«', currentPage-1, currentPage===1);
 
-      // 번호 버튼
-      const maxButtons = 5;
-      let start = Math.max(1, currentPage - Math.floor(maxButtons / 2));
-      let end = Math.min(totalPages, start + maxButtons - 1);
-      if (end - start < maxButtons - 1) {
-        start = Math.max(1, end - maxButtons + 1);
-      }
+      const max = 5;
+      let start = Math.max(1, currentPage-Math.floor(max/2));
+      let end   = Math.min(totalPages, start+max-1);
+      if(end-start<max-1){ start = Math.max(1, end-max+1); }
 
-      for (let i = start; i <= end; i++) {
-        paginationEl.appendChild(createPageItem(i, i, i === currentPage));
-      }
+      for(let i=start;i<=end;i++){ addItem(i,i,false,currentPage===i); }
 
-      // 다음 버튼
-      paginationEl.appendChild(createPageItem('»', currentPage + 1, false, currentPage === totalPages));
+      addItem('»', currentPage+1, currentPage===totalPages);
     }
 
-    // 초기 로딩
-    document.addEventListener('DOMContentLoaded', () => {
+    /* ---------------- 초기화 ---------------- */
+    document.addEventListener('DOMContentLoaded',()=>{
       bbsId = new URLSearchParams(location.search).get('bbsId');
-      if (!bbsId) {
-        alert('게시판 ID(bbsId)가 필요합니다.');
-        location.href = '/muscat/board/masterList.do';
-        return;
-      }
+      if(!bbsId){ alert('bbsId 파라미터가 없습니다.'); return; }
 
-      document.querySelector('#regBtn').addEventListener('click', () => {
-        location.href = `/muscat/board/articleRegist.do?bbsId=${bbsId}`;
-      });
+      document.getElementById('regBtn')
+              .addEventListener('click',()=>location.href=`/muscat/board/articleRegist.do?bbsId=${bbsId}`);
 
       loadArticleList();
     });

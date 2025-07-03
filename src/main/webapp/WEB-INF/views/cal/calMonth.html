@@ -180,6 +180,73 @@
 			</div>
 		</div>
 	</div>
+
+	<!-- 공유 캘린더 등록 모달 -->
+	<div class="modal fade" id="calendarModalShared" tabindex="-1"
+		aria-labelledby="calendarModalSharedLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content p-3">
+				<div class="d-flex justify-content-between align-items-center mb-2">
+					<h5 class="modal-title">공유 캘린더 등록</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="닫기"></button>
+				</div>
+				<div>
+					<label class="form-label">캘린더 이름</label> <input type="text"
+						id="calendarSharedName" class="form-control mb-2"> <label
+						class="form-label">캘린더 색상</label> <input type="color"
+						id="calendarSharedColor"
+						class="form-control form-control-color mb-3" value="#1e90ff">
+
+					<label class="form-label">공유 대상 선택</label>
+					<div class="border p-2" style="height: 300px; overflow-y: auto;"
+						id="tree"></div>
+
+					<div class="mt-4 d-flex justify-content-end">
+						<button class="btn btn-secondary me-2" data-bs-dismiss="modal">취소</button>
+						<button class="btn btn-success" id="saveSharedCalendarBtn">등록</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 일정 상세 보기 모달 -->
+	<div class="modal fade" id="eventDetailModal" tabindex="-1"
+		aria-labelledby="eventDetailModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content p-3">
+				<div class="modal-header">
+					<h5 class="modal-title" id="eventDetailModalLabel">일정 상세 정보</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="닫기"></button>
+				</div>
+				<div class="modal-body">
+					<input type="hidden" id="detailScheduleId">
+					<p>
+						<strong>제목:</strong> <span id="detailTitle"></span>
+					</p>
+					<p>
+						<strong>내용:</strong> <span id="detailContent"></span>
+					</p>
+					<p>
+						<strong>장소:</strong> <span id="detailPlace"></span>
+					</p>
+					<p>
+						<strong>시작:</strong> <span id="detailStart"></span>
+					</p>
+					<p>
+						<strong>종료:</strong> <span id="detailEnd"></span>
+					</p>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-danger" id="deleteEventBtn">삭제</button>
+					<button class="btn btn-primary" id="editEventBtn">수정</button>
+					<button class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+				</div>
+			</div>
+		</div>
+	</div>
 	<script>
 	document.addEventListener('DOMContentLoaded', function () {
 		  let clickTimer = null;
@@ -246,6 +313,35 @@
     }
 
 	  loadCalendars();
+	  
+	  function initTree() {
+		  let originalGroupData = [];
+
+		  $('#tree').jstree('destroy'); // 트리 초기화
+
+		  $.getJSON('/muscat/group/userData.do', function(data) {
+		    originalGroupData = data;
+		  });
+
+		  $('#tree')
+		    .jstree({
+		      'core': {
+		        'data': {
+		          'url': '/muscat/group/userData.do',
+		          'dataType': 'json'
+		        },
+		        'themes': { 'responsive': false }
+		      },
+		      'types': {
+		        'default': { 'icon': 'bi bi-folder' },
+		        'user': { 'icon': 'bi bi-person' }
+		      },
+		      'plugins': ['types', 'checkbox'] 
+		    })
+		    .on('loaded.jstree', function () {
+		      $('#tree').jstree(true).open_all();
+		    });
+		}
 	  
 	  const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
 	      initialView: 'dayGridMonth',
@@ -316,7 +412,24 @@
 	          const toLocal = dt => dt.toISOString().slice(0, 16);
 	          window.location.href = `calDetail.do?start=${toLocal(start)}&end=${toLocal(end)}`;
 	        }
-	      }
+	      },
+	      eventClick: function(info) {
+	    	  const event = info.event;
+	    	  $('#detailScheduleId').val(event.id);
+	    	  $('#detailTitle').text(event.title);
+	    	  $('#detailContent').text(event.extendedProps.content || '');
+	    	  $('#detailPlace').text(event.extendedProps.place || '');
+
+	    	  const start = new Date(event.start);
+	    	  const end = new Date(event.end);
+	    	  const formatTime = dt => dt.toLocaleString('ko-KR', { hour12: false });
+
+	    	  $('#detailStart').text(formatTime(start));
+	    	  $('#detailEnd').text(formatTime(end));
+
+	    	  const eventDetailModal = new bootstrap.Modal(document.getElementById('eventDetailModal'));
+	    	  eventDetailModal.show();
+	    	}
 	    });
 
 	    calendar.render();
@@ -397,10 +510,10 @@
 
 	  // 공유 캘린더 추가 버튼 클릭
 	  $('#addSharedCalendar').on('click', function () {
-	    isAll = true;
-	    $('#calendarName').val('');
-	    $('#calendarColor').val('#1e90ff');
-	    calendarModal.show();
+  		$('#calendarSharedName').val('');
+  		$('#calendarSharedColor').val('#1e90ff');
+ 		$('#calendarModalShared').modal('show');
+  		initTree();  // 조직도 초기화
 	  });
 
 	  // 캘린더 저장 버튼 클릭
@@ -461,6 +574,89 @@
 	      }
 	    });
 	  });
+	  //공유캘린더
+	  $('#saveSharedCalendarBtn').on('click', function () {
+		  const name = $('#calendarSharedName').val().trim();
+		  const color = $('#calendarSharedColor').val();
+		  const selectedUsers = $('#tree').jstree(true).get_checked(true)
+		    .filter(node => node.original.type === 'user')
+		    .map(node => node.original.mber_id);
+
+		  if (!name || selectedUsers.length === 0) {
+		    Swal.fire({
+		      icon: 'warning',
+		      title: '입력 오류',
+		      text: '캘린더 이름과 공유 대상을 모두 입력하세요.'
+		    });
+		    return;
+		  }
+
+		  const newId = 'cal_' + Date.now().toString().slice(-6);
+
+		  const payload = {
+		    calId: newId,
+		    calName: name,
+		    color: color,
+		    ownerId: 'admin',
+		    sharedWith: selectedUsers  
+		  };
+
+		  $.ajax({
+		    type: 'POST',
+		    url: 'http://localhost:8082/muscat/cal/insertSharedCalendar', 
+		    contentType: 'application/json',
+		    data: JSON.stringify(payload),
+		    success: function () {
+		      $('#calendarModalShared').modal('hide');
+		      Swal.fire({
+		        icon: 'success',
+		        title: '공유 캘린더 등록 완료',
+		        text: '공유 캘린더가 성공적으로 등록되었습니다.'
+		      }).then(() => location.reload());
+		    },
+		    error: function () {
+		      Swal.fire({
+		        icon: 'error',
+		        title: '등록 실패',
+		        text: '공유 캘린더 등록 중 오류가 발생했습니다.'
+		      });
+		    }
+		  });
+		});
+	  //삭제
+	  $('#deleteEventBtn').on('click', function () {
+		  const scheduleId = $('#detailScheduleId').val();
+
+		  Swal.fire({
+		    title: '삭제하시겠습니까?',
+		    text: '이 일정을 삭제합니다.',
+		    icon: 'warning',
+		    showCancelButton: true,
+		    confirmButtonText: '삭제',
+		    cancelButtonText: '취소'
+		  }).then((result) => {
+		    if (result.isConfirmed) {
+		      $.ajax({
+		        url: 'http://localhost:8082/muscat/cal/deleteSchedule?schdulId=' + scheduleId,
+		        type: 'DELETE',
+		        success: function () {
+		          Swal.fire('삭제 완료', '일정이 삭제되었습니다.', 'success');
+		          calendar.refetchEvents();
+		          $('#eventDetailModal').modal('hide');
+		        },
+		        error: function () {
+		          Swal.fire('삭제 실패', '일정 삭제 중 오류가 발생했습니다.', 'error');
+		        }
+		      });
+		    }
+		  });
+		});
+
+		// 수정 버튼 클릭 시 calDetail.do 페이지로 이동
+		$('#editEventBtn').on('click', function () {
+		  const scheduleId = $('#detailScheduleId').val();
+		  window.location.href = 'calDetail.do?scheduleId=' + scheduleId;
+		});
 	});
 	</script>
 </main>

@@ -1,20 +1,29 @@
 package egovframework.com.muscat.chat.web;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import egovframework.com.muscat.chat.service.ChattingService;
+import egovframework.com.muscat.chat.service.MessageVO;
+import egovframework.com.muscat.chat.service.RoomVO;
+import egovframework.com.muscat.chat.service.UserVO;
 
 @Controller
 public class ChattingController {
 
     @Autowired
     private ChattingService chattingService;
-
+    
     // 메신저 메인 화면
     @RequestMapping("/chat/chat.do")
     public String chatMain(HttpSession session, ModelMap model) {
@@ -37,4 +46,50 @@ public class ChattingController {
 
         return "chat/chatPopup";  // /WEB-INF/jsp/chat/chatPopup.jsp
     }
+    
+    //채팅방 등록
+    @ResponseBody
+    @RequestMapping("chat/insertroom.do")
+    public Map<String, String >yuyu(@RequestBody RoomVO toto ) {
+    	
+    	
+    	Map<String, String > map = new HashMap<String, String>();
+    	
+    	
+    	map.put("result",chattingService.insertRoom(toto) );
+    	
+    	
+    	
+    	return map;
+    }
+    
+    //사용자 등록
+    @ResponseBody
+    @RequestMapping("chat/insertUser.do")
+    public Map<String, String > insertuser (@RequestBody List<UserVO> usered, RoomVO room ){
+    	Map<String, String > map = new HashMap<String, String>();
+    	
+    	
+    	map.put("result",chattingService.insertUsers(usered, room));
+    	
+    	
+    	return map;
+  
+    };
+    
+    @ResponseBody
+    @RequestMapping("chat/insertMessage.do")
+    public Map<String, String> insertMessage (@RequestBody MessageVO messaged){
+    	
+    	
+    	Map<String, String > map = new HashMap<String, String>();
+    	
+    	
+    	map.put("result",chattingService.insertMessage(messaged) );
+    	
+    	
+    	
+    	return map;
+    }
+    
 }
