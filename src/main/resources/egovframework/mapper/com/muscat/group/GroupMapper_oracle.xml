@@ -51,7 +51,7 @@
 		gu.job,
 		gu.mber_id as name,
 		gu.dept_id as dept ,
-		find_codename(rank) rank_nm
+		find_codename(rank, 'COM103') rank_nm
 		FROM COMTNGNRLMBER gu join vw_department v on v.id = gu.dept_id
 	</select>
 
