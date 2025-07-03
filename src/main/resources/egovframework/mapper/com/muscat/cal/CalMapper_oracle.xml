@@ -157,7 +157,7 @@
 	<delete id="deleteSchedule" parameterType="string">
 		DELETE FROM
 		COMTNLEADERSCHDUL
-		WHERE SCHDUL_ID = #{schdulId}
+		WHERE TRIM(SCHDUL_ID) = TRIM(#{schdulId})
 	</delete>
 
 	<select id="selectScheduleById" parameterType="string"
@@ -167,11 +167,13 @@
 		SCHDUL_NM AS schdulNm,
 		SCHDUL_CN AS schdulCn,
 		SCHDUL_PLACE AS schdulPlace,
-		SCHDUL_BGNDE AS schdulBgnde,
+		SCHDUL_BGNDE AS
+		schdulBgnde,
 		SCHDUL_ENDDE AS schdulEndde,
 		CAL_ID AS calId
-		FROM COMTNLEADERSCHDUL
-		WHERE SCHDUL_ID = #{schdulId}
+		FROM
+		COMTNLEADERSCHDUL
+		WHERE TRIM(SCHDUL_ID) = TRIM(#{schdulId})
 	</select>
 </mapper>
 

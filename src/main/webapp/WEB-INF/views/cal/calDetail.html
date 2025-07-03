@@ -63,27 +63,35 @@ textarea {
 				<div class="schedule-form">
 					<form id="scheduleForm" method="post" enctype="multipart/form-data">
 						<div class="compact-form">
-
+							<!-- 제목 -->
 							<div class="form-row">
-								<label for="title">제목</label> <input type="text" id="title"
+								<label for="title">제목</label> <input
+									th:value="${schedule != null ? schedule.schdulNm : ''}" type="text" id="title"
 									class="form-control" required>
 							</div>
 
-							<div class="form-row">
-								<div class="mb-3">
-									<label for="start">시작일</label> <input type="date" id="start"
-										class="form-control" required> <label for="startTime"
-										class="mt-2">시작시간</label> <input type="time" id="startTime"
-										class="form-control" required>
-								</div>
-								<div class="mb-3">
-									<label for="end">종료일</label> <input type="date" id="end"
-										class="form-control" required> <label for="endTime"
-										class="mt-2">종료시간</label> <input type="time" id="endTime"
-										class="form-control" required>
-								</div>
-							</div>
+							<!-- 시작일 -->
+							<input type="date" id="start" class="form-control"
+								th:value="${schedule != null ? schedule.schdulBgnde.substring(0,4) + '-' + schedule.schdulBgnde.substring(4,6) + '-' + schedule.schdulBgnde.substring(6,8) : ''}"
+								required />
 
+							<!-- 시작시간 -->
+							<input type="time" id="startTime" class="form-control"
+								th:value="${schedule != null ? schedule.schdulBgnde.substring(8,10) + ':' + schedule.schdulBgnde.substring(10,12) : ''}"
+								required />
+
+							<!-- 종료일 -->
+							<input type="date" id="end" class="form-control"
+								th:value="${schedule != null ? schedule.schdulEndde.substring(0,4) + '-' + schedule.schdulEndde.substring(4,6) + '-' + schedule.schdulEndde.substring(6,8) : ''}"
+								required />
+
+							<!-- 종료시간 -->
+							<input type="time" id="endTime" class="form-control"
+								th:value="${schedule != null ? schedule.schdulEndde.substring(8,10) + ':' + schedule.schdulEndde.substring(10,12) : ''}"
+								required />
+
+
+							<!-- 체크박스 -->
 							<div class="form-row">
 								<div class="form-check me-2">
 									<input class="form-check-input" type="checkbox" id="allDay">
@@ -99,6 +107,7 @@ textarea {
 								</div>
 							</div>
 
+							<!-- 참석자 -->
 							<div class="form-row">
 								<label for="participantInput">참석자</label> <input type="text"
 									id="participantInput" class="form-control"
@@ -109,34 +118,43 @@ textarea {
 
 							<div id="participantList" class="form-row"></div>
 
+							<!-- 장소 -->
 							<div class="form-row">
 								<label for="location">장소</label> <input type="text"
-									id="location" class="form-control">
+									id="location" class="form-control"
+									th:value="${schedule != null ? schedule.schdulPlace : ''}">
 							</div>
 
+							<!-- 캘린더 -->
 							<div class="form-row">
 								<label for="calendar">캘린더</label> <select id="calendar"
-									class="form-select">
+									class="form-select" th:value="${schedule != null ? schedule.calId : ''}">
 									<option value="">캘린더 선택</option>
 								</select>
 							</div>
 
+							<!-- 내용 -->
 							<div class="form-row">
 								<label for="description">내용</label>
-								<textarea id="description" class="form-control" rows="2"></textarea>
+								<textarea id="description" class="form-control" rows="2"
+									th:text="${schedule != null ? schedule.schdulCn : ''}"></textarea>
 							</div>
 
+							<!-- 장소 예약 -->
 							<div class="form-row">
 								<label for="room">장소 예약</label> <select id="room"
 									class="form-select">
+									<option value="">선택 안 함</option>
 								</select>
 							</div>
 
+							<!-- 첨부파일 -->
 							<div class="form-row">
 								<label for="file">첨부파일</label> <input type="file" id="file"
 									class="form-control">
 							</div>
 
+							<!-- 버튼 -->
 							<div class="form-row">
 								<button class="btn btn-success">등록</button>
 								<button type="button" class="btn btn-secondary"
@@ -151,7 +169,8 @@ textarea {
 			<div class="col-lg-6 d-none d-lg-block bg-light"></div>
 		</div>
 	</div>
-
+<script th:inline="javascript">
+</script>
 <script>
   function addParticipant() {
     const input = $('#participantInput');

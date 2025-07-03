@@ -1,5 +1,6 @@
 package egovframework.com.muscat.cal.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,9 +58,9 @@ public class CalServiceImpl implements CalService {
 	}
 
 	@Override
-	public int deleteSchedule(String schdulId) {
-	    return calMapper.deleteSchedule(schdulId);
-	}
+    public int deleteSchedule(String schdulId) {
+        return calMapper.deleteSchedule(schdulId);
+    }
 	
 	@Override
 	public ScudVO selectScheduleById(String schdulId) {
