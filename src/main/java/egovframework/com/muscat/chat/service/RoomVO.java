@@ -1,6 +1,7 @@
 package egovframework.com.muscat.chat.service;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 
@@ -10,5 +11,5 @@ private String roomId;
 private String roomName;
 private Date mgDate;
 private String roomPw;
-
+private List<UserVO> usered;
 }
