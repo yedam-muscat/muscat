@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import egovframework.com.cmm.LoginVO;
 import egovframework.com.muscat.chat.mapper.RoomMapper;
 import egovframework.com.muscat.chat.service.ChattingService;
 import egovframework.com.muscat.chat.service.MessageVO;
@@ -13,7 +14,7 @@ import egovframework.com.muscat.chat.service.UserVO;
 @Service
 public class ChattingServiceImpl implements ChattingService{
 
-	@Autowired RoomMapper heyroom;
+	@Autowired RoomMapper roomMapper;
 	
 	@Override
 	public String chat() {
@@ -34,39 +35,51 @@ public class ChattingServiceImpl implements ChattingService{
 	}
 
 	@Override
-	public String insertRoom(RoomVO droom) {		
-		int tomy = heyroom.roomi(droom); // db안에 있는 변화되는 행 갯수를 반환 해준다.
-		if (tomy > 0 ) {
+	public String insertRoom(LoginVO userman , List<String> userList) {
+		
+		RoomVO roomVO = new RoomVO();
+		
+		//방등록
+		String roomName = userman.getName() + ( userList.size() > 0 ?  "외 " + userList.size() + "명" : "" ) ;
+		roomVO.setRoomName(roomName); // roomname을 만들어준다.
+		int result = roomMapper.roomi(roomVO);  // db안에 있는 변화되는 행 갯수를 반환 해준다.
+		
+		//초대 한 사람 등록
+		insertUsers(roomVO.getRoomId(), userList);
+
+		if (result > 0 ) {
 			return "success";
 		}else {
 			return "false";
 		}
 	}
+	
 
+	//초대
 	@Override
-	public String insertUsers(RoomVO room) {
-		String rommId ="room";
-		room.setRoomId(rommId);
-		int rooms = heyroom.roomi(room);
-		
-		if(rooms > 0) {
-			for(UserVO user : room.getUsered()) {
-				user.setRoomId(rommId);
-				heyroom.insertUser(user);
-			}
-			
-
-			return "success";
-		}else {
-			
-			return "false";
-		}
+	public String insertUsers(String roomid, List<String> userList) {
+		   
+		UserVO userVO = new UserVO();
+		userVO.setRoomId(roomid);
+			  for(String user : userList) { 
+				  userVO.setUserId(user);
+				  roomMapper.insertUser(userVO); 
+		  
+			  }
+		  
+		  return "success"; 
 	}
 
 	@Override
 	public String insertMessage(MessageVO messaged) {
-		int insertmessage = heyroom.insertMessage(messaged);
+		int insertmessage = roomMapper.insertMessage(messaged);
 		return null;
+	}
+
+	@Override
+	public List<RoomVO> findroom(UserVO findroom) {
+		
+		return roomMapper.findroom(findroom);
 	}
 	
 

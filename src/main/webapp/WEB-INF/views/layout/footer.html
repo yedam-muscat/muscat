@@ -203,16 +203,15 @@
     	  const isBot = sender === '챗봇';
     	  div.className = isBot ? 'message bot' : 'message user';
 
-    	  div.innerHTML = `
-    	    <div class="bubble">
-    	      <strong>${sender}:</strong> ${message}
-    	    </div>
-    	  `;
 
+    	  // 줄바꿈 처리
+    	  const formatted = message.replace(/\n/g, "<br>");
+
+    	  div.innerHTML = `<div class="bubble"><strong>${sender}:</strong><br>${formatted}`;
     	  log.appendChild(div);
     	  log.scrollTop = log.scrollHeight;
     	}
-
+    
 
 
     function sendMessageToBot(msg) {
