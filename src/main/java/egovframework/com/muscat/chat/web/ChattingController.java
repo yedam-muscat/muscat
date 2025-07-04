@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import egovframework.com.cmm.LoginVO;
@@ -97,7 +98,18 @@ public class ChattingController {
     	Map<String, Object> map = new HashMap<String, Object>();
     	
     	map.put("result",chattingService.findroom(findroom));
+    	
+    	System.out.println("받은 userId: " + findroom.getUserId());
+    	System.out.println("채팅방 수: " + chattingService.findroom(findroom).size());
     	return map;
+    }
+    
+    //채팅방 인원 조회
+    
+    @ResponseBody
+    @RequestMapping("/chat/participants.do")
+    public List<String> getParticipants(@RequestParam String roomId) {
+        return chattingService.findParticipantsByRoomId(roomId);
     }
    
 }

@@ -16,4 +16,5 @@ public interface RoomMapper {
 	
 	List<RoomVO> findroom(UserVO findroom); // 채팅방 리스트 조회
 
+	List<String> findParticipantsByRoomId(String roomId); // 채팅방 인원 조회
 }

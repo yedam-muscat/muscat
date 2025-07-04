@@ -18,4 +18,6 @@ public interface ChattingService {
 	String insertMessage(MessageVO messaged); // 메시지 등록
 	
 	List<RoomVO> findroom(UserVO findroom); // 채팅방 리스트 조회 
+	
+	List<String> findParticipantsByRoomId(String roomId); // 채팅방 인원 조회
 }

@@ -119,24 +119,13 @@ html, body {
 					
 					<button id="openModalBtn" class="btn btn-primary btn-sm" style="color: #0d6efd;">➕</button>
 				</div>
-
-				<!-- 채팅방 리스트 (안 읽은 메시지 수 표시 포함) -->
-				<!-- 채팅방 리스트 -->
+				 <!--  로그인 사용자 ID를 JS에서 사용할 수 있도록 숨겨 둠 -->
+				<input type="hidden" id="sessionUserId" th:value="${session.loginVO.id}" />
+				
+				<!-- 채팅방 리스트 (JS가 동적으로 채움) -->
 				<ul id="chatListPopupItems" class="list-group list-group-flush mb-0">
-					<li
-						class="list-group-item chat-entry d-flex justify-content-between align-items-center"
-						data-user="아이유">아이유 <span class="badge bg-danger">3</span>
-					</li>
-					<li
-						class="list-group-item chat-entry d-flex justify-content-between align-items-center"
-						data-user="박보검">박보검 <span class="badge bg-danger">1</span>
-					</li>
-					<li
-						class="list-group-item chat-entry d-flex justify-content-between align-items-center"
-						data-user="김태리">김태리 <span class="badge bg-danger">0</span>
-					</li>
+					<!-- JavaScript에서 li가 여기에 추가됩니다 -->
 				</ul>
-
 			</div>
 			
 			<!-- 채팅방 생성 모달 -->
@@ -170,28 +159,72 @@ html, body {
 			<!-- 채팅방 -->
 				<div id="gridChatRoom"
 					style="display: flex; background: #fff; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); flex-direction: column; height: 80%;">
+				
+				<!-- 채팅방 제목 + 아이콘 묶음 + 버튼들 전체 -->
+<div style="
+  display: flex;
+  justify-content: space-between;  
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  padding: 10px;
+">
 
-					<div class="header"
-						style="background: #fff; color: black; padding: 10px; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center;">
-						<span id="gridChatUserName">채팅상대</span>
-						<div style="display: flex; align-items: center; gap: 5px;">
-							<span class="input-group-text"
-								style="padding: 0.375rem 0.75rem; background: transparent; border: none;">
-								<i id="gridAttachFileIcon" class="bi bi-paperclip"
-								style="cursor: pointer;" title="파일 첨부"></i>
-							</span>
+  <!-- 왼쪽: 제목 + 아이콘 -->
+  <div style="display: flex; align-items: center; gap: 6px;">
+    <span id="gridChatUserName">채팅방 제목</span>
 
-							<button class="btn btn-sm btn-primary" type="button"
-								id="gridOpenMemo">보고</button>
+    <!-- 👤 아이콘 -->
+    <div style="position: relative;">
+      <i id="chatUserListIcon" class="bi bi-people" style="cursor: pointer;" title="참여자 보기"></i>
 
+      <!-- 📌 말풍선 모달 -->
+      <div id="userListPopup" style="
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 200px;
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        padding: 10px;
+        z-index: 1000;
+      ">
+      <strong>참여자</strong>
+        <ul id="chatUserList"
+            style="list-style: none; margin: 0; padding: 10px; max-height: 240px; overflow-y: auto;">
+          <li>오세경 (나)</li>
+        </ul>
+        <div style="border-top: 1px solid #eee; padding: 10px; text-align: center;">
+          <button id="copyRoomUrlBtn"
+            style="background: none; border: none; font-size: 14px; color: #007bff; cursor: pointer;">
+            🔗 채팅방 URL 복사
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-							<button id="closeGridChat"
-								style="background: none; border: none; color: black; font-weight: bold; cursor: pointer;">X</button>
-							<input type="file" id="gridFileInput" style="display: none;">
-						</div>
-					</div>
+  <!-- 오른쪽: 첨부 아이콘, 버튼들 -->
+  <div style="display: flex; align-items: center; gap: 5px;">
+    <span class="input-group-text"
+          style="padding: 0.375rem 0.75rem; background: transparent; border: none;">
+      <i id="gridAttachFileIcon" class="bi bi-paperclip"
+         style="cursor: pointer;" title="파일 첨부"></i>
+    </span>
 
-					<div id="gridChatMessages"
+    <button class="btn btn-sm btn-primary" type="button" id="gridOpenMemo">보고</button>
+
+    <button id="closeGridChat"
+            style="background: none; border: none; color: black; font-weight: bold; cursor: pointer;">X</button>
+
+    <input type="file" id="gridFileInput" style="display: none;">
+  </div>
+</div>
+				<div id="gridChatMessages"
 						style="padding: 10px; flex-grow: 1; overflow-y: auto; background: #ACBCE3;">
 						<!-- 채팅 메시지 표시 영역 -->
 					</div>
@@ -274,6 +307,7 @@ html, body {
 			</div>
 
 			<script th:inline = "javascript">
+//-------------------------------------------------------tree 조직도-------------------------------------------------------		
 			$(function() {
 			  $('#chatTree').jstree({
 			    'core': {
@@ -340,14 +374,63 @@ $('#chatSearchInput').on('input', function () {
   });
 });
 
+//-------------------------------------------------------채팅 List-------------------------------------------------------
+const chatList = document.getElementById("chatListPopupItems");
+
+//채팅방 List불러오기
+ document.addEventListener("DOMContentLoaded", function () {
+      const sessionUserId = document.getElementById("sessionUserId").value;
+      console.log("로그인한 사용자 ID:", sessionUserId);
+
+      // fetch로 채팅방 불러오기
+      loadChatRooms(sessionUserId);
+    });
+
+    function loadChatRooms(userId) {
+      fetch('/muscat/chat/findroom.do?userId=' + userId	, {
+        method: "GET",
+      
+      })
+        .then(res => res.json())
+        .then(data => {
+          const chatList = document.getElementById("chatListPopupItems");
+          chatList.innerHTML = "";
+
+          data.result.forEach(room => {
+        	  const li = document.createElement("li");
+        	  li.className = "list-group-item chat-entry d-flex justify-content-between align-items-center";
+        	  li.setAttribute("data-room-id", room.roomId);
+        	  li.setAttribute("data-room-name", room.roomName); //  채팅방 제목 속성 추가
+        	  li.setAttribute("data-participants", JSON.stringify(room.participants || [])); // 반드시 필요!
+
+        	  const unreadCount = room.unreadCount || 0;
+
+        	  li.innerHTML = `
+        	    ${room.roomName}
+        	    <span class="badge bg-danger">${unreadCount}</span>
+        	  `;
+
+        	  chatList.appendChild(li);
+        	});
+        })
+        .catch(err => console.error("채팅방 불러오기 실패:", err));
+    }
+
+     function openChatRoom(roomId) {
+      console.log("채팅방 열기:", roomId);
+      // 여기에 채팅방 오픈 로직 구현
+    } 
+
 //리스트에서 행 클릭 시 채팅방 open
  document.addEventListener('DOMContentLoaded', function () {
     const chatList = document.getElementById('chatListPopupItems');
-
     const chatRoom = document.getElementById('gridChatRoom');
     const chatUserName = document.getElementById('gridChatUserName');
     const chatInput = document.getElementById('gridChatInput');
     const closeBtn = document.getElementById('closeGridChat');
+    const chatUserList = document.getElementById("chatUserList");
+    const chatUserListIcon = document.getElementById("chatUserListIcon");
+    const userListPopup = document.getElementById("userListPopup");
 
     // 채팅방 초기에는 숨겨진 상태로 설정 (선택)
     chatRoom.style.display = 'none';
@@ -357,27 +440,71 @@ $('#chatSearchInput').on('input', function () {
       const clickedItem = event.target.closest('.chat-entry');
       if (!clickedItem) return;
 
-      const userName = clickedItem.getAttribute('data-user');
+      /* const userName = clickedItem.getAttribute('data-user');
       openChatRoom(userName);
+       */
+      const roomName = clickedItem.getAttribute("data-room-name"); // ✅ 여기서 제목 가져옴
+      const participants = JSON.parse(clickedItem.getAttribute('data-participants') || "[]");
+      
+      console.log("클릭된 채팅방 이름:", roomName);
+      console.log("참여자 배열:", participants);
+
+      openChatRoom(roomName ,participants);
+    });
+    
+ // 👤 아이콘 클릭 → 팝업 토글
+     icon.addEventListener("click", function () {
+    popup.style.display = popup.style.display === "block" ? "none" : "block";
+  });
+
+    // 외부 클릭 시 닫기
+    document.addEventListener("click", function (e) {
+      if (!chatUserListIcon.contains(e.target) && !userListPopup.contains(e.target)) {
+        userListPopup.style.display = "none";
+      }
     });
 
     // 채팅방 열기 함수
-    function openChatRoom(userName) {
-      chatUserName.textContent = userName;         // 상단 사용자 이름 변경
+    function openChatRoom(roomName, participants =[]) {
+    	console.log("✅ 참여자 들어옴:", participants);  // ← 이거 찍어보세요
+      chatUserName.textContent = roomName;         // 상단 사용자 이름 변경
       chatRoom.style.display = 'flex';             // 채팅방 보이기
       chatInput.disabled = false;
       chatInput.focus();                           // 입력창 포커스
       document.getElementById('gridSendMsg').disabled = false;
+      
+   // 참여자 리스트 초기화 및 표시
+      chatUserList.innerHTML = "";
+      participants.forEach(name => {
+    	  
+        const li = document.createElement("li");
+        li.textContent = name;
+        chatUserList.appendChild(li);
+      });
+      // 이름 + (나) 라벨
+      const nameSpan = document.createElement("span");
+      nameSpan.textContent = user.name;
 
-      // TODO: 여기서 이전 채팅 메시지 불러오는 코드 추가 가능
-      // loadChatHistory(userName);
+      if (user.name === myUserId) {
+        const meLabel = document.createElement("span");
+        meLabel.textContent = "나";
+        meLabel.style.fontSize = "12px";
+        meLabel.style.color = "#888";
+        meLabel.style.marginLeft = "6px";
+        nameSpan.appendChild(meLabel);
+      }
+      li.appendChild(nameSpan);
+      chatUserList.appendChild(li);
+      
+      // 참여자 팝업 기본은 닫힌 상태
+      document.getElementById("userListPopup").style.display = "none";
     }
-
     // 채팅방 닫기 버튼
     closeBtn.addEventListener('click', function () {
       chatRoom.style.display = 'none';
     });
   });
+    
 
 
 // 대화 상대 선택
@@ -759,11 +886,7 @@ $("#gridSendMsg").on("click", function () {
 							  appendChatMessage(fromUser, text); // 내 메시지 호출
 							}
 							
-		 					/* //test
-							receiveMessage("아이유", "안녕하세요 홍길동님!");
-							receiveMessage("박보검", "지금 회의 중이에요");
-							appendChatMessage(loginUser, "넵 확인했습니다!"); */
-	
+		 				
 							//접속 인원 표시
 							let currentChatTarget = null; // 또는 원하는 상대 이름
 							let currentUserCount = 0;
@@ -881,7 +1004,7 @@ $("#gridSendMsg").on("click", function () {
 							document.getElementById("listIcon").addEventListener("click", () => alert("리스트 보기"));
 							
 							
-							
+							// 채팅방 생성
 							document.getElementById("createChatBtn").addEventListener("click", function () {
 								  const userArray = Array.from(selectedUsers); // Set → Array로 변환
 
@@ -921,6 +1044,24 @@ $("#gridSendMsg").on("click", function () {
 								    });
 								});
 							
+<<<<<<< HEAD
+							const chatUserListIcon = document.getElementById("chatUserListIcon");
+							const userListPopup = document.getElementById("userListPopup");
+
+							// 아이콘 클릭 시 팝업 열고 닫기 토글
+							chatUserListIcon.addEventListener("click", function () {
+							  const isVisible = userListPopup.style.display === "block";
+							  userListPopup.style.display = isVisible ? "none" : "block";
+							});
+
+							// 다른 곳 클릭 시 팝업 닫기
+							document.addEventListener("click", function (e) {
+							  if (!chatUserListIcon.contains(e.target) && !userListPopup.contains(e.target)) {
+							    userListPopup.style.display = "none";
+							  }
+							});
+							
+=======
 							// 채팅방 불러오기 
 							$(document).ready(function() {
 							    loadChatRooms();
@@ -977,6 +1118,7 @@ $("#gridSendMsg").on("click", function () {
 							
 
 
+>>>>>>> branch 'dev' of https://github.com/yedam-muscat/muscat.git
 								</script>
 							
 

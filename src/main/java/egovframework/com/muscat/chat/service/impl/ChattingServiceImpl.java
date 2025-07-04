@@ -81,6 +81,11 @@ public class ChattingServiceImpl implements ChattingService{
 		
 		return roomMapper.findroom(findroom);
 	}
+
+	 @Override
+	    public List<String> findParticipantsByRoomId(String roomId) {
+	        return roomMapper.findParticipantsByRoomId(roomId);
+	    }
 	
 
 }
