@@ -11,6 +11,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,12 +22,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 
+
+
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/chatbot")
 public class ChatBotController {
 
-	@PostMapping("/chatbot/message.do")
+	@PostMapping("/message.do")
 	public String handleMessage(@RequestBody Map<String, String> payload) {
 	    System.out.println("handleMessage 호출됨, 메시지: " + payload.get("message"));
 	    String message = payload.get("message");
@@ -56,15 +59,18 @@ public class ChatBotController {
 	            return getKoreanTime();
 	        }
 	    }
-	    
+	 // 3. 날씨 관련 메시지
 	    if (message.contains("날씨") || message.contains("서울 날씨")) {
 	        // 서울 = 대략 nx=60, ny=127
 	        return getWeather("60", "127");
 	    }
+	 
+	
 
 	    // ✅ 3. 기본 응답
 	    return "무엇을 도와드릴까요?";
 	}
+	
 
 
     private String getKoreanTime() {

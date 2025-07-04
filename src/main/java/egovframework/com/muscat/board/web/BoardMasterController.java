@@ -1,6 +1,8 @@
 package egovframework.com.muscat.board.web;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -17,8 +19,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springmodules.validation.commons.DefaultBeanValidator;
 
+import egovframework.com.cmm.ComDefaultCodeVO;
 import egovframework.com.cmm.EgovMessageSource;
 import egovframework.com.cmm.LoginVO;
+import egovframework.com.cmm.service.CmmnDetailCode;
 import egovframework.com.cmm.service.EgovCmmUseService;
 import egovframework.com.cmm.util.EgovUserDetailsHelper;
 import egovframework.com.cop.bbs.service.BoardMaster;
@@ -117,10 +121,10 @@ public class BoardMasterController {
 
 			// Blog 여부 보정
 			boardMaster.setBlogAt("Y".equals(boardMaster.getBlogAt()) ? "Y" : "N");
-			
+
 			// 실제 등록 서비스 호출
 			egovBBSMasterService.insertBBSMasterInf(boardMaster);
-			
+
 			// 성공 결과 응답 구성
 			resultMap.put("resultCode", "SUCCESS");
 			resultMap.put("resultMessage", "등록이 완료되었습니다.");
@@ -202,6 +206,8 @@ public class BoardMasterController {
 			}
 
 			// 최종 수정자 ID 설정
+			// 로그인한 사용자 ID를 가져와서 LastUpdusrId 필드에 저장
+			// 나중에 "누가 수정했는지" DB에 남길 수 있음
 			boardMaster.setLastUpdusrId(user != null ? user.getUniqId() : "");
 
 			// 옵션값 비어있으면 기본값 처리
@@ -217,6 +223,28 @@ public class BoardMasterController {
 			result.put("resultCode", "FAIL");
 			result.put("resultMessage", "오류 발생: " + e.getMessage());
 		}
+		return result;
+	}
+
+	/*
+	 * 공통코드 조회 API
+	 */
+	@GetMapping("/board/commonCodes")
+	@ResponseBody
+	public List<Map<String, String>> getCommonCodes(@RequestParam("groupCode") String groupCode) throws Exception {
+		ComDefaultCodeVO vo = new ComDefaultCodeVO();
+		vo.setCodeId(groupCode); // 예: "COM104"
+
+		List<CmmnDetailCode> codeList = cmmUseService.selectCmmCodeDetail(vo);
+
+		List<Map<String, String>> result = new ArrayList<>();
+		for (CmmnDetailCode code : codeList) {
+			Map<String, String> item = new HashMap<>();
+			item.put("code", code.getCode());
+			item.put("codeNm", code.getCodeNm());
+			result.add(item);
+		}
+
 		return result;
 	}
 }

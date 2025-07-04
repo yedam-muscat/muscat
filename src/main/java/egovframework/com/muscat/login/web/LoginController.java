@@ -190,8 +190,8 @@ public class LoginController {
 		Map<Boolean, List<GroupVO>> part = dept_result.stream().filter(d -> !d.getId().equals("1"))
 				.collect(Collectors.partitioningBy(d -> "#".equals(d.getParent())));
 
-		List<GroupVO> parent = part.get(true); // 20세 이상
-		List<GroupVO> child = part.get(false); // 20세 미만
+		List<GroupVO> parent = part.get(true);
+		List<GroupVO> child = part.get(false);
 
 		model.addAttribute("passwordHint_result", passwordHint_result); // 패스워트힌트목록
 		model.addAttribute("sexdstnCode_result", sexdstnCode_result); // 성별구분코드목록
@@ -212,6 +212,12 @@ public class LoginController {
 		if ("".equals(mberManageVO.getGroupId())) {// KISA 보안약점 조치 (2018-10-29, 윤창원)
 			mberManageVO.setGroupId(null);
 		}
+		
+		if (mberManageVO.getDeptId() == 0) {
+			mberManageVO.setDeptId(mberManageVO.getParentDeptId());
+			mberManageVO.setParentDeptId(0);
+		}
+		
 		mberManageService.insertMber(mberManageVO);
 
 		resultVO.setResultSuccess(true);

@@ -348,12 +348,6 @@
 				
 			    childDept.empty().append('<option value="">-- 하위 부서 --</option>');
 
-			    if (!parentId) {
-			    	childDept.prop('disabled', true);
-			    } else {
-			    	childDept.prop('disabled', false);
-			    }
-
 			    const filtered = childDeptList.filter(d => d.parent == parentId);
 
 
@@ -386,6 +380,7 @@
 					moblphonNo : getMoblphonNo(),
 					mberSttus : $('#mberSttus').val(),
 					sexdstnCode : $('#sexdstnCode').val(),
+					parentDeptId : $('#parentDept').val(),
 					deptId : $('#childDept').val(),
 				},
 				dataType: 'json',
@@ -531,7 +526,7 @@
 		}
 		
 		function getMoblphonNo() {
-			return $('#mobileStart').val() + $('#mobileCenter').val() + $('#mobileEnd').val();
+			return $('#mobileStart').val() + '-' + $('#mobileCenter').val() + '-' + $('#mobileEnd').val();
 		}
 		
 		function validateSignupForm() {
@@ -552,7 +547,7 @@
 			  const zip = $("#zip").val();
 			  const adres = $("#adres").val();
 			  const detailAdres = $("#detailAdres").val();
-			  const deptId = $("#childDept").val();
+			  const deptId = $("#parentDept").val();
 
 			  // 공백 체크
 			  if (!id) return alert("아이디를 입력하세요.");

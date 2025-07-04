@@ -1044,6 +1044,7 @@ $("#gridSendMsg").on("click", function () {
 								    });
 								});
 							
+<<<<<<< HEAD
 							const chatUserListIcon = document.getElementById("chatUserListIcon");
 							const userListPopup = document.getElementById("userListPopup");
 
@@ -1060,6 +1061,64 @@ $("#gridSendMsg").on("click", function () {
 							  }
 							});
 							
+=======
+							// 채팅방 불러오기 
+							$(document).ready(function() {
+							    loadChatRooms();
+
+							    function loadChatRooms() {
+							        $.ajax({
+							            url: '/chat/findroom.do',
+							            type: 'GET',
+							            dataType: 'json',
+							            success: function(res) {
+							                const roomList = res.result;
+							                const $chatList = $('#chatListPopupItems');
+							                $chatList.empty(); // 기존 항목 제거
+
+							                if (roomList.length === 0) {
+							                    $chatList.append('<li class="list-group-item">채팅방이 없습니다.</li>');
+							                    return;
+							                }
+
+							                roomList.forEach(room => {
+							                    const badge = room.unreadCount > 0 
+							                        ? `<span class="badge bg-danger">${room.unreadCount}</span>` 
+							                        : '';
+
+							                    const li = `
+							                        <li class="list-group-item chat-entry d-flex justify-content-between align-items-center"
+							                            data-room-id="${room.roomId}">
+							                            ${room.roomName}
+							                            ${badge}
+							                        </li>
+							                    `;
+							                    $chatList.append(li);
+							                });
+							            },
+							            error: function(err) {
+							                console.error('채팅방 목록 로딩 실패:', err);
+							            }
+							        });
+							    }
+							});
+							// ✅ 채팅방 열기 함수
+							function openChatRoom(roomId) {
+							    console.log("채팅방 열기:", roomId);
+
+							    // 예시: 채팅 메시지 불러오기
+							    $.ajax({
+							        url: `/chat/room/${roomId}/messages`, // <- 예시 API
+							        type: 'GET',
+							        success: function(messages) {
+							            renderMessages(messages);
+							        }
+							    });
+							}
+							
+
+
+>>>>>>> branch 'dev' of https://github.com/yedam-muscat/muscat.git
 								</script>
 							
 
