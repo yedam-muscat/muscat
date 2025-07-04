@@ -88,7 +88,8 @@ SELECT * FROM ( SELECT rownum rn, TB.* FROM (
                     SBSCRB_DE        ,
                     CHG_PWD_LAST_PNTTM,
                     PARENT_DEPT_ID,
-                    DEPT_ID		)
+                    DEPT_ID,
+                    RANK		)
               VALUES(
                     #{uniqId},
                     #{mberId},
@@ -112,7 +113,8 @@ SELECT * FROM ( SELECT rownum rn, TB.* FROM (
                     sysdate,
                     sysdate,
                     #{parentDeptId},
-                    #{deptId}  )
+                    #{deptId},
+                    #{rank}  )
         
     </insert>
     

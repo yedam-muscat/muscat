@@ -35,7 +35,7 @@ public class MberManageVO extends UserDefaultVO {
 	/**
 	 * 직책
 	 */
-	private int rank;
+	private String rank;
 
 	/** 이전비밀번호 - 비밀번호 변경시 사용 */
 	private String oldPassword = "";
@@ -547,11 +547,11 @@ public class MberManageVO extends UserDefaultVO {
 		this.parentDeptId = parentDeptId;
 	}
 
-	public int getRank() {
+	public String getRank() {
 		return rank;
 	}
 
-	public void setRank(int rank) {
+	public void setRank(String rank) {
 		this.rank = rank;
 	}
 

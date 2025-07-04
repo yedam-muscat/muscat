@@ -16,6 +16,8 @@ import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springmodules.validation.commons.DefaultBeanValidator;
@@ -24,6 +26,7 @@ import egovframework.com.cmm.ComDefaultCodeVO;
 import egovframework.com.cmm.service.CmmnDetailCode;
 import egovframework.com.cmm.service.EgovCmmUseService;
 import egovframework.com.cmm.util.EgovUserDetailsHelper;
+import egovframework.com.muscat.common.ResultVO;
 import egovframework.com.muscat.group.service.GroupService;
 import egovframework.com.muscat.group.service.GroupVO;
 import egovframework.com.uss.umt.service.EgovMberManageService;
@@ -170,4 +173,17 @@ public class AdminController {
 		return "admin/userDetail.html";
 	}
 
+	@PostMapping("/admin/user/modifyUser.do")
+	@ResponseBody
+	public ResultVO modifyUser(@RequestBody MberManageVO mberManageVO)
+			throws Exception {
+		
+		ResultVO result = new ResultVO();
+
+		
+		
+		
+		
+		return result;
+	}
 }

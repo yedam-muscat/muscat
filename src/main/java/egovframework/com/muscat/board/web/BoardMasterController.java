@@ -1,6 +1,7 @@
 package egovframework.com.muscat.board.web;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -10,6 +11,7 @@ import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,8 +19,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springmodules.validation.commons.DefaultBeanValidator;
 
+import egovframework.com.cmm.ComDefaultCodeVO;
 import egovframework.com.cmm.EgovMessageSource;
 import egovframework.com.cmm.LoginVO;
+import egovframework.com.cmm.service.CmmnDetailCode;
 import egovframework.com.cmm.service.EgovCmmUseService;
 import egovframework.com.cmm.util.EgovUserDetailsHelper;
 import egovframework.com.cop.bbs.service.BoardMaster;
@@ -89,7 +93,17 @@ public class BoardMasterController {
 	 * 게시판 등록 페이지
 	 */
 	@GetMapping("/board/masterRegist.do")
-	public String masterRegist() {
+	public String masterRegist(Model model) throws Exception {
+		
+		ComDefaultCodeVO vo = new ComDefaultCodeVO();
+		vo.setCodeId("COM104");
+		List<CmmnDetailCode> codeResult = cmmUseService.selectCmmCodeDetail(vo);
+		model.addAttribute("codeResult", codeResult);
+		
+		vo.setCodeId("COM105");
+		List<CmmnDetailCode> codeResult2 = cmmUseService.selectCmmCodeDetail(vo);
+		model.addAttribute("codeResult2", codeResult2);
+		
 		return "board/masterRegist.html";
 	}
 

@@ -184,10 +184,14 @@ public class LoginController {
 		comDefaultCodeVO.setTableNm("COMTNORGNZTINFO");
 		List<CmmnDetailCode> groupId_result = cmmUseService.selectGroupIdDetail(comDefaultCodeVO);
 
+		// 그룹정보를 조회 - GROUP_ID정보
+		comDefaultCodeVO.setCodeId("COM103");
+		List<CmmnDetailCode> rank_result = cmmUseService.selectCmmCodeDetail(comDefaultCodeVO);
+
 		// 부서정보 조회
 		List<GroupVO> dept_result = groupService.getGroupChartData();
 
-		Map<Boolean, List<GroupVO>> part = dept_result.stream().filter(d -> !d.getId().equals("1"))
+		Map<Boolean, List<GroupVO>> part = dept_result.stream()
 				.collect(Collectors.partitioningBy(d -> "#".equals(d.getParent())));
 
 		List<GroupVO> parent = part.get(true);
@@ -199,6 +203,7 @@ public class LoginController {
 		model.addAttribute("groupId_result", groupId_result); // 그룹정보 목록
 		model.addAttribute("parent_dept_result", parent);
 		model.addAttribute("child_dept_result", child);
+		model.addAttribute("rank_result", rank_result);
 
 		return "login/userReg.html";
 	}
@@ -212,12 +217,12 @@ public class LoginController {
 		if ("".equals(mberManageVO.getGroupId())) {// KISA 보안약점 조치 (2018-10-29, 윤창원)
 			mberManageVO.setGroupId(null);
 		}
-		
+
 		if (mberManageVO.getDeptId() == 0) {
 			mberManageVO.setDeptId(mberManageVO.getParentDeptId());
 			mberManageVO.setParentDeptId(0);
 		}
-		
+
 		mberManageService.insertMber(mberManageVO);
 
 		resultVO.setResultSuccess(true);
