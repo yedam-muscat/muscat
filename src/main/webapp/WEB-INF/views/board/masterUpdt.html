@@ -4,44 +4,46 @@
       layout:decorate="~{layout/layout}">
 <head>
   <meta charset="UTF-8">
-  <title>게시판 목록</title>
-
-  <!-- DataTables 스타일 및 JS -->
+  <title>게시판 수정</title>
   <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
-  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-  <script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <main layout:fragment="content" class="container mt-4">
   <h2>🛠 게시판 수정</h2>
 
   <form id="editForm">
-    <input type="hidden" name="bbsId" id="bbsId">
-    <input type="hidden" name="replyPosblAt" id="replyPosblAt">
+    <input type="hidden" id="bbsId" name="bbsId">
+    <input type="hidden" id="replyPosblAt" name="replyPosblAt">
+    <input type="hidden" id="bbsTyCode" name="bbsTyCode" value="BBST01">
 
     <div class="mb-3">
       <label for="bbsNm" class="form-label">게시판명</label>
-      <input type="text" class="form-control" id="bbsNm" name="bbsNm" required>
+      <input type="text" id="bbsNm" name="bbsNm" class="form-control" required>
     </div>
 
     <div class="mb-3">
       <label for="bbsIntrcn" class="form-label">게시판 소개</label>
-      <textarea class="form-control" id="bbsIntrcn" name="bbsIntrcn" rows="3" required></textarea>
+      <textarea id="bbsIntrcn" name="bbsIntrcn" class="form-control" rows="3" required></textarea>
     </div>
 
     <div class="mb-3">
-      <label for="bbsTyCode" class="form-label">게시판 유형</label>
-      <select class="form-select" id="bbsTyCode" name="bbsTyCode" required onchange="handleBoardTypeChange()">
+      <label for="categoryMain" class="form-label">게시판 카테고리</label>
+      <select id="categoryMain" name="categoryMain" class="form-select" required>
         <option value="">-- 선택하세요 --</option>
-        <option value="BBST01">공지사항게시판</option>
-        <option value="BBST02">전사게시판</option>
-        <option value="BBST03">부서게시판</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="categoryScope" class="form-label">게시판 구분</label>
+      <select id="categoryScope" name="categoryScope" class="form-select" required>
+        <option value="">-- 선택하세요 --</option>
       </select>
     </div>
 
     <div class="mb-3">
       <label for="fileAtchPosblAt" class="form-label">파일첨부 가능</label>
-      <select class="form-select" id="fileAtchPosblAt" name="fileAtchPosblAt" required onchange="handleFileAttachChange()">
+      <select id="fileAtchPosblAt" name="fileAtchPosblAt" class="form-select" required>
         <option value="">-- 선택하세요 --</option>
         <option value="Y">예</option>
         <option value="N">아니오</option>
@@ -50,7 +52,7 @@
 
     <div class="mb-3">
       <label for="atchPosblFileNumber" class="form-label">첨부 가능 파일 수</label>
-      <select class="form-select" id="atchPosblFileNumber" name="atchPosblFileNumber" required>
+      <select id="atchPosblFileNumber" name="atchPosblFileNumber" class="form-select" required>
         <option value="0">없음</option>
         <option value="1">1개</option>
         <option value="2">2개</option>
@@ -60,17 +62,17 @@
 
     <div class="mb-3">
       <label for="option" class="form-label">추가 선택사항</label>
-      <select class="form-select" id="option" name="option" disabled>
+      <select id="option" name="option" class="form-select" disabled>
         <option value="">-- 선택 안 함 --</option>
         <option value="comment">댓글</option>
         <option value="stsfdg">만족도조사</option>
       </select>
-      <div class="form-text text-muted">※ 추가 선택사항은 수정 불가 (초기 미설정 게시판만 설정 가능)</div>
+      <div class="form-text text-muted">※ 옵션은 최초 설정만 가능</div>
     </div>
 
     <div class="mb-3">
       <label for="useAt" class="form-label">사용여부</label>
-      <select class="form-select" id="useAt" name="useAt" required>
+      <select id="useAt" name="useAt" class="form-select" required>
         <option value="">-- 선택하세요 --</option>
         <option value="Y">예</option>
         <option value="N">아니오</option>
@@ -82,81 +84,100 @@
   </form>
 
   <script>
-    const bbsId = new URLSearchParams(location.search).get('bbsId');
+    const bbsId = new URLSearchParams(location.search).get("bbsId");
 
-    if (!bbsId) {
-      Swal.fire("오류", "bbsId가 없습니다.", "error");
+    async function loadCommonCodes(groupCode, selectId, selected = "") {
+      try {
+        const res = await fetch(`/muscat/board/commonCodes?groupCode=${groupCode}`);
+        const codes = await res.json();
+        const select = document.getElementById(selectId);
+        codes.forEach(({ code, codeNm }) => {
+          const opt = document.createElement("option");
+          opt.value = code;
+          opt.textContent = codeNm;
+          if (code === selected) opt.selected = true;
+          select.appendChild(opt);
+        });
+      } catch (e) {
+        console.error(`${groupCode} 공통코드 로딩 실패`, e);
+      }
     }
 
-    // 페이지 로딩 시 상세 데이터 불러오기
-    fetch(`/muscat/board/masterDetail?bbsId=${bbsId}`)
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("bbsId").value = data.bbsId;
-        document.getElementById("bbsNm").value = data.bbsNm;
-        document.getElementById("bbsIntrcn").value = data.bbsIntrcn;
-        document.getElementById("bbsTyCode").value = data.bbsTyCode;
-        document.getElementById("replyPosblAt").value = data.replyPosblAt;
-        document.getElementById("fileAtchPosblAt").value = data.fileAtchPosblAt;
-        document.getElementById("atchPosblFileNumber").value = data.atchPosblFileNumber;
-        document.getElementById("option").value = data.option || "";
-        document.getElementById("useAt").value = data.useAt;
-
-        if (data.option !== "na") {
-          document.getElementById("option").disabled = true;
-        }
-
-        handleBoardTypeChange();
-        handleFileAttachChange();
-      });
-
-    // 게시판 유형이 방명록이면 자동 설정
-    function handleBoardTypeChange() {
+    function applyRules() {
       const type = document.getElementById("bbsTyCode").value;
       const reply = document.getElementById("replyPosblAt");
       const file = document.getElementById("fileAtchPosblAt");
-      const count = document.getElementById("atchPosblFileNumber");
+      const cnt = document.getElementById("atchPosblFileNumber");
 
-      if (type === 'BBST03') {
+      if (type === "BBST03") {
         reply.value = "N";
         file.value = "N";
-        count.value = "0";
+        cnt.value = "0";
         file.disabled = true;
-        count.disabled = true;
+        cnt.disabled = true;
       } else {
         file.disabled = false;
-        count.disabled = false;
+        cnt.disabled = (file.value === "N");
       }
     }
 
-    // 파일 첨부 가능 여부에 따라 파일 수 활성화
-    function handleFileAttachChange() {
-      const fileAtch = document.getElementById("fileAtchPosblAt").value;
-      const count = document.getElementById("atchPosblFileNumber");
-      count.disabled = (fileAtch === "N");
-    }
-
-    // 수정 제출
-    document.getElementById("editForm").addEventListener("submit", async function (e) {
-      e.preventDefault();
-
-      const formData = new FormData(this);
-      const obj = Object.fromEntries(formData.entries());
-
-      const res = await fetch("/muscat/board/masterUpdt", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(obj)
+    document.getElementById("fileAtchPosblAt")
+      .addEventListener("change", () => {
+        document.getElementById("atchPosblFileNumber").disabled =
+          (document.getElementById("fileAtchPosblAt").value === "N");
       });
 
-      const result = await res.json();
-      if (result.resultCode === "SUCCESS") {
-        await Swal.fire("수정 완료", result.resultMessage, "success");
-        location.href = "/muscat/board/masterList.do";
-      } else {
-        Swal.fire("실패", result.resultMessage, "error");
+    async function loadDetail() {
+      try {
+        if (!bbsId) {
+          await Swal.fire("오류", "bbsId 파라미터가 없습니다.", "error");
+          return;
+        }
+
+        const detail = await (await fetch(`/muscat/board/masterDetail?bbsId=${bbsId}`)).json();
+
+        [
+          "bbsId", "bbsNm", "bbsIntrcn", "bbsTyCode",
+          "replyPosblAt", "fileAtchPosblAt", "atchPosblFileNumber",
+          "option", "useAt"
+        ].forEach(k => detail[k] !== undefined && (document.getElementById(k).value = detail[k]));
+
+        await loadCommonCodes("COM104", "categoryMain", detail.categoryMain);
+        await loadCommonCodes("COM105", "categoryScope", detail.categoryScope);
+
+        if (detail.option) document.getElementById("option").disabled = true;
+
+        applyRules();
+      } catch (err) {
+        console.error("상세 조회 실패", err);
+        Swal.fire("오류", "게시판 정보를 불러오지 못했습니다.", "error");
+      }
+    }
+
+    document.getElementById("editForm").addEventListener("submit", async evt => {
+      evt.preventDefault();
+      const obj = Object.fromEntries(new FormData(evt.target).entries());
+
+      try {
+        const res = await fetch("/muscat/board/masterUpdt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(obj)
+        });
+        const result = await res.json();
+
+        if (result.resultCode === "SUCCESS") {
+          await Swal.fire("수정 완료", result.resultMessage, "success");
+          location.href = "/muscat/board/masterList.do";
+        } else {
+          Swal.fire("실패", result.resultMessage || "수정 실패", "error");
+        }
+      } catch (err) {
+        Swal.fire("오류", "서버 오류 발생", "error");
       }
     });
+
+    window.addEventListener("DOMContentLoaded", loadDetail);
   </script>
 </main>
 </html>
