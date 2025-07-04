@@ -1,71 +1,88 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{layout/layout}">
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}">
 
 <head>
-<meta charset="UTF-8">
-<title>게시판 상세조회</title>
-<link rel="stylesheet"
-	href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
-<script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
+  <meta charset="UTF-8">
+  <title>게시판 상세조회</title>
+
+  <!-- DataTables가 이미 쓰이고 있다면 CSS만 유지 -->
+  <link rel="stylesheet"
+        href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
+  <!-- SweetAlert2(알림창) -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
 </head>
 
 <main layout:fragment="content">
-	<h2>게시판 상세조회</h2>
+  <h2>🔎 게시판 상세조회</h2>
 
-	<!-- 상세 테이블 -->
-	<table class="table table-bordered">
-		<tbody>
-			<tr>
-				<th>게시판명</th>
-				<td id="bbsNm"></td>
-				<th>게시판 유형</th>
-				<td id="bbsTyCodeNm"></td>
-			</tr>
-			<tr>
-				<th>등록자</th>
-				<td id="frstRegisterNm"></td>
-				<th>등록일</th>
-				<td id="frstRegisterPnttm"></td>
-			</tr>
-			<tr>
-				<th>사용 여부</th>
-				<td id="useAt"></td>
-				<th>답장 가능</th>
-				<td id="replyPosblAt"></td>
-			</tr>
-			<tr>
-				<th>파일첨부 가능</th>
-				<td id="fileAtchPosblAt"></td>
-				<th>첨부가능파일수</th>
-				<td id="atchPosblFileNumber"></td>
-			</tr>
-			<tr>
-				<th>게시판 소개</th>
-				<td colspan="3" id="bbsIntrcn"></td>
-			</tr>
-			<tr>
-				<th>추가 선택사항</th>
-				<td colspan="3" id="option"></td>
-			</tr>
-			<tr>
-				<th>게시판 주소</th>
-				<td colspan="3"><a id="bbsUrl" href="#"
-					class="text-primary text-decoration-underline"></a></td>
-			</tr>
-		</tbody>
-	</table>
+  <!-- ─────────────── 상세정보 테이블 ─────────────── -->
+  <table class="table table-bordered">
+    <tbody>
+      <tr>
+        <th>게시판명</th>
+        <td id="bbsNm"></td>
+        <th>게시판 유형</th>
+        <td id="bbsTyCodeNm"></td>
+      </tr>
+      <tr>
+        <th>등록자</th>
+        <td id="frstRegisterNm"></td>
+        <th>등록일</th>
+        <td id="frstRegisterPnttm"></td>
+      </tr>
+      <tr>
+        <th>사용 여부</th>
+        <td id="useAt"></td>
+        <th>답장 가능</th>
+        <td id="replyPosblAt"></td>
+      </tr>
+      <tr>
+        <th>파일첨부 가능</th>
+        <td id="fileAtchPosblAt"></td>
+        <th>첨부가능파일수</th>
+        <td id="atchPosblFileNumber"></td>
+      </tr>
+      <!-- ★ 신규: 카테고리 / 구분 표시 -->
+      <tr>
+        <th>게시판 카테고리</th>
+        <td id="categoryMain"></td>
+        <th>게시판 구분</th>
+        <td id="categoryScope"></td>
+      </tr>
+      <tr>
+        <th>게시판 소개</th>
+        <td colspan="3" id="bbsIntrcn"></td>
+      </tr>
+      <tr>
+        <th>추가 선택사항</th>
+        <td colspan="3" id="option"></td>
+      </tr>
+      <tr>
+        <th>게시판 주소</th>
+        <td colspan="3">
+          <a id="bbsUrl"
+             class="text-primary text-decoration-underline"
+             href="#"></a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 
-	<!-- 버튼 -->
-	<div class="mt-3">
-		<a class="btn btn-primary" id="editBtn">수정</a>
-		<button class="btn btn-danger" id="deleteBtn">삭제</button>
-		<a class="btn btn-secondary" href="/muscat/board/masterList.do">목록</a>
-	</div>
+  <!-- ─────────────── 버튼 영역 ─────────────── -->
+  <div class="mt-3">
+    <a class="btn btn-primary" id="editBtn">수정</a>
+    <button class="btn btn-danger" id="deleteBtn">삭제</button>
+    <a class="btn btn-secondary" href="/muscat/board/masterList.do">목록</a>
+  </div>
 
-	<!-- 자바스크립트 -->
-	<script>
+  <!-- ─────────────── 스크립트 ─────────────── -->
+  <script>
+    /* ------------------------------------------------------------------
+       0. 파라미터(bbsId) 확인
+    ------------------------------------------------------------------ */
     const urlParams = new URLSearchParams(window.location.search);
     const bbsId = urlParams.get("bbsId");
 
@@ -73,66 +90,74 @@
       Swal.fire("오류", "게시판 ID가 없습니다.", "error");
     }
 
-    // 상세조회 Ajax
+    /* ------------------------------------------------------------------
+       1. 상세조회 Ajax → 화면 반영
+    ------------------------------------------------------------------ */
     fetch(`/muscat/board/masterDetail?bbsId=${bbsId}`)
       .then(res => res.json())
       .then(data => {
-        document.getElementById("bbsNm").textContent = data.bbsNm;
-        document.getElementById("bbsTyCodeNm").textContent = data.bbsTyCodeNm;
-        document.getElementById("frstRegisterNm").textContent = data.frstRegisterNm;
-        document.getElementById("frstRegisterPnttm").textContent = data.frstRegisterPnttm;
-        document.getElementById("useAt").textContent = data.useAt;
-        document.getElementById("replyPosblAt").textContent = data.replyPosblAt;
-        document.getElementById("fileAtchPosblAt").textContent = data.fileAtchPosblAt;
-        document.getElementById("atchPosblFileNumber").textContent = data.atchPosblFileNumber;
-        document.getElementById("bbsIntrcn").innerHTML = data.bbsIntrcn?.replace(/\n/g, "<br>");
+        // ★ 기본 정보
+        document.getElementById("bbsNm").textContent            = data.bbsNm ?? "-";
+        document.getElementById("bbsTyCodeNm").textContent      = data.bbsTyCodeNm ?? "-";
+        document.getElementById("frstRegisterNm").textContent   = data.frstRegisterNm ?? "-";
+        document.getElementById("frstRegisterPnttm").textContent= data.frstRegisterPnttm ?? "-";
+        document.getElementById("useAt").textContent            = data.useAt ?? "-";
+        document.getElementById("replyPosblAt").textContent     = data.replyPosblAt ?? "-";
+        document.getElementById("fileAtchPosblAt").textContent  = data.fileAtchPosblAt ?? "-";
+        document.getElementById("atchPosblFileNumber").textContent = data.atchPosblFileNumber ?? "-";
 
+        // ★ 카테고리 / 구분 ← 코드 “이름”
+        document.getElementById("categoryMain").textContent  = data.categoryMainNm || "-";
+        document.getElementById("categoryScope").textContent = data.categoryScopeNm || "-";
+
+        // ★ 소개, 옵션
+        document.getElementById("bbsIntrcn").innerHTML = (data.bbsIntrcn || "").replace(/\n/g, "<br>");
         document.getElementById("option").textContent =
           data.option === "comment" ? "댓글 기능"
-          : data.option === "stsfdg" ? "만족도 조사"
-          : "미선택";
+        : data.option === "stsfdg"  ? "만족도 조사"
+        : "미선택";
 
-        // 게시판 주소 생성 및 링크 설정
+        // ★ 게시판 링크
         const articleUrl = `/muscat/board/articleList.do?bbsId=${bbsId}`;
-        const bbsUrlLink = document.getElementById("bbsUrl");
-        bbsUrlLink.textContent = articleUrl;
-        bbsUrlLink.href = articleUrl;
+        const link = document.getElementById("bbsUrl");
+        link.textContent = articleUrl;
+        link.href        = articleUrl;
 
-        // 수정 버튼 링크 설정
-        document.getElementById("editBtn").href = `/muscat/board/masterUpdt.do?bbsId=${bbsId}`;
+        // 수정 버튼 링크
+        document.getElementById("editBtn").href =
+          `/muscat/board/masterUpdt.do?bbsId=${bbsId}`;
       })
-      .catch(err => {
-        Swal.fire("오류", "상세정보를 불러오지 못했습니다.", "error");
-      });
+      .catch(() => Swal.fire("오류", "상세정보를 불러오지 못했습니다.", "error"));
 
-    // 삭제 요청
-    document.getElementById("deleteBtn").addEventListener("click", function () {
+    /* ------------------------------------------------------------------
+       2. 삭제
+    ------------------------------------------------------------------ */
+    document.getElementById("deleteBtn").addEventListener("click", () => {
       Swal.fire({
         title: "삭제하시겠습니까?",
-        text: "삭제 후 복구할 수 없습니다.",
-        icon: "warning",
+        text : "삭제 후 복구할 수 없습니다.",
+        icon : "warning",
         showCancelButton: true,
         confirmButtonText: "삭제",
-        cancelButtonText: "취소"
-      }).then((result) => {
-        if (result.isConfirmed) {
-          fetch('/muscat/board/masterDelete', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ bbsId })
-          })
-          .then(res => res.json())
-          .then(result => {
-            if (result.resultCode === "SUCCESS") {
-              Swal.fire("삭제 완료", result.resultMessage, "success").then(() => {
-                window.location.href = "/muscat/board/masterList.do";
-              });
-            } else {
-              Swal.fire("실패", result.resultMessage || "삭제 실패", "error");
-            }
-          })
-          .catch(() => Swal.fire("오류", "삭제 중 오류가 발생했습니다.", "error"));
-        }
+        cancelButtonText : "취소"
+      }).then(result => {
+        if (!result.isConfirmed) return;
+
+        fetch("/muscat/board/masterDelete", {
+          method : "POST",
+          headers: { "Content-Type": "application/json" },
+          body   : JSON.stringify({ bbsId })
+        })
+        .then(res => res.json())
+        .then(ret => {
+          if (ret.resultCode === "SUCCESS") {
+            Swal.fire("삭제 완료", ret.resultMessage, "success")
+                .then(() => location.href = "/muscat/board/masterList.do");
+          } else {
+            Swal.fire("실패", ret.resultMessage || "삭제 실패", "error");
+          }
+        })
+        .catch(() => Swal.fire("오류", "삭제 중 오류가 발생했습니다.", "error"));
       });
     });
   </script>

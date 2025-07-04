@@ -5,14 +5,14 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>게시판 목록</title>
+  <title>게시판 등록</title>
   <link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
 </head>
 
 <main layout:fragment="content">
-
-  <h2>게시판 등록</h2>
+  <h2>📝 게시판 등록</h2>
 
   <form id="bbsForm">
     <div class="mb-3">
@@ -25,13 +25,21 @@
       <textarea class="form-control" id="bbsIntrcn" name="bbsIntrcn" rows="3" required></textarea>
     </div>
 
+    <input type="hidden" id="bbsTyCode" name="bbsTyCode" value="BBST01" />
+
+    <!-- ✅ 게시판 카테고리 -->
     <div class="mb-3">
-      <label for="bbsTyCode" class="form-label">게시판 유형 <span class="text-danger">*</span></label>
-      <select class="form-select" id="bbsTyCode" name="bbsTyCode" required>
+      <label for="categoryMain" class="form-label">게시판 카테고리</label>
+      <select id="categoryMain" name="categoryMain" class="form-select" required>
         <option value="">-- 선택하세요 --</option>
-        <option value="BBST01">공지사항게시판</option>
-        <option value="BBST02">전사게시판</option>
-        <option value="BBST03">부서게시판</option>
+      </select>
+    </div>
+
+    <!-- ✅ 게시판 구분 -->
+    <div class="mb-3">
+      <label for="categoryScope" class="form-label">게시판 구분</label>
+      <select id="categoryScope" name="categoryScope" class="form-select" required>
+        <option value="">-- 선택하세요 --</option>
       </select>
     </div>
 
@@ -79,61 +87,74 @@
   </form>
 
   <script>
-    //게시판 유형이 변경되었을 때 실행
+    // 공통코드 불러오기 함수
+    async function loadCommonCodes(groupCode, targetId) {
+      try {
+        const res = await fetch(`/muscat/board/commonCodes?groupCode=${groupCode}`);
+        const data = await res.json();
+        const select = document.getElementById(targetId);
+        data.forEach(code => {
+          const option = document.createElement('option');
+          option.value = code.code;
+          option.textContent = code.codeNm;
+          select.appendChild(option);
+        });
+      } catch (err) {
+        console.error(`${targetId} 코드 로딩 실패`, err);
+      }
+    }
+
+    // DOM 로딩 시 공통코드 초기화
+    document.addEventListener("DOMContentLoaded", () => {
+      loadCommonCodes('COM104', 'categoryMain');   // 게시판 카테고리
+      loadCommonCodes('COM105', 'categoryScope');  // 게시판 구분
+    });
+
+    // 게시판 유형 변경 시 특정 옵션 제어
     document.getElementById("bbsTyCode").addEventListener("change", function () {
-      const type = this.value; // 선택한 게시판 유형 코드값 (예: BBST01, BBST03 등)
-      const reply = document.getElementById("replyPosblAt"); // 답글 허용 여부
-      const fileAtch = document.getElementById("fileAtchPosblAt"); // 파일 첨부 가능 여부
-      const fileNum = document.getElementById("atchPosblFileNumber"); // 첨부 가능 파일 수
-	  
-      // 게시판 유형이 '방명록(BBST03)'인 경우, 해당 옵션들은 비활성화 및 값 초기화
+      const type = this.value;
+      const reply = document.getElementById("replyPosblAt");
+      const fileAtch = document.getElementById("fileAtchPosblAt");
+      const fileNum = document.getElementById("atchPosblFileNumber");
+
       if (type === "BBST03") {
         reply.value = "N";
         fileAtch.value = "N";
         fileNum.value = "0";
-
         reply.disabled = true;
         fileAtch.disabled = true;
         fileNum.disabled = true;
       } else {
-    	// 그 외 유형은 다시 활성화  
         reply.disabled = false;
         fileAtch.disabled = false;
         fileNum.disabled = false;
       }
     });
-	
-    // 게시판 등록 폼 제출 이벤트
-    document.getElementById("bbsForm").addEventListener("submit", async function (e) {
-      e.preventDefault(); // 기본 form 제출(새로고침) 막음
 
-      const formData = new FormData(this); // 폼 안의 모든 name값을 가진 입력 필드 수집
-      const obj = Object.fromEntries(formData.entries()); // FormData를 일반 객체로 변환
+    // 폼 제출 이벤트
+    document.getElementById("bbsForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const obj = Object.fromEntries(formData.entries());
 
       try {
-    	// 서버로 POST 요청: JSON 형태로 전송
-        const res = await fetch('http://localhost:8082/muscat/board/masterInsert', {
-          method: 'POST', // HTTP 메서드 (GET, POST, PUT, DELETE 등)
-          headers: { 'Content-Type': 'application/json' }, // 요청 본문은 JSON입니다!
-          body: JSON.stringify(obj) // 자바스크립트 객체 → JSON 문자열 변환
+        const res = await fetch('/muscat/board/masterInsert', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(obj)
         });
 
-        const result = await res.json(); // 응답을 JSON으로 파싱
-        console.log(result); // 콘솔로 확인 (디버깅용)
+        const result = await res.json();
 
-        if (res.ok) {
-          // 응답 상태가 200 OK일 경우	
+        if (res.ok && result.resultCode === 'SUCCESS') {
           Swal.fire("성공", "게시판이 등록되었습니다.", "success").then(() => {
-        	// 확인 누르면 게시판 목록으로 이동  
             location.href = "/muscat/board/masterList.do";
           });
         } else {
-          // 서버 응답은 왔지만 상태코드가 에러일 경우	
-          Swal.fire("오류", result.message || "등록 실패", "error");
+          Swal.fire("실패", result.resultMessage || "등록 실패", "error");
         }
       } catch (err) {
-    	// 네트워크 오류 등으로 fetch 자체가 실패한 경우  
-        Swal.fire("오류", "서버 오류가 발생했습니다.", "error");
+        Swal.fire("오류", "서버 요청 실패", "error");
       }
     });
   </script>

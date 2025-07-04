@@ -5,446 +5,470 @@ import java.io.Serializable;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
- * 게시판 속성 정보를 관리하기 위한 VO  클래스
+ * 게시판 속성 정보를 관리하기 위한 VO 클래스
+ * 
  * @author 공통서비스개발팀 이삼섭
  * @since 2009.06.01
  * @version 1.0
  * @see
  *
- * <pre>
+ *      <pre>
  * << 개정이력(Modification Information) >>
  *   
  *   수정일      수정자           수정내용
  *  -------    --------    ---------------------------
  *   2009.3.12  이삼섭          최초 생성
  *
- * </pre>
+ *      </pre>
  */
 @SuppressWarnings("serial")
 public class BoardMasterVO extends BoardMaster implements Serializable {
-    
-    /** 검색시작일 */
-    private String searchBgnDe = "";
-    
-    /** 검색조건 */
-    private String searchCnd = "";
-    
-    /** 검색종료일 */
-    private String searchEndDe = "";
-    
-    /** 검색단어 */
-    private String searchWrd = "";
-    
-    /** 정렬순서(DESC,ASC) */
-    private String sortOrdr = "";
-    
-    /** 검색사용여부 */
-    private String searchUseYn = "";
 
-    /** 현재페이지 */
-    private int pageIndex = 1;
+	private String categoryMainNm; // 상위 코드명
+	
+	public String getCategoryMainNm() {
+		return categoryMainNm;
+	}
 
-    /** 페이지개수 */
-    private int pageUnit = 10;
+	public void setCategoryMainNm(String categoryMainNm) {
+		this.categoryMainNm = categoryMainNm;
+	}
 
-    /** 페이지사이즈 */
-    private int pageSize = 10;
+	public String getCategoryScopeNm() {
+		return categoryScopeNm;
+	}
 
-    /** firstIndex */
-    private int firstIndex = 1;
+	public void setCategoryScopeNm(String categoryScopeNm) {
+		this.categoryScopeNm = categoryScopeNm;
+	}
 
-    /** lastIndex */
-    private int lastIndex = 1;
+	private String categoryScopeNm; // 하위 코드명
 
-    /** recordCountPerPage */
-    private int recordCountPerPage = 10;
+	// 게시판 카테고리 상위 (ex. NOTICE, REFERENCE)
+	private String categoryMain;
 
-    /** rowNo */
-    private int rowNo = 0;
+	// 게시판 대상 (ex. ALL, DEPT)
+	private String categoryScope;
 
-    /** 최초 등록자명 */
-    private String frstRegisterNm = "";
+	/** 검색시작일 */
+	private String searchBgnDe = "";
 
-    /** 게시판유형 코드명 */
-    private String bbsTyCodeNm = "";
+	/** 검색조건 */
+	private String searchCnd = "";
 
-    /** 템플릿 명 */
-    private String tmplatNm = "";
+	/** 검색종료일 */
+	private String searchEndDe = "";
 
-    /** 최종 수정자명 */
-    private String lastUpdusrNm = "";
+	public String getCategoryMain() {
+		return categoryMain;
+	}
 
-    /** 권한지정 여부 */
-    private String authFlag = "";
+	public void setCategoryMain(String categoryMain) {
+		this.categoryMain = categoryMain;
+	}
 
-    /** 템플릿경로 */
-    private String tmplatCours = "";
+	public String getCategoryScope() {
+		return categoryScope;
+	}
 
-    /**
-     * searchBgnDe attribute를 리턴한다.
-     * 
-     * @return the searchBgnDe
-     */
-    public String getSearchBgnDe() {
-	return searchBgnDe;
-    }
+	public void setCategoryScope(String categoryScope) {
+		this.categoryScope = categoryScope;
+	}
 
-    /**
-     * searchBgnDe attribute 값을 설정한다.
-     * 
-     * @param searchBgnDe
-     *            the searchBgnDe to set
-     */
-    public void setSearchBgnDe(String searchBgnDe) {
-	this.searchBgnDe = searchBgnDe;
-    }
+	/** 검색단어 */
+	private String searchWrd = "";
 
-    /**
-     * searchCnd attribute를 리턴한다.
-     * 
-     * @return the searchCnd
-     */
-    public String getSearchCnd() {
-	return searchCnd;
-    }
+	/** 정렬순서(DESC,ASC) */
+	private String sortOrdr = "";
 
-    /**
-     * searchCnd attribute 값을 설정한다.
-     * 
-     * @param searchCnd
-     *            the searchCnd to set
-     */
-    public void setSearchCnd(String searchCnd) {
-	this.searchCnd = searchCnd;
-    }
+	/** 검색사용여부 */
+	private String searchUseYn = "";
 
-    /**
-     * searchEndDe attribute를 리턴한다.
-     * 
-     * @return the searchEndDe
-     */
-    public String getSearchEndDe() {
-	return searchEndDe;
-    }
+	/** 현재페이지 */
+	private int pageIndex = 1;
 
-    /**
-     * searchEndDe attribute 값을 설정한다.
-     * 
-     * @param searchEndDe
-     *            the searchEndDe to set
-     */
-    public void setSearchEndDe(String searchEndDe) {
-	this.searchEndDe = searchEndDe;
-    }
+	/** 페이지개수 */
+	private int pageUnit = 10;
 
-    /**
-     * searchWrd attribute를 리턴한다.
-     * 
-     * @return the searchWrd
-     */
-    public String getSearchWrd() {
-	return searchWrd;
-    }
+	/** 페이지사이즈 */
+	private int pageSize = 10;
 
-    /**
-     * searchWrd attribute 값을 설정한다.
-     * 
-     * @param searchWrd
-     *            the searchWrd to set
-     */
-    public void setSearchWrd(String searchWrd) {
-	this.searchWrd = searchWrd;
-    }
+	/** firstIndex */
+	private int firstIndex = 1;
 
-    /**
-     * sortOrdr attribute를 리턴한다.
-     * 
-     * @return the sortOrdr
-     */
-    public String getSortOrdr() {
-	return sortOrdr;
-    }
+	/** lastIndex */
+	private int lastIndex = 1;
 
-    /**
-     * sortOrdr attribute 값을 설정한다.
-     * 
-     * @param sortOrdr
-     *            the sortOrdr to set
-     */
-    public void setSortOrdr(String sortOrdr) {
-	this.sortOrdr = sortOrdr;
-    }
+	/** recordCountPerPage */
+	private int recordCountPerPage = 10;
 
-    /**
-     * searchUseYn attribute를 리턴한다.
-     * 
-     * @return the searchUseYn
-     */
-    public String getSearchUseYn() {
-	return searchUseYn;
-    }
+	/** rowNo */
+	private int rowNo = 0;
 
-    /**
-     * searchUseYn attribute 값을 설정한다.
-     * 
-     * @param searchUseYn
-     *            the searchUseYn to set
-     */
-    public void setSearchUseYn(String searchUseYn) {
-	this.searchUseYn = searchUseYn;
-    }
+	/** 최초 등록자명 */
+	private String frstRegisterNm = "";
 
-    /**
-     * pageIndex attribute를 리턴한다.
-     * 
-     * @return the pageIndex
-     */
-    public int getPageIndex() {
-	return pageIndex;
-    }
+	/** 게시판유형 코드명 */
+	private String bbsTyCodeNm = "";
 
-    /**
-     * pageIndex attribute 값을 설정한다.
-     * 
-     * @param pageIndex
-     *            the pageIndex to set
-     */
-    public void setPageIndex(int pageIndex) {
-	this.pageIndex = pageIndex;
-    }
+	/** 템플릿 명 */
+	private String tmplatNm = "";
 
-    /**
-     * pageUnit attribute를 리턴한다.
-     * 
-     * @return the pageUnit
-     */
-    public int getPageUnit() {
-	return pageUnit;
-    }
+	/** 최종 수정자명 */
+	private String lastUpdusrNm = "";
 
-    /**
-     * pageUnit attribute 값을 설정한다.
-     * 
-     * @param pageUnit
-     *            the pageUnit to set
-     */
-    public void setPageUnit(int pageUnit) {
-	this.pageUnit = pageUnit;
-    }
+	/** 권한지정 여부 */
+	private String authFlag = "";
 
-    /**
-     * pageSize attribute를 리턴한다.
-     * 
-     * @return the pageSize
-     */
-    public int getPageSize() {
-	return pageSize;
-    }
+	/** 템플릿경로 */
+	private String tmplatCours = "";
 
-    /**
-     * pageSize attribute 값을 설정한다.
-     * 
-     * @param pageSize
-     *            the pageSize to set
-     */
-    public void setPageSize(int pageSize) {
-	this.pageSize = pageSize;
-    }
+	/**
+	 * searchBgnDe attribute를 리턴한다.
+	 * 
+	 * @return the searchBgnDe
+	 */
+	public String getSearchBgnDe() {
+		return searchBgnDe;
+	}
 
-    /**
-     * firstIndex attribute를 리턴한다.
-     * 
-     * @return the firstIndex
-     */
-    public int getFirstIndex() {
-	return firstIndex;
-    }
+	/**
+	 * searchBgnDe attribute 값을 설정한다.
+	 * 
+	 * @param searchBgnDe the searchBgnDe to set
+	 */
+	public void setSearchBgnDe(String searchBgnDe) {
+		this.searchBgnDe = searchBgnDe;
+	}
 
-    /**
-     * firstIndex attribute 값을 설정한다.
-     * 
-     * @param firstIndex
-     *            the firstIndex to set
-     */
-    public void setFirstIndex(int firstIndex) {
-	this.firstIndex = firstIndex;
-    }
+	/**
+	 * searchCnd attribute를 리턴한다.
+	 * 
+	 * @return the searchCnd
+	 */
+	public String getSearchCnd() {
+		return searchCnd;
+	}
 
-    /**
-     * lastIndex attribute를 리턴한다.
-     * 
-     * @return the lastIndex
-     */
-    public int getLastIndex() {
-	return lastIndex;
-    }
+	/**
+	 * searchCnd attribute 값을 설정한다.
+	 * 
+	 * @param searchCnd the searchCnd to set
+	 */
+	public void setSearchCnd(String searchCnd) {
+		this.searchCnd = searchCnd;
+	}
 
-    /**
-     * lastIndex attribute 값을 설정한다.
-     * 
-     * @param lastIndex
-     *            the lastIndex to set
-     */
-    public void setLastIndex(int lastIndex) {
-	this.lastIndex = lastIndex;
-    }
+	/**
+	 * searchEndDe attribute를 리턴한다.
+	 * 
+	 * @return the searchEndDe
+	 */
+	public String getSearchEndDe() {
+		return searchEndDe;
+	}
 
-    /**
-     * recordCountPerPage attribute를 리턴한다.
-     * 
-     * @return the recordCountPerPage
-     */
-    public int getRecordCountPerPage() {
-	return recordCountPerPage;
-    }
+	/**
+	 * searchEndDe attribute 값을 설정한다.
+	 * 
+	 * @param searchEndDe the searchEndDe to set
+	 */
+	public void setSearchEndDe(String searchEndDe) {
+		this.searchEndDe = searchEndDe;
+	}
 
-    /**
-     * recordCountPerPage attribute 값을 설정한다.
-     * 
-     * @param recordCountPerPage
-     *            the recordCountPerPage to set
-     */
-    public void setRecordCountPerPage(int recordCountPerPage) {
-	this.recordCountPerPage = recordCountPerPage;
-    }
+	/**
+	 * searchWrd attribute를 리턴한다.
+	 * 
+	 * @return the searchWrd
+	 */
+	public String getSearchWrd() {
+		return searchWrd;
+	}
 
-    /**
-     * rowNo attribute를 리턴한다.
-     * 
-     * @return the rowNo
-     */
-    public int getRowNo() {
-	return rowNo;
-    }
+	/**
+	 * searchWrd attribute 값을 설정한다.
+	 * 
+	 * @param searchWrd the searchWrd to set
+	 */
+	public void setSearchWrd(String searchWrd) {
+		this.searchWrd = searchWrd;
+	}
 
-    /**
-     * rowNo attribute 값을 설정한다.
-     * 
-     * @param rowNo
-     *            the rowNo to set
-     */
-    public void setRowNo(int rowNo) {
-	this.rowNo = rowNo;
-    }
+	/**
+	 * sortOrdr attribute를 리턴한다.
+	 * 
+	 * @return the sortOrdr
+	 */
+	public String getSortOrdr() {
+		return sortOrdr;
+	}
 
-    /**
-     * frstRegisterNm attribute를 리턴한다.
-     * 
-     * @return the frstRegisterNm
-     */
-    public String getFrstRegisterNm() {
-	return frstRegisterNm;
-    }
+	/**
+	 * sortOrdr attribute 값을 설정한다.
+	 * 
+	 * @param sortOrdr the sortOrdr to set
+	 */
+	public void setSortOrdr(String sortOrdr) {
+		this.sortOrdr = sortOrdr;
+	}
 
-    /**
-     * frstRegisterNm attribute 값을 설정한다.
-     * 
-     * @param frstRegisterNm
-     *            the frstRegisterNm to set
-     */
-    public void setFrstRegisterNm(String frstRegisterNm) {
-	this.frstRegisterNm = frstRegisterNm;
-    }
+	/**
+	 * searchUseYn attribute를 리턴한다.
+	 * 
+	 * @return the searchUseYn
+	 */
+	public String getSearchUseYn() {
+		return searchUseYn;
+	}
 
-    /**
-     * bbsTyCodeNm attribute를 리턴한다.
-     * 
-     * @return the bbsTyCodeNm
-     */
-    public String getBbsTyCodeNm() {
-	return bbsTyCodeNm;
-    }
+	/**
+	 * searchUseYn attribute 값을 설정한다.
+	 * 
+	 * @param searchUseYn the searchUseYn to set
+	 */
+	public void setSearchUseYn(String searchUseYn) {
+		this.searchUseYn = searchUseYn;
+	}
 
-    /**
-     * bbsTyCodeNm attribute 값을 설정한다.
-     * 
-     * @param bbsTyCodeNm
-     *            the bbsTyCodeNm to set
-     */
-    public void setBbsTyCodeNm(String bbsTyCodeNm) {
-	this.bbsTyCodeNm = bbsTyCodeNm;
-    }
+	/**
+	 * pageIndex attribute를 리턴한다.
+	 * 
+	 * @return the pageIndex
+	 */
+	public int getPageIndex() {
+		return pageIndex;
+	}
 
-    /**
-     * tmplatNm attribute를 리턴한다.
-     * 
-     * @return the tmplatNm
-     */
-    public String getTmplatNm() {
-	return tmplatNm;
-    }
+	/**
+	 * pageIndex attribute 값을 설정한다.
+	 * 
+	 * @param pageIndex the pageIndex to set
+	 */
+	public void setPageIndex(int pageIndex) {
+		this.pageIndex = pageIndex;
+	}
 
-    /**
-     * tmplatNm attribute 값을 설정한다.
-     * 
-     * @param tmplatNm
-     *            the tmplatNm to set
-     */
-    public void setTmplatNm(String tmplatNm) {
-	this.tmplatNm = tmplatNm;
-    }
+	/**
+	 * pageUnit attribute를 리턴한다.
+	 * 
+	 * @return the pageUnit
+	 */
+	public int getPageUnit() {
+		return pageUnit;
+	}
 
-    /**
-     * lastUpdusrNm attribute를 리턴한다.
-     * 
-     * @return the lastUpdusrNm
-     */
-    public String getLastUpdusrNm() {
-	return lastUpdusrNm;
-    }
+	/**
+	 * pageUnit attribute 값을 설정한다.
+	 * 
+	 * @param pageUnit the pageUnit to set
+	 */
+	public void setPageUnit(int pageUnit) {
+		this.pageUnit = pageUnit;
+	}
 
-    /**
-     * lastUpdusrNm attribute 값을 설정한다.
-     * 
-     * @param lastUpdusrNm
-     *            the lastUpdusrNm to set
-     */
-    public void setLastUpdusrNm(String lastUpdusrNm) {
-	this.lastUpdusrNm = lastUpdusrNm;
-    }
+	/**
+	 * pageSize attribute를 리턴한다.
+	 * 
+	 * @return the pageSize
+	 */
+	public int getPageSize() {
+		return pageSize;
+	}
 
-    /**
-     * authFlag attribute를 리턴한다.
-     * 
-     * @return the authFlag
-     */
-    public String getAuthFlag() {
-	return authFlag;
-    }
+	/**
+	 * pageSize attribute 값을 설정한다.
+	 * 
+	 * @param pageSize the pageSize to set
+	 */
+	public void setPageSize(int pageSize) {
+		this.pageSize = pageSize;
+	}
 
-    /**
-     * authFlag attribute 값을 설정한다.
-     * 
-     * @param authFlag
-     *            the authFlag to set
-     */
-    public void setAuthFlag(String authFlag) {
-	this.authFlag = authFlag;
-    }
+	/**
+	 * firstIndex attribute를 리턴한다.
+	 * 
+	 * @return the firstIndex
+	 */
+	public int getFirstIndex() {
+		return firstIndex;
+	}
 
-    /**
-     * tmplatCours attribute를 리턴한다.
-     * 
-     * @return the tmplatCours
-     */
-    public String getTmplatCours() {
-	return tmplatCours;
-    }
+	/**
+	 * firstIndex attribute 값을 설정한다.
+	 * 
+	 * @param firstIndex the firstIndex to set
+	 */
+	public void setFirstIndex(int firstIndex) {
+		this.firstIndex = firstIndex;
+	}
 
-    /**
-     * tmplatCours attribute 값을 설정한다.
-     * 
-     * @param tmplatCours
-     *            the tmplatCours to set
-     */
-    public void setTmplatCours(String tmplatCours) {
-	this.tmplatCours = tmplatCours;
-    }
+	/**
+	 * lastIndex attribute를 리턴한다.
+	 * 
+	 * @return the lastIndex
+	 */
+	public int getLastIndex() {
+		return lastIndex;
+	}
 
-    /**
-     * toString 메소드를 대치한다.
-     */
-    public String toString() {
-	return ToStringBuilder.reflectionToString(this);
-    }
+	/**
+	 * lastIndex attribute 값을 설정한다.
+	 * 
+	 * @param lastIndex the lastIndex to set
+	 */
+	public void setLastIndex(int lastIndex) {
+		this.lastIndex = lastIndex;
+	}
+
+	/**
+	 * recordCountPerPage attribute를 리턴한다.
+	 * 
+	 * @return the recordCountPerPage
+	 */
+	public int getRecordCountPerPage() {
+		return recordCountPerPage;
+	}
+
+	/**
+	 * recordCountPerPage attribute 값을 설정한다.
+	 * 
+	 * @param recordCountPerPage the recordCountPerPage to set
+	 */
+	public void setRecordCountPerPage(int recordCountPerPage) {
+		this.recordCountPerPage = recordCountPerPage;
+	}
+
+	/**
+	 * rowNo attribute를 리턴한다.
+	 * 
+	 * @return the rowNo
+	 */
+	public int getRowNo() {
+		return rowNo;
+	}
+
+	/**
+	 * rowNo attribute 값을 설정한다.
+	 * 
+	 * @param rowNo the rowNo to set
+	 */
+	public void setRowNo(int rowNo) {
+		this.rowNo = rowNo;
+	}
+
+	/**
+	 * frstRegisterNm attribute를 리턴한다.
+	 * 
+	 * @return the frstRegisterNm
+	 */
+	public String getFrstRegisterNm() {
+		return frstRegisterNm;
+	}
+
+	/**
+	 * frstRegisterNm attribute 값을 설정한다.
+	 * 
+	 * @param frstRegisterNm the frstRegisterNm to set
+	 */
+	public void setFrstRegisterNm(String frstRegisterNm) {
+		this.frstRegisterNm = frstRegisterNm;
+	}
+
+	/**
+	 * bbsTyCodeNm attribute를 리턴한다.
+	 * 
+	 * @return the bbsTyCodeNm
+	 */
+	public String getBbsTyCodeNm() {
+		return bbsTyCodeNm;
+	}
+
+	/**
+	 * bbsTyCodeNm attribute 값을 설정한다.
+	 * 
+	 * @param bbsTyCodeNm the bbsTyCodeNm to set
+	 */
+	public void setBbsTyCodeNm(String bbsTyCodeNm) {
+		this.bbsTyCodeNm = bbsTyCodeNm;
+	}
+
+	/**
+	 * tmplatNm attribute를 리턴한다.
+	 * 
+	 * @return the tmplatNm
+	 */
+	public String getTmplatNm() {
+		return tmplatNm;
+	}
+
+	/**
+	 * tmplatNm attribute 값을 설정한다.
+	 * 
+	 * @param tmplatNm the tmplatNm to set
+	 */
+	public void setTmplatNm(String tmplatNm) {
+		this.tmplatNm = tmplatNm;
+	}
+
+	/**
+	 * lastUpdusrNm attribute를 리턴한다.
+	 * 
+	 * @return the lastUpdusrNm
+	 */
+	public String getLastUpdusrNm() {
+		return lastUpdusrNm;
+	}
+
+	/**
+	 * lastUpdusrNm attribute 값을 설정한다.
+	 * 
+	 * @param lastUpdusrNm the lastUpdusrNm to set
+	 */
+	public void setLastUpdusrNm(String lastUpdusrNm) {
+		this.lastUpdusrNm = lastUpdusrNm;
+	}
+
+	/**
+	 * authFlag attribute를 리턴한다.
+	 * 
+	 * @return the authFlag
+	 */
+	public String getAuthFlag() {
+		return authFlag;
+	}
+
+	/**
+	 * authFlag attribute 값을 설정한다.
+	 * 
+	 * @param authFlag the authFlag to set
+	 */
+	public void setAuthFlag(String authFlag) {
+		this.authFlag = authFlag;
+	}
+
+	/**
+	 * tmplatCours attribute를 리턴한다.
+	 * 
+	 * @return the tmplatCours
+	 */
+	public String getTmplatCours() {
+		return tmplatCours;
+	}
+
+	/**
+	 * tmplatCours attribute 값을 설정한다.
+	 * 
+	 * @param tmplatCours the tmplatCours to set
+	 */
+	public void setTmplatCours(String tmplatCours) {
+		this.tmplatCours = tmplatCours;
+	}
+
+	/**
+	 * toString 메소드를 대치한다.
+	 */
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
+	}
 }
