@@ -213,23 +213,6 @@
     	}
     
 
-
-    function sendMessageToBot(msg) {
-    	  $.ajax({
-    	    url: 'http://localhost:8082/muscat/chatbot/chatbot/message.do',
-    	    type: 'POST',
-    	    contentType: 'application/json',
-    	    data: JSON.stringify({ message: msg }),
-    	    success: function(response) {
-    	      appendMessage('챗봇', response);
-    	    },
-    	    error: function(xhr, status, error) {
-    	      console.error('에러 발생:', error);
-    	      appendMessage('챗봇', '⚠️ 오류가 발생했습니다.');
-    	    }
-    	  });
-    	}
-    
     document.addEventListener('DOMContentLoaded', () => {
     	  const icon  = document.getElementById('chatbot-icon');
     	  const modal = document.getElementById('chatbot-modal');
