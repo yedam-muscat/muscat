@@ -1044,24 +1044,7 @@ $("#gridSendMsg").on("click", function () {
 								    });
 								});
 							
-<<<<<<< HEAD
-							const chatUserListIcon = document.getElementById("chatUserListIcon");
-							const userListPopup = document.getElementById("userListPopup");
 
-							// 아이콘 클릭 시 팝업 열고 닫기 토글
-							chatUserListIcon.addEventListener("click", function () {
-							  const isVisible = userListPopup.style.display === "block";
-							  userListPopup.style.display = isVisible ? "none" : "block";
-							});
-
-							// 다른 곳 클릭 시 팝업 닫기
-							document.addEventListener("click", function (e) {
-							  if (!chatUserListIcon.contains(e.target) && !userListPopup.contains(e.target)) {
-							    userListPopup.style.display = "none";
-							  }
-							});
-							
-=======
 							// 채팅방 불러오기 
 							$(document).ready(function() {
 							    loadChatRooms();
@@ -1115,15 +1098,6 @@ $("#gridSendMsg").on("click", function () {
 							        }
 							    });
 							}
-							
-
-
->>>>>>> branch 'dev' of https://github.com/yedam-muscat/muscat.git
-								</script>
-							
-
-
-	
 			</script>
 			<script>
 	//chat 팝업창을 여러개 띄우기 위함	
