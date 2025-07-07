@@ -3,8 +3,12 @@
 <mapper
 	namespace="egovframework.com.muscat.chat.mapper.RoomMapper">
 	
+	<resultMap id="blogResult" type="roomVO">
+	<id column="room_id"  property="roomId"/>
+  <collection property="usered" javaType="ArrayList" column="room_id" ofType="UserVO" select="findParticipantsByRoomId"/>
+</resultMap>
 	<!-- 조회 -->
-	<select id="findroom" parameterType="UserVO" resultType="roomVO">
+	<select id="findroom" parameterType="UserVO" resultMap="blogResult">
 	select *
 	from room r join users u on r.room_id = u.room_id
 	where user_id = #{userId} and status = 'Y'
@@ -38,10 +42,24 @@
 	
 	<!--  메시지 등록 -->
 	<insert id="insertMessage" parameterType="MessageVO">
-	insert into Message (message_id, room_id, mg_file_info, mg_count_num, mg_photo, mg_type, user_id, mg_content )
-	values (#{messageId},#{roomId},#{mgFileInfo},#{mgCountNum},#{mgPhoto},#{mgType},#{userId},#{mgContent})
+	insert into Message (message_id, room_id, mg_file_info, mg_count_num, mg_photo, mg_type, user_id, mg_content,message_date)
+	values (#{messageId},#{roomId},#{mgFileInfo},#{mgCountNum},#{mgPhoto},#{mgType},#{userId},#{mgContent},sysdate)
 	</insert>
 	
+	<!-- 메시지 조회 -->
+	<select id="findMessage" parameterType="MessageVO" resultType="MessageVO">
+	select * 
+	from message
+	where room_id = #{roomId}
+	order by message_date 
+	</select>
 	
+	<!-- 사용자 조회 -->
+	<select id="findMember"  resultType="mberManageVO" >
+	select * 
+	from COMTNGNRLMBER
+	where MBER_STTUS = 'P'
+		
+	</select>
 	
 </mapper>

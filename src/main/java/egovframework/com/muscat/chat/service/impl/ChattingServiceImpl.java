@@ -11,6 +11,7 @@ import egovframework.com.muscat.chat.service.ChattingService;
 import egovframework.com.muscat.chat.service.MessageVO;
 import egovframework.com.muscat.chat.service.RoomVO;
 import egovframework.com.muscat.chat.service.UserVO;
+import egovframework.com.uss.umt.service.MberManageVO;
 @Service
 public class ChattingServiceImpl implements ChattingService{
 
@@ -76,7 +77,13 @@ public class ChattingServiceImpl implements ChattingService{
 		int insertCount = roomMapper.insertMessage(messaged);
 		return insertCount > 0 ? "success" : "fail";
 	}
-
+	
+	//메시지 조회
+	@Override
+	public List<MessageVO> findMessage(MessageVO findmessage) {	
+		return roomMapper.findMessage(findmessage);
+		
+	}
 	
 	// 채팅방 
 	@Override
@@ -87,9 +94,15 @@ public class ChattingServiceImpl implements ChattingService{
 	
 	 //채팅방 인원 조회 
 	 @Override
-	    public List<String> findParticipantsByRoomId(String roomId) {
+	 public List<String> findParticipantsByRoomId(String roomId) {
 	        return roomMapper.findParticipantsByRoomId(roomId);
+	        
 	    }
-	
+
+	 //인원 조회
+	@Override
+	public List<MberManageVO> findMember() {	
+		return roomMapper.findMember();
+	}
 
 }

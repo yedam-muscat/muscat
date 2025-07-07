@@ -19,6 +19,7 @@ import egovframework.com.cmm.LoginVO;
 import egovframework.com.muscat.chat.service.ChattingService;
 import egovframework.com.muscat.chat.service.MessageVO;
 import egovframework.com.muscat.chat.service.UserVO;
+import egovframework.com.uss.umt.service.MberManageVO;
 
 @Controller
 public class ChattingController {
@@ -72,28 +73,10 @@ public class ChattingController {
     	
     	String roomId ="";
     	map.put("result",chattingService.insertUsers( roomId,userList));
-    	
-    	
+    		
     	return map;
   
     };
-    
-    //메시지 등록
-    @ResponseBody
-    @RequestMapping("/chat/insertMessage.do")
-    public Map<String, String> insertMessage (@RequestBody MessageVO messaged){
-
-    	// messageId가 null이면 새로 생성
-        if (messaged.getMessageId() == null || messaged.getMessageId().isEmpty()) {
-            messaged.setMessageId(UUID.randomUUID().toString());
-        }
-
-        System.out.println("메시지 등록 요청 들어옴: " + messaged);
-
-        Map<String, String > map = new HashMap<>();
-        map.put("result", chattingService.insertMessage(messaged));
-        return map;
-    }
     
     
     //채팅방 조회
@@ -117,4 +100,43 @@ public class ChattingController {
         return chattingService.findParticipantsByRoomId(roomId);
     }
    
+    
+    //메시지 등록
+    @ResponseBody
+    @RequestMapping("/chat/insertMessage.do")
+    public Map<String, String> insertMessage (@RequestBody MessageVO messaged){
+
+    	// messageId가 null이면 새로 생성
+        if (messaged.getMessageId() == null || messaged.getMessageId().isEmpty()) {
+            messaged.setMessageId(UUID.randomUUID().toString()); // 원래는 시퀀스를 사용하면 됩니다. uuid ㅠㅠ
+        }
+
+        System.out.println("메시지 등록 요청 들어옴: " + messaged);
+
+        Map<String, String > map = new HashMap<>();
+        map.put("result", chattingService.insertMessage(messaged));
+        return map;
+    }
+    
+    // 메시지 조회
+    @ResponseBody
+    @RequestMapping("/chat/findMessage.do")
+    public Map<String, Object> findMessage (MessageVO message){
+    	Map<String, Object> map = new HashMap<String, Object>();
+    	map.put("result",chattingService.findMessage(message));
+    	
+    	return map;
+    }
+    
+    //인원조회
+    @ResponseBody
+    @RequestMapping("/chat/findMember.do")
+    public Map<String, Object> findMember (){
+    	Map<String, Object> map = new HashMap<String, Object>();
+    	map.put("result",chattingService.findMember());
+    	
+    	return map;
+    }
+    
+    
 }
