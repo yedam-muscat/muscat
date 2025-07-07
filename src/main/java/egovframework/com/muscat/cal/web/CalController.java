@@ -132,6 +132,17 @@ public class CalController {
 	public List<Map> listSchedule() throws Exception {
 		return calService.selectScheduleList();
 	}
+	
+	@GetMapping("/cal/getSchedule")
+	@ResponseBody
+	public ResponseEntity<ScudVO> getSchedule(@RequestParam String schdulId) {
+	    ScudVO schedule = calService.selectScheduleById(schdulId);
+	    if (schedule != null) {
+	        return ResponseEntity.ok(schedule);
+	    } else {
+	        return ResponseEntity.status(404).body(null);
+	    }
+	}
 	// 단건조회
 //	@GetMapping("/cal/calDetail.do")
 //	public String getScheduleDetail(@RequestParam("scheduleId") String scheduleId, Model model) {
@@ -141,12 +152,15 @@ public class CalController {
 //	}
 
 	@RequestMapping("cal/calDetail.do")
-	public String calDetail(String scheduleId, Model model) {
-
-		if (scheduleId != null) {
-			ScudVO schedule = calService.selectScheduleById(scheduleId);
-			model.addAttribute("schedule", schedule);
-		}
+	public String calDetail(@RequestParam(defaultValue = "",required = false) String schdulId, Model model) {
+		ScudVO schedule = null;
+		System.out.println("스케줄 아이디");
+	   System.out.println(schdulId);
+		schedule = calService.selectScheduleById(schdulId);
+		model.addAttribute("schedule", schedule);
+	   System.out.println(schedule);
+		System.out.println("은총");
+		
 		return "cal/calDetail.html";
 	}
 
@@ -155,7 +169,7 @@ public class CalController {
 		return "cal/calMonth.html";
 	}
 
-	@GetMapping("/cal/listCalendar")
+	@GetMapping("/cal/listCalendar") 
 	@ResponseBody
 	public List<Map> listCalendar() {
 		return calService.selectCalendarList();

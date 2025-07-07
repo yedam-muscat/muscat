@@ -654,9 +654,9 @@
 		});
 
 		// 수정 버튼 클릭 시 calDetail.do 페이지로 이동
-		$('#editEventBtn').on('click', function () {
+	  $('#editEventBtn').on('click', function () {
 		  const scheduleId = $('#detailScheduleId').val();
-		  window.location.href = 'calDetail.do?scheduleId=' + scheduleId;
+		  window.location.href = 'calDetail.do?edit=true&schdulId=' + scheduleId;
 		});
 	});
 	</script>
