@@ -156,7 +156,7 @@ textarea {
 
 							<!-- 버튼 -->
 							<div class="form-row">
-								<button class="btn btn-success">등록</button>
+								<button id="submitBtn" class="btn btn-success">등록</button>
 								<button type="button" class="btn btn-secondary"
 									onclick="resetForm()">초기화</button>
 								<a href="calMonth.do" class="btn btn-outline-primary">캘린더</a>
@@ -170,8 +170,14 @@ textarea {
 		</div>
 	</div>
 <script th:inline="javascript">
-</script>
-<script>
+   let schedule = /*[[${schedule}]]*/ 'default';
+  
+   function formatDateTime(date, time) {
+	    if (!date || !time) return '';
+	    return date.replace(/-/g, '') + time.replace(/:/g, '') + '00';
+	  }
+
+   
   function addParticipant() {
     const input = $('#participantInput');
     const name = input.val().trim();
@@ -225,34 +231,38 @@ textarea {
     }
   });
 
-  function loadCalendars() {
-    $.ajax({
-      url: 'http://localhost:8082/muscat/cal/listCalendar',
-      type: 'GET',
-      dataType: 'json',
-      success: function (response) {
-        const calendars = Array.isArray(response.result) ? response.result : response;
-        $('#calendar').empty().append(`<option value="">캘린더 선택</option>`);
-        if (Array.isArray(calendars)) {
-          calendars.forEach(cal => {
-            const calId = (cal.CAL_ID || '').trim();
-            const calName = (cal.CAL_NAME || '').trim();
-            const color = (cal.COLOR || '#1e90ff').trim();
-            const option = $(`<option></option>`)
-              .val(calId)
-              .text(calName)
-              .css('color', color);
-            $('#calendar').append(option);
-          });
-        } else {
-          alert('캘린더 데이터를 올바르게 받아오지 못했습니다.');
-        }
-      },
-      error: function () {
-        alert('캘린더 목록을 불러오는 데 실패했습니다.');
-      }
-    });
-  }
+  function loadCalendars(selectedCalId = '') {
+	  console.log('칼아이디')
+	  return $.ajax({
+	    url: 'http://localhost:8082/muscat/cal/listCalendar',
+	    type: 'GET',
+	    dataType: 'json',
+	    success: function (response) {
+	        console.log('값')
+	    	console.log(response)
+	      const calendars = Array.isArray(response.result) ? response.result : response;
+	      const $calendar = $('#calendar');
+	      $calendar.empty().append(`<option value="">캘린더 선택</option>`);
+	      calendars.forEach(cal => {
+	    	  $calendar.append(
+	          $('<option></option>')
+	            .val((cal.CAL_ID || '').trim())
+	            .text((cal.CAL_NAME || '').trim())
+	            .css('color', (cal.COLOR || '#1e90ff').trim())
+	        );
+	      });
+	      
+	      if (selectedCalId) {
+	    	  $calendar.val(selectedCalId).prop("selected", true);
+	      }
+	    },
+	    error: function () {  
+	      alert('캘린더 목록을 불러오는 데 실패했습니다.');    
+	    }
+	  });
+	}
+
+
 
   $('#scheduleForm').on('submit', function (e) {
 	  e.preventDefault();
@@ -301,64 +311,66 @@ textarea {
 
   $('#start, #startTime, #end, #endTime').on('change', loadAvailableRooms);
 
-  function loadAvailableRooms() {
+  function loadAvailableRooms(selectedRoomId = '') {
+	  console.log('룸아이디')
 	  const start = $('#start').val();
 	  const startTime = $('#startTime').val();
 	  const $roomSelect = $('#room');
 
 	  $roomSelect.empty().append('<option value="">선택 안 함</option>');
 
-	  // 시간 값이 없으면 전체 회의실 요청
+	  const loadAndSet = function (rooms) {
+	    rooms.forEach(room => {
+	      $roomSelect.append(`<option value="${room.MTGRUM_ID}">${room.MTGRUM_NM}</option>`);
+	    });
+	    if (selectedRoomId) {
+	      $roomSelect.val(selectedRoomId).prop("selected", true);
+	    }
+	  };
+
 	  if (!start || !startTime) {
 	    $.ajax({
 	      url: 'http://localhost:8082/muscat/cal/allRooms',
 	      type: 'GET',
 	      success: function (response) {
 	        const rooms = Array.isArray(response) ? response : response.result || [];
-	        rooms.forEach(room => {
-	          $roomSelect.append(`<option value="${room.MTGRUM_ID}">${room.MTGRUM_NM}</option>`);
-	        });
+	        loadAndSet(rooms);
 	      },
 	      error: function () {
 	        alert('전체 회의실 목록을 불러오는 데 실패했습니다.');
 	      }
 	    });
-	    return;
+	  } else {
+	    const reserveDateTime = start.replace(/-/g, "") + startTime.replace(/:/g, "") + "00";
+	    $.ajax({
+	      url: 'http://localhost:8082/muscat/cal/availableRooms',
+	      type: 'GET',
+	      data: { reserveDateTime },
+	      success: function (response) {
+	        const rooms = Array.isArray(response) ? response : response.result || [];
+	        loadAndSet(rooms);
+	      },
+	      error: function () {
+	        alert('예약 가능한 회의실 목록을 불러오는 데 실패했습니다.');
+	      }
+	    });
 	  }
-
-	  // 시간 값이 있으면 예약 가능한 회의실 요청
-	  const reserveDateTime = start.replace(/-/g, "") + startTime.replace(/:/g, "") + "00";
-	  $.ajax({
-	    url: 'http://localhost:8082/muscat/cal/availableRooms',
-	    type: 'GET',
-	    data: { reserveDateTime },
-	    success: function (response) {
-	      const rooms = Array.isArray(response) ? response : response.result || [];
-	      rooms.forEach(room => {
-	        $roomSelect.append(`<option value="${room.MTGRUM_ID}">${room.MTGRUM_NM}</option>`);
-	      });
-	    },
-	    error: function () {
-	      alert('예약 가능한 회의실 목록을 불러오는 데 실패했습니다.');
-	    }
-	  });
 	}
 
   $(document).ready(() => {
 	  const params = new URLSearchParams(window.location.search);
-	  const isEditMode = params.get('edit') === 'true';
+	  const isEditMode = (params.get('edit') || '').toLowerCase() === 'true';
 	  const schdulId = params.get('schdulId');
 
 	  if (isEditMode) {
-	    $('#submitBtn').text('수정');
+		    $('#submitBtn').text('수정');
+		  
 
-	    // 👉 schdulId로 기존 일정 데이터를 불러오기
 	    $.ajax({
 	      url: 'http://localhost:8082/muscat/cal/getSchedule',
 	      type: 'GET',
 	      data: { schdulId },
 	      success: function (data) {
-	        // 폼에 데이터 채워 넣기 (필요에 맞게 조정)
 	        $('#title').val(data.schdulNm);
 	        $('#start').val(data.schdulBgnde?.slice(0, 8)?.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3'));
 	        $('#startTime').val(data.schdulBgnde?.slice(8, 12)?.replace(/(\d{2})(\d{2})/, '$1:$2'));
@@ -366,20 +378,21 @@ textarea {
 	        $('#endTime').val(data.schdulEndde?.slice(8, 12)?.replace(/(\d{2})(\d{2})/, '$1:$2'));
 	        $('#location').val(data.schdulPlace);
 	        $('#description').val(data.schdulCn);
-	        $('#calendar').val(data.calId);
-	        $('#room').val(data.roomId); 
 	      
+	        loadCalendars(data.calId);
+	        loadAvailableRooms(data.roomId);
 	      },
 	      error: function () {
 	        alert('일정 정보를 불러오지 못했습니다.');
 	      }
 	    });
+	  } else {
+		  $('#submitBtn').text('등록');
+		    loadCalendars();        // 그냥 목록만
+		    loadAvailableRooms();   // 그냥 목록만
 	  }
 
-	  // 기존 초기화 코드 유지
-	  loadCalendars();
-	  loadAvailableRooms();
-
+	  
 	  $('#room').on('change', function () {
 	    const selectedRoomName = $(this).find('option:selected').text();
 	    $('#location').val(selectedRoomName === '선택 안 함' ? '' : selectedRoomName);
