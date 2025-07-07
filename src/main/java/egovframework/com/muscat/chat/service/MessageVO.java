@@ -1,11 +1,18 @@
 package egovframework.com.muscat.chat.service;
 
+import java.util.Date;
+
+import lombok.Data;
+
+@Data
 public class MessageVO {
-	public String messageId;
-	public String roomId;
-	public String mgFileInfo;
-	public int mgCountNum;
-	public String mgPhoto;
-	public String mgType;
-	public String userId;
+	private String messageId;
+	private String roomId;
+	private String mgFileInfo;
+	private Integer mgCountNum;
+	private String mgPhoto;
+	private String mgType;
+	private String userId;
+	private String mgContent;
+	private Date messageDate;
 }
