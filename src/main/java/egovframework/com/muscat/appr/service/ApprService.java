@@ -9,4 +9,11 @@ public interface ApprService {
 	List<ApprDocVO> getApprDocRecent();
 	
 	List<ApprDocVO> getApprDocHistory();
+	
+
+	int regDocForm(DocFormVO docForm);
+	
+	List<DocFormVO> getDocFormList(DocFormVO docForm);
+	
+	
 }

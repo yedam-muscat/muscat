@@ -186,8 +186,10 @@
 
 							<!-- 버튼 -->
 							<div class="d-flex justify-content-end">
-								<button class="btn btn-primary me-2" id="confirmModifyUser">수정</button>
-								<button class="btn btn-outline-secondary" id="cancelModifyUser">취소</button>
+								<button class="btn btn-primary me-2"
+									onclick="confirmModifyUser()">수정</button>
+								<button class="btn btn-outline-secondary"
+									onclick="cancelModifyUser()">취소</button>
 							</div>
 
 						</div>
@@ -257,22 +259,43 @@
 		}
 		
 		function confirmModifyUser() {
+			let parentDeptId = $('#parentDept').val();
+			let childDeptId = $('#childDept').val();
+			let rank = $('#rank').val();
+			let mberSttus = $('#mberSttus').val();
 			
-			mber.
+			if (!rank) {
+				return alert('직급 없음');
+			} else if (!parentDeptId) {
+				return alert('부서 없음');
+			} else if (!mberSttus) {
+				return alert('상태 없음');
+			}
+			
+			if (parentDeptId && childDeptId) {
+				mber.parentDeptId = parentDeptId;
+				mber.deptId = childDeptId;
+			} else {				
+				mber.parentDeptId = null;
+				mber.deptId = parentDeptId;
+			}
+		
+			mber.rank = rank;
+			mber.mberSttus = mberSttus;
 			
 			$.ajax({
 				type: "POST",
-				url: modifyUserUrl,
-				data: mber,
-				dataType: 'json',
-				timeout:(1000*30),
+				  url: modifyUserUrl,
+				  contentType: "application/json; charset=utf-8",
+				  data: JSON.stringify(mber),
+				  dataType: "json"
 				})
 				.done(function() {
 					Swal.fire({
 						icon : "success",
-						title : "회원 가입 요청이 완료되었습니다"
+						title : "회원 정보가 수정되었습니다"
 					}).then(() => {
-						location.href = '/muscat/login/login.do';
+						
 					})
 				  })
 				  .fail(function() {
