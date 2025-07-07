@@ -8,16 +8,15 @@
   <meta charset="UTF-8">
   <title>게시글 목록</title>
 
-  <!-- 부트스트랩 & jQuery -->
+  <!-- Bootstrap & jQuery -->
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <link  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <!-- 링크 기본 스타일 제거 -->
   <style>
-    a { color:inherit;text-decoration:none }
+    a { color:inherit; text-decoration:none }
     a:hover { text-decoration:underline }
-    /* 제목 셀 한 줄 유지(말줄임 옵션 주고 싶다면 ellipsis 적용) */
-    td.title-cell { white-space:nowrap; }
+    td.title-cell { white-space:nowrap }
   </style>
 </head>
 
@@ -26,10 +25,28 @@
   <!-- 동적 게시판 이름 -->
   <h2 id="boardTitle" class="fw-bold mb-3">📄 게시글 목록</h2>
 
-  <!-- 새글 버튼 -->
-  <div class="mb-3">
-    <button id="regBtn" class="btn btn-primary">+ 새글쓰기</button>
+  <!-- 🔍 검색 + 새글 버튼 --------------------  (추가) -->
+  <div class="d-flex align-items-center gap-2 mb-3">
+
+    <!-- 검색 조건 -->
+    <select id="searchCnd" class="form-select form-select-sm" style="width:130px">
+      <option value="0">제목</option>
+      <option value="1">내용</option>
+      <option value="2">작성자</option>
+    </select>
+
+    <!-- 검색어 -->
+    <input id="searchWrd" type="text" class="form-control form-control-sm" style="max-width:260px"
+           placeholder="검색어를 입력하세요">
+
+    <!-- 조회 버튼 -->
+    <button id="btnSearch" class="btn btn-primary btn-sm">조회</button>
+
+    <!-- 우측 여백 & 새글쓰기 -->
+    <div class="flex-grow-1"></div>
+    <button id="regBtn" class="btn btn-primary btn-sm">+ 새글쓰기</button>
   </div>
+  <!-- -------------------------------------- -->
 
   <!-- 목록 테이블 -->
   <table class="table table-bordered align-middle">
@@ -49,14 +66,29 @@
   <nav><ul id="pagination" class="pagination justify-content-center"></ul></nav>
 
   <script>
-    /* ---------------- 변수 ---------------- */
+    /* ----------- 전역 ------------ */
     const pageSize = 10;
     let   bbsId    = '';
     let   currentPage = 1;
 
-    /* ---------------- 리스트 호출 ---------------- */
+    /* 💬 검색 조건 전역 변수 (추가) */
+    let   gSearchCnd = '0';
+    let   gSearchWrd = '';
+
+    /* ----------- 목록 호출 ------------ */
     function loadArticleList(page = 1){
-      fetch(`/muscat/board/articleList?bbsId=${bbsId}&pageIndex=${page}&pageSize=${pageSize}`)
+      currentPage = page;
+
+      /* 🔸 쿼리 파라미터 조립 (검색 포함) */
+      const params = new URLSearchParams({
+        bbsId,
+        pageIndex : page,
+        pageSize,
+        searchCnd : gSearchCnd,
+        searchWrd : gSearchWrd
+      });
+
+      fetch('/muscat/board/articleList?'+params.toString())
         .then(r=>r.json())
         .then(d=>{
           const body = document.getElementById('articleBody');
@@ -64,25 +96,21 @@
           const list  = d.resultList || [];
           const total = parseInt(d.resultCnt||0);
           const totalPages = Math.ceil(total / pageSize);
-          currentPage = page;
 
-          /* 게시판 이름 표시(주석 필요 시) */
+          /* 게시판명 표시 */
           if(d.boardInfo?.bbsNm){
             document.getElementById('boardTitle').textContent = '📄 '+d.boardInfo.bbsNm+' 게시글 목록';
           }
 
-          /* 레코드가 없을 때 */
           if(list.length===0){
             body.innerHTML = '<tr><td colspan="5" class="text-center">게시글이 없습니다.</td></tr>';
           }else{
             list.forEach((row,idx)=>{
-              /* ① 답글 들여쓰기 & 아이콘 */
-              const depth   = Number(row.replyLc||0);          // 0,1,2…
-              const indent  = '&nbsp;'.repeat(depth*4);        // 4칸×깊이
-              const icon    = depth>0 ? '↳&nbsp;' : '';        // 화살표
-              const title   = `${indent}${icon}${row.nttSj}`;
+              const depth  = Number(row.replyLc||0);
+              const indent = '&nbsp;'.repeat(depth*4);
+              const icon   = depth>0 ? '↳&nbsp;' : '';
+              const title  = `${indent}${icon}${row.nttSj}`;
 
-              /* ② TR 작성 */
               const tr = document.createElement('tr');
               tr.className = 'text-center';
               tr.innerHTML = `
@@ -103,7 +131,7 @@
         .catch(()=>alert('목록 로딩 중 오류가 발생했습니다.'));
     }
 
-    /* ---------------- 페이지네이션 ---------------- */
+    /* ----------- 페이지네이션 ------------ */
     function renderPagination(totalPages){
       const pagEl = document.getElementById('pagination');
       pagEl.innerHTML = '';
@@ -124,21 +152,41 @@
       const max = 5;
       let start = Math.max(1, currentPage-Math.floor(max/2));
       let end   = Math.min(totalPages, start+max-1);
-      if(end-start<max-1){ start = Math.max(1, end-max+1); }
+      if(end-start<max-1) start = Math.max(1, end-max+1);
 
-      for(let i=start;i<=end;i++){ addItem(i,i,false,currentPage===i); }
+      for(let i=start;i<=end;i++) addItem(i,i,false,currentPage===i);
 
       addItem('»', currentPage+1, currentPage===totalPages);
     }
 
-    /* ---------------- 초기화 ---------------- */
+    /* ----------- 이벤트 ------------ */
+    // 조회 버튼
+    $('#btnSearch').click(()=>{
+      gSearchCnd = $('#searchCnd').val();
+      gSearchWrd = $('#searchWrd').val().trim();
+      loadArticleList(1);
+    });
+    // Enter 키
+    $('#searchWrd').keyup(e=>{
+      if(e.key==='Enter') $('#btnSearch').click();
+    });
+
+    /* 새글쓰기 이동 */
+    document.getElementById('regBtn')
+            .addEventListener('click',()=>location.href=`/muscat/board/articleRegist.do?bbsId=${bbsId}`);
+
+    /* ----------- 초기화 ------------ */
     document.addEventListener('DOMContentLoaded',()=>{
-      bbsId = new URLSearchParams(location.search).get('bbsId');
+      const qs = new URLSearchParams(location.search);
+      bbsId       = qs.get('bbsId') || '';
+      gSearchCnd  = qs.get('searchCnd') || '0';
+      gSearchWrd  = qs.get('searchWrd') || '';
+
+      // URL에 검색 파라미터가 있으면 UI 반영
+      $('#searchCnd').val(gSearchCnd);
+      $('#searchWrd').val(gSearchWrd);
+
       if(!bbsId){ alert('bbsId 파라미터가 없습니다.'); return; }
-
-      document.getElementById('regBtn')
-              .addEventListener('click',()=>location.href=`/muscat/board/articleRegist.do?bbsId=${bbsId}`);
-
       loadArticleList();
     });
   </script>
