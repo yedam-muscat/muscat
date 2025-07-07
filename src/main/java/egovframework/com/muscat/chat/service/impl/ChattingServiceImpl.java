@@ -69,19 +69,23 @@ public class ChattingServiceImpl implements ChattingService{
 		  
 		  return "success"; 
 	}
-
+	
+	//메시지 등록 
 	@Override
 	public String insertMessage(MessageVO messaged) {
-		int insertmessage = roomMapper.insertMessage(messaged);
-		return null;
+		int insertCount = roomMapper.insertMessage(messaged);
+		return insertCount > 0 ? "success" : "fail";
 	}
 
+	
+	// 채팅방 
 	@Override
 	public List<RoomVO> findroom(UserVO findroom) {
 		
 		return roomMapper.findroom(findroom);
 	}
-
+	
+	 //채팅방 인원 조회 
 	 @Override
 	    public List<String> findParticipantsByRoomId(String roomId) {
 	        return roomMapper.findParticipantsByRoomId(roomId);

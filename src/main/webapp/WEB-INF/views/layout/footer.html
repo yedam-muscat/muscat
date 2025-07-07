@@ -235,10 +235,21 @@
     	    }
     	  });
     	});
-    
-     
-    
-    
+    function sendMessageToBot(message) {
+    	  fetch('/muscat/chatbot/message.do', {
+    	    method: 'POST',
+    	    headers: { 'Content-Type': 'application/json' },
+    	    body: JSON.stringify({ message: message })
+    	  })
+    	  .then(response => response.text())
+    	  .then(botReply => {
+    	    appendMessage('챗봇', botReply);
+    	  })
+    	  .catch(err => {
+    	    appendMessage('챗봇', '⚠️ 서버와 통신 중 오류가 발생했습니다.');
+    	    console.error(err);
+    	  });
+    	}
   </script>
 		</div>
 	</div>

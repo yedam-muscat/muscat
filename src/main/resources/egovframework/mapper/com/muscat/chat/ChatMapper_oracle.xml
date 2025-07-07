@@ -38,8 +38,8 @@
 	
 	<!--  메시지 등록 -->
 	<insert id="insertMessage" parameterType="MessageVO">
-	insert into Message (message_id, room_id, mg_file_info, mg_count_num, mg_photo, mg_type,user_id )
-	values (#{messageId},#{roomId},#{mgFileInfo},#{mgCountNum},#{mgPhoto},#{mgType},#{userId})
+	insert into Message (message_id, room_id, mg_file_info, mg_count_num, mg_photo, mg_type, user_id, mg_content )
+	values (#{messageId},#{roomId},#{mgFileInfo},#{mgCountNum},#{mgPhoto},#{mgType},#{userId},#{mgContent})
 	</insert>
 	
 	

@@ -1,5 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<style>
+  #tree a {
+    color: inherit !important;
+    text-decoration: none !important;
+    /* cursor: default !important; */
+  }
+</style>
 <div id="sidebar" class="active sidebar-hidden" th:fragment="sidebar">
 	<div class="sidebar-wrapper active">
 		<div class="sidebar-header">
@@ -97,28 +104,26 @@
 	</div>
 
 	<!-- 조직도 Modal -->
-	<div class="modal fade" id="staticBackdrop" data-bs-backdrop="false"
-		data-bs-keyboard="false" tabindex="-1"
-		aria-labelledby="staticBackdropLabel" aria-hidden="true">
-		<div class="modal-dialog"
-			style="position: absolute; left: 200px; bottom: 100px; margin: 0;">
+	<div class="modal fade" id="staticBackdrop" data-bs-backdrop="false" data-bs-keyboard="false" tabindex="-1"	aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		<div class="modal-dialog" style="position: absolute; left: 200px; bottom: 100px; margin: 0;">
 			<div class="modal-content">
 				<div class="modal-header">
 					<h3 class="modal-title" id="staticBackdropLabel">조직도</h3>
-					<button type="button" class="btn-close" data-bs-dismiss="modal"
-						aria-label="Close"></button>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
+				
 				<div class="modal-body">
 					<div class="mb-3">
-						<input type="text" id="searchInput" class="form-control"
-							placeholder="이름/아이디/부서/직위/직책/전화 등 입력해주세요">
+						<input type="text" id="searchInput" class="form-control" placeholder="이름/아이디/부서/직위/직책/전화 등 입력해주세요">
 					</div>
+					
 					<div id="tree"></div>
-					<div id="treeTextResult"></div>
+					
 				</div>
 			</div>
 		</div>
 	</div>
+	
 	<!-- 조직도 카드 -->
 <div id="employeeCard" class="card shadow"
      style="display: none; position: absolute; width: 300px; z-index: 1500; animation: fadeSlideIn 0.3s ease-out; border-radius: 12px; background-color: #fff; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); font-family: 'Segoe UI', 'Pretendard', sans-serif;">
@@ -450,7 +455,7 @@
 				        originalGroupData = data;  // ✅ 여기에 원본 저장
 				      });
 				 
-				  
+				//조직도 
 				  $('#tree')
 				  .jstree({
 				    'core': {
@@ -466,8 +471,22 @@
 				      'default': { 'icon': 'bi bi-folder' },
 				      'user': { 'icon': 'bi bi-person' }
 				    },
-				    'plugins': ['types']
+				    /** 🔹 search 플러그인 활성화 */
+				    plugins: ['types', 'search'],
+				    /** 🔹 검색 옵션 – 일치 노드만 보여주기 */
+				    search : {
+					    show_only_matches: true,
+					    search_callback: function (str, node) {
+					      // 노드의 여러 속성에서 포함 여부 검사
+					      return node.text.toLowerCase().includes(str.toLowerCase()) ||
+					             (node.original.dept  || '').includes(str)            ||
+					             (node.original.rank  || '').includes(str);
+					    }
+				    }
 				  })
+				    
+				    /* 'plugins': ['types']
+				  }) */
 				  .on('loaded.jstree', async function (e, data) {
 				    console.log("트리 로딩 완료");
 
@@ -493,7 +512,25 @@
 
 
 				}
+				const $search = $('#searchInput');
+				let to = false;
 
+				$search.on('keyup', function () {
+				  clearTimeout(to);
+				  to = setTimeout(() => {
+				    const v = $search.val().trim();
+				    $('#tree').jstree(true).search(v);        // ← 핵심 한 줄
+				  }, 250);   // 타이핑 중 250 ms 딜레이
+				});
+				console.log("🔍 검색어:", v);  // ← 디버깅용
+				
+				//input을 비우면 자동으로 모든 노드 다시 보여줌
+				// 검색 결과가 하나뿐이면 자동으로 select_node
+				$('#tree').on('search.jstree', function (e, data) {
+					  if (data.nodes.length === 1) {
+					    $(this).jstree(true).select_node(data.nodes[0]);
+					  }
+					});
 	
 			function showEmployeeCard(node, event) {
 				  const card = document.getElementById('employeeCard');
