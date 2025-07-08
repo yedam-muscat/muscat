@@ -89,15 +89,21 @@ public class BoardArticleController {
 				.replaceAll("(?i)<form", "&lt;form").replaceAll("(?i)</form", "&lt;/form");
 	}
 
-	/** 📄 게시글 목록 페이지 이동 */
-	@GetMapping("/board/articleList.do")
-	public String articleListPage(@RequestParam("bbsId") String bbsId, Model model) throws Exception {
-		BoardMasterVO boardInfo = new BoardMasterVO();
-		boardInfo.setBbsId(bbsId);
+//	/** 📄 게시글 목록 페이지 이동 */
+//	@GetMapping("/board/articleList.do")
+//	public String articleListPage(@RequestParam("bbsId") String bbsId, Model model) throws Exception {
+//		BoardMasterVO boardInfo = new BoardMasterVO();
+//		boardInfo.setBbsId(bbsId);
+//
+//		model.addAttribute("bbsId", bbsId);
+//		model.addAttribute("boardInfo", egovBBSMasterService.selectBBSMasterInf(boardInfo));
+//		return "board/articleList.html";
+//	}
 
+	@GetMapping("/board/articleList.do")
+	public String articleList(@RequestParam("bbsId") String bbsId, Model model) throws Exception {
 		model.addAttribute("bbsId", bbsId);
-		model.addAttribute("boardInfo", egovBBSMasterService.selectBBSMasterInf(boardInfo));
-		return "board/articleList.html";
+		return "board/articleList.html"; // html로 forward
 	}
 
 	/** 📑 게시글 목록 데이터 (JSON) */
