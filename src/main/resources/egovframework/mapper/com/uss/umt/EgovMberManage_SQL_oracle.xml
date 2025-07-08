@@ -24,8 +24,13 @@ SELECT * FROM ( SELECT rownum rn, TB.* FROM (
         GROUP_ID              as GROUP_ID,
         MBER_STTUS            as STTUS,
         SBSCRB_DE             as SBSCRB_DE,
-        DEPT_ID               as DEPT_ID
-    FROM    COMTNGNRLMBER
+       	rank                  AS RANK,
+		FIND_CODENAME(rank, 'COM103') 
+							  AS RANK_NAME,
+		DEPT.id               AS DEPT_ID,
+		DEPT.text             AS DEPT_NAME
+    FROM COMTNGNRLMBER MBER
+	LEFT JOIN VW_DEPARTMENT DEPT ON MBER.dept_id = DEPT.id
     WHERE 1=1
         <if test='sbscrbSttus != null and sbscrbSttus neq "0" and sbscrbSttus neq ""'>
             AND MBER_STTUS LIKE  #{sbscrbSttus}
@@ -88,7 +93,8 @@ SELECT * FROM ( SELECT rownum rn, TB.* FROM (
                     SBSCRB_DE        ,
                     CHG_PWD_LAST_PNTTM,
                     PARENT_DEPT_ID,
-                    DEPT_ID		)
+                    DEPT_ID,
+                    RANK		)
               VALUES(
                     #{uniqId},
                     #{mberId},
@@ -112,7 +118,8 @@ SELECT * FROM ( SELECT rownum rn, TB.* FROM (
                     sysdate,
                     sysdate,
                     #{parentDeptId},
-                    #{deptId}  )
+                    #{deptId},
+                    #{rank}  )
         
     </insert>
     
@@ -175,7 +182,11 @@ SELECT * FROM ( SELECT rownum rn, TB.* FROM (
                 GROUP_ID         = #{groupId},
                 MBER_FXNUM       = #{mberFxnum},
                 MBER_EMAIL_ADRES = #{mberEmailAdres},
-                MIDDLE_TELNO     = #{middleTelno}
+                MIDDLE_TELNO     = #{middleTelno},
+                PARENT_DEPT_ID   = #{parentDeptId},
+                DEPT_ID   = #{deptId},
+                RANK   = #{rank}
+                
             WHERE ESNTL_ID=#{uniqId}
         
     </update>

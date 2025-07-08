@@ -66,8 +66,8 @@ textarea {
 							<!-- 제목 -->
 							<div class="form-row">
 								<label for="title">제목</label> <input
-									th:value="${schedule != null ? schedule.schdulNm : ''}" type="text" id="title"
-									class="form-control" required>
+									th:value="${schedule != null ? schedule.schdulNm : ''}"
+									type="text" id="title" class="form-control" required>
 							</div>
 
 							<!-- 시작일 -->
@@ -128,7 +128,8 @@ textarea {
 							<!-- 캘린더 -->
 							<div class="form-row">
 								<label for="calendar">캘린더</label> <select id="calendar"
-									class="form-select" th:value="${schedule != null ? schedule.calId : ''}">
+									class="form-select"
+									th:value="${schedule != null ? schedule.calId : ''}">
 									<option value="">캘린더 선택</option>
 								</select>
 							</div>
@@ -169,14 +170,13 @@ textarea {
 			<div class="col-lg-6 d-none d-lg-block bg-light"></div>
 		</div>
 	</div>
-<script th:inline="javascript">
+	<script th:inline="javascript">
    let schedule = /*[[${schedule}]]*/ 'default';
   
    function formatDateTime(date, time) {
 	    if (!date || !time) return '';
 	    return date.replace(/-/g, '') + time.replace(/:/g, '') + '00';
 	  }
-
    
   function addParticipant() {
     const input = $('#participantInput');
@@ -282,7 +282,8 @@ textarea {
 	    leaderId: 'admin',
 	    schdulChargerId: 'admin',
 	    calId: $('#calendar').val(),
-	    reptitSeCode: $('#repeat').is(':checked') ? repeatMap[$('#repeatCycle').val()] : 'N'
+	    reptitSeCode: $('#repeat').is(':checked') ? repeatMap[$('#repeatCycle').val()] : 'N',
+	    reservedRoom: $('#room').val()
 	  };
 
 	  const url = isEditMode 
@@ -324,9 +325,12 @@ textarea {
 	      $roomSelect.append(`<option value="${room.MTGRUM_ID}">${room.MTGRUM_NM}</option>`);
 	    });
 	    if (selectedRoomId) {
-	      $roomSelect.val(selectedRoomId).prop("selected", true);
-	    }
-	  };
+	        $roomSelect.val(selectedRoomId).prop("selected", true);
+
+	        const selectedRoomName = $roomSelect.find('option:selected').text();
+	        $('#location').val(selectedRoomName === '선택 안 함' ? '' : selectedRoomName);
+	      }
+	    };
 
 	  if (!start || !startTime) {
 	    $.ajax({

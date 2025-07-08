@@ -22,7 +22,8 @@
 		FRST_REGISTER_ID,
 		LAST_UPDUSR_ID,
 		LAST_UPDT_PNTTM,
-		CAL_ID
+		CAL_ID,
+		RESERVED_ROOM
 		) VALUES (
 		#{schdulId},
 		#{schdulSe},
@@ -37,7 +38,8 @@
 		#{frstRegisterId},
 		#{lastUpdusrId},
 		CURRENT_TIMESTAMP,
-		#{calId}
+		#{calId},
+		#{reservedRoom}
 		)
 	</insert>
 
@@ -121,10 +123,12 @@
 
 	<select id="selectAllRooms" resultType="map">
 		SELECT
-		TRIM(MTGRUM_ID) AS MTGRUM_ID,
+		TRIM(MTGRUM_ID) AS
+		MTGRUM_ID,
 		TRIM(MTGRUM_NM) AS MTGRUM_NM
 		FROM COMTNMTGPLACEMANAGE
-		ORDER BY MTGRUM_NM
+		ORDER BY
+		MTGRUM_NM
 	</select>
 
 
@@ -151,9 +155,11 @@
 		SCHDUL_BGNDE =
 		#{schdulBgnde},
 		SCHDUL_ENDDE = #{schdulEndde},
-		LAST_UPDUSR_ID =
-		#{lastUpdusrId},
-		LAST_UPDT_PNTTM = CURRENT_TIMESTAMP
+		RESERVED_ROOM =
+		#{reservedRoom},
+		LAST_UPDUSR_ID = #{lastUpdusrId},
+		LAST_UPDT_PNTTM =
+		CURRENT_TIMESTAMP
 		WHERE
 		TRIM(SCHDUL_ID) = TRIM(#{schdulId})
 	</update>
@@ -167,19 +173,19 @@
 	<select id="selectScheduleById" parameterType="string"
 		resultType="egovframework.com.muscat.cal.mapper.ScudVO">
 		SELECT
-		TRIM(SCHDUL_ID) AS schdulId,
-		TRIM(SCHDUL_NM) AS
-		schdulNm,
-		TRIM(SCHDUL_CN) AS schdulCn,
-		TRIM(SCHDUL_PLACE) AS
-		schdulPlace,
-		TRIM(SCHDUL_BGNDE) AS schdulBgnde ,
-		TRIM(SCHDUL_ENDDE) AS
+		TRIM(s.SCHDUL_ID) AS schdulId,
+		TRIM(s.SCHDUL_NM) AS schdulNm,
+		TRIM(s.SCHDUL_CN) AS schdulCn,
+		TRIM(s.SCHDUL_PLACE) AS schdulPlace,
+		TRIM(s.SCHDUL_BGNDE) AS schdulBgnde,
+		TRIM(s.SCHDUL_ENDDE) AS
 		schdulEndde,
-		TRIM(CAL_ID) AS calId
-		FROM COMTNLEADERSCHDUL
-		WHERE
-		TRIM(SCHDUL_ID) = TRIM(#{schdulId})
+		TRIM(s.CAL_ID) AS calId,
+		TRIM(s.RESERVED_ROOM) AS roomId,
+		TRIM(r.MTGRUM_NM) AS roomName
+		FROM COMTNLEADERSCHDUL s
+		LEFT JOIN COMTNMTGPLACEMANAGE r ON s.RESERVED_ROOM = r.MTGRUM_ID
+		WHERE TRIM(s.SCHDUL_ID) = TRIM(#{schdulId})
 	</select>
 </mapper>
 

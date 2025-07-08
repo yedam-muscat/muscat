@@ -80,7 +80,8 @@
 								</div>
 								<div class="col-auto">
 									<input type="text" class="form-control" id="sexdstnCode"
-										th:value="${mberManageVO.sexdstnCode}" readonly>
+										th:value="${mberManageVO.sexdstnCode == 'M' ? '남' : '여'}"
+										readonly>
 								</div>
 							</div>
 
@@ -185,8 +186,10 @@
 
 							<!-- 버튼 -->
 							<div class="d-flex justify-content-end">
-								<button class="btn btn-primary me-2" id="confirmModifyUser">수정</button>
-								<button class="btn btn-outline-secondary" id="cancelModifyUser">취소</button>
+								<button class="btn btn-primary me-2"
+									onclick="confirmModifyUser()">수정</button>
+								<button class="btn btn-outline-secondary"
+									onclick="cancelModifyUser()">취소</button>
 							</div>
 
 						</div>
@@ -196,10 +199,14 @@
 		</div>
 	</div>
 	<script th:inline="javascript">
+	let mber = /*[[${mberManageVO}]]*/ "";
 	let selectedParentDeptId = /*[[${mberManageVO.parentDeptId}]]*/ "";
 	let selectedDeptId = /*[[${mberManageVO.deptId}]]*/ "";
 	let parent_dept_result = /*[[${parent_dept_result}]]*/ "";
 	let childDeptList = /*[[${child_dept_result}]]*/ "";
+
+	let userListUrl = /*[[ @{/admin/user/userList.do} ]]*/ '';
+	let modifyUserUrl = /*[[ @{/admin/user/modifyUser.do} ]]*/ '';
 	
 		$('document').ready(function() {
 
@@ -247,42 +254,48 @@
 			
 		});
 		
-		function confirmModifyUser() {}
-		function cancelModifyUser() {}
+		function cancelModifyUser() {
+			
+		}
 		
-		function userReg() {
-			let url = /*[[ @{/uat/uia/userReg.do} ]]*/ '';
+		function confirmModifyUser() {
+			let parentDeptId = $('#parentDept').val();
+			let childDeptId = $('#childDept').val();
+			let rank = $('#rank').val();
+			let mberSttus = $('#mberSttus').val();
+			
+			if (!rank) {
+				return alert('직급 없음');
+			} else if (!parentDeptId) {
+				return alert('부서 없음');
+			} else if (!mberSttus) {
+				return alert('상태 없음');
+			}
+			
+			if (parentDeptId && childDeptId) {
+				mber.parentDeptId = parentDeptId;
+				mber.deptId = childDeptId;
+			} else {				
+				mber.parentDeptId = null;
+				mber.deptId = parentDeptId;
+			}
+		
+			mber.rank = rank;
+			mber.mberSttus = mberSttus;
+			
 			$.ajax({
 				type: "POST",
-				url: url,
-				data: {
-					mberId : $('#mberId').val(),
-					mberNm : $('#mberNm').val(),
-					password : $('#password').val(),
-					passwordCnsr : $('#passwordCnsr').val(),
-					passwordHint : $('#passwordHint').val(),
-					mberEmailAdres : $('#mberEmailAdres').val(),
-					zip : $('#zip').val(),
-					adres : $('#adres').val(),
-					detailAdres : $('#detailAdres').val(),
-					areaNo : $('#areaNo').val(),
-					middleTelno : $('#middleTelno').val(),
-					endTelno : $('#endTelno').val(),
-					moblphonNo : getMoblphonNo(),
-					mberSttus : $('#mberSttus').val(),
-					sexdstnCode : $('#sexdstnCode').val(),
-					parentDeptId : $('#parentDept').val(),
-					deptId : $('#childDept').val(),
-				},
-				dataType: 'json',
-				timeout:(1000*30),
+				  url: modifyUserUrl,
+				  contentType: "application/json; charset=utf-8",
+				  data: JSON.stringify(mber),
+				  dataType: "json"
 				})
 				.done(function() {
 					Swal.fire({
 						icon : "success",
-						title : "회원 가입 요청이 완료되었습니다"
+						title : "회원 정보가 수정되었습니다"
 					}).then(() => {
-						location.href = '/muscat/login/login.do';
+						
 					})
 				  })
 				  .fail(function() {
@@ -292,104 +305,5 @@
 						})
 				  });
 		}		
-		
-		function isValidId(id) {
-			  const idRegex = /^[a-zA-Z0-9]{4,10}$/;
-			  return idRegex.test(id);
-			}
-		
-		function fn_id_check() {
-			  			  
-			  let url = /*[[ @{/uss/umt/EgovIdDplctCnfirmAjax.do} ]]*/ '';
-
-			  $.ajax({
-			    url: url,
-			    type: "POST",
-			    data: {
-					"checkId": idValue		
-				},
-				dataType:'json',
-				timeout:(1000*30),
-			    success: function (returnData, status) {
-			    	if (status == "success") {
-			    		if (returnData.usedCnt > 0 ) {
-			    			checkId = false;
-			    			availableId = false;
-					        idInput.removeClass("is-valid").addClass("is-invalid");
-					        idInput.nextAll(".invalid-feedback").first().text("이미 사용 중인 아이디입니다.");
-			    		} else {
-			    			checkId = true;
-			    			availableId = true;
-					        idInput.removeClass("is-invalid").addClass("is-valid");
-					        idInput.nextAll(".valid-feedback").first().text("사용 가능한 아이디입니다.");
-			    		}
-			    	}
-			    },
-			    error: function () {
-	    			checkId = false;
-	    			availableId = false;
-			      idInput.removeClass("is-valid").addClass("is-invalid");
-			      idInput.nextAll(".invalid-feedback").first().text("확인 중 오류가 발생했습니다.");
-			    }
-			  });
-		}
-		
-		function getMoblphonNo() {
-			return $('#mobileStart').val() + '-' + $('#mobileCenter').val() + '-' + $('#mobileEnd').val();
-		}
-		
-		function validateSignupForm() {
-			  const id = $("#mberId").val().trim();
-			  const name = $("#mberNm").val().trim();
-			  const pw = $("#password").val();
-			  const pwConfirm = $("#confirmPassword").val();
-			  const passwordHint = $("#passwordHint").val();
-			  const passwordCnsr = $("#passwordCnsr").val().trim();
-			  const sexdstnCode = $("#sexdstnCode").val();
-			  const areaNo = $("#areaNo").val();
-			  const middleTel = $("#middleTelno").val().trim();
-			  const endTel = $("#endTelno").val().trim();
-			  const mobileStart = $("#mobileStart").val();
-			  const mobileCenter = $("#mobileCenter").val().trim();
-			  const mobileEnd = $("#mobileEnd").val().trim();
-			  const email = $("#mberEmailAdres").val().trim();
-			  const zip = $("#zip").val();
-			  const adres = $("#adres").val();
-			  const detailAdres = $("#detailAdres").val();
-			  const deptId = $("#parentDept").val();
-
-			  // 공백 체크
-			  if (!id) return alert("아이디를 입력하세요.");
-			  if (!name) return alert("이름을 입력하세요.");
-			  if (!pw) return alert("비밀번호를 입력하세요.");
-			  if (!pwConfirm) return alert("비밀번호 확인을 입력하세요.");
-			  if (!passwordHint) return alert("비밀번호 힌트를 선택하세요.");
-			  if (!passwordCnsr) return alert("힌트 정답을 입력하세요.");
-			  if (!sexdstnCode) return alert("성별을 선택하세요.");
-			  if (!areaNo || !middleTel || !endTel) return alert("전화번호를 모두 입력하세요.");
-			  if (!mobileStart || !mobileCenter || !mobileEnd) return alert("휴대폰 번호를 모두 입력하세요.");
-			  if (!email) return alert("이메일을 입력하세요.");
-			  if (!zip || !adres || !detailAdres) return alert("주소를 모두 입력하세요.");
-			  if (!deptId) return alert("부서를 선택하세요.");
-			 
-			  // 비밀번호 유효성
-			  const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+=-]).{8,20}$/;
-			  //const pwRegex = /^(?=.*[A-Za-z])(?=.*\d).{4,10}$/;
-			  if (!pwRegex.test(pw)) return alert("비밀번호 양식이 일치하지 않습니다.");
-			  if (pw !== pwConfirm) return alert("비밀번호가 일치하지 않습니다.");
-
-			  // 전화번호 숫자만
-			  const phoneRegex = /^\d+$/;
-			  if (!phoneRegex.test(middleTel) || !phoneRegex.test(endTel)) return alert("전화번호는 숫자만 입력하세요.");
-			  if (!phoneRegex.test(mobileCenter) || !phoneRegex.test(mobileEnd)) return alert("휴대폰 번호는 숫자만 입력하세요.");
-
-			  // 이메일 유효성
-			  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-			  if (!emailRegex.test(email)) return alert("유효한 이메일 형식이 아닙니다.");
-
-			  // 모든 조건 통과
-			  return true;
-			}
-
 	</script>
 </main>

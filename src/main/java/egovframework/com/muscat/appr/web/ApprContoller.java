@@ -8,10 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import egovframework.com.muscat.appr.service.ApprDocVO;
 import egovframework.com.muscat.appr.service.ApprService;
+import egovframework.com.muscat.appr.service.DocFormVO;
+import egovframework.com.muscat.common.ResultVO;
 
 @Controller
 public class ApprContoller {
@@ -77,7 +80,9 @@ public class ApprContoller {
 	// 문서 양식 등록
 	@PostMapping("/appr/postDocFormReg.do")
 	@ResponseBody
-	public String postDocFormReg() {
-		return "";
+	public ResultVO postDocFormReg(@RequestBody DocFormVO docForm) {
+		ResultVO result = new ResultVO();
+		int serviceResult = apprService.regDocForm(docForm);
+		return result;
 	}
 }
