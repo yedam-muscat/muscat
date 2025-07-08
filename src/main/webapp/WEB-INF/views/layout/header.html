@@ -59,8 +59,8 @@
 						<div class="user-menu d-flex">
 							<div class="user-name text-end me-3"
 								th:if="${session.loginVO != null}">
-								<h6 class="mb-0 text-gray-600" th:text="${session.loginVO.id}"></h6>
-								<h6 class="mb-0 text-gray-600" th:text="${session.loginVO.name}"></h6>
+								<h6 class="mb-0 text-gray-600" th:text="${session.loginVO.name + '(' + session.loginVO.id + ')'}"></h6>
+								<h6 class="mb-0 text-gray-600" th:text="${session.loginVO.deptName + ', ' + session.loginVO.rankName}"></h6>
 							</div>
 							<div class="user-img d-flex align-items-center">
 								<div class="avatar avatar-md">
@@ -94,8 +94,12 @@
 		let egovLatestServerTime = /*[[${egovLatestServerTime}]]*/ "";
 		let egovExpireSessionTime = /*[[${egovExpireSessionTime}]]*/ "";
 		let refreshSessionUrl = /*[[ @{/uat/uia/refreshSessionTimeout.do} ]]*/ '';
+		let loginVO = /*[[ ${session.loginVO} ]]*/ '';
 	</script>
 	<script>
+
+		console.log(loginVO);
+		
 		$("#logout").on('click', function(event) {
 			event.preventDefault();
 			

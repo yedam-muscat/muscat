@@ -9,8 +9,10 @@
 	<table class="table table-bordered">
 		<thead class="table-light">
 			<tr>
-				<th>유저 아이디</th>
-				<th>유저 이름</th>
+				<th>아이디</th>
+				<th>사용자명</th>
+				<th>부서</th>
+				<th>직급</th>
 				<th>핸드폰번호</th>
 				<th>가입 상태</th>
 			</tr>
@@ -54,8 +56,10 @@
 	          tbody.append(`<tr data-user-id="${item.uniqId}">
 	  	            <td>${item.userId}</td>
 	  	            <td>${item.userNm}</td>
+	  	            <td>${item.deptName ? item.deptName : ''}</td>
+	  	            <td>${item.rankName ? item.rankName : '' }</td>
 	  	            <td>${item.moblphonNo}</td>
-	  	            <td>${item.sttus}</td>
+	  	            <td>${item.sttus == 'A' ? '가입 대기' : item.sttus == 'P' ? '가입 승인': '가입 거절' }</td>
 	  	            </tr>
 	  	          `);
 	        });

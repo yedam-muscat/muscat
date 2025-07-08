@@ -16,6 +16,8 @@ import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springmodules.validation.commons.DefaultBeanValidator;
@@ -24,6 +26,7 @@ import egovframework.com.cmm.ComDefaultCodeVO;
 import egovframework.com.cmm.service.CmmnDetailCode;
 import egovframework.com.cmm.service.EgovCmmUseService;
 import egovframework.com.cmm.util.EgovUserDetailsHelper;
+import egovframework.com.muscat.common.ResultVO;
 import egovframework.com.muscat.group.service.GroupService;
 import egovframework.com.muscat.group.service.GroupVO;
 import egovframework.com.uss.umt.service.EgovMberManageService;
@@ -48,7 +51,7 @@ public class AdminController {
 	/** DefaultBeanValidator beanValidator */
 	@Autowired
 	private DefaultBeanValidator beanValidator;
-	
+
 	/** */
 	@Autowired
 	private GroupService groupService;
@@ -106,10 +109,10 @@ public class AdminController {
 		resultMap.put("paginationInfo", paginationInfo);
 
 		// 일반회원 상태코드를 코드정보로부터 조회
-//        ComDefaultCodeVO comDefaultCodeVO = new ComDefaultCodeVO();
-//        comDefaultCodeVO.setCodeId("COM013");
-//        List<CmmnDetailCode> mberSttus_result = cmmUseService.selectCmmCodeDetail(comDefaultCodeVO);
-//        resultMap.put("entrprsMberSttus_result", mberSttus_result);// 기업회원상태코드목록
+        ComDefaultCodeVO comDefaultCodeVO = new ComDefaultCodeVO();
+        comDefaultCodeVO.setCodeId("COM013");
+        List<CmmnDetailCode> mberSttus_result = cmmUseService.selectCmmCodeDetail(comDefaultCodeVO);
+        resultMap.put("entrprsMberSttus_result", mberSttus_result);// 기업회원상태코드목록
 
 		return resultMap;
 	}
@@ -118,9 +121,7 @@ public class AdminController {
 
 	@GetMapping("/admin/user/userDetail.do")
 	public String userDetail(@RequestParam("selectedId") String mberId,
-			@ModelAttribute("searchVO") UserDefaultVO userSearchVO, 
-			HttpServletRequest request, 
-			Model model)
+			@ModelAttribute("searchVO") UserDefaultVO userSearchVO, HttpServletRequest request, Model model)
 			throws Exception {
 
 		ComDefaultCodeVO vo = new ComDefaultCodeVO();
@@ -144,7 +145,7 @@ public class AdminController {
 		// 직급코드를 코드정보로부터 조회
 		vo.setCodeId("COM103");
 		List<CmmnDetailCode> rank_result = cmmUseService.selectCmmCodeDetail(vo);
-		
+
 		// 부서정보 조회
 		List<GroupVO> dept_result = groupService.getGroupChartData();
 
@@ -153,7 +154,6 @@ public class AdminController {
 
 		List<GroupVO> parent = part.get(true);
 		List<GroupVO> child = part.get(false);
-		
 
 		model.addAttribute("passwordHint_result", passwordHint_result); // 패스워트힌트목록
 		model.addAttribute("sexdstnCode_result", sexdstnCode_result); // 성별구분코드목록
@@ -170,4 +170,30 @@ public class AdminController {
 		return "admin/userDetail.html";
 	}
 
+	@PostMapping("/admin/user/modifyUser.do")
+	@ResponseBody
+	public ResultVO modifyUser(@RequestBody MberManageVO mberManageVO) throws Exception {
+
+		ResultVO result = new ResultVO();
+
+		// 미인증 사용자에 대한 보안처리
+		Boolean isAuthenticated = EgovUserDetailsHelper.isAuthenticated();
+		if (!isAuthenticated) {
+			result.setResultCode("");
+			result.setResultSuccess(false);
+			result.setResultMsg("수정 권한 없음");
+			return result;
+		}
+
+		if ("".equals(mberManageVO.getGroupId())) {// KISA 보안약점 조치 (2018-10-29, 윤창원)
+			mberManageVO.setGroupId(null);
+		}
+		mberManageService.updateMber(mberManageVO);
+		
+		result.setResultCode("");
+		result.setResultSuccess(true);
+		result.setResultMsg("수정 완료");
+		
+		return result;
+	}
 }

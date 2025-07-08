@@ -572,6 +572,18 @@
 			<version>2.23.1</version>
 			<scope>compile</scope>
 		</dependency>
+
+		<!-- STOMP / WebSocket -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-websocket</artifactId>
+			<version>${spring.maven.artifact.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-messaging</artifactId>
+			<version>${spring.maven.artifact.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

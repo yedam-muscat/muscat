@@ -31,11 +31,29 @@ public class MberManageVO extends UserDefaultVO {
 	 * 하위 부서
 	 */
 	private int deptId;
-
+	private String deptName;
+	
 	/**
 	 * 직책
 	 */
 	private String rank;
+	private String rankName;
+
+	public String getDeptName() {
+		return deptName;
+	}
+
+	public void setDeptName(String deptName) {
+		this.deptName = deptName;
+	}
+
+	public String getRankName() {
+		return rankName;
+	}
+
+	public void setRankName(String rankName) {
+		this.rankName = rankName;
+	}
 
 	/** 이전비밀번호 - 비밀번호 변경시 사용 */
 	private String oldPassword = "";
