@@ -279,7 +279,7 @@ html, body {
 				</div>
 
 				<div id="gridChatMessages"
-					style="padding: 10px; flex-grow: 1; overflow-y: auto; background: #ACBCE3;">
+					style="padding: 10px; flex-grow: 1; overflow-y: auto; background: #ACBCE3; height: 500px;">
 					<!-- 채팅 메시지 표시 영역 -->
 				</div>
 
@@ -499,19 +499,25 @@ html, body {
 			    function openSocket(roomId) {
 			    	  const url = `ws://${location.host}/muscat/chat/${roomId}`;
 			    	  webSocket = new WebSocket(url);
+			    	  
+			    	  webSocket.addEventListener('open', () => {
+			    		    console.log(`✔️  joined room ${roomId}`);
+			    		    const payload = { message: username, room : roomId };   // 첫 메시지는 닉네임 등록용
+			    		    webSocket.send(JSON.stringify(payload));
+			    		  });
 
-			    	  /* 필요한 이벤트 핸들러 등록 */
-			    	  webSocket.onopen = () => console.log(`✔️  joined room ${roomId}`);
-			    	  webSocket.onmessage = e => handleMessage(JSON.parse(e.data));
-			    	  webSocket.onerror   = e => console.error('socket error', e);
-			    	  webSocket.onclose   = e => console.log('socket closed', e.code);
+			    		  webSocket.addEventListener('message', e => handleMessage(e));
+			    		  webSocket.addEventListener('error',   e => console.error('socket error', e));
+			    		  webSocket.addEventListener('close',   e => console.log('socket closed', e.code))
+			    	  
 			    	}
 
-			    	/* 메시지 보내기 예시 */
-			    	function send(text) {
-			    	  if (webSocket?.readyState === WebSocket.OPEN) {
-			    	    webSocket.send(JSON.stringify({ text }));
-			    	  }
+			    	function handleMessage(e) {
+			    		console.log(e);
+			    	}
+			    	
+			    	function sendMessage(e) {
+			    		console.log(e);
 			    	}
 	
 			//리스트에서 행 클릭 시 채팅방 open
@@ -750,6 +756,7 @@ html, body {
 							      success: function (res) {
 							        if (res.result === "success") {
 							          console.log("메시지 저장 성공");
+							          webSocket.send(JSON.stringify({'message' : msg , 'room' : roomId}));
 							          $("#gridChatInput").val(""); // 입력창 초기화
 							        } else {
 							          alert("메시지 저장 실패");
