@@ -12,6 +12,7 @@ import org.egovframe.rte.fdl.property.EgovPropertyService;
 import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;            // ✚
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,221 +33,200 @@ import egovframework.com.cop.bbs.service.EgovBBSMasterService;
 @Controller
 public class BoardMasterController {
 
-	@Resource(name = "EgovBBSMasterService")
-	private EgovBBSMasterService egovBBSMasterService;
+    @Resource(name = "EgovBBSMasterService")
+    private EgovBBSMasterService egovBBSMasterService;
 
-	@Resource(name = "EgovCmmUseService")
-	private EgovCmmUseService cmmUseService;
+    @Resource(name = "EgovCmmUseService")
+    private EgovCmmUseService cmmUseService;
 
-	@Resource(name = "propertiesService")
-	protected EgovPropertyService propertyService;
+    @Resource(name = "propertiesService")
+    protected EgovPropertyService propertyService;
 
-	@Resource(name = "egovBBSMstrIdGnrService")
-	private EgovIdGnrService idgenServiceBbs;
+    @Resource(name = "egovBBSMstrIdGnrService")
+    private EgovIdGnrService idgenServiceBbs;
 
-	@Resource(name = "egovBlogIdGnrService")
-	private EgovIdGnrService idgenServiceBlog;
+    @Resource(name = "egovBlogIdGnrService")
+    private EgovIdGnrService idgenServiceBlog;
 
-	/** EgovMessageSource */
-	@Resource(name = "egovMessageSource")
-	EgovMessageSource egovMessageSource;
+    /** EgovMessageSource */
+    @Resource(name = "egovMessageSource")
+    EgovMessageSource egovMessageSource;
 
-	@Autowired
-	private DefaultBeanValidator beanValidator;
-	
-	/* ========================================================= */
-	/* 🔸 Helper : 게시판 ‘첨부파일 정책’ 동기화                   */
-	/*    - 파일첨부 불가(N)   → atchPosblFileNumber = 0         */
-	/*    - 파일첨부 가능(Y) & 숫자 0 → 최소 1로 보정             */
-	/* ========================================================= */
-	private void applyFilePolicy(BoardMaster m) {                      // ★추가
-		if ("N".equals(m.getFileAtchPosblAt())) {
-			m.setAtchPosblFileNumber(0);
-		} else {
-			if (m.getAtchPosblFileNumber() == 0) m.setAtchPosblFileNumber(1);
-		}
-	}
+    @Autowired
+    private DefaultBeanValidator beanValidator;
 
-	 /* ------------------------------------------------------------------ */
+    /* ───────────────────────────────────────── 목록 화면 / JSON ───────────────────────────────────────── */
+
     /** 📄 목록 화면 */
     @GetMapping("/board/masterList.do")
-    public String masterList() { return "board/masterList.html"; }
+    public String masterList() {
+        return "board/masterList.html";
+    }
 
-    /* ------------------------------------------------------------------ */
-	/** 📑 목록 JSON  ★검색파라미터 & pageSize 처리 보강 */
-	@GetMapping("/board/masterList")
-	@ResponseBody
-	public Map<String,Object> boardMaster(
-			@RequestParam(name="searchCnd", defaultValue="")  String searchCnd,
-			@RequestParam(name="searchWrd", defaultValue="")  String searchWrd,
-			@RequestParam(name="pageIndex",defaultValue="1")  int    pageIndex,
-			@RequestParam(name="pageSize", required=false)    Integer pageSize) throws Exception {
+    /** 📑 목록 JSON  (검색 & 페이지) */
+    @GetMapping("/board/masterList")
+    @ResponseBody
+    public Map<String, Object> boardMaster(
+            @RequestParam(defaultValue = "")  String searchCnd,
+            @RequestParam(defaultValue = "")  String searchWrd,
+            @RequestParam(defaultValue = "1") int    pageIndex,
+            @RequestParam(required   = false) Integer pageSize) throws Exception {
 
-		BoardMasterVO vo = new BoardMasterVO();
-		vo.setSearchCnd(searchCnd);
-		vo.setSearchWrd(searchWrd);
-		vo.setPageIndex(pageIndex);
+        BoardMasterVO vo = new BoardMasterVO();
+        vo.setSearchCnd(searchCnd);
+        vo.setSearchWrd(searchWrd);
+        vo.setPageIndex(pageIndex);
 
-		/* 기본 pageUnit/pageSize 는 properties → 요청값 있으면 덮어씀 */
-		vo.setPageUnit(propertyService.getInt("pageUnit"));
-		vo.setPageSize(pageSize!=null ? pageSize : propertyService.getInt("pageSize"));
+        vo.setPageUnit(propertyService.getInt("pageUnit"));
+        vo.setPageSize(pageSize != null ? pageSize : propertyService.getInt("pageSize"));
 
-		/* 페이지 계산 */
-		PaginationInfo pi = new PaginationInfo();
-		pi.setCurrentPageNo(vo.getPageIndex());
-		pi.setRecordCountPerPage(vo.getPageUnit());
-		pi.setPageSize(vo.getPageSize());
+        PaginationInfo pi = new PaginationInfo();
+        pi.setCurrentPageNo(vo.getPageIndex());
+        pi.setRecordCountPerPage(vo.getPageUnit());
+        pi.setPageSize(vo.getPageSize());
 
-		vo.setFirstIndex(pi.getFirstRecordIndex());
-		vo.setRecordCountPerPage(pi.getRecordCountPerPage());
+        vo.setFirstIndex(pi.getFirstRecordIndex());
+        vo.setRecordCountPerPage(pi.getRecordCountPerPage());
 
-		/* 서비스 호출 & 결과 반환 */
-		return egovBBSMasterService.selectBBSMasterInfs(vo);  // resultList / resultCnt 포함
-	}
-    
-	/*
-	 * 게시판 등록 페이지
-	 */
-	@GetMapping("/board/masterRegist.do")
-	public String masterRegist() {
-		return "board/masterRegist.html";
-	}
+        return egovBBSMasterService.selectBBSMasterInfs(vo); // resultList / resultCnt 포함
+    }
 
-	/* 게시판 등록 */
-	@PostMapping("/board/masterInsert")
-	@ResponseBody
-	public Map<String, Object> insertBoardMaster(@RequestBody BoardMaster boardMaster) {
+    /* ───────────────────────────────────────── 게시판 등록 ───────────────────────────────────────── */
 
-		Map<String, Object> resultMap = new HashMap<>();
+    /** 📄 등록 페이지  ✚ deptList 모델 주입 */
+    @GetMapping("/board/masterRegist.do")
+    public String masterRegist(Model model) throws Exception {          // ✚
+        ComDefaultCodeVO vo = new ComDefaultCodeVO();                   // ✚
+        vo.setCodeId("COM103");                                         // 부서코드 그룹ID
+        List<CmmnDetailCode> deptList = cmmUseService.selectCmmCodeDetail(vo);
+        model.addAttribute("deptList", deptList);                       // ✚
+        return "board/masterRegist.html";
+    }
 
-		try {
-			LoginVO user = (LoginVO) EgovUserDetailsHelper.getAuthenticatedUser();
-			if (!EgovUserDetailsHelper.isAuthenticated()) {
-				resultMap.put("resultCode","FAIL");
-				resultMap.put("resultMessage","로그인이 필요합니다.");
-				return resultMap;
-			}
+    /** ✅ 등록 처리 */
+    @PostMapping("/board/masterInsert")
+    @ResponseBody
+    public Map<String, Object> insertBoardMaster(@RequestBody BoardMaster boardMaster) {
+        Map<String, Object> resultMap = new HashMap<>();
 
-			boardMaster.setFrstRegisterId(user.getUniqId());
-			boardMaster.setBlogAt("Y".equals(boardMaster.getBlogAt()) ? "Y":"N");
+        try {
+            LoginVO user = (LoginVO) EgovUserDetailsHelper.getAuthenticatedUser();
+            if (!EgovUserDetailsHelper.isAuthenticated()) {
+                resultMap.put("resultCode", "FAIL");
+                resultMap.put("resultMessage", "로그인이 필요합니다.");
+                return resultMap;
+            }
 
-			/* 🔹 정책 보정 */
-			applyFilePolicy(boardMaster);                                   // ★추가
+            boardMaster.setFrstRegisterId(user != null ? user.getUniqId() : "");
 
-			egovBBSMasterService.insertBBSMasterInf(boardMaster);
+            /* 옵션값 보정 */
+            boardMaster.setBlogAt("Y".equals(boardMaster.getBlogAt()) ? "Y" : "N");
 
-			resultMap.put("resultCode","SUCCESS");
-			resultMap.put("resultMessage","등록이 완료되었습니다.");
-		} catch (Exception e) {
-			resultMap.put("resultCode","FAIL");
-			resultMap.put("resultMessage","오류 발생: "+e.getMessage());
-		}
-		return resultMap;
-	}
+            egovBBSMasterService.insertBBSMasterInf(boardMaster);
 
-	/*
-	 * 게시판 상세 페이지
-	 */
-	@GetMapping("/board/masterDetail.do")
-	public String masterDetailPage() {
-		return "board/masterDetail.html";
-	}
+            resultMap.put("resultCode", "SUCCESS");
+            resultMap.put("resultMessage", "등록이 완료되었습니다.");
+        } catch (Exception e) {
+            resultMap.put("resultCode", "FAIL");
+            resultMap.put("resultMessage", "오류 발생: " + e.getMessage());
+        }
+        return resultMap;
+    }
 
-	/*
-	 * 게시판 상세
-	 */
-	@GetMapping("/board/masterDetail")
-	@ResponseBody
-	public BoardMasterVO getBoardMasterDetail(@RequestParam("bbsId") String bbsId) throws Exception {
-		BoardMasterVO searchVO = new BoardMasterVO();
-		searchVO.setBbsId(bbsId);
-		return egovBBSMasterService.selectBBSMasterInf(searchVO);
-	}
+    /* ───────────────────────────────────────── 게시판 상세 / 삭제 ───────────────────────────────────────── */
 
-	/*
-	 * 게시판 삭제
-	 */
-	@PostMapping("/board/masterDelete")
-	@ResponseBody
-	public Map<String, Object> deleteBoardMaster(@RequestBody BoardMasterVO vo) {
-		Map<String, Object> result = new HashMap<>();
-		try {
-			egovBBSMasterService.deleteBBSMasterInf(vo);
-			result.put("resultCode", "SUCCESS");
-			result.put("resultMessage", "삭제되었습니다.");
-		} catch (Exception e) {
-			result.put("resultCode", "FAIL");
-			result.put("resultMessage", "삭제 실패: " + e.getMessage());
-		}
-		return result;
-	}
+    @GetMapping("/board/masterDetail.do")
+    public String masterDetailPage() {
+        return "board/masterDetail.html";
+    }
 
-	/*
-	 * 게시판 수정 페이지
-	 */
-	@GetMapping("/board/masterUpdt.do")
-	public String masterEditPage() {
-		return "board/masterUpdt.html";
-	}
+    @GetMapping("/board/masterDetail")
+    @ResponseBody
+    public BoardMasterVO getBoardMasterDetail(@RequestParam("bbsId") String bbsId) throws Exception {
+        BoardMasterVO searchVO = new BoardMasterVO();
+        searchVO.setBbsId(bbsId);
+        return egovBBSMasterService.selectBBSMasterInf(searchVO);
+    }
 
-	/* 게시판 수정 처리 */
-	@PostMapping("/board/masterUpdt")
-	@ResponseBody
-	public Map<String, Object> updateBoardMaster(@RequestBody BoardMaster boardMaster) {
+    @PostMapping("/board/masterDelete")
+    @ResponseBody
+    public Map<String, Object> deleteBoardMaster(@RequestBody BoardMasterVO vo) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            egovBBSMasterService.deleteBBSMasterInf(vo);
+            result.put("resultCode", "SUCCESS");
+            result.put("resultMessage", "삭제되었습니다.");
+        } catch (Exception e) {
+            result.put("resultCode", "FAIL");
+            result.put("resultMessage", "삭제 실패: " + e.getMessage());
+        }
+        return result;
+    }
 
-		Map<String, Object> result = new HashMap<>();
-		try{
-			LoginVO user = (LoginVO)EgovUserDetailsHelper.getAuthenticatedUser();
-			if(!EgovUserDetailsHelper.isAuthenticated()){
-				result.put("resultCode","FAIL");
-				result.put("resultMessage","로그인이 필요합니다.");
-				return result;
-			}
+    /* ───────────────────────────────────────── 게시판 수정 ───────────────────────────────────────── */
 
-			if(boardMaster.getBbsId()==null || boardMaster.getBbsId().isEmpty()){
-				result.put("resultCode","FAIL");
-				result.put("resultMessage","게시판 ID가 없습니다.");
-				return result;
-			}
+    /** 📄 수정 페이지  ✚ deptList 재사용 */
+    @GetMapping("/board/masterUpdt.do")
+    public String masterEditPage(Model model) throws Exception {        // ✚
+        ComDefaultCodeVO vo = new ComDefaultCodeVO();                   // ✚
+        vo.setCodeId("COM103");
+        model.addAttribute("deptList", cmmUseService.selectCmmCodeDetail(vo));
+        return "board/masterUpdt.html";
+    }
 
-			boardMaster.setLastUpdusrId(user.getUniqId());
-			if(boardMaster.getOption()==null || boardMaster.getOption().isEmpty()){
-				boardMaster.setOption("na");
-			}
+    /** ✅ 수정 처리 */
+    @PostMapping("/board/masterUpdt")
+    @ResponseBody
+    public Map<String, Object> updateBoardMaster(@RequestBody BoardMaster boardMaster) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            LoginVO user = (LoginVO) EgovUserDetailsHelper.getAuthenticatedUser();
+            if (!EgovUserDetailsHelper.isAuthenticated()) {
+                result.put("resultCode", "FAIL");
+                result.put("resultMessage", "로그인이 필요합니다.");
+                return result;
+            }
 
-			/* 🔹 정책 보정 */
-			applyFilePolicy(boardMaster);                                   // ★추가
+            if (boardMaster.getBbsId() == null || boardMaster.getBbsId().isEmpty()) {
+                result.put("resultCode", "FAIL");
+                result.put("resultMessage", "게시판 ID가 없습니다.");
+                return result;
+            }
 
-			egovBBSMasterService.updateBBSMasterInf(boardMaster);
+            boardMaster.setLastUpdusrId(user != null ? user.getUniqId() : "");
 
-			result.put("resultCode","SUCCESS");
-			result.put("resultMessage","수정이 완료되었습니다.");
-		}catch(Exception e){
-			result.put("resultCode","FAIL");
-			result.put("resultMessage","오류 발생: "+e.getMessage());
-		}
-		return result;
-	}
+            if (boardMaster.getOption() == null || boardMaster.getOption().isEmpty()) {
+                boardMaster.setOption("na");
+            }
 
-	/*
-	 * 공통코드 조회 API
-	 */
-	@GetMapping("/board/commonCodes")
-	@ResponseBody
-	public List<Map<String, String>> getCommonCodes(@RequestParam("groupCode") String groupCode) throws Exception {
-		ComDefaultCodeVO vo = new ComDefaultCodeVO();
-		vo.setCodeId(groupCode); // 예: "COM104"
+            egovBBSMasterService.updateBBSMasterInf(boardMaster);
 
-		List<CmmnDetailCode> codeList = cmmUseService.selectCmmCodeDetail(vo);
+            result.put("resultCode", "SUCCESS");
+            result.put("resultMessage", "수정이 완료되었습니다.");
+        } catch (Exception e) {
+            result.put("resultCode", "FAIL");
+            result.put("resultMessage", "오류 발생: " + e.getMessage());
+        }
+        return result;
+    }
 
-		List<Map<String, String>> result = new ArrayList<>();
-		for (CmmnDetailCode code : codeList) {
-			Map<String, String> item = new HashMap<>();
-			item.put("code", code.getCode());
-			item.put("codeNm", code.getCodeNm());
-			result.add(item);
-		}
+    /* ───────────────────────────────────────── 공통상세코드 조회 ───────────────────────────────────────── */
 
-		return result;
-	}
+    @GetMapping("/board/commonCodes")
+    @ResponseBody
+    public List<Map<String, String>> getCommonCodes(@RequestParam("groupCode") String groupCode) throws Exception {
+        ComDefaultCodeVO vo = new ComDefaultCodeVO();
+        vo.setCodeId(groupCode);
+
+        List<CmmnDetailCode> codeList = cmmUseService.selectCmmCodeDetail(vo);
+        List<Map<String, String>> result = new ArrayList<>();
+
+        for (CmmnDetailCode c : codeList) {
+            Map<String, String> m = new HashMap<>();
+            m.put("code",   c.getCode());
+            m.put("codeNm", c.getCodeNm());
+            result.add(m);
+        }
+        return result;
+    }
 }
