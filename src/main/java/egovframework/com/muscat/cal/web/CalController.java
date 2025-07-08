@@ -104,23 +104,24 @@ public class CalController {
 					repeatVo.setLastUpdusrId(vo.getLastUpdusrId());
 					repeatVo.setCalId(vo.getCalId());
 					repeatVo.setReptitSeCode(vo.getReptitSeCode());
+					repeatVo.setReservedRoom(vo.getReservedRoom());
+					
 
 					calService.insertSchedule(repeatVo);
 				}
 			}
 			if (vo.getReservedRoom() != null && !vo.getReservedRoom().isEmpty()) {
-				// 예약 DB에 일정 일시 기록
-				ReservationVO r = new ReservationVO();
-				r.setResveId(UUID.randomUUID().toString().substring(0, 20));
-				r.setMtgrumId(vo.getReservedRoom());
-				r.setRsvctmId(vo.getLeaderId());
-				r.setResveDe(vo.getSchdulBgnde().substring(0, 8));
-				r.setResveBeginTm(vo.getSchdulBgnde().substring(8, 14));
-				r.setResveEndTm(vo.getSchdulEndde().substring(8, 14));
-				r.setFrstRegisterId(vo.getFrstRegisterId());
-				r.setLastUpdusrId(vo.getLastUpdusrId());
-				calService.insertRoomReserve(r);
-			}
+	            ReservationVO r = new ReservationVO();
+	            r.setResveId(UUID.randomUUID().toString().substring(0, 20));
+	            r.setMtgrumId(vo.getReservedRoom());
+	            r.setRsvctmId(vo.getLeaderId());
+	            r.setResveDe(vo.getSchdulBgnde().substring(0, 8));
+	            r.setResveBeginTm(vo.getSchdulBgnde().substring(8, 14));
+	            r.setResveEndTm(vo.getSchdulEndde().substring(8, 14));
+	            r.setFrstRegisterId(vo.getFrstRegisterId());
+	            r.setLastUpdusrId(vo.getLastUpdusrId());
+	            calService.insertRoomReserve(r);
+	        }
 		}
 
 		return "success";
