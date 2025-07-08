@@ -5,6 +5,7 @@ import java.util.List;
 import egovframework.com.muscat.chat.service.MessageVO;
 import egovframework.com.muscat.chat.service.RoomVO;
 import egovframework.com.muscat.chat.service.UserVO;
+import egovframework.com.uss.umt.service.MberManageVO;
 
 public interface RoomMapper {
 	
@@ -14,6 +15,11 @@ public interface RoomMapper {
 	
 	int insertMessage(MessageVO messages); // 메시지 등록
 	
+	List<MessageVO> findMessage(MessageVO findmessage); // 메시지 조회
+	
 	List<RoomVO> findroom(UserVO findroom); // 채팅방 리스트 조회
 
+	List<String> findParticipantsByRoomId(String roomId); // 채팅방 인원 조회
+	
+	List<MberManageVO> findMember(); //  인원 조회
 }

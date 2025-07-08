@@ -213,23 +213,6 @@
     	}
     
 
-
-    function sendMessageToBot(msg) {
-    	  $.ajax({
-    	    url: 'http://localhost:8082/muscat/chatbot/chatbot/message.do',
-    	    type: 'POST',
-    	    contentType: 'application/json',
-    	    data: JSON.stringify({ message: msg }),
-    	    success: function(response) {
-    	      appendMessage('챗봇', response);
-    	    },
-    	    error: function(xhr, status, error) {
-    	      console.error('에러 발생:', error);
-    	      appendMessage('챗봇', '⚠️ 오류가 발생했습니다.');
-    	    }
-    	  });
-    	}
-    
     document.addEventListener('DOMContentLoaded', () => {
     	  const icon  = document.getElementById('chatbot-icon');
     	  const modal = document.getElementById('chatbot-modal');
@@ -252,10 +235,21 @@
     	    }
     	  });
     	});
-    
-     
-    
-    
+    function sendMessageToBot(message) {
+    	  fetch('/muscat/chatbot/message.do', {
+    	    method: 'POST',
+    	    headers: { 'Content-Type': 'application/json' },
+    	    body: JSON.stringify({ message: message })
+    	  })
+    	  .then(response => response.text())
+    	  .then(botReply => {
+    	    appendMessage('챗봇', botReply);
+    	  })
+    	  .catch(err => {
+    	    appendMessage('챗봇', '⚠️ 서버와 통신 중 오류가 발생했습니다.');
+    	    console.error(err);
+    	  });
+    	}
   </script>
 		</div>
 	</div>

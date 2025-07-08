@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import egovframework.com.muscat.bot.service.Gemini;
+import egovframework.com.muscat.cal.service.CalService;
+
 
 
 
@@ -28,6 +31,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RestController
 @RequestMapping("/chatbot")
 public class ChatBotController {
+	
+	@Autowired
+	private Gemini geminiApiClient;  // 위 클래스 빈 등록 필요
+	
+	@Autowired
+	private CalService scheduleService;
 
 	@PostMapping("/message.do")
 	public String handleMessage(@RequestBody Map<String, String> payload) {
@@ -64,16 +73,56 @@ public class ChatBotController {
 	        // 서울 = 대략 nx=60, ny=127
 	        return getWeather("60", "127");
 	    }
-	 
+//	  
+//	    //  일정 등록 처리
+//	    if (message.contains("일정") && message.contains("등록")) {
+//	        // 예: "7월 10일 오전 10시에 회의 일정 등록"
+//	        String title = extractTitle(message); // 일정 제목
+//	        LocalDate date = extractDate(message); // 날짜
+//	        LocalTime time = extractTime(message); // 시간
+//
+//	        // 실제 로그인 사용자 ID로 대체 (예: session에서 가져오기)
+//	        String userId = "testUser";
+//
+//	        // 일정 저장
+//	        scheduleService.insertCalendar(title, date, time, userId);
+//
+//	        return "✅ 일정이 등록되었습니다: " + date + " " + time + " - " + title;
+//	    }
+//	    
 	
-
-	    // ✅ 3. 기본 응답
-	    return "무엇을 도와드릴까요?";
+	 // Gemini API 호출
+	    try {
+	        String jsonResponse = Gemini.askGemini(message);
+	        // jsonResponse에서 실제 답변 텍스트 추출 필요
+	        // 예) Jackson 라이브러리로 파싱
+	        ObjectMapper mapper = new ObjectMapper();
+	        JsonNode root = mapper.readTree(jsonResponse);
+	        String answer = root.at("/choices/0/message/content").asText();  // API 응답 형식에 따라 변경
+	        return answer;
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return "⚠️ 챗봇 응답에 오류가 발생했습니다.";
+	    }
+	    
 	}
-	
+
+//	// handleMessage 끝난 뒤, 클래스 내에 별도로 위치
+//	private String extractTitle(String message) {
+//	    return "회의"; // 임시 제목
+//	}
+//
+//	private LocalDate extractDate(String message) {
+//	    return LocalDate.now(); // 오늘 날짜
+//	}
+//
+//	private LocalTime extractTime(String message) {
+//	    return LocalTime.of(10, 0); // 오전 10시
+//	}
 
 
-    private String getKoreanTime() {
+
+	private String getKoreanTime() {
         LocalTime now = LocalTime.now(ZoneId.of("Asia/Seoul"));
         return "🕒 지금 시간은 " + now.format(DateTimeFormatter.ofPattern("HH:mm")) + "입니다.";
     }
@@ -158,3 +207,4 @@ public class ChatBotController {
 
     
 }
+

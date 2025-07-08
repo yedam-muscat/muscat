@@ -93,8 +93,10 @@
 	</insert>
 
 	<select id="selectCalendarList" resultType="map">
-		SELECT cal_id,
-		cal_name, color, owner_id
+		SELECT trim(cal_id)
+		cal_id,
+		trim(cal_name) cal_name, trim(color) color, trim(owner_id)
+		owner_id
 		FROM CALENDAR
 		ORDER BY cal_name
 	</select>
@@ -118,11 +120,13 @@
 	</select>
 
 	<select id="selectAllRooms" resultType="map">
-		SELECT MTGRUM_ID,
-		MTGRUM_NM
+		SELECT
+		TRIM(MTGRUM_ID) AS MTGRUM_ID,
+		TRIM(MTGRUM_NM) AS MTGRUM_NM
 		FROM COMTNMTGPLACEMANAGE
 		ORDER BY MTGRUM_NM
 	</select>
+
 
 	<insert id="insertCalendarShare" parameterType="map">
 		INSERT INTO
@@ -150,8 +154,8 @@
 		LAST_UPDUSR_ID =
 		#{lastUpdusrId},
 		LAST_UPDT_PNTTM = CURRENT_TIMESTAMP
-		WHERE SCHDUL_ID =
-		#{schdulId}
+		WHERE
+		TRIM(SCHDUL_ID) = TRIM(#{schdulId})
 	</update>
 
 	<delete id="deleteSchedule" parameterType="string">
@@ -163,17 +167,19 @@
 	<select id="selectScheduleById" parameterType="string"
 		resultType="egovframework.com.muscat.cal.mapper.ScudVO">
 		SELECT
-		SCHDUL_ID AS schdulId,
-		SCHDUL_NM AS schdulNm,
-		SCHDUL_CN AS schdulCn,
-		SCHDUL_PLACE AS schdulPlace,
-		SCHDUL_BGNDE AS
-		schdulBgnde,
-		SCHDUL_ENDDE AS schdulEndde,
-		CAL_ID AS calId
-		FROM
-		COMTNLEADERSCHDUL
-		WHERE TRIM(SCHDUL_ID) = TRIM(#{schdulId})
+		TRIM(SCHDUL_ID) AS schdulId,
+		TRIM(SCHDUL_NM) AS
+		schdulNm,
+		TRIM(SCHDUL_CN) AS schdulCn,
+		TRIM(SCHDUL_PLACE) AS
+		schdulPlace,
+		TRIM(SCHDUL_BGNDE) AS schdulBgnde ,
+		TRIM(SCHDUL_ENDDE) AS
+		schdulEndde,
+		TRIM(CAL_ID) AS calId
+		FROM COMTNLEADERSCHDUL
+		WHERE
+		TRIM(SCHDUL_ID) = TRIM(#{schdulId})
 	</select>
 </mapper>
 

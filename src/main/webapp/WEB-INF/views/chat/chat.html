@@ -6,12 +6,8 @@
 	<head>
 <meta charset="UTF-8" />
 <title>채팅방</title>
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-	rel="stylesheet" />
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
-	rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
 <style>
 /* 채팅방 스타일 */
 #chatRoom {
@@ -30,7 +26,7 @@
 	flex-direction: column;
 }
 
-#chatRoom .header {
+#chatRoom.header {
 	background: #075e54;
 	color: white;
 	padding: 10px;
@@ -101,6 +97,36 @@ html, body {
   margin: 0;
   padding: 0;
 }
+.message {
+  margin: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  max-width: 70%;
+  word-wrap: break-word;
+}
+
+.message.mine {
+  background-color: #dcf8c6;
+  align-self: flex-end;
+  text-align: right;
+}
+
+.message.others {
+  background-color: #f1f0f0;
+  align-self: flex-start;
+  text-align: left;
+}
+
+.message-user {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.message-time {
+  font-size: 0.75rem;
+  color: gray;
+  margin-top: 4px;
+}
 
 </style>
 	</head>
@@ -117,26 +143,16 @@ html, body {
 				<div class="d-flex justify-content-between align-items-center mb-2" style="background-color: #0d6efd; color: white; padding: 10px; position: relative;">
 					<h5 style="margin:0;">채팅방 목록</h5>
 					
-					<button id="openModalBtn" class="btn btn-primary btn-sm" style="color: #0d6efd;">➕</button>
+					<button id="openModalBtn" class="btn btn-primary btn-sm" >➕</button>
 				</div>
-
-				<!-- 채팅방 리스트 (안 읽은 메시지 수 표시 포함) -->
-				<!-- 채팅방 리스트 -->
+				
+				 <!--  로그인 사용자 ID를 JS에서 사용할 수 있도록 숨겨 둠 -->
+				<input type="hidden" id="sessionUserId" th:value="${session.loginVO.id}" />
+				
+				<!-- 채팅방 리스트 (JS가 동적으로 채움) -->
 				<ul id="chatListPopupItems" class="list-group list-group-flush mb-0">
-					<li
-						class="list-group-item chat-entry d-flex justify-content-between align-items-center"
-						data-user="아이유">아이유 <span class="badge bg-danger">3</span>
-					</li>
-					<li
-						class="list-group-item chat-entry d-flex justify-content-between align-items-center"
-						data-user="박보검">박보검 <span class="badge bg-danger">1</span>
-					</li>
-					<li
-						class="list-group-item chat-entry d-flex justify-content-between align-items-center"
-						data-user="김태리">김태리 <span class="badge bg-danger">0</span>
-					</li>
+					<!-- JavaScript에서 li가 여기에 추가 -->
 				</ul>
-
 			</div>
 			
 			<!-- 채팅방 생성 모달 -->
@@ -150,7 +166,7 @@ html, body {
 			      <div>
 			        <button id="orgIcon">🏢</button>
 			        <button id="listIcon">📃</button>
-			        <button id="createChatBtn" style="margin-right: 5px;">확인</button> <!-- 추가된 버튼 -->
+			        <button id="createChatBtn" style="margin-right: 5px;">확인</button> 
 			        <button onclick="closeModal()">❌</button>
 			      </div>
 			    </div>
@@ -170,86 +186,95 @@ html, body {
 			<!-- 채팅방 -->
 				<div id="gridChatRoom"
 					style="display: flex; background: #fff; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); flex-direction: column; height: 80%;">
+				
+				<!-- 채팅방 제목 + 아이콘 묶음 + 버튼들 전체 -->
+				<div style=" display: flex; justify-content: space-between; align-items: center; gap: 6px; position: relative; padding: 10px;">
 
-					<div class="header"
-						style="background: #fff; color: black; padding: 10px; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center;">
-						<span id="gridChatUserName">채팅상대</span>
-						<div style="display: flex; align-items: center; gap: 5px;">
-							<span class="input-group-text"
-								style="padding: 0.375rem 0.75rem; background: transparent; border: none;">
-								<i id="gridAttachFileIcon" class="bi bi-paperclip"
-								style="cursor: pointer;" title="파일 첨부"></i>
-							</span>
-
-							<button class="btn btn-sm btn-primary" type="button"
-								id="gridOpenMemo">보고</button>
-
-
-							<button id="closeGridChat"
-								style="background: none; border: none; color: black; font-weight: bold; cursor: pointer;">X</button>
-							<input type="file" id="gridFileInput" style="display: none;">
-						</div>
-					</div>
-
-					<div id="gridChatMessages"
-						style="padding: 10px; flex-grow: 1; overflow-y: auto; background: #ACBCE3;">
+				  <!-- 왼쪽: 제목 + 아이콘 -->
+				  <div style="display: flex; align-items: center; gap: 6px;">
+				    <span id="gridChatUserName">채팅방 제목</span>
+				
+				    <!--  아이콘 -->
+				    <div style="position: relative;">
+				      <i id="chatUserListIcon" class="bi bi-people" style="cursor: pointer;" title="참여자 보기"></i>
+				
+				      <!--  말풍선 모달 -->
+				      <div id="userListPopup" style="display: none; position: absolute; top: 100%; right: 0; width: 200px;background: white; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); overflow: hidden; padding: 10px; z-index: 1000;">
+				      <strong>참여자</strong>
+				        <ul id="chatUserList" style="list-style: none; margin: 0; padding: 10px; max-height: 240px; overflow-y: auto;">
+				          <li> (나)</li>
+				        </ul>
+				        <div style="border-top: 1px solid #eee; padding: 10px; text-align: center;">
+				          <button id="copyRoomUrlBtn" style="background: none; border: none; font-size: 14px; color: #007bff; cursor: pointer;"></button>
+				        </div>
+				      </div>
+				    </div>
+				  </div>
+				
+				  <!-- 오른쪽: 첨부 아이콘, 버튼들 -->
+				  <div style="display: flex; align-items: center; gap: 5px;">
+				    <span class="input-group-text" style="padding: 0.375rem 0.75rem; background: transparent; border: none;">
+				      <i id="gridAttachFileIcon" class="bi bi-paperclip" style="cursor: pointer;" title="파일 첨부"></i>
+				    </span>
+				
+				    <button class="btn btn-sm btn-primary" type="button" id="gridOpenMemo">보고</button>
+				
+				    <button id="closeGridChat" style="background: none; border: none; color: black; font-weight: bold; cursor: pointer;">X</button>
+				
+				    <input type="file" id="gridFileInput" style="display: none;">
+				  </div>
+				</div>
+				
+				<div id="gridChatMessages" style="padding: 10px; flex-grow: 1; overflow-y: auto; background: #ACBCE3;">
 						<!-- 채팅 메시지 표시 영역 -->
-					</div>
+				</div>
 
-					<div id="gridChatInputArea"
-						style="padding: 10px; border-top: 1px solid #ccc; display: flex; gap: 5px;">
-						<input id="gridChatInput" type="text" class="form-control"
-							placeholder="메시지를 입력하세요..." />
-						<button id="gridSendMsg" class="btn btn-success"
-							style="padding: 0.25rem 0.75rem; font-size: 0.9rem; white-space: nowrap;"
-							disabled>전송</button>
+					<div id="gridChatInputArea" style="padding: 10px; border-top: 1px solid #ccc; display: flex; gap: 5px;">
+					
+						<input id="gridChatInput" type="text" class="form-control"placeholder="메시지를 입력하세요..." /> 
+						<input type="hidden" id="roomId" th:value="${roomId}" /> 
+						<input type="hidden" id="loginUserId" th:value="${session.loginVO.id}" />
+						
+					<button id="gridSendMsg" class="btn btn-success" style="padding: 0.25rem 0.75rem; font-size: 0.9rem; white-space: nowrap;" disabled>전송</button>
 					</div>
 				</div>
 			</div>
 
 			<!-- 보고 모달 -->
-			<div class="modal fade" id="fileAttachModal" tabindex="-1"
-				aria-labelledby="fileAttachModalLabel" aria-hidden="true">
+			<div class="modal fade" id="fileAttachModal" tabindex="-1"aria-labelledby="fileAttachModalLabel" aria-hidden="true">
 				<div class="modal-dialog modal-dialog-centered">
 					<div class="modal-content border-primary">
 						<div class="modal-header bg-primary text-white">
 							<h5 class="modal-title" id="fileAttachModalLabel">메모보고 등록</h5>
-							<button type="button" class="btn-close" data-bs-dismiss="modal"
-								aria-label="닫기"></button>
+							<button type="button" class="btn-close" data-bs-dismiss="modal"aria-label="닫기"></button>
 						</div>
 						<div class="modal-body">
 							<!-- 메모보고 폼 작성 부분 -->
 							<div class="mb-2">
-								<label class="form-label">보고일자</label> <input type="date"
-									class="form-control">
+								<label class="form-label">보고일자</label> <input type="date" class="form-control">
 							</div>
 							<div class="mb-2">
-								<label class="form-label">작성자명</label> <input type="text"
-									class="form-control" value="홍길동" readonly>
+								<label class="form-label">작성자명</label> <input type="text" class="form-control" value="홍길동" readonly>
 							</div>
 							<div class="mb-2">
 								<label class="form-label">보고대상자</label>
 								<div class="input-group">
-									<input type="text" class="form-control"> <span
-										class="input-group-text"><i class="bi bi-search"></i></span>
+									<input type="text" class="form-control"> <span class="input-group-text"><i class="bi bi-search"></i></span>
 								</div>
 							</div>
 							<div class="mb-2">
-								<label class="form-label">보고서제목</label> <input type="text"
-									class="form-control">
+								<label class="form-label">보고서제목</label> <input type="text" class="form-control">
 							</div>
 							<div class="mb-2">
 								<label class="form-label">보고내용</label>
 								<textarea class="form-control" rows="2"></textarea>
 							</div>
 							<div class="mb-2">
-								<label class="form-label">파일첨부</label> <input type="file"
-									class="form-control">
+								<label class="form-label">파일첨부</label> <input type="file" class="form-control">
 							</div>
 						</div>
 						<div class="modal-footer">
-							<button type="button" class="btn btn-secondary"
-								data-bs-dismiss="modal">취소</button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
 							<button type="button" class="btn btn-primary">등록</button>
 						</div>
 					</div>
@@ -257,8 +282,7 @@ html, body {
 			</div>
 
 			<!-- 이미지 미리보기  -->
-			<div class="modal fade" id="imagePreviewModal" tabindex="-1"
-				aria-hidden="true">
+			<div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
 				<div class="modal-dialog modal-lg modal-dialog-centered">
 					<div class="modal-content">
 						<div class="modal-header">
@@ -266,14 +290,15 @@ html, body {
 							<button class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
 						</div>
 						<div class="modal-body text-center">
-							<img id="previewImage" src=""
-								style="max-width: 100%; max-height: 70vh;" />
+							<img id="previewImage" src="" style="max-width: 100%; max-height: 70vh;" />
 						</div>
 					</div>
 				</div>
 			</div>
 
 			<script th:inline = "javascript">
+			var username = /*[[${session.loginVO.id}]]*/'';
+//-------------------------------------------------------tree 조직도-------------------------------------------------------		
 			$(function() {
 			  $('#chatTree').jstree({
 			    'core': {
@@ -306,91 +331,228 @@ html, body {
 				  });
 					
 			});
+			
 			// 대화 상대 추가
 			$('#openMessenger').on('click', function (e) {
-  e.stopPropagation();
+			  e.stopPropagation();
+			
+			  const icon = $(this);
+			  const popup = $('#chatListPopup');
+			
+			  if (popup.is(':visible')) {
+			    popup.hide();
+			    return;
+			  }
+			
+			  const offset = icon.offset();
+			  const height = icon.outerHeight();
+			
+			  popup.css({
+			    top: offset.top + height + 10,
+			    left: offset.left
+			  }).show();
+			
+			  // 검색 초기화
+			  $('#chatSearchInput').val('').focus();
+			  $('#chatListPopupItems .chat-entry').show();
+			});
+			
+			// 검색 필터
+			$('#chatSearchInput').on('input', function () {
+			  const keyword = $(this).val().trim().toLowerCase();
+			  $('#chatListPopupItems .chat-entry').each(function () {
+			    const name = $(this).text().trim().toLowerCase();
+			    $(this).toggle(name.includes(keyword));
+			  });
+			});
+			
+//-------------------------------------------------------채팅 List-------------------------------------------------------		
+			//채팅방 List불러오기
+			 document.addEventListener("DOMContentLoaded", function () {
+			      const sessionUserId = document.getElementById("sessionUserId").value;
+			      console.log("로그인한 사용자 ID:", sessionUserId);
+			
+			      // fetch로 채팅방 불러오기
+			      loadChatRooms(sessionUserId);
+			    });
+			
+			    function loadChatRooms(userId) {
+			      fetch('/muscat/chat/findroom.do?userId=' + userId	, {
+			        method: "GET",
+			      
+			      })
+			        .then(res => res.json())
+			        .then(data => {
+			          const chatList = document.getElementById("chatListPopupItems");
+			          chatList.innerHTML = "";
+			
+			          data.result.forEach(room => {
+			        	  const li = document.createElement("li");
+			        	  li.className = "list-group-item chat-entry d-flex justify-content-between align-items-center";
+			        	  li.setAttribute("data-room-id", room.roomId);
+			        	  li.setAttribute("data-room-name", room.roomName); //  채팅방 제목 속성 추가
+			        	  li.setAttribute("data-participants", JSON.stringify(room.usered || [])); // 반드시 필요!
+			
+			        	  const unreadCount = room.unreadCount || 0;
+			
+			        	  li.innerHTML = `
+			        	    ${room.roomName}
+			        	    <span class="badge bg-danger">${unreadCount}</span> `;
+			
+			        	  chatList.appendChild(li);
+			        	});
+			        })
+			        .catch(err => console.error("채팅방 불러오기 실패:", err));
+			    }
+	
+			//리스트에서 행 클릭 시 채팅방 open
+			 document.addEventListener('DOMContentLoaded', function () {
+			    const chatList = document.getElementById('chatListPopupItems');
+			    const chatRoom = document.getElementById('gridChatRoom');
+			    const chatUserName = document.getElementById('gridChatUserName');
+			    const chatInput = document.getElementById('gridChatInput');
+			    const closeBtn = document.getElementById('closeGridChat');
+			    const chatUserList = document.getElementById("chatUserList");
+			    const chatUserListIcon = document.getElementById("chatUserListIcon");
+			    const userListPopup = document.getElementById("userListPopup");
+			    const gridChatMessages = document.getElementById("gridChatMessages");
+			
+			    // 채팅방 초기에는 숨겨진 상태로 설정 (선택)
+			    chatRoom.style.display = 'none';
+			
+			    // 채팅방 리스트 클릭 이벤트
+			    chatList.addEventListener('click', function (event) {
+			      const clickedItem = event.target.closest('.chat-entry');
+			      if (!clickedItem) return;	
+			      
+			      const roomName = clickedItem.getAttribute("data-room-name"); //  여기서 제목 가져옴
+			      const participants = JSON.parse(clickedItem.getAttribute('data-participants') || "[]");
+			      const roomId = clickedItem.getAttribute("data-room-id"); // roomid를 찾는다.
+			      
+			      console.log("클릭된 채팅방 이름:", roomName);
+			      console.log("참여자 배열:", participants);
+			
+			      document.getElementById("roomId").value = roomId; // input태그에 값을 넣어준다.
+			      
+			      openChatRoom(roomName ,participants);
 
-  const icon = $(this);
-  const popup = $('#chatListPopup');
+ //------------------------------------------------------- 메시지 -------------------------------------------------------			      
+			      
+			      // 메시지 불러오기 호출
+			      loadMessages(roomId);
+			    });
+			    
+			    function loadMessages(roomId) {
+			    	  fetch(`/muscat/chat/findMessage.do?roomId=${encodeURIComponent(roomId)}`)
+			    	    .then(data => data.json())
+			    	  .then(data => {
+			    	      const messages = data.result;
+			    	      gridChatMessages.innerHTML = ""; // 초기화
 
-  if (popup.is(':visible')) {
-    popup.hide();
-    return;
-  }
+			    	      messages.forEach(msg => {
+			    	        const msgElement = document.createElement("div");
 
-  const offset = icon.offset();
-  const height = icon.outerHeight();
+			    	        const isMine = (msg.userId === username);
 
-  popup.css({
-    top: offset.top + height + 10,
-    left: offset.left
-  }).show();
+			    	        msgElement.classList.add("message");
+			    	        msgElement.classList.add(isMine ? "mine" : "others");
 
-  // 검색 초기화
-  $('#chatSearchInput').val('').focus();
-  $('#chatListPopupItems .chat-entry').show();
-});
+			    	        msgElement.innerHTML = `
+			    	          <div class="message-user">${msg.userId}</div>
+			    	          <div class="message-content">${escapeHtml(msg.mgContent)}</div>
+			    	          <div class="message-time">${formatTime(msg.messageDate)}</div>
+			    	        `;
 
-// 검색 필터
-$('#chatSearchInput').on('input', function () {
-  const keyword = $(this).val().trim().toLowerCase();
-  $('#chatListPopupItems .chat-entry').each(function () {
-    const name = $(this).text().trim().toLowerCase();
-    $(this).toggle(name.includes(keyword));
-  });
-});
+			    	        gridChatMessages.appendChild(msgElement);
+			    	      });
 
-//리스트에서 행 클릭 시 채팅방 open
- document.addEventListener('DOMContentLoaded', function () {
-    const chatList = document.getElementById('chatListPopupItems');
+			    	      // 스크롤 맨 아래로 이동
+			    	      gridChatMessages.scrollTop = gridChatMessages.scrollHeight;
+			    	    })
+			    	    .catch(error => {
+			    	      console.error("메시지 로딩 오류:", error);
+			    	    });
+			    	}
 
-    const chatRoom = document.getElementById('gridChatRoom');
-    const chatUserName = document.getElementById('gridChatUserName');
-    const chatInput = document.getElementById('gridChatInput');
-    const closeBtn = document.getElementById('closeGridChat');
+			    	// 시간 포맷 함수
+			    	function formatTime(dateStr) {
+			    	  const date = new Date(dateStr);
+			    	  return date.toLocaleTimeString("ko-KR", { hour: '2-digit', minute: '2-digit' });
+			    	}
 
-    // 채팅방 초기에는 숨겨진 상태로 설정 (선택)
-    chatRoom.style.display = 'none';
+			    	// HTML 이스케이프 함수 (XSS 방지용)
+			    	function escapeHtml(text) {
+			    	  const div = document.createElement('div');
+			    	  div.textContent = text;
+			    	  return div.innerHTML;
+			    	}
 
-    // 채팅방 리스트 클릭 이벤트
-    chatList.addEventListener('click', function (event) {
-      const clickedItem = event.target.closest('.chat-entry');
-      if (!clickedItem) return;
-
-      const userName = clickedItem.getAttribute('data-user');
-      openChatRoom(userName);
-    });
-
-    // 채팅방 열기 함수
-    function openChatRoom(userName) {
-      chatUserName.textContent = userName;         // 상단 사용자 이름 변경
-      chatRoom.style.display = 'flex';             // 채팅방 보이기
-      chatInput.disabled = false;
-      chatInput.focus();                           // 입력창 포커스
-      document.getElementById('gridSendMsg').disabled = false;
-
-      // TODO: 여기서 이전 채팅 메시지 불러오는 코드 추가 가능
-      // loadChatHistory(userName);
-    }
-
-    // 채팅방 닫기 버튼
-    closeBtn.addEventListener('click', function () {
-      chatRoom.style.display = 'none';
-    });
-  });
-
-
-// 대화 상대 선택
-$('#chatListPopup').on('click', '.chat-entry', function () {
-  const userName = $(this).data('user');
-  $('#chatUserName').text(userName);
-  $('#chatRoom').show();
-  $('#chatInput').focus();
-  $('#chatListPopup').hide();
-});
+//------------------------------------------------------- 채팅방 참여자 List -------------------------------------------------------			    	
+			    	
+			 //  아이콘 클릭 → 팝업 토글
+			     icon.addEventListener("click", function () {
+			    popup.style.display = popup.style.display === "block" ? "none" : "block";
+			  });
+			
+			    // 외부 클릭 시 닫기
+			    document.addEventListener("click", function (e) {
+			      if (!chatUserListIcon.contains(e.target) && !userListPopup.contains(e.target)) {
+			        userListPopup.style.display = "none";
+			      }
+			    });
+			
+			    // 채팅방 열기 함수
+			    function openChatRoom(roomName, participants =[]) {
+			      chatUserName.textContent = roomName;         // 상단 사용자 이름 변경
+			      chatRoom.style.display = 'flex';             // 채팅방 보이기
+			      chatInput.disabled = false;
+			      chatInput.focus();                           // 입력창 포커스
+			      document.getElementById('gridSendMsg').disabled = false;
+			      
+			   // 참여자 리스트 초기화 및 표시
+			      chatUserList.innerHTML = "";
+			      participants.forEach(name => {
+			    	  
+			        const li = document.createElement("li");
+			        li.textContent = name;
+			        chatUserList.appendChild(li);
+			      });
+			      
+			      // 이름 + (나) 라벨
+			      const nameSpan = document.createElement("span");
+			      //nameSpan.textContent = user.name;
+			
+/* 			      if (user.name === myUserId) {
+			        const meLabel = document.createElement("span");
+			        meLabel.textContent = "나";
+			        meLabel.style.fontSize = "12px";
+			        meLabel.style.color = "#888";
+			        meLabel.style.marginLeft = "6px";
+			        nameSpan.appendChild(meLabel);
+			      } */
+/* 			      li.appendChild(nameSpan);
+			      chatUserList.appendChild(li); */
+			      
+			      // 참여자 팝업 기본은 닫힌 상태
+			      document.getElementById("userListPopup").style.display = "none";
+			    }
+			    // 채팅방 닫기 버튼
+			    closeBtn.addEventListener('click', function () {
+			      chatRoom.style.display = 'none';
+			    });
+			  });
+	
+			// 대화 상대 선택
+			$('#chatListPopup').on('click', '.chat-entry', function () {
+			  const userName = $(this).data('user');
+			  $('#chatUserName').text(userName);
+			  $('#chatRoom').show();
+			  $('#chatInput').focus();
+			  $('#chatListPopup').hide();
+			});
 			
 					
-					//채팅방 
+					
 					
 					// 상세카드 옆 채팅방 열기
 						$("#openGridChat").on("click", function() {
@@ -440,66 +602,102 @@ $('#chatListPopup').on('click', '.chat-entry', function () {
 
 						
 		
-						// 입력값에 따라 전송 버튼 활성화
+						// 입력값에 따라 전송 버튼 활성화 
 						$("#gridChatInput").on("input", function() {
 						  const hasText = $(this).val().trim().length > 0;
 						  $("#gridSendMsg").prop("disabled", !hasText);
 						});
 		
-						// 전송 버튼 클릭 시 (여기엔 메시지 처리 로직 추가 가능)
-					
+						$("#gridSendMsg").on("click", function () {
+							console.log("roomId element:", document.getElementById("roomId"));
+							console.log("loginUserId element:", document.getElementById("loginUserId"));
 
-$("#gridSendMsg").on("click", function () {
-  const msg = $("#gridChatInput").val().trim();
+							 console.log("전송 버튼 클릭 이벤트 실행됨");
+							  const msg = $("#gridChatInput").val().trim();
+							  const roomId = $("#roomId").val(); // roomId 값을 받음.
+							  const userId = $("#loginUserId").val(); // userId 값을 받.
+							  console.log("roomId:", roomId);
+							  console.log("userId:", userId);
 
-  // 아무 내용도 없으면 리턴
-  if (!msg && attachedFiles.length === 0) return;
 
-  const chatContainer = $('<div class="chat-message my-1 d-flex justify-content-end"></div>');
-  const bubble = $('<div class="message-bubble p-2 rounded" style="max-width: 70%; background-color: #DCF8C6;"></div>');
+							  if (msg !== "") {
+							    $.ajax({
+							      type: "POST",
+							      url: "/muscat/chat/insertMessage.do",
+							      contentType: "application/json",
+							      data: JSON.stringify({
+							        messageId: null,         // 백엔드에서 자동 생성이면 null
+							        roomId: roomId,
+							        mgFileInfo: null,
+							        mgCountNum: null,
+							        mgPhoto: null,
+							        mgType: "text",          // 또는 "image", "file" 등
+							        userId: userId,
+							        mgContent: msg           // 이 필드가 필요하다면 VO에도 추가
+							      }),
+							      success: function (res) {
+							        if (res.result === "success") {
+							          console.log("메시지 저장 성공");
+							          $("#gridChatInput").val(""); // 입력창 초기화
+							        } else {
+							          alert("메시지 저장 실패");
+							        }
+							      },
+							      error: function () {
+							        alert("서버 오류");
+							      }
+							    });
+							  }
+						
 
-  // 첨부된 파일 처리
-  if (attachedFiles.length > 0) {
-    for (const file of attachedFiles) {
-      const ext = file.name.split('.').pop().toLowerCase();
-
-      if (file.type.startsWith('image/')) {
-        const img = $('<img>')
-          .attr('src', file.dataUrl)
-          .css({ maxWidth: '150px', borderRadius: '10px', cursor: 'pointer', marginBottom: '5px' })
-          .on('click', function () {
-            $('#previewImage').attr('src', file.dataUrl);
-            const modal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
-            modal.show();
-          });
-        bubble.append(img);
-      } else {
-        const link = $('<a>')
-          .attr('href', file.dataUrl)
-          .attr('download', file.name)
-          .text(file.name)
-          .css({ display: 'block', marginTop: '5px', textDecoration: 'underline', color: '#0d6efd' });
-        bubble.append($('<div><i class="bi bi-file-earmark"></i> </div>').append(link));
-      }
-    }
-  }
-
-  // 메시지가 있다면 추가
-  if (msg) {
-    bubble.append(`<div style="margin-top:5px;">${msg}</div>`);
-  }
-
-  // 조립 & 출력
-  chatContainer.append(bubble);
-  $('#gridChatMessages').append(chatContainer);
-  $('#gridChatMessages').scrollTop($('#gridChatMessages')[0].scrollHeight);
-
-  // 초기화
-  $("#gridChatInput").val('');
-  $(this).prop("disabled", true);
-  $("#gridFileInput").val('');
-  attachedFiles = [];
-});
+						  // 아무 내용도 없으면 리턴
+						  if (!msg && attachedFiles.length === 0) return;
+						
+						  const chatContainer = $('<div class="chat-message my-1 d-flex justify-content-end"></div>');
+						  const bubble = $('<div class="message-bubble p-2 rounded" style="max-width: 70%; background-color: #DCF8C6;"></div>');
+						
+						  // 첨부된 파일 처리
+						  if (attachedFiles.length > 0) {
+						    for (const file of attachedFiles) {
+						      const ext = file.name.split('.').pop().toLowerCase();
+						
+						      if (file.type.startsWith('image/')) {
+						        const img = $('<img>')
+						          .attr('src', file.dataUrl)
+						          .css({ maxWidth: '150px', borderRadius: '10px', cursor: 'pointer', marginBottom: '5px' })
+						          .on('click', function () {
+						            $('#previewImage').attr('src', file.dataUrl);
+						            const modal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
+						            modal.show();
+						          });
+						        bubble.append(img);
+						      } else {
+						        const link = $('<a>')
+						          .attr('href', file.dataUrl)
+						          .attr('download', file.name)
+						          .text(file.name)
+						          .css({ display: 'block', marginTop: '5px', textDecoration: 'underline', color: '#0d6efd' });
+						        bubble.append($('<div><i class="bi bi-file-earmark"></i> </div>').append(link));
+						      }
+						    }
+						  }
+						
+						  // 메시지가 있다면 추가
+						  if (msg) {
+						    bubble.append(`<div style="margin-top:5px;">${msg}</div>`);
+						  }
+						
+						  // 조립 & 출력
+						  chatContainer.append(bubble);
+						  $('#gridChatMessages').append(chatContainer);
+						  $('#gridChatMessages').scrollTop($('#gridChatMessages')[0].scrollHeight);
+						
+						  // 초기화
+						  $("#gridChatInput").val('');
+						  $(this).prop("disabled", true);
+						  $("#gridFileInput").val('');
+						  attachedFiles = [];
+						});
 
 						// 엔터키 입력 시 전송
 						$("#gridChatInput").on("keypress", function(e) {
@@ -507,6 +705,8 @@ $("#gridSendMsg").on("click", function () {
 						    $("#gridSendMsg").click();
 						  }
 						});
+
+//-------------------------------------------------------보고 모달-------------------------------------------------------
 						
 						//보고 모달 열기
 						$('#attachFileIcon').on('click', function() {
@@ -651,10 +851,7 @@ $("#gridSendMsg").on("click", function () {
 								        });
 								        return;
 								      }
-								      
-								   
-
-
+							
 								      // 보류 아이콘 추가
 								      const holdBadge = $('<i class="bi bi-exclamation-circle-fill hold-badge"></i>').css({
 								        position: 'absolute',
@@ -680,8 +877,6 @@ $("#gridSendMsg").on("click", function () {
 								  });
 								});
 
-
-							
 							//업무보고상세모달, 보고모달 
 							$(function() {
 								  $('#fileAttachModal').on('shown.bs.modal', function() {
@@ -703,13 +898,10 @@ $("#gridSendMsg").on("click", function () {
 								  handle: ".modal-header",
 								  containment: "window"
 								});
-								
-							const loginUser = "아이유";  // 로그인 사용자 이름 (이건 실제 로그인 값으로 설정)
-		
+//-------------------------------------------------------보고 모달-------------------------------------------------------							
 						
-		
 							// 메시지 추가 함수
-							function appendChatMessage(sender, message) { // 메시지를 추가 한다.								
+							/* function appendChatMessage(sender, message) { // 메시지를 추가 한다.								
 							  const isMe = (sender === loginUser);
 							  const now = new Date();
 							  const today = formatDate(now);
@@ -717,7 +909,7 @@ $("#gridSendMsg").on("click", function () {
 							  console.log(`sender: ${sender}, loginUser: ${loginUser}, isMe: ${isMe}`);
 							  const msgDiv = $('<div></div>')
 							                  .addClass(isMe ? 'my-message':'other-message' ) 
-							                  /* .text(message); */
+							                   .text(message); 
 							  const textSpan = $('<span></span>').text(message); 
 							  const timeSpan = $('<span></span>').text(timeStr).css({
 							    fontSize: '0.7rem',
@@ -740,30 +932,15 @@ $("#gridSendMsg").on("click", function () {
 							  msgDiv.append(textSpan).append(timeSpan);
 							  $("#gridChatMessages").append(msgDiv);
 							  $("#gridChatMessages").scrollTop($("#gridChatMessages")[0].scrollHeight);
-							}
+							} */
 							
-							/* // 내가 메시지 보낼 때
-							$("#gridSendMsg").on("click", function() {
-							  const msg = $("#gridChatInput").val().trim();
-							  if (msg) {
-								appendDateSeparatorIfNeeded();	
-							    appendChatMessage(loginUser, msg); // 로그인 유저로 메시지 추가
-							    $("#gridChatInput").val('');
-							    $(this).prop("disabled", true);
-							    $("#gridChatMessages").scrollTop($("#gridChatMessages")[0].scrollHeight);
-							  }
-							});
-		 					*/
+							
 							// 상대 메시지 호출
 							function receiveMessage(fromUser, text) {
 							  appendChatMessage(fromUser, text); // 내 메시지 호출
 							}
 							
-		 					/* //test
-							receiveMessage("아이유", "안녕하세요 홍길동님!");
-							receiveMessage("박보검", "지금 회의 중이에요");
-							appendChatMessage(loginUser, "넵 확인했습니다!"); */
-	
+		 				
 							//접속 인원 표시
 							let currentChatTarget = null; // 또는 원하는 상대 이름
 							let currentUserCount = 0;
@@ -772,487 +949,435 @@ $("#gridSendMsg").on("click", function () {
 							  currentUserCount = count;
 							  $("#gridChatUserName").text(`${currentChatTarget} (${currentUserCount})`);
 							}
-							updateUserCount(3); // 만약 3명이 있으면,,,
-							/* // 예: 서버에서 받았을 때
-							socket.on("userCountUpdate", (count) => {
-							  updateUserCount(count);
-							}); */
-							
-		
-							document.addEventListener("DOMContentLoaded", function () {
-								  const chatUsers = document.querySelectorAll(".chat-user");
-								  const chatRoom = document.getElementById("chatRoom");
-								  const chatUserNameSpan = document.getElementById("chatUserName");
-								  const chatMessages = document.getElementById("chatMessages");
-								  const searchInput = document.getElementById("searchInput");
-
-								  chatUsers.forEach(function (user) {
-								    user.addEventListener("click", function () {
-								      const userId = user.getAttribute("data-user-id");
-								      const userName = user.getAttribute("data-user-name");
-
-								      // 채팅방 제목에 이름 표시
-								      chatUserNameSpan.textContent = userName;
-
-								      // 채팅방 열기
-								      chatRoom.style.display = "flex";
-
-								      // 이전 메시지 불러오기 
-								      loadChatMessages(userId);
-
-								      // 현재 상대방 ID 기억 
-								      chatRoom.dataset.chatWith = userId;
-								    });
-								  });
-
-							    searchInput.addEventListener("input", (e) => {
-							      renderList(e.target.value);
-							    });
-
-							    nextBtn.addEventListener("click", () => {
-							      if (selectedUser) {
-							        alert(`선택한 사용자: ${selectedUser.name}`);
-							        // 여기서 채팅방 생성 등 다음 단계 처리
-							        const modalEl = document.getElementById('selectUserModal');
-							        const modal = bootstrap.Modal.getInstance(modalEl);
-							        modal.hide();
-							      }
-							    });
-
-							    // 초기 렌더링
-							    renderList();
-
-							    // 모달 띄우기 (필요시, 예: 버튼 클릭 이벤트 안에서)
-							    // const modal = new bootstrap.Modal(document.getElementById('selectUserModal'));
-							    // modal.show();
-							  });
-							const employees = ["아이유", "박보검", "김태리", "정해인", "장원영", "전지현"];
-							let selectedUsers = new Set();
-
-							function renderUserList(filter = "") {
-							  const listContainer = document.getElementById("userList");
-							  listContainer.innerHTML = "";
-
-							  employees
-							    .filter(name => name.includes(filter))
-							    .forEach(name => {
-							      const isSelected = selectedUsers.has(name);
-							      const div = document.createElement("div");
-							      div.style = "display: flex; justify-content: space-between; align-items: center; padding: 8px 0;";
-							      
-							      div.innerHTML = `
-							        <span>${name}</span>
-							        <div onclick="toggleUser('${name}')" style="
-							          width: 20px; height: 20px; border: 2px solid #007bff; border-radius: 50%;
-							          background: ${isSelected ? '#007bff' : 'transparent'};
-							          cursor: pointer;">
-							        </div>
-							      `;
-							      listContainer.appendChild(div);
-							    });
-							}
-
-							function toggleUser(name) {
-							  if (selectedUsers.has(name)) {
-							    selectedUsers.delete(name);
-							  } else {
-							    selectedUsers.add(name);
-							  }
-							  renderUserList(document.getElementById("searchInput").value);
-							}
-
-							function openModal() {
-							  document.getElementById("chatModal").style.display = "flex";
-							  renderUserList();
-							}
-
-							function closeModal() {
-							  document.getElementById("chatModal").style.display = "none";
-							}
-
-							// 이벤트 바인딩
-							document.getElementById("openModalBtn").addEventListener("click", openModal);
-							document.getElementById("searchInput").addEventListener("input", (e) => {
-							  renderUserList(e.target.value);
-							});
-
-							// 조직도 / 리스트 뷰 토글 버튼 (현재는 단순 alert)
-							document.getElementById("orgIcon").addEventListener("click", () => alert("조직도 보기"));
-							document.getElementById("listIcon").addEventListener("click", () => alert("리스트 보기"));
+							updateUserCount(3); 
 							
 							
-							
-							document.getElementById("createChatBtn").addEventListener("click", function () {
-								  const userArray = Array.from(selectedUsers); // Set → Array로 변환
+							document.addEventListener("DOMContentLoaded", function () {
+								  const chatUsers = document.querySelectorAll(".chat-user");
+								  const chatRoom = document.getElementById("chatRoom");
+								  const chatUserNameSpan = document.getElementById("chatUserName");
+								  const chatMessages = document.getElementById("chatMessages");
+								  const searchInput = document.getElementById("searchInput");
 
-								  if (userArray.length === 0) {
-								    alert("대화할 사용자를 선택하세요.");
-								    return;
+								  chatUsers.forEach(function (user) {
+								    user.addEventListener("click", function () {
+								      const userId = user.getAttribute("data-user-id");
+								      const userName = user.getAttribute("data-user-name");
+
+								      // 채팅방 제목에 이름 표시
+								      chatUserNameSpan.textContent = userName;
+
+								      // 채팅방 열기
+								      chatRoom.style.display = "flex";
+
+								      // 이전 메시지 불러오기 
+								      loadChatMessages(userId);
+
+								      // 현재 상대방 ID 기억 
+								      chatRoom.dataset.chatWith = userId;
+								    });
+								  });
+
+								    searchInput.addEventListener("input", (e) => {
+								      renderList(e.target.value);
+								    });
+
+								    nextBtn.addEventListener("click", () => {
+								      if (selectedUser) {
+								        alert(`선택한 사용자: ${selectedUser.name}`);
+								        // 여기서 채팅방 생성 등 다음 단계 처리
+								        const modalEl = document.getElementById('selectUserModal');
+								        const modal = bootstrap.Modal.getInstance(modalEl);
+								        modal.hide();
+								      }
+								    });
+
+								    // 초기 렌더링
+								    renderList();
+
+								    // 모달 띄우기 (필요시, 예: 버튼 클릭 이벤트 안에서)
+								    // const modal = new bootstrap.Modal(document.getElementById('selectUserModal'));
+								    // modal.show();
+								  });
+								 
+							      const selectedUsers = new Set();
+
+							      function renderUserList(filter = "") {
+							        const listContainer = document.getElementById("userList");
+							        listContainer.innerHTML = "";
+
+							        fetch("/muscat/chat/findMember.do" )
+								          .then(res => res.json())
+								          .then(data => {
+								        	  data.result
+										          //.filter(name => name.includes(filter))
+										          .forEach(member => {
+										            const isSelected = selectedUsers.has(member.mberId);
+
+										            const div = document.createElement("div");								        
+											        div.style = "display: flex; justify-content: space-between; align-items: center; padding: 8px 0;";
+											        
+											        div.innerHTML = `
+											          <span>${member.mberNm + ' ' + member.mberId}</span> 
+											          <div onclick="toggleUser('${member.mberId}')" style="
+											            width: 20px; height: 20px; border: 2px solid #007bff; border-radius: 50%;
+											            background: ${isSelected ? '#007bff' : 'transparent'};
+											            cursor: pointer;">
+											          </div>
+											        `;
+											        listContainer.appendChild(div);
+											      });
+								        	  
+								          })
+								          .catch(error => {
+								            console.error("에러:", error);
+								            alert("서버 오류");
+								          });
+							        
 								  }
-								  
-								  userArray.push(/*[[${session.loginVO.id}]]*/'')
+							      // 유저 선택 토글
+								    function toggleUser(mberId) {
+								    if (selectedUsers.has(mberId)) {
+								      selectedUsers.delete(mberId);
+								    } else {
+								      selectedUsers.add(mberId);
+								    }
+								    renderUserList(document.getElementById("searchInput").value);
+								  }
 
-								  fetch("/muscat/chat/insertroom.do", {
-								    method: "POST",
-								    headers: {
-								      "Content-Type": "application/json"
-								    },
-								    body: JSON.stringify(userArray)
-								  })
-								    .then(res => res.json())
-								    .then(data => {
-								      if (data.result === "SUCCESS") {
-								        alert("채팅방이 생성되었습니다.");
-								        closeModal();
+							        
+							      function openModal() {
+							        document.getElementById("chatModal").style.display = "flex";
+							        renderUserList();
+							      }
 
-								        // 선택 초기화
-								        selectedUsers.clear();
-								        renderUserList();  // 선택 UI 초기화
+							      function closeModal() {
+							        document.getElementById("chatModal").style.display = "none";
+							      }
 
-								        // 필요 시 채팅방으로 이동 or 새로고침
-								        // location.href = `/chat/room.do?roomId=${data.roomId}`;
-								      } else {
-								        alert("채팅방 생성 실패");
-								      }
-								    })
-								    .catch(error => {
-								      console.error("에러:", error);
-								      alert("서버 오류");
-								    });
-								});
-							
-							// 채팅방 불러오기 
-							$(document).ready(function() {
-							    loadChatRooms();
-
-							    function loadChatRooms() {
-							        $.ajax({
-							            url: '/chat/findroom.do',
-							            type: 'GET',
-							            dataType: 'json',
-							            success: function(res) {
-							                const roomList = res.result;
-							                const $chatList = $('#chatListPopupItems');
-							                $chatList.empty(); // 기존 항목 제거
-
-							                if (roomList.length === 0) {
-							                    $chatList.append('<li class="list-group-item">채팅방이 없습니다.</li>');
-							                    return;
-							                }
-
-							                roomList.forEach(room => {
-							                    const badge = room.unreadCount > 0 
-							                        ? `<span class="badge bg-danger">${room.unreadCount}</span>` 
-							                        : '';
-
-							                    const li = `
-							                        <li class="list-group-item chat-entry d-flex justify-content-between align-items-center"
-							                            data-room-id="${room.roomId}">
-							                            ${room.roomName}
-							                            ${badge}
-							                        </li>
-							                    `;
-							                    $chatList.append(li);
-							                });
-							            },
-							            error: function(err) {
-							                console.error('채팅방 목록 로딩 실패:', err);
-							            }
-							        });
-							    }
-							});
-							// ✅ 채팅방 열기 함수
-							function openChatRoom(roomId) {
-							    console.log("채팅방 열기:", roomId);
-
-							    // 예시: 채팅 메시지 불러오기
-							    $.ajax({
-							        url: `/chat/room/${roomId}/messages`, // <- 예시 API
-							        type: 'GET',
-							        success: function(messages) {
-							            renderMessages(messages);
+							      document.getElementById("openModalBtn").addEventListener("click", openModal);
+							      document.getElementById("searchInput").addEventListener("input", (e) => {
+							        renderUserList(e.target.value);
+							      });
+							      
+							      // 조직도 / 리스트 뷰 토글 
+							      document.getElementById("orgIcon").addEventListener("click", () => alert("조직도 보기"));
+							      document.getElementById("listIcon").addEventListener("click", () => alert("리스트 보기"));
+									
+							      //채팅방 생성
+							      document.getElementById("createChatBtn").addEventListener("click", function () {
+							        const userArray = Array.from(selectedUsers);
+							        
+							        if (userArray.length === 0) {
+							          alert("대화할 사용자를 선택하세요.");
+							          return;
 							        }
-							    });
-							}
+
+							        userArray.push(/*[[${session.loginVO.id}]]*/'')
+
+							        fetch("/muscat/chat/insertroom.do", {
+							          method: "POST",
+							          headers: {
+							            "Content-Type": "application/json"
+							          },
+							          body: JSON.stringify(userArray)
+							        })
+							          .then(res => res.json())
+							          .then(data => {
+							            if (data.result === "SUCCESS") {
+							              alert("채팅방이 생성되었습니다.");
+							              closeModal();
+							              
+							              //선택 초기화
+							              selectedUsers.clear();
+							              renderUserList();
+							              // location.href = `/chat/room.do?roomId=${data.roomId}`; // 필요 시 이동
+							            } else {
+							              alert("채팅방 생성 실패");
+							            }
+							          })
+							          .catch(error => {
+							            console.error("에러:", error);
+							            alert("서버 오류");
+							          });
+							      });
+							   
+		
 							
 
-
-								</script>
-							
-
-
-	
-			</script>
-			<script>
-	//chat 팝업창을 여러개 띄우기 위함	
-	var webSocket = null;
-	$(document).ready(function() {
-		var url = 'ws://' + window.location.host + '/muscat/usersServerEndpoint';
-		//webSocket = connection(url);
-		var connectionType;
-		
-		webSocket.onopen = function(){ processOpen(); };
-		webSocket.onmessage = function(message) { processMessage(message); };
-		webSocket.onerror = function(message) { processError(message); };
-		// 메시지 입력 시 전송 버튼 활성화
-		$("#gridChatInput").on("input", function () {
-		    const hasText = $(this).val().trim().length > 0;
-		    $("#gridSendMsg").prop("disabled", !hasText);
-		});
-
-		// 전송 버튼 클릭 시 메시지 전송
-		$("#gridSendMsg").on("click", function () {
-		    const msg = $("#gridChatInput").val().trim();
-		    const sender = "${loginVO.name}";
-		    const receiver = currentChatTarget;
-
-		    if (msg && receiver && webSocket) {
-		        // 서버로 메시지 전송
-		        webSocket.send(JSON.stringify({
-		            connectionType: "chatMessage",
-		            sender: sender,
-		            receiver: receiver,
-		            message: msg
-		        }));
-
-		        appendChatMessage(sender, msg); // 채팅 UI에 나의 메시지 표시
-		        $("#gridChatInput").val('');
-		        $(this).prop("disabled", true);
-		    }
-		});
-	});
-	//var webSocket = new WebSocket('ws://' + window.location.host + '/egov-messenger/usersServerEndpoint');
-	
-	
-	function connection(url) {
-		var webSocket = null;
-		if ('WebSocket' in window) {
-			webSocket = new WebSocket(url);
-		} else if ('MozWebSocket' in window) {
-			webSocket = new MozWebSocket(url);
-		} else {
-			Console.log('Error: WebSocket is not supported by this browser.');
-            return null;
-		}
-		return webSocket;
-	}
-	
-	function processOpen() {
-		connectionType = "firstConnection";
-		username = /*[[${session.loginVO.id}]]*/'';
-		webSocket.send(JSON.stringify({ "connectionType" : connectionType}));
-	}
-		
-	//server에서 메시지가 넘어왔을때
-	function processMessage(message) {
-		var jsonData = JSON.parse(message.data);
-		
-		if (jsonData.allUsers != null) {
-			//다른 사용자 접속 시,
-			displayUsers(jsonData.allUsers);
-		} 
-		
-		if (jsonData.disconnectedUser != null) {
-			//다른 사용자가 접속을 끊을 때,
-			$("#"+jsonData.disconnectedUser).remove();
-		}
-		
-		//다른 사용자와 대화하고자 시도할 때, 채팅창을 팝업
-		if (jsonData.enterChatId != null) {
-			//var roomId = jsonData.enterChatId;
-				var roomId = "12";
-			$("#roomId").val(roomId);
-			$("#username").val(jsonData.username);
-			openPopup(roomId);
-		}
-		// 💬 메시지 수신 처리
-	    if (jsonData.message) {
-	        appendChatMessage(jsonData.sender, jsonData.message);
-	    }
-	}
-	
-	function openPopup(roomId) {
-		var popOptions = "width= 500, height= 700, resizable=yes, status= no, scrollbar= yes"; 
-		var targetTitle = random(roomId); //두명의 사용자가 다른 팝업으로 뜨기 위해서 targetTitle을 랜덤으로 만들어준다.
-		console.log(targetTitle)
-		popupPost("<c:url value='/cop/msg/websocketMessengePopup.do'/>", targetTitle, popOptions);
-	}
-	
-	function popupPost(url, target, option) {
-		window.open("", target, option);
-		
-		var form = $("form[name=usersForm]");
-		form.attr("target", target);
-		form.attr("action", url);
-		form.attr("method", "post");
-		form.submit();
-	}
-	
-	
-	function displayUsers(userList) {
-		var username;
-		$("#users tr:not(:first)").remove();
-		for (var i=0; i<userList.length; i++) {
-			if("${loginVO.name}"==userList[i]) {
-				username = userList[i]+"(me!)";
-			} else{
-				username = userList[i];
-			}
-			$.newTr = $("<tr id="+userList[i]+" onclick='trClick(this)'><td>"+username+"</td></tr>");
-			//append
-			$("#users").last().append($.newTr);
+								
 			
-		}
-	}
-	
-	//다른 사용자 선택 시, 선택한 사용자 값을 서버에 전달
-	function trClick(selectedTr) {
-		if (selectedTr.id != null) {
-			currentChatTarget = selectedTr.id; // 클릭한 유저를 저장
-				connectionType = "chatConnection";
-				webSocket.send(JSON.stringify({ "connectionType" : connectionType, "connectingUser" : selectedTr.id }));
-			}
-	}
-	
-	function random(roomId) {
+<!---------------------------------- websocket ---------------------------------------------->	
 		
-			let rUid = "12";
-		/* <%
-			Random rnd = new Random();
-			for(int i=0; i<8; i++) {
-				rnd.setSeed(System.currentTimeMillis());
-				rUid += (char)((rnd.nextDouble()*26)+97);//KISA 보안약점 조치 (2018-10-29, 윤창원)
-			}
-		%> */
-		return roomId+"."+rUid;
-	}
-	
-	function processError(message) {
-		/* messagesTextArea.value += "error...\n"; */
-	}
-
-	/* window.onbeforeunload = function() {
-		webSocket.close();
-	};
- */
-	
-
-	socket.onmessage = function (event) {
-	    console.log("서버 응답:", event.data);
-	};
-	 var webSocket = null;
-	  var connectionType;
-	  /* var currentChatTarget = null;  // 대화 상대 아이디 저장 */
-
-	  $(document).ready(function() {
-	    var url = (window.location.protocol === "https:" ? "wss://" : "ws://") + window.location.host + '/muscat/usersServerEndpoint';
-	    webSocket = connectWebSocket(url);
-
-	    webSocket.onopen = function() {
-	      console.log("WebSocket 연결 성공");
-	      connectionType = "firstConnection";
-	      // 로그인 사용자명 서버에서 JSP등으로 넣어주세요 (예: '${loginVO.name}')
-	      var username =  username || "홍길동";
-	      webSocket.send(JSON.stringify({ "connectionType": connectionType, "username": username }));
-	    };
-
-	    webSocket.onmessage = function(event) {
-	      var jsonData = JSON.parse(event.data);
-
-	      // 전체 사용자 목록 갱신
-	      if (jsonData.allUsers) {
-	        displayUsers(jsonData.allUsers);
-	      }
-
-	      // 접속 끊은 사용자 제거
-	      if (jsonData.disconnectedUser) {
-	        $("#" + jsonData.disconnectedUser).remove();
-	      }
-
-	      // 채팅방 입장 신호 받음 (팝업 열기)
-	      if (jsonData.enterChatId) {
-	        openPopupChat(jsonData.enterChatId, jsonData.username);
-	      }
-
-	      // 채팅 메시지 수신
-	      if (jsonData.message) {
-	        appendChatMessage(jsonData.sender, jsonData.message);
-	      }
-	    };
-
-	    webSocket.onerror = function(error) {
-	      console.error("WebSocket 오류 발생:", error);
-	    };
-
-	    // 사용자 목록 클릭 시
-	    $(document).on("click", "#users tr:not(:first)", function() {
-	      var selectedUser = this.id;
-	      if (selectedUser && selectedUser !== "${loginVO.name}") {
-	        currentChatTarget = selectedUser;
-	        connectionType = "chatConnection";
-	        webSocket.send(JSON.stringify({
-	          connectionType: connectionType,
-	          connectingUser: selectedUser
-	        }));
-	      }
-	      e.preventDefault(); // 링크 기본 동작 막기
-			$('#employeeCard').fadeOut();
-			$('#staticBackdrop').fadeOut();
-			const modal = new bootstrap.Modal(document
-					.getElementById('chatListModal'));
-			modal.show();
-	    });
-
-	    // 채팅 메시지 전송 UI 부분(팝업 내에 구현해야 하므로 별도)
-
-	    // 페이지 닫기 직전 WebSocket 닫기
-	    /* window.onbeforeunload = function() {
-	      if (webSocket) {
-	        webSocket.close();
-	      }
-	    }; */
-	  });
-
-	  // WebSocket 연결 생성 함수
-	  function connectWebSocket(url) {
-	    if ("WebSocket" in window) {
-	      return new WebSocket(url);
-	    } else if ("MozWebSocket" in window) {
-	      return new MozWebSocket(url);
-	    } else {
-	      alert("이 브라우저는 WebSocket을 지원하지 않습니다.");
-	      return null;
-	    }
-	  }
-
-	  // 사용자 목록 화면 표시 함수
-	  function displayUsers(userList) {
-	    $("#users tr:not(:first)").remove();
-	    var loginName = username || "홍길동";
-	    userList.forEach(function(user) {
-	      var displayName = (user === loginName) ? user + " (나)" : user;
-	      var tr = $("<tr>").attr("id", user).css("cursor", "pointer").text(displayName);
-	      $("#users").append(tr);
-	    });
-	  }
-
-	  // 채팅 팝업 열기
-	  function openPopupChat(roomId, username) {
-	    var popOptions = "width=500,height=700,resizable=yes,status=no,scrollbars=yes";
-	    // 팝업 이름에 랜덤값 붙여서 여러 팝업 띄우기 가능하게 함
-	    var targetTitle = "chatPopup_" + roomId + "_" + Math.floor(Math.random() * 10000);
-	    // 실제 팝업 띄우기 (서버 경로에 맞게 조정)
-	    var popupUrl = "/cop/msg/websocketMessengePopup.do?roomId=" + encodeURIComponent(roomId) + "&username=" + encodeURIComponent(username);
-	    window.open(popupUrl, targetTitle, popOptions);
-	  }
-
-	  // 채팅 메시지 화면에 표시 (팝업 내에서 구현 권장)
-	  function appendChatMessage(sender, message) {
-	    console.log(sender + ": " + message);
-	    // 구현 위치: 팝업 내 스크립트에서 메시지 UI에 출력
-	  }
-</script>
+			
+				//chat 팝업창을 여러개 띄우기 위함	
+				var webSocket = null;
+				$(document).ready(function() {
+					var url = 'ws://' + window.location.host + '/muscat/usersServerEndpoint';
+					//webSocket = connection(url);
+					var connectionType;
+					
+					webSocket.onopen = function(){ processOpen(); };
+					webSocket.onmessage = function(message) { processMessage(message); };
+					webSocket.onerror = function(message) { processError(message); };
+					// 메시지 입력 시 전송 버튼 활성화
+					$("#gridChatInput").on("input", function () {
+					    const hasText = $(this).val().trim().length > 0;
+					    $("#gridSendMsg").prop("disabled", !hasText);
+					});
+			
+					// 전송 버튼 클릭 시 메시지 전송
+					$("#gridSendMsg").on("click", function () {
+					    const msg = $("#gridChatInput").val().trim();
+					    const sender = "${loginVO.name}";
+					    const receiver = currentChatTarget;
+			
+					    if (msg && receiver && webSocket) {
+					        // 서버로 메시지 전송
+					        webSocket.send(JSON.stringify({
+					            connectionType: "chatMessage",
+					            sender: sender,
+					            receiver: receiver,
+					            message: msg
+					        }));
+			
+					        appendChatMessage(sender, msg); // 채팅 UI에 나의 메시지 표시
+					        $("#gridChatInput").val('');
+					        $(this).prop("disabled", true);
+					    }
+					});
+				});
+				//var webSocket = new WebSocket('ws://' + window.location.host + '/egov-messenger/usersServerEndpoint');
+				
+				
+				function connection(url) {
+					var webSocket = null;
+					if ('WebSocket' in window) {
+						webSocket = new WebSocket(url);
+					} else if ('MozWebSocket' in window) {
+						webSocket = new MozWebSocket(url);
+					} else {
+						Console.log('Error: WebSocket is not supported by this browser.');
+			            return null;
+					}
+					return webSocket;
+				}
+				
+				function processOpen() {
+					connectionType = "firstConnection";
+					username = /*[[${session.loginVO.id}]]*/'';
+					webSocket.send(JSON.stringify({ "connectionType" : connectionType}));
+				}
+					
+				//server에서 메시지가 넘어왔을때
+				function processMessage(message) {
+					var jsonData = JSON.parse(message.data);
+					
+					if (jsonData.allUsers != null) {
+						//다른 사용자 접속 시,
+						displayUsers(jsonData.allUsers);
+					} 
+					
+					if (jsonData.disconnectedUser != null) {
+						//다른 사용자가 접속을 끊을 때,
+						$("#"+jsonData.disconnectedUser).remove();
+					}
+					
+					//다른 사용자와 대화하고자 시도할 때, 채팅창을 팝업
+					if (jsonData.enterChatId != null) {
+						//var roomId = jsonData.enterChatId;
+							var roomId = "12";
+						$("#roomId").val(roomId);
+						$("#username").val(jsonData.username);
+						openPopup(roomId);
+					}
+					// 💬 메시지 수신 처리
+				    if (jsonData.message) {
+				        appendChatMessage(jsonData.sender, jsonData.message);
+				    }
+				}
+				
+				function openPopup(roomId) {
+					var popOptions = "width= 500, height= 700, resizable=yes, status= no, scrollbar= yes"; 
+					var targetTitle = random(roomId); //두명의 사용자가 다른 팝업으로 뜨기 위해서 targetTitle을 랜덤으로 만들어준다.
+					console.log(targetTitle)
+					popupPost("<c:url value='/cop/msg/websocketMessengePopup.do'/>", targetTitle, popOptions);
+				}
+				
+				function popupPost(url, target, option) {
+					window.open("", target, option);
+					
+					var form = $("form[name=usersForm]");
+					form.attr("target", target);
+					form.attr("action", url);
+					form.attr("method", "post");
+					form.submit();
+				}
+				
+				
+				function displayUsers(userList) {
+					var username;
+					$("#users tr:not(:first)").remove();
+					for (var i=0; i<userList.length; i++) {
+						if("${loginVO.name}"==userList[i]) {
+							username = userList[i]+"(me!)";
+						} else{
+							username = userList[i];
+						}
+						$.newTr = $("<tr id="+userList[i]+" onclick='trClick(this)'><td>"+username+"</td></tr>");
+						//append
+						$("#users").last().append($.newTr);
+						
+					}
+				}
+				
+				//다른 사용자 선택 시, 선택한 사용자 값을 서버에 전달
+				function trClick(selectedTr) {
+					if (selectedTr.id != null) {
+						currentChatTarget = selectedTr.id; // 클릭한 유저를 저장
+							connectionType = "chatConnection";
+							webSocket.send(JSON.stringify({ "connectionType" : connectionType, "connectingUser" : selectedTr.id }));
+						}
+				}
+				
+				function random(roomId) {
+					
+						let rUid = "12";
+					/* <%
+						Random rnd = new Random();
+						for(int i=0; i<8; i++) {
+							rnd.setSeed(System.currentTimeMillis());
+							rUid += (char)((rnd.nextDouble()*26)+97);//KISA 보안약점 조치 (2018-10-29, 윤창원)
+						}
+					%> */
+					return roomId+"."+rUid;
+				}
+				
+				function processError(message) {
+					/* messagesTextArea.value += "error...\n"; */
+				}
+			
+				/* window.onbeforeunload = function() {
+					webSocket.close();
+				};
+			 */
+				
+			
+				socket.onmessage = function (event) {
+				    console.log("서버 응답:", event.data);
+				};
+				 var webSocket = null;
+				  var connectionType;
+				  /* var currentChatTarget = null;  // 대화 상대 아이디 저장 */
+			
+				  $(document).ready(function() {
+				    var url = (window.location.protocol === "https:" ? "wss://" : "ws://") + window.location.host + '/muscat/usersServerEndpoint';
+				    webSocket = connectWebSocket(url);
+			
+				    webSocket.onopen = function() {
+				      console.log("WebSocket 연결 성공");
+				      connectionType = "firstConnection";
+				      // 로그인 사용자명 서버에서 JSP등으로 넣어주세요 (예: '${loginVO.name}')
+				      var username =  username || "홍길동";
+				      webSocket.send(JSON.stringify({ "connectionType": connectionType, "username": username }));
+				    };
+			
+				    webSocket.onmessage = function(event) {
+				      var jsonData = JSON.parse(event.data);
+			
+				      // 전체 사용자 목록 갱신
+				      if (jsonData.allUsers) {
+				        displayUsers(jsonData.allUsers);
+				      }
+			
+				      // 접속 끊은 사용자 제거
+				      if (jsonData.disconnectedUser) {
+				        $("#" + jsonData.disconnectedUser).remove();
+				      }
+			
+				      // 채팅방 입장 신호 받음 (팝업 열기)
+				      if (jsonData.enterChatId) {
+				        openPopupChat(jsonData.enterChatId, jsonData.username);
+				      }
+			
+				      // 채팅 메시지 수신
+				      if (jsonData.message) {
+				        appendChatMessage(jsonData.sender, jsonData.message);
+				      }
+				    };
+			
+				    webSocket.onerror = function(error) {
+				      console.error("WebSocket 오류 발생:", error);
+				    };
+			
+				    // 사용자 목록 클릭 시
+				    $(document).on("click", "#users tr:not(:first)", function() {
+				      var selectedUser = this.id;
+				      if (selectedUser && selectedUser !== "${loginVO.name}") {
+				        currentChatTarget = selectedUser;
+				        connectionType = "chatConnection";
+				        webSocket.send(JSON.stringify({
+				          connectionType: connectionType,
+				          connectingUser: selectedUser
+				        }));
+				      }
+				      e.preventDefault(); // 링크 기본 동작 막기
+						$('#employeeCard').fadeOut();
+						$('#staticBackdrop').fadeOut();
+						const modal = new bootstrap.Modal(document
+								.getElementById('chatListModal'));
+						modal.show();
+				    });
+			
+				    // 채팅 메시지 전송 UI 부분(팝업 내에 구현해야 하므로 별도)
+			
+				    // 페이지 닫기 직전 WebSocket 닫기
+				    /* window.onbeforeunload = function() {
+				      if (webSocket) {
+				        webSocket.close();
+				      }
+				    }; */
+				  });
+			
+				  // WebSocket 연결 생성 함수
+				  function connectWebSocket(url) {
+				    if ("WebSocket" in window) {
+				      return new WebSocket(url);
+				    } else if ("MozWebSocket" in window) {
+				      return new MozWebSocket(url);
+				    } else {
+				      alert("이 브라우저는 WebSocket을 지원하지 않습니다.");
+				      return null;
+				    }
+				  }
+			
+				  // 사용자 목록 화면 표시 함수
+				  function displayUsers(userList) {
+				    $("#users tr:not(:first)").remove();
+				    var loginName = username || "홍길동";
+				    userList.forEach(function(user) {
+				      var displayName = (user === loginName) ? user + " (나)" : user;
+				      var tr = $("<tr>").attr("id", user).css("cursor", "pointer").text(displayName);
+				      $("#users").append(tr);
+				    });
+				  }
+			
+				  // 채팅 팝업 열기
+				  function openPopupChat(roomId, username) {
+				    var popOptions = "width=500,height=700,resizable=yes,status=no,scrollbars=yes";
+				    // 팝업 이름에 랜덤값 붙여서 여러 팝업 띄우기 가능하게 함
+				    var targetTitle = "chatPopup_" + roomId + "_" + Math.floor(Math.random() * 10000);
+				    // 실제 팝업 띄우기 (서버 경로에 맞게 조정)
+				    var popupUrl = "/cop/msg/websocketMessengePopup.do?roomId=" + encodeURIComponent(roomId) + "&username=" + encodeURIComponent(username);
+				    window.open(popupUrl, targetTitle, popOptions);
+				  }
+			
+				  // 채팅 메시지 화면에 표시 (팝업 내에서 구현 권장)
+				  function appendChatMessage(sender, message) {
+				    console.log(sender + ": " + message);
+				    // 구현 위치: 팝업 내 스크립트에서 메시지 UI에 출력
+				  }
+		</script>
 	</body>
-
-</main>
+	</main>
 </html>

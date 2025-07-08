@@ -1,140 +1,141 @@
+<!-- /WEB-INF/views/board/masterList.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/layout}">
+
 <head>
   <meta charset="UTF-8">
   <title>게시판 목록</title>
 
   <!-- Bootstrap & jQuery -->
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- 🔧 링크 스타일 제거 (밑줄/파란색 제거) -->
+  <!-- 🔧 링크 기본 스타일 제거 -->
   <style>
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
-    a:hover {
-      text-decoration: none;
-      color: inherit;
-    }
+    a { text-decoration:none; color:inherit; }
+    a:hover { text-decoration:none; color:inherit; }
   </style>
 </head>
 
 <main layout:fragment="content" class="container mt-4">
   <h2>📋 게시판 목록</h2>
 
-  <!-- 상단 버튼 -->
-  <div class="mb-3">
-    <a href="/muscat/board/masterRegist.do" class="btn btn-primary">+ 게시판 등록</a>
+  <!-- 🔍 검색 & 등록 버튼 -->
+  <div class="d-flex align-items-center gap-2 mb-3">
+    <!-- 검색 조건 -->
+    <select id="searchCnd" class="form-select form-select-sm" style="width:130px">
+      <option value="0">게시판명</option>
+      <option value="1">게시판 소개내용</option>
+    </select>
+
+    <!-- 검색어 -->
+    <input id="searchWrd" type="text" class="form-control form-control-sm" style="max-width:260px"
+           placeholder="검색어를 입력하세요">
+
+    <!-- 조회 버튼 -->
+    <button id="btnSearch" class="btn btn-primary btn-sm">조회</button>
+
+    <!-- 우측 여백 & 등록 버튼 -->
+    <div class="flex-grow-1"></div>
+    <a href="/muscat/board/masterRegist.do" class="btn btn-primary btn-sm">+ 게시판 등록</a>
   </div>
 
-  <!-- 게시판 목록 테이블 -->
+  <!-- 📄 목록 테이블 -->
   <table class="table table-bordered">
     <thead class="table-light">
       <tr>
-        <th>번호</th>
+        <th style="width:8%">번호</th>
         <th>게시판명</th>
-        <th>작성자</th>
-        <th>작성일</th>
-        <th>사용여부</th>
+        <th style="width:18%">작성자</th>
+        <th style="width:18%">작성일</th>
+        <th style="width:12%">사용여부</th>
       </tr>
     </thead>
-    <tbody id="boardBody">
-      <!-- 목록 동적 렌더링 -->
-    </tbody>
+    <tbody id="boardBody"></tbody>
   </table>
 
-  <!-- 페이징 영역 -->
-  <nav>
-    <ul class="pagination justify-content-center" id="pagination"></ul>
-  </nav>
+  <!-- 페이지네이션 -->
+  <nav><ul class="pagination justify-content-center" id="pagination"></ul></nav>
 
   <script>
-    let currentPage = 1;
+    /* ---------------- 전역 ---------------- */
     const pageSize = 10;
+    let   currentPage = 1;
 
-    // 게시판 목록 불러오기
+    /* ---------------- 목록 로딩 ---------------- */
     function loadBoardList(page = 1) {
-      fetch(`/muscat/board/masterList?pageIndex=${page}&pageSize=${pageSize}`)
-        .then(response => response.json())
-        .then(data => {
-          const tbody = document.getElementById('boardBody');
-          tbody.innerHTML = '';
+      currentPage = page;
 
-          const resultList = data.resultList || [];
-          const totalCount = parseInt(data.resultCnt || 0);
-          const totalPages = Math.ceil(totalCount / pageSize);
+      /* 🔸 검색 파라미터 취합 */
+      const params = new URLSearchParams({
+        searchCnd : $('#searchCnd').val(),
+        searchWrd : $('#searchWrd').val().trim(),
+        pageIndex : page,
+        pageSize
+      });
 
-          if (resultList.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center">게시판 정보가 없습니다.</td></tr>';
+      fetch(`/muscat/board/masterList?`+params.toString())
+        .then(r => r.json())
+        .then(d => {
+          const list  = d.resultList || [];
+          const total = parseInt(d.resultCnt || 0);
+          const tbody = $('#boardBody').empty();
+
+          if (list.length === 0) {
+            tbody.append(`<tr><td colspan="5" class="text-center">게시판 정보가 없습니다.</td></tr>`);
           } else {
-            resultList.forEach((row, idx) => {
-              const tr = document.createElement('tr');
-              tr.innerHTML = `
-                <td>${totalCount - ((page - 1) * pageSize) - idx}</td>
-                <td><a href="/muscat/board/masterDetail.do?bbsId=${row.bbsId}">${row.bbsNm}</a></td>
-                <td>${row.frstRegisterNm || ''}</td>
-                <td>${row.frstRegisterPnttm ? row.frstRegisterPnttm.slice(0, 10) : ''}</td>
-                <td>${row.useAt === 'Y' ? '사용' : '미사용'}</td>
-              `;
-              tbody.appendChild(tr);
+            list.forEach((row,idx) => {
+              const no = total - ((page-1)*pageSize) - idx;
+              tbody.append(`
+                <tr>
+                  <td>${no}</td>
+                  <td><a href="/muscat/board/masterDetail.do?bbsId=${row.bbsId}">${row.bbsNm}</a></td>
+                  <td>${row.frstRegisterNm || ''}</td>
+                  <td>${row.frstRegisterPnttm ? row.frstRegisterPnttm.slice(0,10) : ''}</td>
+                  <td>${row.useAt==='Y' ? '사용' : '미사용'}</td>
+                </tr>
+              `);
             });
           }
 
-          renderPagination(page, totalPages);
+          renderPagination(page, Math.ceil(total / pageSize));
         })
         .catch(err => {
-          console.error('목록 불러오기 실패', err);
+          console.error('목록 조회 오류', err);
           alert('목록을 불러오는 중 오류가 발생했습니다.');
         });
     }
 
-    // 페이징 그리기
-    function renderPagination(currentPage, totalPages) {
-      const paginationEl = document.getElementById('pagination');
-      paginationEl.innerHTML = '';
+    /* ---------------- 페이지네이션 ---------------- */
+    function renderPagination(page, totalPages) {
+      const ul = $('#pagination').empty();
+      if (totalPages === 0) return;
 
-      const createPageItem = (label, page, isActive = false, isDisabled = false) => {
-        const li = document.createElement('li');
-        li.className = `page-item ${isActive ? 'active' : ''} ${isDisabled ? 'disabled' : ''}`;
-        const a = document.createElement('a');
-        a.className = 'page-link';
-        a.href = '#';
-        a.textContent = label;
-        a.addEventListener('click', e => {
-          e.preventDefault();
-          if (!isDisabled && page !== currentPage) {
-            loadBoardList(page);
-          }
-        });
-        li.appendChild(a);
-        return li;
+      const addItem = (p, label, disabled=false, active=false) => {
+        $('<li>').addClass(`page-item ${disabled?'disabled':''} ${active?'active':''}`)
+                 .append(`<a class="page-link" href="#">${label}</a>`)
+                 .appendTo(ul)
+                 .click(e=>{ e.preventDefault(); if (!disabled) loadBoardList(p); });
       };
 
-      // 이전 버튼
-      paginationEl.appendChild(createPageItem('«', currentPage - 1, false, currentPage === 1));
+      addItem(page-1,'«', page===1);
+      const max = 5;
+      let start = Math.max(1, page - Math.floor(max/2));
+      let end   = Math.min(totalPages, start + max - 1);
+      if (end - start < max - 1) start = Math.max(1, end - max + 1);
 
-      // 번호 버튼 (중앙 5개만)
-      const maxButtons = 5;
-      let start = Math.max(1, currentPage - Math.floor(maxButtons / 2));
-      let end = Math.min(totalPages, start + maxButtons - 1);
-      if (end - start < maxButtons - 1) {
-        start = Math.max(1, end - maxButtons + 1);
-      }
-
-      for (let i = start; i <= end; i++) {
-        paginationEl.appendChild(createPageItem(i, i, i === currentPage));
-      }
-
-      // 다음 버튼
-      paginationEl.appendChild(createPageItem('»', currentPage + 1, false, currentPage === totalPages));
+      for (let i=start;i<=end;i++) addItem(i,i,false, page===i);
+      addItem(page+1,'»', page===totalPages);
     }
 
-    // 최초 로딩
-    document.addEventListener('DOMContentLoaded', () => loadBoardList());
+    /* ---------------- 이벤트 ---------------- */
+    $('#btnSearch').click(() => loadBoardList(1));
+    $('#searchWrd').keyup(e => { if (e.key === 'Enter') loadBoardList(1); });
+
+    /* ---------------- 초기 ---------------- */
+    $(document).ready(() => loadBoardList());
   </script>
 </main>
 </html>

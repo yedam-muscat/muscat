@@ -19,6 +19,8 @@
 		<typeAlias alias="roomVO"		type="egovframework.com.muscat.chat.service.RoomVO" />
 		<typeAlias alias="userVO"		type="egovframework.com.muscat.chat.service.UserVO" />
 		<typeAlias alias="messageVO"		type="egovframework.com.muscat.chat.service.MessageVO" />
+		<typeAlias alias="mberManageVO"		type="egovframework.com.uss.umt.service.MberManageVO" />
+		
 	</typeAliases>
     
 </configuration>
