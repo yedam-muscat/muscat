@@ -4,17 +4,45 @@
 	layout:decorate="~{layout/layout}">
 
 <main layout:fragment="content">
-	<h2 id="boardTitle">공통코드 목록</h2>
+	<h2 id="boardTitle">공통세부코드 목록</h2>
+
+	<div class="d-flex align-items-center gap-2 mb-3">
+
+		<!-- 검색 조건 -->
+		<select id="searchCondition" class="form-select form-select-sm"
+			style="width: 130px">
+			<option value="" selected>-- 검색조건 --</option>
+			<option value="1">공통코드ID</option>
+			<option value="2">공통세부코드ID</option>
+			<option value="3">공통세부코드명</option>
+		</select>
+
+		<!-- 검색어 -->
+		<input id="searchKeyword" type="text"
+			class="form-control form-control-sm" style="max-width: 260px"
+			placeholder="검색어를 입력하세요">
+
+		<!-- 조회 버튼 -->
+		<button id="btnCmdcSearch" class="btn btn-primary btn-sm">조회</button>
+		<!-- 초기화 버튼 -->
+		<button id="btnCmdcReset" class="btn btn-secondary btn-sm">초기화</button>
+
+		<!-- 우측 여백 & 새글쓰기 -->
+		<div class="flex-grow-1"></div>
+		<button id="btnCmdcReg" class="btn btn-primary btn-sm">+
+			공통세부코드 등록</button>
+	</div>
 
 	<table class="table table-bordered">
 		<thead class="table-light">
 			<tr>
 				<th>공통코드ID</th>
-				<th>공통코드명</th>
+				<th>공통세부코드ID</th>
+				<th>공통세부코드명</th>
 				<th>사용여부</th>
 			</tr>
 		</thead>
-		<tbody id="cmcListBody">
+		<tbody id="cmdcListBody">
 
 		</tbody>
 	</table>
@@ -24,12 +52,15 @@
 	</nav>
 
 	<script th:inline="javascript">
-		let cmcListUrl = /*[[ @{/admin/code/cmcList.do} ]]*/ '';
-		let cmcDetailUrl = /*[[ @{/admin/code/cmcDetail.do} ]]*/ '';
+		let cmdcListUrl = /*[[ @{/admin/code/cmdcList.do} ]]*/ '';
+		let cmdcDetailUrl = /*[[ @{/admin/code/cmdcDetail.do} ]]*/ '';
+		let cmdcRegUrl = /*[[ @{/admin/code/cmdcReg.do} ]]*/ '';
 	</script>
 	<script>
     const pageSize = 10;
     let currentPage = 1;
+    let searchCondition = '';
+    let searchKeyword = '';
 
     // 게시글 목록 로딩
     function loadCodeList(page = 1) {
@@ -37,12 +68,14 @@
         
     	$.ajax({
 			type : "GET",
-			url : cmcListUrl,
+			url : cmdcListUrl,
 			data : {
 				pageIndex : page,
+				searchCondition : searchCondition,
+				searchKeyword : searchKeyword,
 			},
 		}).done(function(data, textStatus, xhr) {
-	        let tbody = $('#cmcListBody');
+	        let tbody = $('#cmdcListBody');
 	        tbody.html('');
 	        
 	        const resultList = data.resultList || [];
@@ -50,17 +83,19 @@
 	        const totalPages = Math.ceil(totalCount / pageSize);
 	        
 	        resultList.forEach(item => {
-	          tbody.append(`<tr data-code-id="${item.codeId}">
-		  	        <td>${item.codeId}</td>
-	  	            <td>${item.codeIdNm}</td>
+	          tbody.append(`<tr data-cmc-id="${item.codeId}" data-cmdc-id="${item.code}">
+			  	    <td>${item.codeId}</td>
+		  	        <td>${item.code}</td>
+	  	            <td>${item.codeNm}</td>
 	  	            <td>${item.useAt == 'Y' ? '사용함' : '사용안함'}</td>
 	  	            </tr>
 	  	          `);
 	        });
 	        
 	        tbody.on('click', 'tr', function () {
-	        	  const id = $(this).data('code-id');
-	        	  window.location.href = `${cmcDetailUrl}?codeId=${encodeURIComponent(id)}`;
+	        	  const cmc = $(this).data('cmc-id');
+	        	  const cmdc = $(this).data('cmdc-id');
+	        	  window.location.href = `${cmdcDetailUrl}?codeId=${encodeURIComponent(cmc)}&code=${encodeURIComponent(cmdc)}`;
 	        	});
 
 	        renderPagination(totalPages);
@@ -103,6 +138,25 @@
     // 초기 로딩
     document.addEventListener('DOMContentLoaded', () => {
     	loadCodeList();
+    	
+    	$('#btnCmdcSearch').on('click', function() {
+    	    searchCondition = $('#searchCondition').val();
+    	    searchKeyword = $('#searchKeyword').val();
+    		loadCodeList();
+    	});
+    	
+    	$('#btnCmdcReset').on('click', function() {
+    	    searchCondition = '';
+    	    searchKeyword = '';
+    	    $('#searchCondition').val('');
+    	    $('#searchKeyword').val('');
+    	    loadCodeList();
+    	});
+    	
+    	$('#btnCmdcReg').on('click', function() {
+    		location.href=cmdcRegUrl;
+    	});
+    	
     });
   </script>
 </main>

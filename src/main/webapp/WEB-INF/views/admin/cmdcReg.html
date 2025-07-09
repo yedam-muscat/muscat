@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+
+
+<main layout:fragment="content">
+	<div id="auth">
+		<div class="row h-100">
+			<div class="col-lg-8 col-12">
+				<div id="auth-left px-2 py-2">
+					<div class="card">
+						<div class="card-header text-white">
+							<h5 class="mb-0">공통세부코드 등록</h5>
+						</div>
+						<div class="card-body">
+
+							<!-- 공통코드명 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="codeId" class="col-form-label">공통코드명</label>
+								</div>
+								<div class="col-auto">
+									<select class="form-select" id="codeId">
+										<option selected value="">-- 공통코드 --</option>
+										<option th:each="item : ${codeList}" th:value="${item.codeId}"
+											th:text="${item.codeIdNm}"></option>
+									</select>
+								</div>
+								<div class="col-auto"></div>
+							</div>
+
+							<!-- 공통코드ID -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="codeIdShow" class="col-form-label">공통코드ID</label>
+								</div>
+								<div class="col-auto">
+									<input type="text" id="codeIdShow" class="form-control"
+										readonly>
+								</div>
+								<div class="col-auto"></div>
+							</div>
+
+
+							<!-- 세부코드ID -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="code" class="col-form-label">세부코드ID</label>
+								</div>
+								<div class="col-auto">
+									<input type="text" id="code" class="form-control">
+								</div>
+								<div class="col-auto"></div>
+							</div>
+
+							<!-- 세부코드명 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="codeNm" class="col-form-label">세부코드명</label>
+								</div>
+								<div class="col-auto">
+									<input type="text" id="codeNm" class="form-control">
+								</div>
+								<div class="col-auto"></div>
+							</div>
+
+							<!-- 세부코드설명 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="codeDc" class="col-form-label">세부코드설명</label>
+								</div>
+								<div class="col-auto">
+									<textarea id="codeDc" class="form-control"></textarea>
+								</div>
+							</div>
+
+							<!-- 사용여부 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="useAt" class="col-form-label">사용여부</label>
+								</div>
+								<div class="col-auto">
+									<select class="form-select" id="useAt">
+										<option value="Y" selected>사용함</option>
+										<option value="N">사용안함</option>
+									</select>
+								</div>
+							</div>
+
+							<!-- 버튼 -->
+							<div class="d-flex justify-content-start">
+								<button class="btn btn-primary me-2" id="btnToSave">등록</button>
+								<button class="btn btn-outline-secondary" id="btnToList">취소</button>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script th:inline="javascript">
+		let cmcList = /*[[ ${codeList} ]]*/'';
+
+		let cmdcMngUrl = /*[[ @{/admin/code/cmdcMng.do} ]]*/'';
+		let cmdcRegUrl = /*[[ @{/admin/code/cmdcReg.do} ]]*/'';
+
+		$('document').ready(function() {
+
+			$('#codeId').on('change', function() {
+				$('#codeIdShow').val(this.value);
+			});
+
+			$('#btnToSave').on('click', function() {
+				
+				if (!validate()) return;
+				
+				const payload = {
+					codeId : $('#codeId').val().trim(),
+					code : $('#code').val().trim(),
+					codeNm : $('#codeNm').val().trim(),
+					codeDc : $('#codeDc').val().trim(),
+					useAt : $('#useAt').val(),
+				};
+
+				$.ajax({
+					type : "POST",
+					url : cmdcRegUrl,
+					contentType : "application/json; charset=utf-8",
+					data : JSON.stringify(payload),
+					dataType : 'json'
+				}).done(function(data, textStatus, xhr) {
+
+					console.log(data);
+
+				}).fail(function() {
+					Swal.fire({
+						icon : "error",
+						title : "오류가 발생했습니다"
+					})
+				});
+			});
+
+			$('#btnToList').on('click', function() {
+				location.href = cmdcMngUrl;
+			});
+		});
+		
+		const requiredFields = [
+			  { id: '#codeId', label: '코드ID' },
+			  { id: '#code',   label: '세부코드ID' },
+			  { id: '#codeNm', label: '세부코드명' },
+			  { id: '#codeDc', label: '세부코드설명' },
+			  { id: '#useAt',  label: '사용여부' }
+			];
+		
+		function validate() {
+			 for (const f of requiredFields) {
+				    const val = $(f.id).val().trim();
+
+				    if (val === '' || val === null) {
+				      Swal.fire({
+				        icon: 'warning',
+				        title: '입력 누락',
+				        text: `${f.label}을(를) 입력하세요.`,
+				        confirmButtonText: '확인'
+				      }).then(() => $(f.id).focus());
+
+				      return false;
+				    }
+				  }
+			 return true;
+		}
+	</script>
+</main>

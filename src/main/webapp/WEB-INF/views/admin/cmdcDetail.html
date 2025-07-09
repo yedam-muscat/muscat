@@ -11,7 +11,7 @@
 				<div id="auth-left px-2 py-2">
 					<div class="card">
 						<div class="card-header text-white">
-							<h5 class="mb-0">공통코드 정보</h5>
+							<h5 class="mb-0">공통세부코드 정보</h5>
 						</div>
 						<div class="card-body">
 
@@ -39,14 +39,38 @@
 								<div class="col-auto"></div>
 							</div>
 
-							<!-- 공통코드설명 -->
+							<!-- 세부코드ID -->
 							<div class="row g-3 align-items-center mb-2">
 								<div class="col-3">
-									<label for="codeIdDc" class="col-form-label">공통코드설명</label>
+									<label for="code" class="col-form-label">세부코드ID</label>
 								</div>
 								<div class="col-auto">
-									<textarea id="codeIdDc" class="form-control"
-										th:text="${result.codeIdDc}"></textarea>
+									<input type="text" id="code" class="form-control"
+										th:value="${result.code}" readonly>
+								</div>
+								<div class="col-auto"></div>
+							</div>
+
+							<!-- 세부코드ID명 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="codeNm" class="col-form-label">세부코드명</label>
+								</div>
+								<div class="col-auto">
+									<input type="text" id="codeNm" class="form-control"
+										th:value="${result.codeNm}" readonly>
+								</div>
+								<div class="col-auto"></div>
+							</div>
+
+							<!-- 세부코드설명 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="codeDc" class="col-form-label">세부코드설명</label>
+								</div>
+								<div class="col-auto">
+									<textarea id="codeDc" class="form-control"
+										th:text="${result.codeDc}"></textarea>
 								</div>
 							</div>
 
@@ -88,13 +112,14 @@
 		</div>
 	</div>
 	<script th:inline="javascript">
-		let cmc = /*[[${result}]]*/"";
+		let cmdc = /*[[${result}]]*/"";
 
-		let cmcMngUrl = /*[[ @{/admin/code/cmcMng.do} ]]*/'';
-		let cmcListUrl = /*[[ @{/admin/cmc/cmcList.do} ]]*/'';
+		let cmdcMngUrl = /*[[ @{/admin/code/cmdcMng.do} ]]*/'';
+		let cmdcListUrl = /*[[ @{/admin/cmc/cmdcList.do} ]]*/'';
 
 		$('document').ready(function() {
 
+			console.log(cmdc);
 		});
 	</script>
 </main>

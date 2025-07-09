@@ -47,7 +47,7 @@ import egovframework.com.uss.umt.service.EgovMberManageService;
 import egovframework.com.uss.umt.service.MberManageVO;
 import egovframework.com.uss.umt.service.UserDefaultVO;
 
-@Controller
+//@Controller
 public class AdminController {
 
 	/** mberManageService */
