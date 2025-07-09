@@ -234,7 +234,7 @@ textarea {
   function loadCalendars(selectedCalId = '') {
 	  console.log('칼아이디')
 	  return $.ajax({
-	    url: 'http://localhost:8082/muscat/cal/listCalendar',
+	    url: '/muscat/cal/listCalendar',
 	    type: 'GET',
 	    dataType: 'json',
 	    success: function (response) {
@@ -287,8 +287,8 @@ textarea {
 	  };
 
 	  const url = isEditMode 
-	    ? 'http://localhost:8082/muscat/cal/updateSchedule' 
-	    : 'http://localhost:8082/muscat/cal/insertSchedule';
+	    ? '/muscat/cal/updateSchedule' 
+	    : '/muscat/cal/insertSchedule';
 
 	  $.ajax({
 	    url: url,
@@ -334,7 +334,7 @@ textarea {
 
 	  if (!start || !startTime) {
 	    $.ajax({
-	      url: 'http://localhost:8082/muscat/cal/allRooms',
+	      url: '/muscat/cal/allRooms',
 	      type: 'GET',
 	      success: function (response) {
 	        const rooms = Array.isArray(response) ? response : response.result || [];
@@ -347,7 +347,7 @@ textarea {
 	  } else {
 	    const reserveDateTime = start.replace(/-/g, "") + startTime.replace(/:/g, "") + "00";
 	    $.ajax({
-	      url: 'http://localhost:8082/muscat/cal/availableRooms',
+	      url: '/muscat/cal/availableRooms',
 	      type: 'GET',
 	      data: { reserveDateTime },
 	      success: function (response) {
@@ -371,7 +371,7 @@ textarea {
 		  
 
 	    $.ajax({
-	      url: 'http://localhost:8082/muscat/cal/getSchedule',
+	      url: '/muscat/cal/getSchedule',
 	      type: 'GET',
 	      data: { schdulId },
 	      success: function (data) {
