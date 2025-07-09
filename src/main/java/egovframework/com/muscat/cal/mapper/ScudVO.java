@@ -12,6 +12,10 @@ public class ScudVO implements Serializable {
 	
 	private String schdulId;
 	
+	private String roomId; 
+	
+	private String roomName;
+	
 	/** 캘린더 아이디 */
 	private String calId;
 

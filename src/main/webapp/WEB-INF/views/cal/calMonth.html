@@ -249,6 +249,7 @@
 	</div>
 	<script>
 	document.addEventListener('DOMContentLoaded', function () {
+		
 		  let clickTimer = null;
 		  let isAll = false;
 		  const calendarModal = new bootstrap.Modal(document.getElementById('calendarModal'));
@@ -258,9 +259,9 @@
 		  
 		  
 	  // 캘린더 목록 불러오기 함수
-	 function loadCalendars() {
+	 function loadCalendars(callback) {
       $.ajax({
-        url: 'http://localhost:8082/muscat/cal/listCalendar',
+        url: '/muscat/cal/listCalendar',
         method: 'GET',
         success: function (response) {
           const calendars = Array.isArray(response.result) ? response.result : response;
@@ -293,6 +294,8 @@
               }
 
               $('#calendarSelect').append(`<option value="${calId}">${calName}</option>`);
+              
+              if (callback) callback();
             });
           } else {
             Swal.fire({
@@ -356,8 +359,17 @@
 	        right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
 	      },
 	      events: function(fetchInfo, successCallback, failureCallback) {
+	    	  const checkedCalendars = $('.calendar-toggle:checked')
+	    	    .map(function () {
+	    	      return $(this).data('calendar-id');
+	    	    }).get();
+	    	  if (checkedCalendars.length === 0) {
+	    	    successCallback([]);
+	    	    return;
+	    	  }
+
 	        $.ajax({
-	          url: 'http://localhost:8082/muscat/cal/listSchedule',
+	          url: '/muscat/cal/listSchedule',
 	          type: 'GET',
 	          dataType: 'json',
 	          success: function(response) {
@@ -366,7 +378,9 @@
 	            // 디버그용: 서버에서 받은 이벤트 로그 찍기
 	            list.forEach(e => console.log('서버 이벤트 데이터:', e));
 
-	            const events = list.map(e => ({
+	            const events = list
+	            .filter(e => checkedCalendars.includes((e.calId || '').trim())) //필터링
+	            .map(e => ({
 	              id: e.schdul_id,
 	              title: e.title || e.schdul_cn || '제목 없음',
 	              start: e.start_dt,
@@ -434,6 +448,10 @@
 	    });
 
 	    calendar.render();
+	    
+	    $(document).on('change', '.calendar-toggle', function () {
+	    	  calendar.refetchEvents();
+	    	});
 
 	  // 이벤트 저장 버튼 클릭
 	  $('#saveEventBtn').on('click', function () {
@@ -478,7 +496,7 @@
 
 	    $.ajax({
 	      type: 'POST',
-	      url: 'http://localhost:8082/muscat/cal/insertSchedule',
+	      url: '/muscat/cal/insertSchedule',
 	      contentType: 'application/json',
 	      data: JSON.stringify(data),
 	      success: function () {
@@ -535,7 +553,7 @@
 
 	    $.ajax({
 	      type: 'POST',
-	      url: 'http://localhost:8082/muscat/cal/insertCalendar',
+	      url: '/muscat/cal/insertCalendar',
 	      contentType: 'application/json',
 	      data: JSON.stringify({
 	        calId: newId,
@@ -604,7 +622,7 @@
 
 		  $.ajax({
 		    type: 'POST',
-		    url: 'http://localhost:8082/muscat/cal/insertSharedCalendar', 
+		    url: '/muscat/cal/insertSharedCalendar', 
 		    contentType: 'application/json',
 		    data: JSON.stringify(payload),
 		    success: function () {
@@ -638,7 +656,7 @@
 		  }).then((result) => {
 		    if (result.isConfirmed) {
 		    	$.ajax({
-		    		  url: 'http://localhost:8082/muscat/cal/deleteSchedule?schdulId=' + scheduleId,
+		    		  url: '/muscat/cal/deleteSchedule?schdulId=' + scheduleId,
 		    		  type: 'DELETE',
 		    		  success: function () {
 		    		    Swal.fire('삭제 완료', '일정이 삭제되었습니다.', 'success');

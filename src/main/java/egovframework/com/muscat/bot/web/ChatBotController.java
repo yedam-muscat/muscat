@@ -73,7 +73,7 @@ public class ChatBotController {
 	        // 서울 = 대략 nx=60, ny=127
 	        return getWeather("60", "127");
 	    }
-//	  
+	  
 //	    //  일정 등록 처리
 //	    if (message.contains("일정") && message.contains("등록")) {
 //	        // 예: "7월 10일 오전 10시에 회의 일정 등록"
@@ -89,7 +89,7 @@ public class ChatBotController {
 //
 //	        return "✅ 일정이 등록되었습니다: " + date + " " + time + " - " + title;
 //	    }
-//	    
+	    
 	
 	 // Gemini API 호출
 	    try {
