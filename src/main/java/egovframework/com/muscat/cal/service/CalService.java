@@ -30,4 +30,6 @@ public interface CalService {
 	
 	ScudVO selectScheduleById(String schdulId);
 	
+	List<Map> selectCalendarListByUser(String loginId);
+	
 }

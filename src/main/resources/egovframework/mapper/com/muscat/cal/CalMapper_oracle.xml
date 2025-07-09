@@ -187,5 +187,7 @@
 		LEFT JOIN COMTNMTGPLACEMANAGE r ON s.RESERVED_ROOM = r.MTGRUM_ID
 		WHERE TRIM(s.SCHDUL_ID) = TRIM(#{schdulId})
 	</select>
+	
+	
 </mapper>
 
