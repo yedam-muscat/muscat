@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+
+
+<main layout:fragment="content">
+	<div id="auth">
+		<div class="row h-100">
+			<div class="col-lg-8 col-12">
+				<div id="auth-left px-2 py-2">
+					<div class="card">
+						<div class="card-header text-white">
+							<h5 class="mb-0">공통코드 정보</h5>
+						</div>
+						<div class="card-body">
+
+							<!-- 코드ID -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="codeId" class="col-form-label">코드ID</label>
+								</div>
+								<div class="col-auto">
+									<input type="text" id="codeId" class="form-control"
+										th:value="${result.codeId}" readonly>
+								</div>
+								<div class="col-auto"></div>
+							</div>
+
+							<!-- 코드ID명 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="codeIdNm" class="col-form-label">코드ID명</label>
+								</div>
+								<div class="col-auto">
+									<input type="text" id="codeIdNm" class="form-control"
+										th:value="${result.codeIdNm}" readonly>
+								</div>
+								<div class="col-auto"></div>
+							</div>
+
+							<!-- 공통코드설명 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="codeIdDc" class="col-form-label">공통코드설명</label>
+								</div>
+								<div class="col-auto">
+									<textarea id="codeIdDc" class="form-control"
+										th:text="${result.codeIdDc}"></textarea>
+								</div>
+							</div>
+
+							<!-- 사용여부 -->
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="useAt" class="col-form-label">사용여부</label>
+								</div>
+								<div class="col-auto">
+									<select class="form-select" id="useAt">
+										<option value="Y" th:selected="${result.useAt == 'Y'}">사용함</option>
+										<option value="N" th:selected="${result.useAt == 'N'}">사용안함</option>
+									</select>
+								</div>
+							</div>
+
+							<!-- 등록자 -->
+							<!-- <div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="frstRegisterId" class="col-form-label">등록자</label>
+								</div>
+								<div class="col-auto">
+									<input type="text" id="frstRegisterId" class="form-control"
+										th:value="${result.frstRegisterId}" readonly>
+								</div>
+								<div class="col-auto"></div>
+							</div> -->
+
+							<!-- 버튼 -->
+							<div class="d-flex justify-content-start">
+								<button class="btn btn-primary me-2" id="btnToSave">저장</button>
+								<button class="btn btn-outline-secondary" id="btnToList">목록</button>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script th:inline="javascript">
+		let cmc = /*[[${result}]]*/"";
+
+		let cmcMngUrl = /*[[ @{/admin/code/cmcMng.do} ]]*/'';
+		let cmcListUrl = /*[[ @{/admin/cmc/cmcList.do} ]]*/'';
+
+		$('document').ready(function() {
+
+		});
+	</script>
+</main>

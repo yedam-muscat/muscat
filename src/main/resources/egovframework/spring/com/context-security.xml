@@ -24,6 +24,7 @@
 	<!-- 회원가입을 위한 허용 -->
  	<security:http pattern="/sym/ccm/zip/EgovAdressPop.do" security="none"/>
 	<security:http pattern="/uss/umt/EgovIdDplctCnfirmAjax.do" security="none" />
+	<security:http pattern="/uat/uia/login.do" security="none"/>
 
 	<egov-security:config id="securityConfig"
 		loginUrl="/uat/uia/login.do" logoutSuccessUrl="/main.do"

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+
+<main layout:fragment="content">
+	<h2 id="boardTitle">공통세부코드 목록</h2>
+
+	<div class="d-flex align-items-center gap-2 mb-3">
+
+		<!-- 검색 조건 -->
+		<select id="searchCondition" class="form-select form-select-sm"
+			style="width: 130px">
+			<option value="" selected>-- 검색조건 --</option>
+			<option value="1">공통코드ID</option>
+			<option value="2">공통세부코드ID</option>
+			<option value="3">공통세부코드명</option>
+		</select>
+
+		<!-- 검색어 -->
+		<input id="searchKeyword" type="text"
+			class="form-control form-control-sm" style="max-width: 260px"
+			placeholder="검색어를 입력하세요">
+
+		<!-- 조회 버튼 -->
+		<button id="btnCmdcSearch" class="btn btn-primary btn-sm">조회</button>
+		<!-- 초기화 버튼 -->
+		<button id="btnCmdcReset" class="btn btn-secondary btn-sm">초기화</button>
+
+		<!-- 우측 여백 & 새글쓰기 -->
+		<div class="flex-grow-1"></div>
+		<button id="btnCmdcReg" class="btn btn-primary btn-sm">+
+			공통세부코드 등록</button>
+	</div>
+
+	<table class="table table-bordered">
+		<thead class="table-light">
+			<tr>
+				<th>공통코드ID</th>
+				<th>공통세부코드ID</th>
+				<th>공통세부코드명</th>
+				<th>사용여부</th>
+			</tr>
+		</thead>
+		<tbody id="cmdcListBody">
+
+		</tbody>
+	</table>
+
+	<nav>
+		<ul id="pagination" class="pagination justify-content-center"></ul>
+	</nav>
+
+	<script th:inline="javascript">
+		let cmdcListUrl = /*[[ @{/admin/code/cmdcList.do} ]]*/ '';
+		let cmdcDetailUrl = /*[[ @{/admin/code/cmdcDetail.do} ]]*/ '';
+		let cmdcRegUrl = /*[[ @{/admin/code/cmdcReg.do} ]]*/ '';
+	</script>
+	<script>
+    const pageSize = 10;
+    let currentPage = 1;
+    let searchCondition = '';
+    let searchKeyword = '';
+
+    // 게시글 목록 로딩
+    function loadCodeList(page = 1) {
+        currentPage = page;
+        
+    	$.ajax({
+			type : "GET",
+			url : cmdcListUrl,
+			data : {
+				pageIndex : page,
+				searchCondition : searchCondition,
+				searchKeyword : searchKeyword,
+			},
+		}).done(function(data, textStatus, xhr) {
+	        let tbody = $('#cmdcListBody');
+	        tbody.html('');
+	        
+	        const resultList = data.resultList || [];
+	        const totalCount = parseInt(data.paginationInfo.totalRecordCount || 0);
+	        const totalPages = Math.ceil(totalCount / pageSize);
+	        
+	        resultList.forEach(item => {
+	          tbody.append(`<tr data-cmc-id="${item.codeId}" data-cmdc-id="${item.code}">
+			  	    <td>${item.codeId}</td>
+		  	        <td>${item.code}</td>
+	  	            <td>${item.codeNm}</td>
+	  	            <td>${item.useAt == 'Y' ? '사용함' : '사용안함'}</td>
+	  	            </tr>
+	  	          `);
+	        });
+	        
+	        tbody.on('click', 'tr', function () {
+	        	  const cmc = $(this).data('cmc-id');
+	        	  const cmdc = $(this).data('cmdc-id');
+	        	  window.location.href = `${cmdcDetailUrl}?codeId=${encodeURIComponent(cmc)}&code=${encodeURIComponent(cmdc)}`;
+	        	});
+
+	        renderPagination(totalPages);
+		}).fail(function() {
+			Swal.fire({
+				icon : "error",
+				title : "오류가 발생했습니다"
+			})
+		});
+    }
+
+    // 페이징 UI 렌더링
+    function renderPagination(totalPages){
+      const pagEl = document.getElementById('pagination');
+      pagEl.innerHTML = '';
+
+      const addItem = (label,page,disabled=false,active=false)=>{
+        const li = document.createElement('li');
+        li.className = `page-item ${active?'active':''} ${disabled?'disabled':''}`;
+        li.innerHTML = `<a class="page-link" href="#">${label}</a>`;
+        li.querySelector('a').addEventListener('click',e=>{
+          e.preventDefault();
+          if(!disabled && !active) loadCodeList(page);
+        });
+        pagEl.appendChild(li);
+      };
+
+      addItem('«', currentPage-1, currentPage===1);
+
+      const max = 5;
+      let start = Math.max(1, currentPage-Math.floor(max/2));
+      let end   = Math.min(totalPages, start+max-1);
+      if(end-start<max-1) start = Math.max(1, end-max+1);
+
+      for(let i=start;i<=end;i++) addItem(i,i,false,currentPage===i);
+
+      addItem('»', currentPage+1, currentPage===totalPages);
+    }
+
+    // 초기 로딩
+    document.addEventListener('DOMContentLoaded', () => {
+    	loadCodeList();
+    	
+    	$('#btnCmdcSearch').on('click', function() {
+    	    searchCondition = $('#searchCondition').val();
+    	    searchKeyword = $('#searchKeyword').val();
+    		loadCodeList();
+    	});
+    	
+    	$('#btnCmdcReset').on('click', function() {
+    	    searchCondition = '';
+    	    searchKeyword = '';
+    	    $('#searchCondition').val('');
+    	    $('#searchKeyword').val('');
+    	    loadCodeList();
+    	});
+    	
+    	$('#btnCmdcReg').on('click', function() {
+    		location.href=cmdcRegUrl;
+    	});
+    	
+    });
+  </script>
+</main>
+</html>

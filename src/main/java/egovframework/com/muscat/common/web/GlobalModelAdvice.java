@@ -12,6 +12,10 @@ public class GlobalModelAdvice {
 
 	@ModelAttribute
 	public void addGlobalAttributes(Model model, HttpServletRequest request) {
+		
+        if (!"GET".equalsIgnoreCase(request.getMethod())) {
+            return;
+        }
 		String egovLatestServerTime = "";
 		String egovExpireSessionTime = "";
 

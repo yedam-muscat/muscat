@@ -4,69 +4,63 @@
 	layout:decorate="~{layout/layout}">
 
 <main layout:fragment="content">
-	<h2 id="boardTitle">사용자 목록</h2>
+	<h2 id="boardTitle">공통코드 목록</h2>
 
 	<table class="table table-bordered">
 		<thead class="table-light">
 			<tr>
-				<th>아이디</th>
-				<th>사용자명</th>
-				<th>부서</th>
-				<th>직급</th>
-				<th>핸드폰번호</th>
-				<th>가입 상태</th>
+				<th>공통코드ID</th>
+				<th>공통코드명</th>
+				<th>사용여부</th>
 			</tr>
 		</thead>
-		<tbody id="userListBody">
+		<tbody id="cmcListBody">
 
 		</tbody>
 	</table>
 
-  <nav><ul id="pagination" class="pagination justify-content-center"></ul></nav>
+	<nav>
+		<ul id="pagination" class="pagination justify-content-center"></ul>
+	</nav>
 
 	<script th:inline="javascript">
-		let userListUrl = /*[[ @{/admin/user/userList.do} ]]*/ '';
-		let userDetailUrl = /*[[ @{/admin/user/userDetail.do} ]]*/ '';
+		let cmcListUrl = /*[[ @{/admin/code/cmcList.do} ]]*/ '';
+		let cmcDetailUrl = /*[[ @{/admin/code/cmcDetail.do} ]]*/ '';
 	</script>
 	<script>
     const pageSize = 10;
     let currentPage = 1;
 
     // 게시글 목록 로딩
-    function loadUserList(page = 1) {
+    function loadCodeList(page = 1) {
         currentPage = page;
         
     	$.ajax({
 			type : "GET",
-			url : userListUrl,
+			url : cmcListUrl,
 			data : {
 				pageIndex : page,
 			},
 		}).done(function(data, textStatus, xhr) {
-	        let tbody = $('#userListBody');
+	        let tbody = $('#cmcListBody');
 	        tbody.html('');
-	        
-	        console.log(data);
 	        
 	        const resultList = data.resultList || [];
 	        const totalCount = parseInt(data.paginationInfo.totalRecordCount || 0);
 	        const totalPages = Math.ceil(totalCount / pageSize);
 	        
 	        resultList.forEach(item => {
-	          tbody.append(`<tr data-user-id="${item.uniqId}">
-	  	            <td>${item.userId}</td>
-	  	            <td>${item.userNm}</td>
-	  	            <td>${item.deptName ? item.deptName : ''}</td>
-	  	            <td>${item.rankName ? item.rankName : '' }</td>
-	  	            <td>${item.moblphonNo}</td>
-	  	            <td>${item.sttus == 'A' ? '가입 대기' : item.sttus == 'P' ? '가입 승인': '가입 거절' }</td>
+	          tbody.append(`<tr data-code-id="${item.codeId}">
+		  	        <td>${item.codeId}</td>
+	  	            <td>${item.codeIdNm}</td>
+	  	            <td>${item.useAt == 'Y' ? '사용함' : '사용안함'}</td>
 	  	            </tr>
 	  	          `);
 	        });
 	        
 	        tbody.on('click', 'tr', function () {
-	        	  const uniqId = $(this).data('user-id');
-	        	  window.location.href = `${userDetailUrl}?selectedId=${encodeURIComponent(uniqId)}`;
+	        	  const id = $(this).data('code-id');
+	        	  window.location.href = `${cmcDetailUrl}?codeId=${encodeURIComponent(id)}`;
 	        	});
 
 	        renderPagination(totalPages);
@@ -89,7 +83,7 @@
         li.innerHTML = `<a class="page-link" href="#">${label}</a>`;
         li.querySelector('a').addEventListener('click',e=>{
           e.preventDefault();
-          if(!disabled && !active) loadUserList(page);
+          if(!disabled && !active) loadCodeList(page);
         });
         pagEl.appendChild(li);
       };
@@ -108,7 +102,7 @@
 
     // 초기 로딩
     document.addEventListener('DOMContentLoaded', () => {
-    	loadUserList();
+    	loadCodeList();
     });
   </script>
 </main>

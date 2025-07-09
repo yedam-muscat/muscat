@@ -4,27 +4,63 @@
 	layout:decorate="~{layout/layout}">
 
 <main layout:fragment="content">
-	<div class="container-fluid my-4">
+	<div class="container-fluid my-4 bg-light">
 		<div class="row g-4">
 			<!-- 왼쪽 세로 영역(폭 4/12) -->
 			<div class="col-lg-4 d-flex flex-column gap-4">
 				<!-- 카드 1 -->
-				<div class="card shadow-sm dashboard-card flex-fill">
+				<div
+					class="card shadow-sm dashboard-card flex-fill shadow-lg border-0 rounded-4">
 					<div class="card-header fw-bold">출퇴근</div>
-					<div class="card-body"></div>
+					<div class="card-body p-3 text-center">
+
+						<!-- 시간 -->
+						<time id="clockDisplay" class="display-3 fw-semibold lh-1"
+							datetime=""></time>
+						<!-- 날짜 -->
+						<p id="clockDate" class="small text-secondary mb-0"></p>
+						<div>
+							<button class="btn btn-outline-primary">출근</button>
+							<button class="btn btn-outline-danger">퇴근</button>
+						</div>
+					</div>
 				</div>
 
 				<!-- 카드 2 -->
-				<div class="card shadow-sm dashboard-card flex-fill">
+				<div
+					class="card shadow-sm dashboard-card flex-fill shadow-lg border-0 rounded-4">
 					<div class="card-header fw-bold">오늘의 일정</div>
-					<div class="card-body"></div>
+					<div class="card-body">
+						<!-- 어제 버튼 -->
+<!-- 						<button id="prevBtn"
+							class="btn btn-outline-secondary flex-shrink-0">
+							<i class="bi bi-chevron-left"></i>
+						</button>
+
+						날짜/요일 표시
+						<div class="flex-grow-1 text-center">
+							<h4 id="dateText" class="mb-0 fw-semibold"></h4>
+							<small id="dayText" class="text-muted"></small>
+						</div>
+
+						내일 버튼
+						<button id="nextBtn"
+							class="btn btn-outline-secondary flex-shrink-0">
+							<i class="bi bi-chevron-right"></i>
+						</button>
+
+						오늘 버튼
+						<button id="todayBtn" class="btn btn-primary ms-2 flex-shrink-0">
+							오늘</button> -->
+					</div>
 				</div>
 			</div>
 
 			<!-- 오른쪽 넓은 영역(폭 8/12) -->
 			<div class="col-lg-8 d-flex flex-column gap-4">
 				<!-- 카드 3 -->
-				<div class="card shadow-sm dashboard-card flex-fill">
+				<div
+					class="card shadow-sm dashboard-card flex-fill shadow-lg border-0 rounded-4">
 					<div class="card-header fw-bold">공지사항</div>
 					<div class="card-body">
 						<table class="table table-bordered align-middle">
@@ -42,7 +78,8 @@
 				</div>
 
 				<!-- 카드 4 -->
-				<div class="card shadow-sm dashboard-card flex-fill">
+				<div
+					class="card shadow-sm dashboard-card flex-fill shadow-lg border-0 rounded-4">
 					<div class="card-header fw-bold">결재내역</div>
 					<div class="card-body"></div>
 				</div>
@@ -52,6 +89,105 @@
 
 	<script th:inline="javascript">
 		let mainBoardUrl = /*[[@{/main/recentBoard.do}]]*/'';
+		
+		/*<![CDATA[*/
+		(() => {
+		  /* -------- 설정 값만 위쪽에 모으기 -------- */
+		  const USE_24H = true;            // false → 12h AM/PM
+		  const LOCALE  = 'ko-KR';         // 브라우저 언어 대신 고정하려면 변경
+		  const TIMEZONE= 'Asia/Seoul';    // 서버 시간대와 달라도 OK
+
+		  /* -------- DOM 캐시 -------- */
+		  const $time = document.getElementById('clockDisplay');
+		  const $date = document.getElementById('clockDate');
+
+		  /* -------- 유틸 -------- */
+		  const pad = n => n.toString().padStart(2, '0');
+
+		  /* -------- 렌더 루프 -------- */
+		  function tick() {
+		    const now = new Date();
+
+		    /* 시간 */
+		    if (USE_24H) {
+		      $time.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+		    } else {
+		      $time.textContent = now.toLocaleTimeString(LOCALE,
+		        { timeZone: TIMEZONE, hour12: true });
+		    }
+		    $time.setAttribute('datetime', now.toISOString());
+
+		    /* 날짜 (예: 2025년 7월 8일 (화)) */
+		    $date.textContent = now.toLocaleDateString(LOCALE, {
+		      timeZone: TIMEZONE,
+		      year: 'numeric', month: 'long', day: 'numeric', weekday: 'short'
+		    });
+
+		    requestAnimationFrame(tick);    // 60 fps → 부드럽게 초 단위 갱신
+		  }
+		  tick();
+		})();
+		/*]]>*/
+		
+		/*<![CDATA[*/
+(() => {
+  const dateText = document.getElementById('dateText');
+  const dayText  = document.getElementById('dayText');
+  const prevBtn  = document.getElementById('prevBtn');
+  const nextBtn  = document.getElementById('nextBtn');
+  const todayBtn = document.getElementById('todayBtn');
+
+  // 현재 화면에 표시·조회 중인 날짜
+  let currentDate = new Date();      // 00:00:00 기준으로 맞춰 두면 편함
+  currentDate.setHours(0,0,0,0);
+
+  // 날짜 렌더링 & 일정 호출
+  function render() {
+    // YYYY-MM-DD (2025년 7월 8일) 형식
+    dateText.textContent = currentDate.toLocaleDateString('ko-KR', {
+      year:'numeric', month:'long', day:'numeric'
+    });
+    // 요일 (화)
+    dayText.textContent  = currentDate.toLocaleDateString('ko-KR', {
+      weekday:'short'
+    });
+
+    // “오늘”과 같은 날이면 primary → outline-primary 로 토글
+    const isToday = isSameDay(currentDate, new Date());
+    todayBtn.classList.toggle('btn-primary',  isToday);
+    todayBtn.classList.toggle('btn-outline-primary', !isToday);
+
+    // 일정 조회
+    loadSchedule(currentDate);       // ⬅︎ 여기서 Ajax or fetch 호출
+  }
+
+  // 날짜 비교 유틸
+  const isSameDay = (a, b) =>
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth()    === b.getMonth()    &&
+    a.getDate()     === b.getDate();
+
+  // 버튼 이벤트
+  prevBtn.addEventListener('click',  () => { currentDate.setDate(currentDate.getDate() - 1); render(); });
+  nextBtn.addEventListener('click',  () => { currentDate.setDate(currentDate.getDate() + 1); render(); });
+  todayBtn.addEventListener('click', () => { currentDate = new Date(); currentDate.setHours(0,0,0,0); render(); });
+
+  // 초기 렌더
+  render();
+
+  /* --------- 예시: 일정 조회 함수 --------- */
+  function loadSchedule(dateObj){
+    // 서버로 보낼 ISO-8601 날짜 문자열 (YYYY-MM-DD)
+    const ymd = dateObj.toISOString().split('T')[0];
+
+    // fetch(`/api/schedule?date=${ymd}`)
+    //   .then(res => res.json())
+    //   .then(data => updateScheduleTable(data));
+
+    console.log('[loadSchedule] ▶', ymd);    // 데모용
+  }
+})();
+ /*]]>*/
 	</script>
 
 	<script>

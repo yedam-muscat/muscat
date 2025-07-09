@@ -20,11 +20,11 @@
 		<Logger name="jdbc.sqltiming" level="DEBUG" additivity="false">
 			<AppenderRef ref="console" />
 		</Logger>
-		<Logger name="org.springframework" level="info"
+		<Logger name="org.springframework" level="DEBUG"
 			additivity="false">
 			<AppenderRef ref="console" />
 		</Logger>
-		<Logger name="org.springframework.security" level="info"
+		<Logger name="org.springframework.security" level="DEBUG"
 			additivity="false">
 			<AppenderRef ref="console" />
 		</Logger> 

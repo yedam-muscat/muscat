@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,16 +19,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springmodules.validation.commons.DefaultBeanValidator;
 
 import egovframework.com.cmm.ComDefaultCodeVO;
-import egovframework.com.cmm.EgovComponentChecker;
 import egovframework.com.cmm.EgovMessageSource;
 import egovframework.com.cmm.LoginVO;
 import egovframework.com.cmm.config.EgovLoginConfig;
 import egovframework.com.cmm.service.CmmnDetailCode;
 import egovframework.com.cmm.service.EgovCmmUseService;
-import egovframework.com.cmm.service.EgovProperties;
 import egovframework.com.muscat.common.ResultVO;
 import egovframework.com.muscat.group.service.GroupService;
 import egovframework.com.muscat.group.service.GroupVO;
@@ -84,30 +82,17 @@ public class LoginController {
 	 * @exception Exception
 	 */
 	@GetMapping("/uat/uia/login.do")
-	public String loginUsrView(@ModelAttribute("loginVO") LoginVO loginVO, HttpServletRequest request,
-			HttpServletResponse response, ModelMap model) throws Exception {
-		if (EgovComponentChecker.hasComponent("mberManageService")) {
-			model.addAttribute("useMemberManage", "true");
-		}
-
-		// 권한체크시 에러 페이지 이동
-		String auth_error = request.getParameter("auth_error") == null ? ""
-				: (String) request.getParameter("auth_error");
-		if (auth_error != null && auth_error.equals("1")) {
-			return "egovframework/com/cmm/error/accessDenied";
-		}
-
-		LOGGER.debug(loginVO.getId());
-		LOGGER.debug(loginVO.getPassword());
-
-		String authType = EgovProperties.getProperty("Globals.Auth").trim();
-		model.addAttribute("authType", authType);
-
-		String message = request.getParameter("loginMessage");
-		if (message != null)
-			model.addAttribute("loginMessage", message);
+	public String loginPageGet() throws Exception {
 
 		return "login/login.html";
+	}
+
+	@PostMapping("/uat/uia/login.do")
+	public String loginPagePost(RedirectAttributes ra) throws Exception {
+		
+		ra.addFlashAttribute("loginMessage", "로그인 정보를 확인해주세요");
+		
+		return "redirect:/uat/uia/login.do";
 	}
 
 	/**
