@@ -241,21 +241,15 @@
 				<button class="btn btn-sm btn-primary" type="button"
 					id="openMemoModal">보고</button>
 
-				<button id="closeChat" aria-label="닫기"
-					style="background: none; border: none; color: black; font-weight: bold; cursor: pointer;">X</button>
+				<button id="closeChat" aria-label="닫기" style="background: none; border: none; color: black; font-weight: bold; cursor: pointer;">X</button>
 				<input type="file" id="fileInput" style="display: none;">
 			</div>
 		</div>
-		<div id="chatMessages"
-			style="padding: 10px; flex-grow: 1; overflow-y: auto; background: #ACBCE3;"></div>
+		<div id="chatMessages" style="padding: 10px; flex-grow: 1; overflow-y: auto; background: #ACBCE3;"></div>
 
-		<div id="chatInputArea"
-			style="padding: 10px; border-top: 1px solid #ccc; display: flex; gap: 5px;">
-			<input id="chatInput" type="text" class="form-control"
-				placeholder="메시지를 입력하세요..." />
-			<button id="sendMsg" class="btn btn-success"
-				style="padding: 0.25rem 0.75rem; font-size: 0.9rem; white-space: nowrap;"
-				disabled>전송</button>
+		<div id="chatInputArea" style="padding: 10px; border-top: 1px solid #ccc; display: flex; gap: 5px;">
+			<input id="chatInput" type="text" class="form-control" placeholder="메시지를 입력하세요..." />
+			<button id="sendMsg" class="btn btn-success" style="padding: 0.25rem 0.75rem; font-size: 0.9rem; white-space: nowrap;" disabled>전송</button>
 		</div>
 	</div>
 
@@ -603,11 +597,11 @@
 						showchatroom();
 						socketopen();
 						
+						});
 					});
-		});
 
 		// 목록 클릭 → 채팅방 열기
-		$('#chatList').on('click', '.chat-entry',	()=>{});
+		$('#chatList').on('click', '.chat-entry',()=>{});
 		
 		function showchatroom() {
 			//const userName = $(this).data('user');

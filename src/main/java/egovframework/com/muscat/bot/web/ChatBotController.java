@@ -5,11 +5,13 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -20,8 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ibm.icu.impl.TimeZoneGenericNames.Pattern;
 
+import ch.qos.logback.core.boolex.Matcher;
 import egovframework.com.muscat.bot.service.Gemini;
+import egovframework.com.muscat.cal.mapper.ScudVO;
 import egovframework.com.muscat.cal.service.CalService;
 
 
@@ -43,7 +48,7 @@ public class ChatBotController {
 	    System.out.println("handleMessage 호출됨, 메시지: " + payload.get("message"));
 	    String message = payload.get("message");
 
-	    // ✅ 1. 도움말 명령어 처리
+	    //  1. 도움말 명령어 처리
 	    if (message.contains("도움말") || message.contains("명령어")) {
 	        return "🧠 하리봇 도움말\n\n"
 	             + "하리봇이 할 수 있는 일:\n"
@@ -60,7 +65,7 @@ public class ChatBotController {
 	             + "궁금한 걸 자유롭게 물어보세요!";
 	    }
 
-	    // ✅ 2. 시간 관련 메시지
+	    //  2. 시간 관련 메시지
 	    if (message.contains("시간") || message.contains("몇 시") || message.contains("지금")) {
 	        if (message.contains("세계") || message.contains("다른 나라")) {
 	            return getWorldTime();
@@ -73,24 +78,6 @@ public class ChatBotController {
 	        // 서울 = 대략 nx=60, ny=127
 	        return getWeather("60", "127");
 	    }
-	  
-//	    //  일정 등록 처리
-//	    if (message.contains("일정") && message.contains("등록")) {
-//	        // 예: "7월 10일 오전 10시에 회의 일정 등록"
-//	        String title = extractTitle(message); // 일정 제목
-//	        LocalDate date = extractDate(message); // 날짜
-//	        LocalTime time = extractTime(message); // 시간
-//
-//	        // 실제 로그인 사용자 ID로 대체 (예: session에서 가져오기)
-//	        String userId = "testUser";
-//
-//	        // 일정 저장
-//	        scheduleService.insertCalendar(title, date, time, userId);
-//
-//	        return "✅ 일정이 등록되었습니다: " + date + " " + time + " - " + title;
-//	    }
-	    
-	
 	 // Gemini API 호출
 	    try {
 	        String jsonResponse = Gemini.askGemini(message);
@@ -104,24 +91,12 @@ public class ChatBotController {
 	        e.printStackTrace();
 	        return "⚠️ 챗봇 응답에 오류가 발생했습니다.";
 	    }
+//	    if (message.contains("일정") && message.matches(".*\\d{1,2}월.*\\d{1,2}일.*(오전|오후).*")) {
+//	        return processScheduleFromMessage(message); // ✅ 2단계에서 만들 함수
+//	    }
+
 	    
 	}
-
-//	// handleMessage 끝난 뒤, 클래스 내에 별도로 위치
-//	private String extractTitle(String message) {
-//	    return "회의"; // 임시 제목
-//	}
-//
-//	private LocalDate extractDate(String message) {
-//	    return LocalDate.now(); // 오늘 날짜
-//	}
-//
-//	private LocalTime extractTime(String message) {
-//	    return LocalTime.of(10, 0); // 오전 10시
-//	}
-
-
-
 	private String getKoreanTime() {
         LocalTime now = LocalTime.now(ZoneId.of("Asia/Seoul"));
         return "🕒 지금 시간은 " + now.format(DateTimeFormatter.ofPattern("HH:mm")) + "입니다.";
@@ -204,7 +179,49 @@ public class ChatBotController {
             return "⚠️ 날씨 정보를 불러오는 중 오류가 발생했어요.";
         }
     }
-
-    
+//    private String processScheduleFromMessage(String msg) {
+//        try {
+//            Pattern pattern = Pattern.compile("(\\d{1,2})월 (\\d{1,2})일 (오전|오후)? ?(\\d{1,2})시.*(\\d{1,2})시.*(.*)");
+//            Matcher matcher = pattern.matcher(msg);
+//
+//            if (matcher.find()) {
+//                int month = Integer.parseInt(matcher.group(1));
+//                int day = Integer.parseInt(matcher.group(2));
+//                String ampm = matcher.group(3);
+//                int startHour = Integer.parseInt(matcher.group(4));
+//                int endHour = Integer.parseInt(matcher.group(5));
+//                String title = matcher.group(6).replaceAll("일정|등록|있어", "").trim();
+//
+//                if ("오후".equals(ampm) && startHour < 12) startHour += 12;
+//                if ("오후".equals(ampm) && endHour < 12) endHour += 12;
+//
+//                LocalDateTime now = LocalDateTime.now();
+//                LocalDateTime start = LocalDateTime.of(now.getYear(), month, day, startHour, 0);
+//                LocalDateTime end = LocalDateTime.of(now.getYear(), month, day, endHour, 0);
+//
+//                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+//
+//                ScudVO vo = new ScudVO();
+//                vo.setSchdulId(UUID.randomUUID().toString().substring(0, 20));
+//                vo.setSchdulNm(title.isEmpty() ? "일정" : title);
+//                vo.setSchdulBgnde(start.format(formatter));
+//                vo.setSchdulEndde(end.format(formatter));
+//                vo.setLeaderId("admin"); // 실제 로그인 사용자 ID로 교체 가능
+//                vo.setSchdulCn("챗봇 등록");
+//                vo.setCalId("기본캘린더"); // 사용 중인 CAL_ID로 설정
+//                vo.setFrstRegisterId("admin");
+//                vo.setLastUpdusrId("admin");
+//
+//                calService.insertSchedule(vo);
+//
+//                return "✅ 일정 등록 완료!\n📅 " + month + "월 " + day + "일\n🕒 " + startHour + ":00 ~ " + endHour + ":00\n📌 제목: " + title;
+//            } else {
+//                return "❓ 일정 문장을 이해하지 못했어요. 예: 7월 15일 오후 2시부터 3시까지 회의 등록";
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return "⚠️ 일정 등록 중 오류가 발생했어요.";
+//        }
+ 
 }
 

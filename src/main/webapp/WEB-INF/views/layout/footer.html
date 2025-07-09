@@ -13,7 +13,7 @@
 
 
 
-			<style>
+<style>
 #chatbot-modal {
 	position: fixed;
 	bottom: 90px;
@@ -31,7 +31,7 @@
 	transform: translateY(20px);
 	transition: opacity 0.3s ease, transform 0.3s ease;
 
-	/* ✅ 아래 5줄 추가로 리사이즈 가능하게 설정 */
+	/*  아래 5줄 추가로 리사이즈 가능하게 설정 */
 	resize: both;
 	overflow: auto;
 	min-width: 250px;
@@ -46,7 +46,7 @@
 	transform: translateY(0);
 }
 
-/* 💙 헤더 */
+/*  헤더 */
 .chatbot-header {
 	background-color: #007bff;
 	color: white;
@@ -57,7 +57,7 @@
 	flex-shrink: 0;
 }
 
-/* 💬 본문 */
+/*  본문 */
 .chatbot-body {
 	flex: 1;
 	padding: 10px;
@@ -65,7 +65,7 @@
 	background-color: #f9f9f9;
 }
 
-/* ✍️ 입력 영역 */
+/* ️ 입력 영역 */
 .chatbot-footer {
 	padding: 10px;
 	display: flex;
@@ -131,15 +131,12 @@
 }
 
 </style>
-
-
-
-			<!-- 🤖 챗봇 아이콘 -->
+			<!--  챗봇 아이콘 -->
 			<div id="chatbot-icon"
 				style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #007bff; color: white; font-size: 30px; text-align: center; line-height: 60px; cursor: pointer; z-index: 1000;">
 				🤖</div>
 
-			<!-- 💬 모달 챗봇창 -->
+			<!--  모달 챗봇창 -->
 			<div id="chatbot-modal">
 
 				<div class="chatbot-header">하리</div>
@@ -154,9 +151,9 @@
 
 			</div>
 
-<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
-			<!-- 💡 스크립트 -->
-			<script>
+
+			
+	<script>
     // 아이콘 클릭 시 모달 열기/닫기
     document.getElementById('chatbot-icon').onclick = function () {
       const modal = document.getElementById('chatbot-modal');
@@ -249,6 +246,10 @@
     	      requestAnimationFrame(() => {          // 다음 페인트 주기에…
     	        modal.classList.add('show');         // 트랜지션 시작
     	        input.focus();                       // 그리고 즉시 포커스!
+    	     //  챗봇 열릴 때 환영 메시지 추가
+    	        if (!document.getElementById('chat-log').hasChildNodes()) {
+    	          showWelcomeMessage();
+    	        }
     	      });
     	    }
     	  });
@@ -268,6 +269,11 @@
     	    console.error(err);
     	  });
     	}
+    
+    function showWelcomeMessage() {
+    	  appendMessage('챗봇', `안녕하세요 😊 저는 하리입니다.\n무엇을 도와드릴까요?\n\n📝 사용법 안내\n------------------------------\n- ⏰ 현재 시간: "지금 몇 시야?"\n- 🌍 세계 시간: "세계 시간 알려줘"\n- 📅 페이지 이동: **#캘린더**, **#게시판** 등\n- 🧍 직원 검색: "김하리 찾아줘"\n\n👉 *페이지 이동 시에는 꼭 # 기호를 붙여주세요!*`);
+    	}
+
   </script>
 		</div>
 	</div>
