@@ -31,4 +31,6 @@ public interface CalMapper {
 	int deleteSchedule(String schdulId);
 	
 	ScudVO selectScheduleById(String schdulId);
+	
+	List<Map> selectCalendarsByUser(String loginId);
 }

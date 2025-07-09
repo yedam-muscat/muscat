@@ -122,7 +122,7 @@
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="eventModalLabel">이벤트 등록</h5>
+					<h5 class="modal-title" id="eventModalLabel">일정 등록</h5>
 					<button type="button" class="btn-close" data-bs-dismiss="modal"
 						aria-label="닫기"></button>
 				</div>
@@ -247,6 +247,7 @@
 			</div>
 		</div>
 	</div>
+
 	<script>
 	document.addEventListener('DOMContentLoaded', function () {
 		
@@ -318,32 +319,23 @@
 	  loadCalendars();
 	  
 	  function initTree() {
-		  let originalGroupData = [];
+		  $('#tree').jstree('destroy');
 
-		  $('#tree').jstree('destroy'); // 트리 초기화
-
-		  $.getJSON('/muscat/group/userData.do', function(data) {
-		    originalGroupData = data;
-		  });
-
-		  $('#tree')
-		    .jstree({
+		  $.getJSON('/muscat/group/userData.do', function (data) {
+		    $('#tree').jstree({
 		      'core': {
-		        'data': {
-		          'url': '/muscat/group/userData.do',
-		          'dataType': 'json'
-		        },
+		        'data': data,
 		        'themes': { 'responsive': false }
 		      },
 		      'types': {
 		        'default': { 'icon': 'bi bi-folder' },
 		        'user': { 'icon': 'bi bi-person' }
 		      },
-		      'plugins': ['types', 'checkbox'] 
-		    })
-		    .on('loaded.jstree', function () {
+		      'plugins': ['types', 'checkbox']
+		    }).on('loaded.jstree', function () {
 		      $('#tree').jstree(true).open_all();
 		    });
+		  });
 		}
 	  
 	  const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
@@ -351,7 +343,7 @@
 	      locale: 'ko',
 	      themeSystem: 'bootstrap5',
 	      height: 700,
-	      fixedWeekCount: true,
+	      fixedWeekCount: false,
 	      dayMaxEventRows: true,
 	      headerToolbar: {
 	        left: 'prev,next today',
@@ -446,8 +438,10 @@
 	    	  eventDetailModal.show();
 	    	}
 	    });
-
-	    calendar.render();
+	  loadCalendars(function () {
+		    calendar.render(); // 이제 체크박스가 완성된 후 실행됨
+		    calendar.refetchEvents();
+		  });
 	    
 	    $(document).on('change', '.calendar-toggle', function () {
 	    	  calendar.refetchEvents();
@@ -598,8 +592,9 @@
 		  const name = $('#calendarSharedName').val().trim();
 		  const color = $('#calendarSharedColor').val();
 		  const selectedUsers = $('#tree').jstree(true).get_checked(true)
-		    .filter(node => node.original.type === 'user')
-		    .map(node => node.original.mber_id);
+		    .filter(node => node.type === 'user')
+		    .map(node => node.data?.mber_id)
+		 	.filter(Boolean);
 
 		  if (!name || selectedUsers.length === 0) {
 		    Swal.fire({
