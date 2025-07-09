@@ -261,7 +261,7 @@
 	  // 캘린더 목록 불러오기 함수
 	 function loadCalendars(callback) {
       $.ajax({
-        url: 'http://localhost:8082/muscat/cal/listCalendar',
+        url: '/muscat/cal/listCalendar',
         method: 'GET',
         success: function (response) {
           const calendars = Array.isArray(response.result) ? response.result : response;
@@ -369,7 +369,7 @@
 	    	  }
 
 	        $.ajax({
-	          url: 'http://localhost:8082/muscat/cal/listSchedule',
+	          url: '/muscat/cal/listSchedule',
 	          type: 'GET',
 	          dataType: 'json',
 	          success: function(response) {
@@ -496,7 +496,7 @@
 
 	    $.ajax({
 	      type: 'POST',
-	      url: 'http://localhost:8082/muscat/cal/insertSchedule',
+	      url: '/muscat/cal/insertSchedule',
 	      contentType: 'application/json',
 	      data: JSON.stringify(data),
 	      success: function () {
@@ -553,7 +553,7 @@
 
 	    $.ajax({
 	      type: 'POST',
-	      url: 'http://localhost:8082/muscat/cal/insertCalendar',
+	      url: '/muscat/cal/insertCalendar',
 	      contentType: 'application/json',
 	      data: JSON.stringify({
 	        calId: newId,
@@ -622,7 +622,7 @@
 
 		  $.ajax({
 		    type: 'POST',
-		    url: 'http://localhost:8082/muscat/cal/insertSharedCalendar', 
+		    url: '/muscat/cal/insertSharedCalendar', 
 		    contentType: 'application/json',
 		    data: JSON.stringify(payload),
 		    success: function () {
@@ -656,7 +656,7 @@
 		  }).then((result) => {
 		    if (result.isConfirmed) {
 		    	$.ajax({
-		    		  url: 'http://localhost:8082/muscat/cal/deleteSchedule?schdulId=' + scheduleId,
+		    		  url: '/muscat/cal/deleteSchedule?schdulId=' + scheduleId,
 		    		  type: 'DELETE',
 		    		  success: function () {
 		    		    Swal.fire('삭제 완료', '일정이 삭제되었습니다.', 'success');
