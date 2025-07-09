@@ -159,8 +159,6 @@ public class CalController {
 	   System.out.println(schdulId);
 		schedule = calService.selectScheduleById(schdulId);
 		model.addAttribute("schedule", schedule);
-	   System.out.println(schedule);
-		System.out.println("은총");
 		
 		return "cal/calDetail.html";
 	}

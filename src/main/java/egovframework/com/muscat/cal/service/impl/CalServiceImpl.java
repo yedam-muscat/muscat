@@ -67,4 +67,9 @@ public class CalServiceImpl implements CalService {
 	    return calMapper.selectScheduleById(schdulId);
 	}
 	
+	@Override
+	public List<Map> selectCalendarListByUser(String loginId) {
+	    return calMapper.selectCalendarsByUser(loginId);
+	}
+	
 }
