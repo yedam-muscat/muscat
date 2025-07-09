@@ -6,7 +6,7 @@
   <meta charset="UTF-8">
   <title>게시판 등록</title>
 
-  <!-- DataTables · SweetAlert2 ------------------------------------------------>
+  <!-- DataTables · SweetAlert2 -->
   <link rel="stylesheet"
         href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
   <script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
@@ -17,54 +17,60 @@
   <h2>📝 게시판 등록</h2>
 
   <form id="bbsForm" style="max-width:700px;margin-left:40px;">
-    <!-- ───────────── 게시판 기본정보 ───────────── -->
+    <!-- ───────────── 기본정보 ───────────── -->
     <div class="mb-3">
-      <label for="bbsNm" class="form-label">게시판명 <span class="text-danger">*</span></label>
-      <input type="text" class="form-control" id="bbsNm" name="bbsNm" required>
+      <label class="form-label">게시판명 <span class="text-danger">*</span></label>
+      <input type="text" class="form-control" name="bbsNm" required>
     </div>
 
     <div class="mb-3">
-      <label for="bbsIntrcn" class="form-label">게시판 소개 <span class="text-danger">*</span></label>
-      <textarea class="form-control" id="bbsIntrcn" name="bbsIntrcn" rows="3" required></textarea>
+      <label class="form-label">게시판 소개 <span class="text-danger">*</span></label>
+      <textarea class="form-control" name="bbsIntrcn" rows="3" required></textarea>
     </div>
 
-    <!-- (예시) 게시판 유형은 고정값 BBST01 -->
-    <input type="hidden" id="bbsTyCode" name="bbsTyCode" value="BBST01">
+    <input type="hidden" name="bbsTyCode" value="BBST01">
+    <input type="hidden" id="deptId"   name="deptId"><!-- 최종 부서코드 -->
 
     <!-- ───────────── 카테고리 / 구분 ───────────── -->
     <div class="mb-3">
-      <label for="categoryMain" class="form-label">게시판 카테고리</label>
+      <label class="form-label">게시판 카테고리</label>
       <select id="categoryMain" name="categoryMain" class="form-select" required>
         <option value="">-- 선택하세요 --</option>
       </select>
     </div>
 
     <div class="mb-3">
-      <label for="categoryScope" class="form-label">게시판 구분</label>
+      <label class="form-label">게시판 구분</label>
       <select id="categoryScope" name="categoryScope" class="form-select" required>
         <option value="">-- 선택하세요 --</option>
       </select>
     </div>
 
-    <!-- ✚ 부서 게시판(BT101) 일 때만 노출 -->
+    <!-- ───────────── 부서 선택 (부서게시판일 때만) ───────────── -->
     <div id="deptWrap" class="mb-3" style="display:none">
-      <label for="deptCode" class="form-label fw-bold">부서선택 <span class="text-danger">*</span></label>
-      <select id="deptCode" name="deptCode" class="form-select">
-        <option value="" hidden>부서를 선택하세요</option>
-        <!-- deptList 는 Controller 에서 내려주는 모델 -->
-        <th:block th:each="d : ${deptList}">
-          <option th:value="${d.code}" th:text="${d.codeNm}"></option>
-        </th:block>
-      </select>
+      <label class="form-label fw-bold">부서선택 <span class="text-danger">*</span></label>
+
+      <div class="d-flex gap-2">
+        <!-- 상위 부서 -->
+        <select id="parentDept" class="form-select">
+          <option value="">-- 상위 부서 --</option>
+          <option th:each="p : ${parent_dept_result}"
+                  th:value="${p.id}" th:text="${p.text}"></option>
+        </select>
+
+        <!-- 하위 부서 -->
+        <select id="childDept" class="form-select">
+          <option value="">-- 하위 부서 --</option>
+        </select>
+      </div>
     </div>
 
-    <!-- ───────────── 기타 옵션 ───────────── -->
+    <!-- ───────────── 기타 옵션 (생략 없이 유지) ───────────── -->
     <div class="mb-3">
       <label class="form-label">답장 가능 여부</label>
-      <select id="replyPosblAt" name="replyPosblAt" class="form-select" required>
+      <select name="replyPosblAt" class="form-select" required>
         <option value="">-- 선택하세요 --</option>
-        <option value="Y">예</option>
-        <option value="N">아니오</option>
+        <option value="Y">예</option><option value="N">아니오</option>
       </select>
     </div>
 
@@ -72,27 +78,23 @@
       <label class="form-label">파일 첨부 가능 여부</label>
       <select id="fileAtchPosblAt" name="fileAtchPosblAt" class="form-select" required>
         <option value="">-- 선택하세요 --</option>
-        <option value="Y">예</option>
-        <option value="N">아니오</option>
+        <option value="Y">예</option><option value="N">아니오</option>
       </select>
     </div>
 
     <div class="mb-3">
       <label class="form-label">첨부 가능 파일 수</label>
-      <select id="atchPosblFileNumber" name="atchPosblFileNumber" class="form-select" required>
-        <option value="0">없음</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
+      <select name="atchPosblFileNumber" class="form-select" required>
+        <option value="0">없음</option><option value="1">1</option>
+        <option value="2">2</option><option value="3">3</option>
       </select>
     </div>
 
     <div class="mb-3">
       <label class="form-label">사용 여부</label>
-      <select id="useAt" name="useAt" class="form-select" required>
+      <select name="useAt" class="form-select" required>
         <option value="">-- 선택하세요 --</option>
-        <option value="Y">예</option>
-        <option value="N">아니오</option>
+        <option value="Y">예</option><option value="N">아니오</option>
       </select>
     </div>
 
@@ -104,80 +106,95 @@
   </form>
 
   <!-- ───────────── SCRIPT ───────────── -->
-  <script>
-  /* ▶ 부서 게시판 코드값 (COM105 테이블) */
-  const SCOPE_DEPT = 'BT101';   // 실제 코드값에 맞춰 변경
+  <script th:inline="javascript">
+  /* ======= 상수 & 초기 데이터 ============================================ */
+  const SCOPE_DEPT       = 'BT101';                         // “부서게시판” 코드
+  const CHILD_DEPT_LIST  = /*[[${child_dept_result}]]*/ [];  // 하위부서 전체
 
-  /* 공통상세코드 비동기 로딩 ---------------------------------------------- */
-  async function loadCommonCodes(codeId, target) {
+  /* ======= 공통상세코드 비동기 로딩 ====================================== */
+  async function loadCodes(codeId, targetId) {
     try {
       const res  = await fetch(`/muscat/board/commonCodes?groupCode=${codeId}`);
       const list = await res.json();
-      const sel  = document.getElementById(target);
-
-      list.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c.code;
-        opt.textContent = c.codeNm;
-        sel.appendChild(opt);
-      });
-    } catch (err) {
-      console.error(`[${codeId}] 코드 로딩 실패`, err);
+      const sel  = document.getElementById(targetId);
+      list.forEach(c => sel.add(new Option(c.codeNm, c.code)));
+    } catch (e) {
+      console.error(`${codeId} 로딩 실패`, e);
     }
   }
 
-  /* 부서선택 표시/숨김 ------------------------------------------------------- */
+  /* ======= 상위 → 하위 부서 동적 로딩 ==================================== */
+  function bindChild(parentId) {
+    const childSel = document.getElementById('childDept');
+    childSel.innerHTML = '<option value="">-- 하위 부서 --</option>';
+
+    CHILD_DEPT_LIST
+      .filter(d => d.parent === parentId)
+      .forEach(d => childSel.add(new Option(d.text, d.id)));
+
+    /* 하위 옵션이 있으면 필수, 없으면 비필수 */
+    childSel.required = CHILD_DEPT_LIST.some(d => d.parent === parentId);
+  }
+
+  /* ======= 부서선택 영역 토글 =========================================== */
   function toggleDept(scopeVal) {
     const wrap = document.getElementById('deptWrap');
-    const dept = document.getElementById('deptCode');
+    const pSel = document.getElementById('parentDept');
+    const cSel = document.getElementById('childDept');
 
-    if (scopeVal === SCOPE_DEPT) {
+    if (scopeVal === SCOPE_DEPT) {            // 부서게시판
       wrap.style.display = '';
-      dept.setAttribute('required', 'required');
-    } else {
+      pSel.required = true;
+    } else {                                  // 그 외 게시판
       wrap.style.display = 'none';
-      dept.removeAttribute('required');
-      dept.value = '';
+      pSel.required = false;
+      cSel.required = false;
+      pSel.value = ''; cSel.value = '';
     }
   }
 
-  /* 초기화 ----------------------------------------------------------------- */
+  /* ======= 초기화 ======================================================== */
   document.addEventListener('DOMContentLoaded', () => {
-    // 카테고리 · 구분 코드 렌더링
-    loadCommonCodes('COM104', 'categoryMain');  // 게시판 카테고리
-    loadCommonCodes('COM105', 'categoryScope'); // 게시판 구분
+    loadCodes('COM104', 'categoryMain');   // 카테고리
+    loadCodes('COM105', 'categoryScope');  // 구분
 
-    // 구분 변경 시 부서 토글
     const scopeSel = document.getElementById('categoryScope');
     scopeSel.addEventListener('change', e => toggleDept(e.target.value));
 
-    // (수정화면 대비) 최초 값 검사
+    document.getElementById('parentDept')
+            .addEventListener('change', e => bindChild(e.target.value));
+
+    /* 최초 로드 시 기본 구분 값에 따라 토글 */
     toggleDept(scopeSel.value);
   });
 
-  /* 저장 ------------------------------------------------------------------- */
+  /* ======= 저장 ========================================================== */
   document.getElementById('bbsForm').addEventListener('submit', async e => {
     e.preventDefault();
 
-    const obj = Object.fromEntries(new FormData(e.target).entries());
+    /* deptId : 하위부서가 있으면 하위, 없으면 상위 */
+    const p = document.getElementById('parentDept').value;
+    const c = document.getElementById('childDept').value;
+    document.getElementById('deptId').value = c || p;
+
+    const payload = Object.fromEntries(new FormData(e.target).entries());
 
     try {
       const res  = await fetch('/muscat/board/masterInsert', {
         method : 'POST',
-        headers: { 'Content-Type':'application/json' },
-        body   : JSON.stringify(obj)
+        headers: { 'Content-Type': 'application/json' },
+        body   : JSON.stringify(payload)
       });
       const json = await res.json();
-
       if (res.ok && json.resultCode === 'SUCCESS') {
-        Swal.fire('등록 완료', '게시판이 등록되었습니다.', 'success')
-            .then(()=>location.href='/muscat/board/masterList.do');
+        await Swal.fire('성공', '게시판이 등록되었습니다.', 'success');
+        location.href = '/muscat/board/masterList.do';
       } else {
         Swal.fire('실패', json.resultMessage || '등록 실패', 'error');
       }
-    } catch(err) {
+    } catch (err) {
       console.error(err);
-      Swal.fire('오류', '서버 요청 실패', 'error');
+      Swal.fire('오류', '서버 통신 실패', 'error');
     }
   });
   </script>
