@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import egovframework.com.muscat.cal.mapper.CalMapper;
+import egovframework.com.muscat.cal.mapper.CalendarShareVO;
 import egovframework.com.muscat.cal.mapper.CalendarVO;
 import egovframework.com.muscat.cal.mapper.ReservationVO;
 import egovframework.com.muscat.cal.mapper.ScudVO;
@@ -23,11 +24,11 @@ public class CalServiceImpl implements CalService {
     public void insertSchedule(ScudVO vo) throws Exception {
         calMapper.insertSchedule(vo);
     }
+ 
     @Override
-    public List<Map> selectScheduleList() throws Exception {
-        return calMapper.selectScheduleList();
+    public List<Map> selectScheduleList(String ownerId) throws Exception {
+        return calMapper.selectScheduleList(ownerId);
     }
-    
    
 
     @Override
@@ -35,8 +36,8 @@ public class CalServiceImpl implements CalService {
         calMapper.insertCalendar(calendarVO);
     }
 	@Override
-	public List<Map> selectCalendarList() {
-		return calMapper.selectCalendarList();
+	public List<Map> selectCalendarList(String loginId) {
+		return calMapper.selectCalendarList(loginId);
 	}
 	
 	@Override
@@ -70,6 +71,16 @@ public class CalServiceImpl implements CalService {
 	@Override
 	public List<Map> selectCalendarListByUser(String loginId) {
 	    return calMapper.selectCalendarsByUser(loginId);
+	}
+	
+	@Override
+	public void insertCalendarShare(CalendarShareVO vo) {
+	    calMapper.insertCalendarShare(vo);
+	}
+	
+	@Override
+	public List<Map> getSharedCalendars(String loginId) {
+	    return calMapper.selectSharedCalendars(loginId);
 	}
 	
 }

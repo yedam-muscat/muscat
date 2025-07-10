@@ -12,11 +12,11 @@
 	
 	    void insertSchedule(ScudVO vo) throws Exception;
 	
-	    List<Map> selectScheduleList() throws Exception;
+	    List<Map> selectScheduleList(String ownerId) throws Exception;
 	    
 	    void insertCalendar(CalendarVO calendarVO);
 	
-		List<Map> selectCalendarList();
+		List<Map> selectCalendarList(String loginId);
 	
 		String getNextScheduleId();
 	
@@ -33,4 +33,8 @@
 		ScudVO selectScheduleById(String schdulId);
 		
 		List<Map> selectCalendarsByUser(String loginId);
+
+		void insertCalendarShare(CalendarShareVO vo);
+		
+		List<Map> selectSharedCalendars(String loginId);
 	}
