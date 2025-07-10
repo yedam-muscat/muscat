@@ -21,8 +21,7 @@
 	JOIN room r ON u.room_id = r.room_id
 	WHERE u.room_id = #{roomId}
     </select>
-	
-	
+		
 	<!-- 방등록 -->
 	<insert id="roomi" parameterType="roomVO">
 	<selectKey keyProperty="roomId" resultType="String" order="BEFORE">
@@ -58,8 +57,15 @@
 	<select id="findMember"  resultType="mberManageVO" >
 	select * 
 	from COMTNGNRLMBER
-	where MBER_STTUS = 'P'
-		
+	where MBER_STTUS = 'P'		
 	</select>
+	
+	<!-- 채팅방 삭제 -->
+	<delete id="deleteuser" parameterType="userVO">
+	delete from users
+	where user_id = #{userId} and room_id = #{roomId}
+	
+	</delete>
+	
 	
 </mapper>

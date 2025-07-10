@@ -14,6 +14,8 @@ public interface ChattingService {
 	
 	String insertRoom(LoginVO userman, List<String> userList); // 방 등록
 	
+	int deleteuser(UserVO userman); // 방삭제
+	
 	String insertUsers(String roomid,List<String> userList); // 사용자 등록 
 	
 	String insertMessage(MessageVO messaged); // 메시지 등록

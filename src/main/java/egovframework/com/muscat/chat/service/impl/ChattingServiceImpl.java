@@ -104,5 +104,12 @@ public class ChattingServiceImpl implements ChattingService{
 	public List<MberManageVO> findMember() {	
 		return roomMapper.findMember();
 	}
+	
+	//방삭제
+	@Override
+	public int deleteuser(UserVO userman) {
+		
+		return roomMapper.deleteuser(userman);
+	}
 
 }
