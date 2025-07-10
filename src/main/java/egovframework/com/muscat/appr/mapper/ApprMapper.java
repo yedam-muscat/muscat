@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 import egovframework.com.muscat.appr.service.ApprDocVO;
+import egovframework.com.muscat.appr.service.DocFormVO;
 
 @Mapper
 public interface ApprMapper {
@@ -14,5 +15,10 @@ public interface ApprMapper {
 	List<ApprDocVO> selectApprDocRecent();
 	
 	List<ApprDocVO> selectApprDocHistory();
+	
+	
+	
+	// 문서양식 등록
+	int insertDocForm(DocFormVO docForm);
 	
 }

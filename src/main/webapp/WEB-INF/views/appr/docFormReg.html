@@ -4,7 +4,7 @@
 	layout:decorate="~{layout/layout}">
 
 <main layout:fragment="content">
-	<p>APPROV_REG</p>
+	<h2 id="boardTitle">문서양식등록</h2>
 
 	<div class="form-section border p-4 rounded shadow-sm bg-white">
 		<div class="mb-3">
@@ -12,6 +12,45 @@
 				data-bs-target="#previewModal">미리보기</button>
 
 			<button id="saveBtn" class="btn btn-primary">저장하기</button>
+		</div>
+
+		<!-- 양식명 -->
+		<div class="mb-3">
+			<label for="dformName" class="form-label required fw-bold">양식명</label>
+			<input type="text" class="form-control" id="dformName"
+				name="formName" required>
+		</div>
+
+		<!-- 보존 연한 -->
+		<!-- 		<div class="mb-3 row align-items-center">
+			<label class="col-form-label col-auto fw-bold">보존 연한</label>
+			<div class="col-auto">
+				<input type="number" class="form-control" name="retentionYear"
+					id="retentionYear" placeholder="년 단위로 입력">
+			</div>
+			<div class="col-auto">
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" id="isPermanent">
+					<label class="form-check-label" for="isPermanent">영구 보존</label>
+				</div>
+			</div>
+		</div> -->
+
+		<!-- 결재선 -->
+		<!-- 		<div class="mb-3">
+			<label class="form-label fw-bold">결재선</label>
+			<div class="input-group" data-bs-toggle="modal"
+				data-bs-target="#apprLineModal">
+				<span class="input-group-text "><i class="bi bi-person"></i></span>
+				<input type="text" class="form-control" placeholder="등록된 결재선이 없습니다."
+					disabled>
+			</div>
+		</div>
+ -->
+		<!-- 양식 안내 -->
+		<div class="mb-3">
+			<label for="dformDesc" class="form-label fw-bold">양식설명</label>
+			<textarea class="form-control" id="dformDesc" rows="3"></textarea>
 		</div>
 
 		<!-- 사용 여부 -->
@@ -29,45 +68,6 @@
 						안 함</label>
 				</div>
 			</div>
-		</div>
-
-		<!-- 양식명 -->
-		<div class="mb-3">
-			<label for="formName" class="form-label required fw-bold">양식명</label>
-			<input type="text" class="form-control" id="formName" name="formName"
-				required>
-		</div>
-
-		<!-- 보존 연한 -->
-		<div class="mb-3 row align-items-center">
-			<label class="col-form-label col-auto fw-bold">보존 연한</label>
-			<div class="col-auto">
-				<input type="number" class="form-control" name="retentionYear"
-					id="retentionYear" placeholder="년 단위로 입력">
-			</div>
-			<div class="col-auto">
-				<div class="form-check">
-					<input class="form-check-input" type="checkbox" id="isPermanent">
-					<label class="form-check-label" for="isPermanent">영구 보존</label>
-				</div>
-			</div>
-		</div>
-
-		<!-- 결재선 -->
-		<div class="mb-3">
-			<label class="form-label fw-bold">결재선</label>
-			<div class="input-group" data-bs-toggle="modal"
-				data-bs-target="#apprLineModal">
-				<span class="input-group-text "><i class="bi bi-person"></i></span>
-				<input type="text" class="form-control" placeholder="등록된 결재선이 없습니다."
-					disabled>
-			</div>
-		</div>
-
-		<!-- 양식 안내 -->
-		<div>
-			<label for="formGuide" class="form-label fw-bold">양식 안내</label>
-			<textarea class="form-control" id="formGuide" rows="3"></textarea>
 		</div>
 	</div>
 
@@ -122,11 +122,17 @@
 	<script src="https://formbuilder.online/assets/js/form-builder.min.js"></script>
 
 	<script src="https://formbuilder.online/assets/js/form-render.min.js"></script>
+	<script th:inline="javascript">
+		let docFormListUrl = /*[[ @{/appr/docFormMng.do} ]]*/ '';
+		let docFormRegUrl = /*[[ @{/appr/docFormReg.do} ]]*/ '';
+	</script>
+
 	<script>
 		jQuery(function($) {
 
 			let options = {
-				onSave : function(evt, formData) {
+				onSave : function(formData) {
+					
 					Swal.fire({
 						icon : "question",
 						title : "저장하시겠습니까?",
@@ -135,10 +141,36 @@
 						cancelButtonText: "취소"
 					}).then((result) => {
 						  if (result.isConfirmed) {
+							  
+							  const payload = {
+									  dformName : $('#dformName').val(),
+									  dformContent : JSON.stringify(formData[0]),
+									  dformDesc: $('#dformDesc').val(),
+									  useYn: $('[name="useYn"]').val(),
+									};
+							  
+							  console.log(payload);
+							  console.log(JSON.stringify(payload));
+							  
+ 							  $.ajax({
+									type : "POST",
+									url : docFormRegUrl,
+									contentType : "application/json; charset=utf-8",
+									data : JSON.stringify(payload),
+									dataType : 'json'
+								}).done(function(data, textStatus, xhr) {
+									Swal.fire({
+										icon : "success",
+										title : "문서양식이 등록되었습니다"
+									})
+								}).fail(function() {
+									Swal.fire({
+										icon : "error",
+										title : "오류가 발생했습니다"
+									})
+								});
 						  } 
 					});
-					
-					console.log(JSON.stringify(formData));
 				},
 			}
 
@@ -153,15 +185,15 @@
 				});
 			});
 
-			$('#apprLineModal').on('show.bs.modal', function() {
+/* 			$('#apprLineModal').on('show.bs.modal', function() {
 
-			});
+			}); */
 
 			$('#saveBtn').on('click', function() {
 				fb.actions.save();
 			});
 
-			$('#isPermanent').on('change', function () {
+/* 			$('#isPermanent').on('change', function () {
 				  if ($(this).is(':checked')) {
 					    $('#retentionYear').addClass('disabled');
 					    $('#retentionYear').val('0');
@@ -173,7 +205,7 @@
 			
 			$('#retentionYear').on('input', function() {
 				console.log($('#retentionYear').val());
-			});
+			}); */
 		});
 	</script>
 

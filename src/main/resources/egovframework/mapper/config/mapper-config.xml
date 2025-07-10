@@ -20,6 +20,7 @@
 		<typeAlias alias="userVO"		type="egovframework.com.muscat.chat.service.UserVO" />
 		<typeAlias alias="messageVO"		type="egovframework.com.muscat.chat.service.MessageVO" />
 		<typeAlias alias="mberManageVO"		type="egovframework.com.uss.umt.service.MberManageVO" />
+		<typeAlias alias="docFormVO"		type="egovframework.com.muscat.appr.service.DocFormVO" />
 		
 	</typeAliases>
     

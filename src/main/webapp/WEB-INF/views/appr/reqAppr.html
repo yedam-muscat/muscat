@@ -4,7 +4,7 @@
 	layout:decorate="~{layout/layout}">
 
 <main layout:fragment="content">
-	<h2 id="boardTitle">문서양식관리</h2>
+	<h2 id="boardTitle">결재요청</h2>
 
 	<div class="d-flex align-items-center gap-2 mb-3">
 
@@ -25,18 +25,14 @@
 		<button id="btnSearch" class="btn btn-primary btn-sm">조회</button>
 		<!-- 초기화 버튼 -->
 		<button id="btnReset" class="btn btn-secondary btn-sm">초기화</button>
-		
-		<!-- 우측 여백 & 새글쓰기 -->
-		<div class="flex-grow-1"></div>
-		<button id="btnReg" class="btn btn-primary btn-sm">+ 등록</button>
+
 	</div>
 
 	<table class="table table-bordered">
 		<thead class="table-light">
 			<tr>
-				<th>문서양식ID</th>
-				<th>문서양식제목</th>
-				<th>사용여부</th>
+				<th>제목</th>
+				<th>문서양식</th>
 				<th>작성일자</th>
 				<th>저장일자</th>
 			</tr>
@@ -51,9 +47,8 @@
 	</nav>
 
 	<script th:inline="javascript">
-		let docFormListUrl = /*[[ @{/appr/docFormList.do} ]]*/ '';
-		let docFormDetailUrl = /*[[ @{/appr/docFormDetail.do} ]]*/ '';
-		let docFormRegUrl = /*[[ @{/appr/docFormReg.do} ]]*/ '';
+		let tempListUrl = /*[[ @{/admin/user/userList.do} ]]*/ '';
+		let tempDetailUrl = /*[[ @{/admin/user/userDetail.do} ]]*/ '';
 	</script>
 	<script>
     const pageSize = 10;
@@ -67,7 +62,7 @@
         
     	$.ajax({
 			type : "GET",
-			url : docFormListUrl,
+			url : tempListUrl,
 			data : {
 				pageIndex : page,
 				searchCondition : searchCondition,
@@ -152,11 +147,6 @@
     	    $('#searchKeyword').val('');
     	    loadList();
     	});
-    	
-    	$('#btnReg').on('click', function() {
-    		location.href=docFormRegUrl;
-    	});
-    	
     });
   </script>
 </main>

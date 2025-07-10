@@ -6,6 +6,28 @@
 <main layout:fragment="content">
 	<h2 id="boardTitle">사용자 목록</h2>
 
+	<div class="d-flex align-items-center gap-2 mb-3">
+
+		<!-- 검색 조건 -->
+		<select id="searchCondition" class="form-select form-select-sm"
+			style="width: 130px">
+			<option value="" selected>-- 검색조건 --</option>
+			<option value="0">사용자ID</option>
+			<option value="1">사용자명</option>
+		</select>
+
+		<!-- 검색어 -->
+		<input id="searchKeyword" type="text"
+			class="form-control form-control-sm" style="max-width: 260px"
+			placeholder="검색어를 입력하세요">
+
+		<!-- 조회 버튼 -->
+		<button id="btnSearch" class="btn btn-primary btn-sm">조회</button>
+		<!-- 초기화 버튼 -->
+		<button id="btnReset" class="btn btn-secondary btn-sm">초기화</button>
+
+	</div>
+
 	<table class="table table-bordered">
 		<thead class="table-light">
 			<tr>
@@ -22,7 +44,9 @@
 		</tbody>
 	</table>
 
-  <nav><ul id="pagination" class="pagination justify-content-center"></ul></nav>
+	<nav>
+		<ul id="pagination" class="pagination justify-content-center"></ul>
+	</nav>
 
 	<script th:inline="javascript">
 		let userListUrl = /*[[ @{/admin/user/userList.do} ]]*/ '';
@@ -31,6 +55,8 @@
 	<script>
     const pageSize = 10;
     let currentPage = 1;
+    let searchCondition = '';
+    let searchKeyword = '';
 
     // 게시글 목록 로딩
     function loadUserList(page = 1) {
@@ -41,6 +67,8 @@
 			url : userListUrl,
 			data : {
 				pageIndex : page,
+				searchCondition : searchCondition,
+				searchKeyword : searchKeyword,
 			},
 		}).done(function(data, textStatus, xhr) {
 	        let tbody = $('#userListBody');
@@ -109,6 +137,20 @@
     // 초기 로딩
     document.addEventListener('DOMContentLoaded', () => {
     	loadUserList();
+    	
+    	$('#btnSearch').on('click', function() {
+    	    searchCondition = $('#searchCondition').val();
+    	    searchKeyword = $('#searchKeyword').val();
+    	    loadUserList();
+    	});
+    	
+    	$('#btnReset').on('click', function() {
+    	    searchCondition = '';
+    	    searchKeyword = '';
+    	    $('#searchCondition').val('');
+    	    $('#searchKeyword').val('');
+    	    loadUserList();
+    	});
     });
   </script>
 </main>

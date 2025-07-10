@@ -9,5 +9,17 @@
 	<select id="selectTime" resultType="string">
 		SELECT SYSDATE FROM DUAL
 	</select>
+	
+	<insert id="insertDocForm" parameterType="docFormVO">
+		INSERT INTO DOCFORM VALUES 
+		('DOC-' || TO_CHAR(DOCFORM_SEQ.nextval)
+		, #{dformName}
+		, #{dformContent}
+		, SYSDATE
+		, SYSDATE
+		, #{dformDesc}
+		, #{useYn}
+		)
+	</insert>
 
 </mapper>

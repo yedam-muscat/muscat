@@ -88,6 +88,8 @@ public class CodeController {
 		return "admin/cmcMng.html";
 	}
 
+	/** 공통코드 */
+
 	/**
 	 * 공통분류코드 목록을 조회한다.
 	 * 
@@ -179,20 +181,22 @@ public class CodeController {
 	 */
 	@PostMapping("/admin/code/cmcReg.do")
 	@ResponseBody
-	public ResultVO cmcReg(@ModelAttribute("searchVO") CmmnCodeVO cmmnCode,
-			@ModelAttribute("cmmnCodeVO") CmmnCodeVO cmmnCodeVO, BindingResult bindingResult, ModelMap model)
+	public ResultVO cmcReg(@RequestBody CmmnCodeVO cmmnCodeVO, BindingResult bindingResult, ModelMap model)
 			throws Exception {
 
 		ResultVO result = new ResultVO();
 
 		LoginVO user = (LoginVO) EgovUserDetailsHelper.getAuthenticatedUser();
 
-		if (cmmnCode.getCodeId() != null) {
-			CmmnCode vo = cmmnCodeManageService.selectCmmnCodeDetail(cmmnCode);
+		if (cmmnCodeVO.getCodeId() != null) {
+
+			CmmnCode vo = cmmnCodeManageService.selectCmmnCodeDetail(cmmnCodeVO);
 			if (vo != null) {
 				result.setResultCode("");
-				result.setResultMsg("공통코드 등록 실패");
+				result.setResultMsg("이미 등록된 공통코드입니다");
 				result.setResultSuccess(false);
+
+				return result;
 			}
 		}
 
@@ -200,13 +204,41 @@ public class CodeController {
 		cmmnCodeManageService.insertCmmnCode(cmmnCodeVO);
 
 		result.setResultCode("");
-		result.setResultMsg("공통코드 등록 성공");
+		result.setResultMsg("공통코드가 등록되었습니다");
 		result.setResultSuccess(true);
 
 		return result;
 	}
 
-	// 공통코드 수정 추가 예정
+	/**
+	 * 공통코드를 수정한다.
+	 * 
+	 * @param cmmnCodeVO
+	 * @param status
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@PostMapping("/admin/code/cmcModify.do")
+	@ResponseBody
+	public ResultVO cmcModify(@RequestBody CmmnCodeVO cmmnCodeVO, BindingResult bindingResult, ModelMap model)
+			throws Exception {
+		
+		ResultVO result = new ResultVO();
+
+		LoginVO user = (LoginVO) EgovUserDetailsHelper.getAuthenticatedUser();
+
+		cmmnCodeVO.setLastUpdusrId((user == null || user.getUniqId() == null) ? "" : user.getUniqId());
+		cmmnCodeManageService.updateCmmnCode(cmmnCodeVO);
+		
+		result.setResultCode("");
+		result.setResultMsg("세부코드가 수정되었습니다");
+		result.setResultSuccess(true);
+
+		return result;
+	}
+
+	/** 공통상세코드 */
 
 	@GetMapping("/admin/code/cmdcMng.do")
 	public String cmdcMng(@ModelAttribute("loginVO") LoginVO loginVO,
@@ -316,8 +348,8 @@ public class CodeController {
 	 */
 	@PostMapping("/admin/code/cmdcReg.do")
 	@ResponseBody
-	public ResultVO insertCmmnDetailCode(@RequestBody CmmnDetailCodeVO cmmnDetailCodeVO,
-			BindingResult bindingResult) throws Exception {
+	public ResultVO insertCmmnDetailCode(@RequestBody CmmnDetailCodeVO cmmnDetailCodeVO, BindingResult bindingResult)
+			throws Exception {
 
 		ResultVO result = new ResultVO();
 
@@ -339,6 +371,34 @@ public class CodeController {
 
 		result.setResultCode("");
 		result.setResultMsg("세부코드가 등록되었습니다");
+		result.setResultSuccess(true);
+
+		return result;
+	}
+
+	/**
+	 * 공통상세코드를 수정한다.
+	 *
+	 * @param cmmnDetailCodeVO
+	 * @param model
+	 * @return "egovframework/com/sym/ccm/cde/EgovCcmCmmnDetailCodeUpdt",
+	 *         "/sym/ccm/cde/SelectCcmCmmnDetailCodeList.do"
+	 * @throws Exception
+	 */
+	@PostMapping("/admin/code/cmdcModify.do")
+	@ResponseBody
+	public ResultVO updateCmmnDetailCode(@RequestBody CmmnDetailCodeVO cmmnDetailCodeVO, BindingResult bindingResult)
+			throws Exception {
+
+		ResultVO result = new ResultVO();
+
+		LoginVO user = (LoginVO) EgovUserDetailsHelper.getAuthenticatedUser();
+
+		cmmnDetailCodeVO.setLastUpdusrId((user == null || user.getUniqId() == null) ? "" : user.getUniqId());
+		cmmnDetailCodeManageService.updateCmmnDetailCode(cmmnDetailCodeVO);
+
+		result.setResultCode("");
+		result.setResultMsg("세부코드가 수정되었습니다");
 		result.setResultSuccess(true);
 
 		return result;
