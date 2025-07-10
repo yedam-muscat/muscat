@@ -3,193 +3,68 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/layout}">
 
-
 <main layout:fragment="content">
 	<div id="auth">
 		<div class="row h-100">
-			<div class="col-lg-8 col-12 mx-auto">
+			<div class="col-lg-8 col-12">
 				<div id="auth-left px-2 py-2">
 					<div class="card">
 						<div class="card-header text-white">
-							<h5 class="mb-0">회원정보</h5>
+							<h5 class="mb-0">공통코드 등록</h5>
 						</div>
 						<div class="card-body">
 
-							<!-- 일반회원 아이디 -->
+							<!-- 공통코드ID -->
 							<div class="row g-3 align-items-center mb-2">
 								<div class="col-3">
-									<label for="mberId" class="col-form-label">아이디</label>
+									<label for="codeId" class="col-form-label">공통코드ID</label>
 								</div>
 								<div class="col-auto">
-									<input type="text" id="mberId" class="form-control"
-										th:value="${mberManageVO.mberId}" readonly>
+									<input type="text" id="codeId" class="form-control">
 								</div>
 								<div class="col-auto"></div>
 							</div>
 
-							<!-- 일반회원 이름 -->
+
+							<!-- 공통코드명 -->
 							<div class="row g-3 align-items-center mb-2">
 								<div class="col-3">
-									<label for="mberNm" class="col-form-label">이름</label>
+									<label for="codeIdNm" class="col-form-label">공통코드명</label>
 								</div>
 								<div class="col-auto">
-									<input type="text" id="mberNm" class="form-control"
-										th:value="${mberManageVO.mberNm}" readonly>
+									<input type="text" id="codeIdNm" class="form-control">
 								</div>
 								<div class="col-auto"></div>
 							</div>
 
-							<!-- 부서 -->
+							<!-- 공통코드설명 -->
 							<div class="row g-3 align-items-center mb-2">
 								<div class="col-3">
-									<label for="deptId" class="col-form-label">부서</label>
+									<label for="codeIdDc" class="col-form-label">공통코드설명</label>
 								</div>
 								<div class="col-auto">
-									<select class="form-select" id="parentDept">
-										<option selected value="">-- 상위 부서 --</option>
-										<option th:each="item : ${parent_dept_result}"
-											th:value="${item.id}" th:text="${item.text}"></option>
-									</select>
-								</div>
-								<div class="col-auto">
-									<select class="form-select" id="childDept">
-										<option selected value="">-- 하위 부서 --</option>
-									</select>
-								</div>
-							</div>
-
-							<!-- 직급  -->
-							<div class="row g-3 align-items-center mb-2">
-								<div class="col-3">
-									<label for="grade" class="col-form-label">직급</label>
-								</div>
-								<div class="col-auto">
-									<select class="form-select" id="rank">
-										<option selected value="">-- 직급 구분 --</option>
-										<option th:each="item : ${rank_result}"
-											th:value="${item.code}" th:text="${item.codeNm}"
-											th:selected="${item.code == mberManageVO.rank}"></option>
-									</select>
-								</div>
-							</div>
-
-							<!-- 성별 -->
-							<div class="row g-3 align-items-center mb-2">
-								<div class="col-3">
-									<label for="sexdstnCode" class="col-form-label">성별</label>
-								</div>
-								<div class="col-auto">
-									<input type="text" class="form-control" id="sexdstnCode"
-										th:value="${mberManageVO.sexdstnCode == 'M' ? '남' : '여'}"
-										readonly>
-								</div>
-							</div>
-
-							<!-- 전화번호 -->
-							<div class="row g-3 align-items-center mb-2">
-								<div class="col-3">
-									<label class="col-form-label">전화번호</label>
-								</div>
-								<div class="col-auto">
-									<input type="text" class="form-control" id="telno"
-										th:value="${mberManageVO.areaNo + '-' + mberManageVO.middleTelno + '-' + mberManageVO.endTelno }"
-										readonly>
-								</div>
-							</div>
-
-							<!-- 핸드폰번호 -->
-							<div class="row g-3 align-items-center mb-2">
-								<div class="col-3">
-									<label for="mobile" class="col-form-label">핸드폰</label>
-								</div>
-								<div class="col-auto">
-									<input type="text" class="form-control" id="moblphonNo"
-										th:value="${mberManageVO.moblphonNo}" readonly>
-								</div>
-							</div>
-
-							<!-- 이메일 -->
-							<div class="row g-3 align-items-center mb-2">
-								<div class="col-3">
-									<label for="mberEmailAdres" class="col-form-label">이메일</label>
-								</div>
-								<div class="col-auto">
-									<input type="email" id="mberEmailAdres" class="form-control"
-										th:value="${mberManageVO.mberEmailAdres}" readonly>
-								</div>
-							</div>
-
-							<!-- 우편번호 -->
-							<div class="row g-3 align-items-center mb-2">
-								<div class="col-3">
-									<label for="zip" class="col-form-label">우편번호</label>
-								</div>
-								<div class="col-2">
-									<input type="text" id="zip" class="form-control"
-										th:value="${mberManageVO.zip}" readonly>
+									<textarea id="codeIdDc" class="form-control"></textarea>
 								</div>
 								<div class="col-auto"></div>
 							</div>
 
-							<!-- 주소 -->
+							<!-- 사용여부 -->
 							<div class="row g-3 align-items-center mb-2">
 								<div class="col-3">
-									<label for="adres" class="col-form-label">주소</label>
-								</div>
-								<div class="col-6">
-									<input type="text" id="adres" class="form-control"
-										th:value="${mberManageVO.adres}" readonly>
-								</div>
-							</div>
-
-							<!-- 상세주소 -->
-							<div class="row g-3 align-items-center mb-2">
-								<div class="col-3">
-									<label for="detailAdres" class="col-form-label">상세주소</label>
-								</div>
-								<div class="col-9">
-									<input type="text" id="detailAdres" class="form-control"
-										th:value="${mberManageVO.detailAdres}" readonly>
-								</div>
-							</div>
-
-							<!-- 회원 가입 승인 여부 -->
-							<div class="row g-3 align-items-center mb-2">
-								<div class="col-3">
-									<label for="mberSttus" class="col-form-label">회원 가입 상태</label>
+									<label for="useAt" class="col-form-label">사용여부</label>
 								</div>
 								<div class="col-auto">
-									<select class="form-select" id="mberSttus">
-										<option selected value="">-- 상태 구분 --</option>
-										<option th:each="item : ${mberSttus_result}"
-											th:value="${item.code}" th:text="${item.codeNm}"
-											th:selected="${item.code == mberManageVO.mberSttus}"></option>
+									<select class="form-select" id="useAt">
+										<option value="Y" selected>사용함</option>
+										<option value="N">사용안함</option>
 									</select>
 								</div>
 							</div>
-
-							<!-- <input type="hidden" id="mberSttus" value="A"> -->
-
-							<!-- 권한  -->
-							<!-- <div class="row g-3 align-items-center mb-2">
-								<div class="col-2">
-									<label for="sexdstnCode" class="col-form-label">권한</label>
-								</div>
-								<div class="col-auto">
-									<select class="form-select" id="sexdstnCode">
-										<option selected value="">-- 권한 구분 --</option>
-										<option th:each="item : ${sexdstnCode_result}"
-											th:value="${item.code}" th:text="${item.codeNm}"></option>
-									</select>
-								</div>
-							</div> -->
 
 							<!-- 버튼 -->
-							<div class="d-flex justify-content-end">
-								<button class="btn btn-primary me-2"
-									onclick="confirmModifyUser()">수정</button>
-								<button class="btn btn-outline-secondary"
-									onclick="cancelModifyUser()">취소</button>
+							<div class="d-flex justify-content-start">
+								<button class="btn btn-primary me-2" id="btnToSave">등록</button>
+								<button class="btn btn-outline-secondary" id="btnToList">취소</button>
 							</div>
 
 						</div>
@@ -199,111 +74,85 @@
 		</div>
 	</div>
 	<script th:inline="javascript">
-	let mber = /*[[${mberManageVO}]]*/ "";
-	let selectedParentDeptId = /*[[${mberManageVO.parentDeptId}]]*/ "";
-	let selectedDeptId = /*[[${mberManageVO.deptId}]]*/ "";
-	let parent_dept_result = /*[[${parent_dept_result}]]*/ "";
-	let childDeptList = /*[[${child_dept_result}]]*/ "";
 
-	let userListUrl = /*[[ @{/admin/user/userList.do} ]]*/ '';
-	let modifyUserUrl = /*[[ @{/admin/user/modifyUser.do} ]]*/ '';
+	let cmcMngUrl = /*[[ @{/admin/code/cmcMng.do} ]]*/'';
+	let cmcRegUrl = /*[[ @{/admin/code/cmcReg.do} ]]*/'';
 	
 		$('document').ready(function() {
-
-			console.log(selectedParentDeptId)
-			console.log(selectedDeptId)
-			console.log(parent_dept_result)
-			console.log(childDeptList)
-			
-			if (selectedParentDeptId) {
-				$('#parentDept').val(selectedParentDeptId);
-				
-				let childDept = $('#childDept');
-				childDept.html('');
-				
-			    childDept.empty().append('<option value="">-- 하위 부서 --</option>');
-
-			    const filtered = childDeptList.filter(d => d.parent == selectedParentDeptId);
-
-			    filtered.forEach(d => {
-			    	childDept.append(`<option value="${d.id}">${d.text}</option>`);
-			    });
-				
-				$('#childDept').val(selectedDeptId);
-			} else {
-				$('#parentDept').val(selectedDeptId);
-			}			
-			
-			$('#parentDept').on('change', function(event) {
-				
-			    const parentId = $(event.target).val();
-			    
-				let childDept = $('#childDept');
-				childDept.html('');
-				
-			    childDept.empty().append('<option value="">-- 하위 부서 --</option>');
-
-			    const filtered = childDeptList.filter(d => d.parent == parentId);
-
-
-			    filtered.forEach(d => {
-			    	childDept.append(`<option value="${d.id}">${d.text}</option>`);
-			    });
-							
+			$('#codeId').on('change', function() {
+				$('#codeIdShow').val(this.value);
 			});
-			
-		});
-		
-		function cancelModifyUser() {
-			
-		}
-		
-		function confirmModifyUser() {
-			let parentDeptId = $('#parentDept').val();
-			let childDeptId = $('#childDept').val();
-			let rank = $('#rank').val();
-			let mberSttus = $('#mberSttus').val();
-			
-			if (!rank) {
-				return alert('직급 없음');
-			} else if (!parentDeptId) {
-				return alert('부서 없음');
-			} else if (!mberSttus) {
-				return alert('상태 없음');
-			}
-			
-			if (parentDeptId && childDeptId) {
-				mber.parentDeptId = parentDeptId;
-				mber.deptId = childDeptId;
-			} else {				
-				mber.parentDeptId = null;
-				mber.deptId = parentDeptId;
-			}
-		
-			mber.rank = rank;
-			mber.mberSttus = mberSttus;
-			
-			$.ajax({
-				type: "POST",
-				  url: modifyUserUrl,
-				  contentType: "application/json; charset=utf-8",
-				  data: JSON.stringify(mber),
-				  dataType: "json"
-				})
-				.done(function() {
-					Swal.fire({
-						icon : "success",
-						title : "회원 정보가 수정되었습니다"
-					}).then(() => {
-						
-					})
-				  })
-				  .fail(function() {
+
+			$('#btnToSave').on('click', function() {
+				
+				if (!validate()) return;
+				
+				const payload = {
+					clCode : 'EFC',
+					codeId : $('#codeId').val().trim(),
+					codeIdNm : $('#codeIdNm').val().trim(),
+					codeIdDc : $('#codeIdDc').val().trim(),
+					useAt : $('#useAt').val(),
+				};
+
+				$.ajax({
+					type : "POST",
+					url : cmcRegUrl,
+					contentType : "application/json; charset=utf-8",
+					data : JSON.stringify(payload),
+					dataType : 'json'
+				}).done(function(data, textStatus, xhr) {
+
+					if (data.resultSuccess)  {
+						Swal.fire({
+							icon : "success",
+							title : "공통코드가 등록되었습니다"
+						}).then(() => {
+							location.href = cmcMngUrl;
+						})
+					} else {
 						Swal.fire({
 							icon : "error",
-							title : "오류가 발생했습니다"
+							title : data.resultMsg
 						})
-				  });
-		}		
+					}
+
+				}).fail(function() {
+					Swal.fire({
+						icon : "error",
+						title : "오류가 발생했습니다"
+					})
+				});
+			});
+
+			$('#btnToList').on('click', function() {
+				location.href = cmcMngUrl;
+			});
+		});
+		
+		const requiredFields = [
+			  { id: '#codeId', label: '공통코드ID' },
+			  { id: '#codeIdNm', label: '공통코드명' },
+			  { id: '#codeIdDc', label: '공통코드설명' },
+			  { id: '#useAt',  label: '사용여부' }
+			];
+		
+		function validate() {
+			 for (const f of requiredFields) {
+				    const val = $(f.id).val().trim();
+
+				    if (val === '' || val === null) {
+				      Swal.fire({
+				        icon: 'warning',
+				        title: '입력 누락',
+				        text: `${f.label}을(를) 입력하세요.`,
+				        confirmButtonText: '확인'
+				      }).then(() => $(f.id).focus());
+
+				      return false;
+				    }
+				  }
+			 return true;
+		}
 	</script>
 </main>
