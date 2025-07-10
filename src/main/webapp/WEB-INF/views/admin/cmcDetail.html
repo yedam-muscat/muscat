@@ -95,6 +95,47 @@
 
 		$('document').ready(function() {
 
+			$('#btnToSave').on('click', function() {
+				
+				const payload = {
+					codeId : $('#codeId').val().trim(),
+					code : $('#code').val().trim(),
+					codeNm : $('#codeNm').val().trim(),
+					codeDc : $('#codeDc').val().trim(),
+					useAt : $('#useAt').val(),
+				};
+
+				$.ajax({
+					type : "POST",
+					url : cmdcModifyUrl,
+					contentType : "application/json; charset=utf-8",
+					data : JSON.stringify(payload),
+					dataType : 'json'
+				}).done(function(data, textStatus, xhr) {
+
+					if (data.resultSuccess)  {
+						Swal.fire({
+							icon : "success",
+							title : "세부코드가 수정되었습니다"
+						})
+					} else {
+						Swal.fire({
+							icon : "error",
+							title : data.resultMsg
+						})
+					}
+
+				}).fail(function() {
+					Swal.fire({
+						icon : "error",
+						title : "오류가 발생했습니다"
+					})
+				});
+			});
+
+			$('#btnToList').on('click', function() {
+				location.href = cmdcMngUrl;
+			});
 		});
 	</script>
 </main>
