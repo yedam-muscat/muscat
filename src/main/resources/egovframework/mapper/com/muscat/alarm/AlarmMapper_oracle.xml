@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="egovframework.mapper.com.muscat.alarm.AlarmMapper">
+	
+	<!-- 알람 -->
+	<select id="findroomAlarm" parameterType="String" resultType="userVO">
+	select * from users where room_id in (
+        select room_id
+        from users 
+        where room_id in (select room_id from users where user_id = 'odin')
+        group by room_id
+        having count(*) = 2)
+        and user_id = #{userId}
+	 </select>
+</mapper>

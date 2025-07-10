@@ -108,7 +108,7 @@ public class ChattingController {
 
     	// messageId가 null이면 새로 생성
         if (messaged.getMessageId() == null || messaged.getMessageId().isEmpty()) {
-            messaged.setMessageId(UUID.randomUUID().toString()); // 원래는 시퀀스를 사용하면 됩니다. uuid ㅠㅠ
+            messaged.setMessageId(UUID.randomUUID().toString()); // 원래는 시퀀스를 사용하면 됩니다. 
         }
 
         System.out.println("메시지 등록 요청 들어옴: " + messaged);
@@ -137,6 +137,17 @@ public class ChattingController {
     	
     	return map;
     }
+    
+    //방 삭제
+    @ResponseBody
+    @RequestMapping("/chat/deleteuser.do")
+    public Map<String, Object> deleteuser(@RequestBody UserVO user) {
+    	Map<String, Object> result = new HashMap<>();
+    	int deleted = chattingService.deleteuser(user);
+    	result.put("result", deleted);
+    	return result;
+    }
+    
     
     
 }

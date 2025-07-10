@@ -156,13 +156,13 @@
 					id="empPhone">010-0000-0000</span>
 			</div>
 			<hr>
-			<div class="d-flex justify-content-start gap-3"
-				style="font-size: 0.85rem;">
-				<a href="/muscat/cal/calMonth.do" target="_blank"
-					style="text-decoration: none; color: #0dcaf0;"> <i
-					class="bi bi-calendar3"></i> 캘린더
-				</a> <a href="#" style="text-decoration: none; color: #198754;"> <i
-					class="bi bi-chat-dots"></i> <span id="sidebarMessengerBtn">메신저</span>
+			<div class="d-flex justify-content-start gap-3" style="font-size: 0.85rem;">
+				<a href="/muscat/cal/calMonth.do" target="_blank" style="text-decoration: none; color: #0dcaf0;"> 
+				<i class="bi bi-calendar3"></i> 캘린더 
+				</a> 
+				<a href="/muscat/chat/chat.do" style="text-decoration: none; color: #198754;"> 
+				<i class="bi bi-chat-dots"></i> 
+				<span>메신저</span>
 				</a>
 			</div>
 		</div>
@@ -599,7 +599,7 @@ translateY(
 		});
 
 		// 사이드바 메신저 클릭 → 채팅방 목록 모달 열기
-		$(function() {
+		/* $(function() {
 			$('#sidebarMessengerBtn').on('click', function(e) {
 						e.preventDefault(); // 링크 기본 동작 막기
 						$('#employeeCard').fadeOut();
@@ -611,7 +611,7 @@ translateY(
 						socketopen();
 						
 						});
-					});
+					}); */
 
 		// 목록 클릭 → 채팅방 열기
 		$('#chatList').on('click', '.chat-entry',()=>{});
@@ -994,12 +994,12 @@ translateY(
 	var websocket = null;
 	var first = "true";
 	var username = /*[[${session.loginVO.id}]]*/'';
-	var roomId = 'muscat'; 
+	var roomId; 
 	$('#sendBtn').attr("disabled", true);
 	
-	
+	socketopen();
 	function socketopen() {
-		var url = 'ws://' + window.location.host + `/muscat/chat/${roomId}`;
+		var url = 'ws://' + window.location.host + `/muscat/usersServerEndpoint`;
 		websocket = connection(url);
 		
 		websocket.onopen = function(){			
@@ -1009,7 +1009,15 @@ translateY(
 		};
 
 		websocket.onmessage = function(message) {
-			processMessage(message);
+			const jsonData = JSON.parse(message.data);
+			 
+			// 신규 알림 처리
+				if (jsonData.messageType === "ChatMessage") {
+					showNotificationBubble(jsonData);  // 알림 창 띄우기
+					updateNotificationBadge();         // 종 아이콘 뱃지 증가
+					saveUnreadMessage(jsonData);       // 안읽은 메시지 저장
+				}
+			 processMessage(message); 
 		};
 		
 		websocket.onclose = function() {
