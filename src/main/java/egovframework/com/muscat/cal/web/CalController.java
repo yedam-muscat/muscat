@@ -2,9 +2,12 @@ package egovframework.com.muscat.cal.web;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +24,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import egovframework.com.cmm.LoginVO;
 import egovframework.com.muscat.cal.mapper.CalMapper;
+import egovframework.com.muscat.cal.mapper.CalendarShareVO;
 import egovframework.com.muscat.cal.mapper.CalendarVO;
 import egovframework.com.muscat.cal.mapper.ReservationVO;
 import egovframework.com.muscat.cal.mapper.ScudVO;
@@ -130,8 +135,14 @@ public class CalController {
 	// 조회
 	@GetMapping("/cal/listSchedule")
 	@ResponseBody
-	public List<Map> listSchedule() throws Exception {
-		return calService.selectScheduleList();
+	public Map<String, Object> listSchedule(HttpSession session) throws Exception {
+	    LoginVO loginVO = (LoginVO) session.getAttribute("loginVO");
+	    String loginId = loginVO.getId();
+	    List<Map> scheduleList = calService.selectScheduleList(loginId);
+	    
+	    Map<String, Object> result = new HashMap<>();
+	    result.put("result", scheduleList); // 👈 JS에서 response.result 로 쓰기 위함
+	    return  result;
 	}
 	
 	@GetMapping("/cal/getSchedule")
@@ -167,11 +178,13 @@ public class CalController {
 	public String calMonth() {
 		return "cal/calMonth.html";
 	}
-
+	
 	@GetMapping("/cal/listCalendar") 
 	@ResponseBody
-	public List<Map> listCalendar() {
-		return calService.selectCalendarList();
+	public List<Map> listCalendar(HttpSession session) {
+	    LoginVO loginVO = (LoginVO) session.getAttribute("loginVO");
+	    String loginId = loginVO.getId();
+	    return calService.selectCalendarList(loginId);
 	}
 
 	@PostMapping("/cal/insertCalendar")
@@ -220,6 +233,23 @@ public class CalController {
 		if (result > 0)
 			return ResponseEntity.ok("삭제 성공");
 		return ResponseEntity.status(404).body("찾을 수 없는 일정입니다.");
+	}
+
+	//공유
+	@PostMapping("/cal/shareCalendar")
+	@ResponseBody
+	public String shareCalendar(@RequestBody CalendarShareVO vo) {
+	    vo.setShareId(UUID.randomUUID().toString().substring(0, 20));
+	    calService.insertCalendarShare(vo);  // 👈 Service 사용
+	    return "공유 완료";
+	}
+	
+	@GetMapping("/cal/sharedCalendars")
+	@ResponseBody
+	public List<Map> getSharedCalendars(HttpSession session) {
+	    LoginVO loginVO = (LoginVO) session.getAttribute("loginVO");
+	    String loginId = loginVO.getId();
+	    return calService.getSharedCalendars(loginId);
 	}
 
 }

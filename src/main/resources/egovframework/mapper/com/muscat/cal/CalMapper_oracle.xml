@@ -72,6 +72,11 @@
 		FROM COMTNLEADERSCHDUL s
 		JOIN CALENDAR c ON s.CAL_ID =
 		c.CAL_ID
+		WHERE TRIM(c.OWNER_ID) = #{ownerId}
+		OR c.CAL_ID IN (
+		SELECT
+		CAL_ID FROM CALSHARE WHERE MBER_ID = #{ownerId}
+		)
 	</select>
 
 	<insert id="insertCalendar" parameterType="map">
@@ -95,12 +100,20 @@
 	</insert>
 
 	<select id="selectCalendarList" resultType="map">
-		SELECT trim(cal_id)
+		SELECT
+		TRIM(cal_id) AS
 		cal_id,
-		trim(cal_name) cal_name, trim(color) color, trim(owner_id)
-		owner_id
+		TRIM(cal_name) AS cal_name,
+		TRIM(color) AS color,
+		TRIM(owner_id)
+		AS owner_id
 		FROM CALENDAR
-		ORDER BY cal_name
+		WHERE owner_id = #{ownerId}
+		OR cal_id IN (
+		SELECT cal_id FROM calshare WHERE mber_id = #{ownerId}
+		)
+		ORDER BY
+		cal_name
 	</select>
 
 	<select id="selectAvailableRooms" parameterType="string"
@@ -132,18 +145,33 @@
 	</select>
 
 
-	<insert id="insertCalendarShare" parameterType="map">
-		INSERT INTO
-		CALENDAR_SHARE (
-		SHARE_ID, AUTHORITY, CAL_ID, MBER_ID, SH_DE
+	<insert id="insertCalendarShare"
+		parameterType="egovframework.com.muscat.cal.mapper.CalendarShareVO">
+		INSERT INTO CALSHARE (
+		SHARE_ID, AUTHORITY, CAL_ID,
+		MBER_ID, SH_DE
 		) VALUES (
 		#{shareId},
 		#{authority},
-		#{calId},
-		#{mberId},
+		TRIM(#{calId}),
+		TRIM(#{mberId}),
 		SYSDATE
 		)
 	</insert>
+
+	<select id="selectSharedCalendars" parameterType="string"
+		resultType="map">
+		SELECT
+		TRIM(c.CAL_ID) AS cal_id,
+		TRIM(c.CAL_NAME) AS cal_name,
+		TRIM(c.COLOR) AS
+		color,
+		TRIM(c.OWNER_ID) AS owner_id,
+		TRIM(cs.MBER_ID) AS shared_to
+		FROM CALENDAR c
+		JOIN CALSHARE cs ON TRIM(c.CAL_ID) = TRIM(cs.CAL_ID)
+		WHERE TRIM(cs.MBER_ID) = #{loginId}
+	</select>
 
 	<update id="updateSchedule"
 		parameterType="egovframework.com.muscat.cal.mapper.ScudVO">
@@ -174,20 +202,25 @@
 		resultType="egovframework.com.muscat.cal.mapper.ScudVO">
 		SELECT
 		TRIM(s.SCHDUL_ID) AS schdulId,
-		TRIM(s.SCHDUL_NM) AS schdulNm,
+		TRIM(s.SCHDUL_NM) AS
+		schdulNm,
 		TRIM(s.SCHDUL_CN) AS schdulCn,
-		TRIM(s.SCHDUL_PLACE) AS schdulPlace,
+		TRIM(s.SCHDUL_PLACE) AS
+		schdulPlace,
 		TRIM(s.SCHDUL_BGNDE) AS schdulBgnde,
-		TRIM(s.SCHDUL_ENDDE) AS
+		TRIM(s.SCHDUL_ENDDE)
+		AS
 		schdulEndde,
 		TRIM(s.CAL_ID) AS calId,
 		TRIM(s.RESERVED_ROOM) AS roomId,
 		TRIM(r.MTGRUM_NM) AS roomName
 		FROM COMTNLEADERSCHDUL s
-		LEFT JOIN COMTNMTGPLACEMANAGE r ON s.RESERVED_ROOM = r.MTGRUM_ID
-		WHERE TRIM(s.SCHDUL_ID) = TRIM(#{schdulId})
+		LEFT JOIN
+		COMTNMTGPLACEMANAGE r ON s.RESERVED_ROOM = r.MTGRUM_ID
+		WHERE
+		TRIM(s.SCHDUL_ID) = TRIM(#{schdulId})
 	</select>
-	
-	
+
+
 </mapper>
 

@@ -278,9 +278,9 @@ textarea {
 	    schdulCn: $('#description').val(),
 	    schdulBgnde: formatDateTime($('#start').val(), $('#startTime').val()),
 	    schdulEndde: formatDateTime($('#end').val(), $('#endTime').val()),
-	    frstRegisterId: 'admin',
-	    leaderId: 'admin',
-	    schdulChargerId: 'admin',
+	    frstRegisterId: loginVO.id,
+	    leaderId: loginVO.id,
+	    schdulChargerId: loginVO.id,
 	    calId: $('#calendar').val(),
 	    reptitSeCode: $('#repeat').is(':checked') ? repeatMap[$('#repeatCycle').val()] : 'N',
 	    reservedRoom: $('#room').val()

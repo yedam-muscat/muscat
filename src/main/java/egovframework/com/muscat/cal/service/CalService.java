@@ -12,9 +12,9 @@ public interface CalService {
 	
 	void insertSchedule(ScudVO vo) throws Exception;
 	
-	List<Map> selectScheduleList() throws Exception;
+	List<Map> selectScheduleList(String loginId) throws Exception;
 	
-	List<Map> selectCalendarList();
+	List<Map> selectCalendarList(String loginId);
 
 	List<Map<String, Object>> selectAvailableRooms(String reserveDateTime);
 
@@ -31,5 +31,10 @@ public interface CalService {
 	ScudVO selectScheduleById(String schdulId);
 	
 	List<Map> selectCalendarListByUser(String loginId);
+	
+	void insertCalendarShare(CalendarShareVO vo);
+
+	List<Map> getSharedCalendars(String loginId);
+
 	
 }
