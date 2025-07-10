@@ -4,7 +4,7 @@
 	layout:decorate="~{layout/layout}">
 
 <main layout:fragment="content">
-	<h2 id="boardTitle">사용자 목록</h2>
+	<h2 id="boardTitle">기안문서함</h2>
 
 	<div class="d-flex align-items-center gap-2 mb-3">
 
@@ -12,8 +12,8 @@
 		<select id="searchCondition" class="form-select form-select-sm"
 			style="width: 130px">
 			<option value="" selected>-- 검색조건 --</option>
-			<option value="0">사용자ID</option>
-			<option value="1">사용자명</option>
+			<option value="0">제목</option>
+			<option value="1">문서양식</option>
 		</select>
 
 		<!-- 검색어 -->
@@ -31,15 +31,13 @@
 	<table class="table table-bordered">
 		<thead class="table-light">
 			<tr>
-				<th>아이디</th>
-				<th>사용자명</th>
-				<th>부서</th>
-				<th>직급</th>
-				<th>핸드폰번호</th>
-				<th>가입 상태</th>
+				<th>제목</th>
+				<th>문서양식</th>
+				<th>작성일자</th>
+				<th>저장일자</th>
 			</tr>
 		</thead>
-		<tbody id="userListBody">
+		<tbody id="listBody">
 
 		</tbody>
 	</table>
@@ -49,8 +47,8 @@
 	</nav>
 
 	<script th:inline="javascript">
-		let userListUrl = /*[[ @{/admin/user/userList.do} ]]*/ '';
-		let userDetailUrl = /*[[ @{/admin/user/userDetail.do} ]]*/ '';
+		let tempListUrl = /*[[ @{/admin/user/userList.do} ]]*/ '';
+		let tempDetailUrl = /*[[ @{/admin/user/userDetail.do} ]]*/ '';
 	</script>
 	<script>
     const pageSize = 10;
@@ -59,19 +57,19 @@
     let searchKeyword = '';
 
     // 게시글 목록 로딩
-    function loadUserList(page = 1) {
+    function loadList(page = 1) {
         currentPage = page;
         
     	$.ajax({
 			type : "GET",
-			url : userListUrl,
+			url : tempListUrl,
 			data : {
 				pageIndex : page,
 				searchCondition : searchCondition,
 				searchKeyword : searchKeyword,
 			},
 		}).done(function(data, textStatus, xhr) {
-	        let tbody = $('#userListBody');
+	        let tbody = $('#listBody');
 	        tbody.html('');
 	        
 	        console.log(data);
@@ -81,20 +79,18 @@
 	        const totalPages = Math.ceil(totalCount / pageSize);
 	        
 	        resultList.forEach(item => {
-	          tbody.append(`<tr data-user-id="${item.uniqId}">
-	  	            <td>${item.userId}</td>
-	  	            <td>${item.userNm}</td>
-	  	            <td>${item.deptName ? item.deptName : ''}</td>
-	  	            <td>${item.rankName ? item.rankName : '' }</td>
-	  	            <td>${item.moblphonNo}</td>
-	  	            <td>${item.sttus == 'A' ? '가입 대기' : item.sttus == 'P' ? '가입 승인': '가입 거절' }</td>
+	          tbody.append(`<tr data-temp-id="${'TEST' }">
+	  	            <td>${'TEST' }</td>
+	  	            <td>${'TEST' }</td>
+	  	            <td>${'TEST' }</td>
+	  	            <td>${'TEST' }</td>
 	  	            </tr>
 	  	          `);
 	        });
 	        
 	        tbody.on('click', 'tr', function () {
-	        	  const uniqId = $(this).data('user-id');
-	        	  window.location.href = `${userDetailUrl}?selectedId=${encodeURIComponent(uniqId)}`;
+	        	  const id = $(this).data('temp-id');
+	        	  window.location.href = `${tempDetailUrl}?selectedId=${encodeURIComponent(id)}`;
 	        	});
 
 	        renderPagination(totalPages);
@@ -117,7 +113,7 @@
         li.innerHTML = `<a class="page-link" href="#">${label}</a>`;
         li.querySelector('a').addEventListener('click',e=>{
           e.preventDefault();
-          if(!disabled && !active) loadUserList(page);
+          if(!disabled && !active) loadList(page);
         });
         pagEl.appendChild(li);
       };
@@ -136,12 +132,12 @@
 
     // 초기 로딩
     document.addEventListener('DOMContentLoaded', () => {
-    	loadUserList();
+    	//loadList();
     	
     	$('#btnSearch').on('click', function() {
     	    searchCondition = $('#searchCondition').val();
     	    searchKeyword = $('#searchKeyword').val();
-    	    loadUserList();
+    	    loadList();
     	});
     	
     	$('#btnReset').on('click', function() {
@@ -149,7 +145,7 @@
     	    searchKeyword = '';
     	    $('#searchCondition').val('');
     	    $('#searchKeyword').val('');
-    	    loadUserList();
+    	    loadList();
     	});
     });
   </script>

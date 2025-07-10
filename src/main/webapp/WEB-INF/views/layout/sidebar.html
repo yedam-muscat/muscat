@@ -35,22 +35,28 @@
 					class='sidebar-link'> <i class="bi bi-stack"></i> <span>전자결재</span>
 				</a>
 					<ul class="submenu ">
-						<li class="submenu-item " id="apprMain"><a
-							href="/muscat/appr/apprMain.do">전자결재</a></li>
-						<!--  <li class="submenu-item "><a href="/muscat/appr/apprMain.do">임시저장</a></li>
-						<li class="submenu-item "><a href="/muscat/appr/apprMain.do">결재대기</a></li>
-						<li class="submenu-item "><a
-							href="/muscat/appr/apprHistory.do">기안문서함</a></li>
-						<li class="submenu-item "><a
-							href="/muscat/appr/apprHistory.do">결재문서함</a></li>
-						<li class="submenu-item "><a
-							href="/muscat/appr/apprHistory.do">참조문서함</a></li>
-						<li class="submenu-item "><a
-							href="/muscat/appr/apprHistory.do">부서문서함</a></li>
-						<li class="submenu-item "><a
-							href="/muscat/appr/docFormMng.do">문서양식관리</a></li> -->
-						<li class="submenu-item " id="docFormReg"><a
-							href="/muscat/appr/docFormReg.do">문서양식등록</a></li>
+						<li class="submenu-item " id="regAppr"><a
+							href="/muscat/appr/regAppr.do">문서기안</a></li>
+						<li class="submenu-item " id="tempAppr"><a
+							href="/muscat/appr/tempAppr.do">임시저장</a></li>
+						<li class="submenu-item " id="readyAppr"><a
+							href="/muscat/appr/readyAppr.do">결재대기</a></li>
+						<li class="submenu-item " id="reqAppr"><a
+							href="/muscat/appr/reqAppr.do">결재요청</a></li>
+						<li><span>------------------------</span></li>
+						<li class="submenu-item " id="regHistory"><a
+							href="/muscat/appr/regHistory.do">기안문서함</a></li>
+						<li class="submenu-item " id="reqHistory"><a
+							href="/muscat/appr/reqHistory.do">결재문서함</a></li>
+						<li class="submenu-item " id="refHistory"><a
+							href="/muscat/appr/refHistory.do">참조문서함</a></li>
+						<!-- 						<li class="submenu-item "><a
+							href="/muscat/appr/apprHistory.do">부서문서함</a></li> -->
+						<li><span>------------------------</span></li>
+						<li class="submenu-item " id="docFormMng"><a
+							href="/muscat/appr/docFormMng.do">문서양식관리</a></li>
+						<!-- 						<li class="submenu-item " id="docFormReg"><a
+							href="/muscat/appr/docFormReg.do">문서양식관리</a></li> -->
 					</ul></li>
 
 
@@ -176,16 +182,113 @@ keyframes fadeSlideIn { 0% {
 	transform: translateY(-10px);
 }
 100
+
+
+
+
+
+
+
+
+
+
 %
 {
 opacity
+
+
+
+
+
+
+
+
+
+
 :
-1;
+
+
+
+
+
+
+
+
+
+
+1
+
+
+
+
+
+
+
+
+;
 transform
+
+
+
+
+
+
+
+
+
+
 :
-translateY(
+
+
+
+
+
+
+
+
+
+
+translateY
+
+
+
+
+
+
+
+
+(
+
+
+
+
+
+
+
+
+
+
 0
-);
+
+
+
+
+
+
+
+
+
+
+)
+
+
+
+
+
+
+
+
+;
 }
 }
 </style>
@@ -254,15 +357,21 @@ translateY(
 				<button class="btn btn-sm btn-primary" type="button"
 					id="openMemoModal">보고</button>
 
-				<button id="closeChat" aria-label="닫기" style="background: none; border: none; color: black; font-weight: bold; cursor: pointer;">X</button>
+				<button id="closeChat" aria-label="닫기"
+					style="background: none; border: none; color: black; font-weight: bold; cursor: pointer;">X</button>
 				<input type="file" id="fileInput" style="display: none;">
 			</div>
 		</div>
-		<div id="chatMessages" style="padding: 10px; flex-grow: 1; overflow-y: auto; background: #ACBCE3;"></div>
+		<div id="chatMessages"
+			style="padding: 10px; flex-grow: 1; overflow-y: auto; background: #ACBCE3;"></div>
 
-		<div id="chatInputArea" style="padding: 10px; border-top: 1px solid #ccc; display: flex; gap: 5px;">
-			<input id="chatInput" type="text" class="form-control" placeholder="메시지를 입력하세요..." />
-			<button id="sendMsg" class="btn btn-success" style="padding: 0.25rem 0.75rem; font-size: 0.9rem; white-space: nowrap;" disabled>전송</button>
+		<div id="chatInputArea"
+			style="padding: 10px; border-top: 1px solid #ccc; display: flex; gap: 5px;">
+			<input id="chatInput" type="text" class="form-control"
+				placeholder="메시지를 입력하세요..." />
+			<button id="sendMsg" class="btn btn-success"
+				style="padding: 0.25rem 0.75rem; font-size: 0.9rem; white-space: nowrap;"
+				disabled>전송</button>
 		</div>
 	</div>
 

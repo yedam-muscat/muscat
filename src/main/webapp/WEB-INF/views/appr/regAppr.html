@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+
+<main layout:fragment="content">
+	<div class="container-fluid main-row">
+		<h2 id="boardTitle">문서기안</h2>
+		
+		<div class="row h-100">
+			<!-- 좌측 사이드바: 문서 양식 목록 -->
+			<nav class="col-md-4 col-lg-3 d-md-block bg-light sidebar p-3">
+				<h5>문서 양식</h5>
+				<div class="input-group mb-3">
+					<input type="text" class="form-control" placeholder="양식 검색...">
+					<button class="btn btn-outline-secondary" type="button">
+						검색</button>
+				</div>
+
+				<div class="list-group" id="form-template-list">
+					<a href="#" class="list-group-item list-group-item-action"
+						data-form-id="leave_request" data-form-title="휴가 신청서"> 휴가 신청서
+					</a> <a href="#" class="list-group-item list-group-item-action"
+						data-form-id="expense_report" data-form-title="지출 결의서"> 지출 결의서
+					</a> <a href="#" class="list-group-item list-group-item-action"
+						data-form-id="work_report" data-form-title="업무 보고서"> 업무 보고서 </a> <a
+						href="#" class="list-group-item list-group-item-action"
+						data-form-id="purchase_request" data-form-title="구매 요청서"> 구매
+						요청서 </a>
+				</div>
+			</nav>
+
+			<!-- 우측 컨텐츠: 문서 작성 영역 -->
+			<main class="col-md-8 ms-sm-auto col-lg-9 px-md-4 content-area">
+				<div id="form-display-area" class="pt-3">
+					<!-- 초기 안내 메시지 -->
+					<div id="form-placeholder" class="text-center text-muted mt-5">
+						<h3>
+							<i class="bi bi-file-earmark-text"></i>
+						</h3>
+						<p>좌측에서 작성할 문서 양식을 선택하세요.</p>
+					</div>
+
+					<!-- 양식 선택 시 표시될 영역 (초기에는 숨김) -->
+					<div id="form-content" style="display: none;">
+						<div
+							class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+							<h1 class="h2" id="form-title"></h1>
+						</div>
+
+						<!-- 여기에 SurveyJS 또는 다른 폼 렌더러가 내용을 채웁니다. -->
+						<div id="form-renderer-container"
+							class="bg-white p-4 rounded shadow-sm">
+							<p>선택된 양식의 내용이 여기에 동적으로 표시됩니다.</p>
+							<p>예: 휴가 신청서의 경우 날짜 선택, 사유 입력 필드 등이 나타납니다.</p>
+						</div>
+
+						<div class="mt-4 text-end">
+							<button class="btn btn-secondary">임시저장</button>
+							<button class="btn btn-primary">결재요청</button>
+						</div>
+					</div>
+				</div>
+			</main>
+		</div>
+	</div>
+
+	<script th:inline="javascript">
+		
+	</script>
+	<script>
+		
+	</script>
+</main>
+</html>

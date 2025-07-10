@@ -1,0 +1,35 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SurveyJS Form Builder</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- 1. Required Stylesheets -->
+    <link href="https://unpkg.com/survey-core@1.9.131/defaultV2.min.css" type="text/css" rel="stylesheet" />
+    <link href="https://unpkg.com/survey-creator-core@1.9.131/survey-creator-core.min.css" type="text/css" rel="stylesheet" />
+</head>
+<body>
+    <!-- 2. The container for the Survey Creator -->
+    <div id="surveyCreatorContainer" style="height: 95vh;"></div>
+
+    <!-- 3. Scripts placed at the end of the body in the correct order -->
+    <!-- Dependency -->
+    <script src="https://unpkg.com/knockout@3.5.1/build/output/knockout-latest.js"></script>
+    <!-- SurveyJS Core Libraries -->
+    <script src="https://unpkg.com/survey-core@1.9.131/survey.core.min.js"></script>
+    <script src="https://unpkg.com/survey-knockout-ui@1.9.131/survey.ko.min.js"></script>
+    <!-- SurveyJS Creator Core Libraries -->
+    <script src="https://unpkg.com/survey-creator-core@1.9.131/survey-creator-core.min.js"></script>
+    <script src="https://unpkg.com/survey-creator-knockout@1.9.131/survey-creator.ko.min.js"></script>
+
+    <!-- 4. Initialization Script (Minimal) -->
+    <script type="text/javascript">
+        const creatorOptions = {};
+        const creator = new SurveyCreator.SurveyCreator(creatorOptions);
+        creator.render("surveyCreatorContainer");
+    </script>
+</body>
+</html>
+

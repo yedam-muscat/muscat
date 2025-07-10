@@ -1,7 +1,5 @@
 package egovframework.com.muscat.appr.web;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +9,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import egovframework.com.muscat.appr.service.ApprDocVO;
 import egovframework.com.muscat.appr.service.ApprService;
 import egovframework.com.muscat.appr.service.DocFormVO;
 import egovframework.com.muscat.common.ResultVO;
@@ -24,40 +21,50 @@ public class ApprContoller {
 	@Autowired
 	ApprService apprService;
 
-	// 전자결재 메인 페이지
-	@GetMapping("/appr/apprMain.do")
-	public String apprMain() {
-		return "appr/apprMain.html";
+	// 문서기안
+	@GetMapping("/appr/regAppr.do")
+	public String regAppr() {
+		return "appr/regAppr.html";
 	}
 
-	// 전자결제 메인 - 최근 기안/결재 문서
-	@GetMapping("/appr/getApprMainRecent")
-	@ResponseBody
-	public List<ApprDocVO> getApprMainRecent() {
-		return apprService.getApprDocRecent();
+	// 임시저장
+	@GetMapping("/appr/tempAppr.do")
+	public String tempAppr() {
+		return "appr/tempAppr.html";
 	}
 
-	// 전자결제 메인 - 최근 완료 문서
-	@GetMapping("/appr/getApprMainHistory")
-	@ResponseBody
-	public List<ApprDocVO> getApprMainHistory() {
-		return apprService.getApprDocHistory();
-	}
-
-	// 문서 기안 페이지
-	@GetMapping("/appr/apprReg.do")
-	public String apprReg() {
-		return "appr/apprReg.html";
+	// 결재대기
+	@GetMapping("/appr/readyAppr.do")
+	public String readyAppr() {
+		return "appr/readyAppr.html";
 	}
 	
-	// 문서 내역 페이지
-	@GetMapping("/appr/apprHistory.do")
-	public String apprHistory() {
-		return "appr/apprHistory.html";
+	// 결재요청
+	@GetMapping("/appr/reqAppr.do")
+	public String reqAppr() {
+		return "appr/reqAppr.html";
+	}
+	
+	// 문서함
+	// 기안문서함
+	@GetMapping("/appr/regHistory.do")
+	public String regHistory() {
+		return "appr/regHistory.html";
+	}
+	
+	// 결재문서함
+	@GetMapping("/appr/reqHistory.do")
+	public String reqHistory() {
+		return "appr/reqHistory.html";
+	}
+	
+	// 참조문서함
+	@GetMapping("/appr/refHistory.do")
+	public String refHistory() {
+		return "appr/refHistory.html";
 	}
 
 	// 문서 양식 관련
-	
 	// 문서 양식 관리 페이지
 	@GetMapping("/appr/docFormMng.do")
 	public String docFormMng() {
@@ -82,7 +89,7 @@ public class ApprContoller {
 	@ResponseBody
 	public ResultVO postDocFormReg(@RequestBody DocFormVO docForm) {
 		ResultVO result = new ResultVO();
-		int serviceResult = apprService.regDocForm(docForm);
+		int count = apprService.regDocForm(docForm);
 		return result;
 	}
 }
