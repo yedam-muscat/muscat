@@ -85,11 +85,22 @@ public class ApprContoller {
 	}
 
 	// 문서 양식 등록
-	@PostMapping("/appr/postDocFormReg.do")
+	@PostMapping("/appr/docFormReg.do")
 	@ResponseBody
 	public ResultVO postDocFormReg(@RequestBody DocFormVO docForm) {
 		ResultVO result = new ResultVO();
 		int count = apprService.regDocForm(docForm);
+		
+		if (count > 0) {
+			result.setResultCode("");
+			result.setResultMsg("문서양식이 등록되었습니다");
+			result.setResultSuccess(true);
+		} else {
+			result.setResultCode("");
+			result.setResultMsg("문서양식 등록 중 오류가 발생했습니다");
+			result.setResultSuccess(false);
+		}
+		
 		return result;
 	}
 }

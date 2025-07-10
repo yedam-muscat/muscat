@@ -34,8 +34,9 @@
 	<table class="table table-bordered">
 		<thead class="table-light">
 			<tr>
-				<th>제목</th>
-				<th>문서양식</th>
+				<th>문서양식ID</th>
+				<th>문서양식제목</th>
+				<th>사용여부</th>
 				<th>작성일자</th>
 				<th>저장일자</th>
 			</tr>
@@ -50,8 +51,9 @@
 	</nav>
 
 	<script th:inline="javascript">
-		let tempListUrl = /*[[ @{/admin/user/userList.do} ]]*/ '';
-		let tempDetailUrl = /*[[ @{/admin/user/userDetail.do} ]]*/ '';
+		let docFormListUrl = /*[[ @{/appr/docFormList.do} ]]*/ '';
+		let docFormDetailUrl = /*[[ @{/appr/docFormDetail.do} ]]*/ '';
+		let docFormRegUrl = /*[[ @{/appr/docFormReg.do} ]]*/ '';
 	</script>
 	<script>
     const pageSize = 10;
@@ -65,7 +67,7 @@
         
     	$.ajax({
 			type : "GET",
-			url : tempListUrl,
+			url : docFormListUrl,
 			data : {
 				pageIndex : page,
 				searchCondition : searchCondition,
@@ -150,6 +152,11 @@
     	    $('#searchKeyword').val('');
     	    loadList();
     	});
+    	
+    	$('#btnReg').on('click', function() {
+    		location.href=docFormRegUrl;
+    	});
+    	
     });
   </script>
 </main>

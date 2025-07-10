@@ -30,11 +30,11 @@ public class ApprServiceImpl implements ApprService {
 	public List<ApprDocVO> getApprDocHistory() {
 		return apprMapper.selectApprDocHistory();
 	}
-
+	
+	// 문서양식 등록
 	@Override
 	public int regDocForm(DocFormVO docForm) {
-		
-		return 0;
+		return apprMapper.insertDocForm(docForm);
 	}
 
 	@Override

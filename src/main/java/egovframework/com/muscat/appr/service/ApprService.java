@@ -10,10 +10,9 @@ public interface ApprService {
 	
 	List<ApprDocVO> getApprDocHistory();
 	
-
+	// 문서양식 등록
 	int regDocForm(DocFormVO docForm);
 	
 	List<DocFormVO> getDocFormList(DocFormVO docForm);
-	
 	
 }
