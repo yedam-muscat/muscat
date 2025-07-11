@@ -3,57 +3,65 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/layout}">
-
 <head>
   <meta charset="UTF-8">
   <title>게시글 목록</title>
 
-  <!-- Bootstrap & jQuery -->
+  <!-- jQuery · Bootstrap · Bootstrap-icons -->
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-  <link  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"  rel="stylesheet">
+  <link  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
-  <!-- 링크 기본 스타일 제거 -->
   <style>
-    a { color:inherit; text-decoration:none }
-    a:hover { text-decoration:underline }
-    td.title-cell { white-space:nowrap }
+    /* 기본 링크/셀 스타일 */
+    a{color:inherit;text-decoration:none}
+    a:hover{text-decoration:underline}
+    td.title-cell{white-space:nowrap}
+
+    /* ── 댓글 수 뱃지 ── */
+    .cmt-badge{
+      display:inline-flex;align-items:center;gap:.25rem;
+      font-size:.75rem;background:#f1f3f5;color:#0d6efd;
+      border-radius:.4rem;padding:.05rem .4rem
+    }
+
+    /* ── (NEW) 제목이 길면 … 처리 ──
+       - 셀 전체 대신 a 태그만 잘라 주면 ↓ 중첩 공백·들여쓰기에도 자연스러움  */
+    .title-link{
+      display:inline-block;          /* inline 요소에 너비 지정 */
+      max-width:420px;               /* ★ 원하는 최대 너비 조절 */
+      overflow:hidden;
+      text-overflow:ellipsis;
+      vertical-align:middle;
+      white-space:nowrap;
+    }
+    /* 첨부 클립 아이콘 */
+    .attach-icon{font-size:1rem;color:#6c757d}
   </style>
 </head>
 
 <main layout:fragment="content" class="container mt-4">
-
-  <!-- 동적 게시판 이름 -->
   <h2 id="boardTitle" class="fw-bold mb-3">📄 게시글 목록</h2>
 
-  <!-- 🔍 검색 + 새글 버튼 --------------------  (추가) -->
+  <!-- 검색 + 새글쓰기 -->
   <div class="d-flex align-items-center gap-2 mb-3">
-
-    <!-- 검색 조건 -->
     <select id="searchCnd" class="form-select form-select-sm" style="width:130px">
-      <option value="0">제목</option>
-      <option value="1">내용</option>
-      <option value="2">작성자</option>
+      <option value="0">제목</option><option value="1">내용</option><option value="2">작성자</option>
     </select>
-
-    <!-- 검색어 -->
     <input id="searchWrd" type="text" class="form-control form-control-sm" style="max-width:260px"
            placeholder="검색어를 입력하세요">
-
-    <!-- 조회 버튼 -->
     <button id="btnSearch" class="btn btn-primary btn-sm">조회</button>
-
-    <!-- 우측 여백 & 새글쓰기 -->
     <div class="flex-grow-1"></div>
     <button id="regBtn" class="btn btn-primary btn-sm">+ 새글쓰기</button>
   </div>
-  <!-- -------------------------------------- -->
 
-  <!-- 목록 테이블 -->
+  <!-- 목록 -->
   <table class="table table-bordered align-middle">
     <thead class="table-light text-center">
       <tr>
         <th style="width:80px">번호</th>
         <th>제목</th>
+        <th style="width:55px">첨부</th>
         <th style="width:120px">작성자</th>
         <th style="width:120px">작성일</th>
         <th style="width:90px">조회수</th>
@@ -62,133 +70,91 @@
     <tbody id="articleBody"></tbody>
   </table>
 
-  <!-- 페이지네이션 -->
   <nav><ul id="pagination" class="pagination justify-content-center"></ul></nav>
 
-  <script>
-    /* ----------- 전역 ------------ */
-    const pageSize = 10;
-    let   bbsId    = '';
-    let   currentPage = 1;
+<script>
+/* ===== 전역 ===== */
+const pageSize=10; let bbsId='', currentPage=1, gSearchCnd='0', gSearchWrd='';
 
-    /* 💬 검색 조건 전역 변수 (추가) */
-    let   gSearchCnd = '0';
-    let   gSearchWrd = '';
+/* ===== 목록 ===== */
+function loadArticleList(page=1){
+  currentPage=page;
+  const qs=new URLSearchParams({
+    bbsId,pageIndex:page,pageSize,
+    searchCnd:gSearchCnd,searchWrd:gSearchWrd
+  });
+  fetch('/muscat/board/articleList?'+qs)
+    .then(r=>r.json()).then(d=>{
+      const body=document.getElementById('articleBody'); body.innerHTML='';
+      const list=d.resultList||[], total=+d.resultCnt||0;
+      const totalPages=Math.ceil(total/pageSize);
 
-    /* ----------- 목록 호출 ------------ */
-    function loadArticleList(page = 1){
-      currentPage = page;
+      if(d.boardInfo?.bbsNm) document.getElementById('boardTitle').textContent='📄 '+d.boardInfo.bbsNm+' 게시글 목록';
 
-      /* 🔸 쿼리 파라미터 조립 (검색 포함) */
-      const params = new URLSearchParams({
-        bbsId,
-        pageIndex : page,
-        pageSize,
-        searchCnd : gSearchCnd,
-        searchWrd : gSearchWrd
-      });
+      if(!list.length){
+        body.innerHTML='<tr><td colspan="6" class="text-center">게시글이 없습니다.</td></tr>';
+      }else{
+        list.forEach((row,idx)=>{
+          const depth=+(row.replyLc||0);
+          const indent='&nbsp;'.repeat(depth*4);
+          const arrow=depth?'↳&nbsp;':'';
+          const badge=row.commentCnt>0?` <span class="cmt-badge">💬 ${row.commentCnt}</span>`:'';
+          const attachIcon=row.atchFileId?'<i class="bi bi-paperclip attach-icon"></i>':'';
 
-      fetch('/muscat/board/articleList?'+params.toString())
-        .then(r=>r.json())
-        .then(d=>{
-          const body = document.getElementById('articleBody');
-          body.innerHTML = '';
-          const list  = d.resultList || [];
-          const total = parseInt(d.resultCnt||0);
-          const totalPages = Math.ceil(total / pageSize);
-
-          /* 게시판명 표시 */
-          if(d.boardInfo?.bbsNm){
-            document.getElementById('boardTitle').textContent = '📄 '+d.boardInfo.bbsNm+' 게시글 목록';
-          }
-
-          if(list.length===0){
-            body.innerHTML = '<tr><td colspan="5" class="text-center">게시글이 없습니다.</td></tr>';
-          }else{
-            list.forEach((row,idx)=>{
-              const depth  = Number(row.replyLc||0);
-              const indent = '&nbsp;'.repeat(depth*4);
-              const icon   = depth>0 ? '↳&nbsp;' : '';
-              const title  = `${indent}${icon}${row.nttSj}`;
-
-              const tr = document.createElement('tr');
-              tr.className = 'text-center';
-              tr.innerHTML = `
-                <td>${total - ((page-1)*pageSize) - idx}</td>
-                <td class="text-start title-cell">
-                    <a href="/muscat/board/articleDetail.do?bbsId=${bbsId}&nttId=${row.nttId}">
-                      ${title}
-                    </a>
-                </td>
-                <td>${row.frstRegisterNm||''}</td>
-                <td>${(row.frstRegisterPnttm||'').slice(0,10)}</td>
-                <td>${(row.inqireCo||0).toLocaleString()}</td>`;
-              body.appendChild(tr);
-            });
-          }
-          renderPagination(totalPages);
-        })
-        .catch(()=>alert('목록 로딩 중 오류가 발생했습니다.'));
-    }
-
-    /* ----------- 페이지네이션 ------------ */
-    function renderPagination(totalPages){
-      const pagEl = document.getElementById('pagination');
-      pagEl.innerHTML = '';
-
-      const addItem = (label,page,disabled=false,active=false)=>{
-        const li = document.createElement('li');
-        li.className = `page-item ${active?'active':''} ${disabled?'disabled':''}`;
-        li.innerHTML = `<a class="page-link" href="#">${label}</a>`;
-        li.querySelector('a').addEventListener('click',e=>{
-          e.preventDefault();
-          if(!disabled && !active) loadArticleList(page);
+          const tr=document.createElement('tr'); tr.className='text-center';
+          tr.innerHTML=`
+            <td>${total-((page-1)*pageSize)-idx}</td>
+            <td class="text-start title-cell">
+               ${indent}${arrow}
+               <a class="title-link"
+                  href="/muscat/board/articleDetail.do?bbsId=${bbsId}&nttId=${row.nttId}">
+                  ${row.nttSj}
+               </a>${badge}
+            </td>
+            <td>${attachIcon}</td>
+            <td>${row.frstRegisterNm||''}</td>
+            <td>${(row.frstRegisterPnttm||'').slice(0,10)}</td>
+            <td>${(row.inqireCo||0).toLocaleString()}</td>`;
+          body.appendChild(tr);
         });
-        pagEl.appendChild(li);
-      };
+      }
+      renderPagination(totalPages);
+    })
+    .catch(()=>alert('목록 로딩 중 오류가 발생했습니다.'));
+}
 
-      addItem('«', currentPage-1, currentPage===1);
+/* ===== 페이지네이션 ===== */
+function renderPagination(totalPages){
+  const pag=document.getElementById('pagination'); pag.innerHTML='';
+  const add=(lbl,p,dis,act)=>{
+    const li=document.createElement('li');
+    li.className=`page-item ${act?'active':''} ${dis?'disabled':''}`;
+    li.innerHTML=`<a class="page-link" href="#">${lbl}</a>`;
+    li.querySelector('a').onclick=e=>{e.preventDefault(); if(!dis&&!act) loadArticleList(p);};
+    pag.appendChild(li);
+  };
+  add('«',currentPage-1,currentPage===1);
+  const max=5; let s=Math.max(1,currentPage-Math.floor(max/2)), e=Math.min(totalPages,s+max-1);
+  if(e-s<max-1) s=Math.max(1,e-max+1);
+  for(let i=s;i<=e;i++) add(i,i,false,currentPage===i);
+  add('»',currentPage+1,currentPage===totalPages);
+}
 
-      const max = 5;
-      let start = Math.max(1, currentPage-Math.floor(max/2));
-      let end   = Math.min(totalPages, start+max-1);
-      if(end-start<max-1) start = Math.max(1, end-max+1);
+/* ===== 검색 & 새글 ===== */
+$('#btnSearch').click(()=>{gSearchCnd=$('#searchCnd').val(); gSearchWrd=$('#searchWrd').val().trim(); loadArticleList(1);});
+$('#searchWrd').keyup(e=>{if(e.key==='Enter') $('#btnSearch').click();});
+$('#regBtn').click(()=>location.href=`/muscat/board/articleRegist.do?bbsId=${bbsId}`);
 
-      for(let i=start;i<=end;i++) addItem(i,i,false,currentPage===i);
-
-      addItem('»', currentPage+1, currentPage===totalPages);
-    }
-
-    /* ----------- 이벤트 ------------ */
-    // 조회 버튼
-    $('#btnSearch').click(()=>{
-      gSearchCnd = $('#searchCnd').val();
-      gSearchWrd = $('#searchWrd').val().trim();
-      loadArticleList(1);
-    });
-    // Enter 키
-    $('#searchWrd').keyup(e=>{
-      if(e.key==='Enter') $('#btnSearch').click();
-    });
-
-    /* 새글쓰기 이동 */
-    document.getElementById('regBtn')
-            .addEventListener('click',()=>location.href=`/muscat/board/articleRegist.do?bbsId=${bbsId}`);
-
-    /* ----------- 초기화 ------------ */
-    document.addEventListener('DOMContentLoaded',()=>{
-      const qs = new URLSearchParams(location.search);
-      bbsId       = qs.get('bbsId') || '';
-      gSearchCnd  = qs.get('searchCnd') || '0';
-      gSearchWrd  = qs.get('searchWrd') || '';
-
-      // URL에 검색 파라미터가 있으면 UI 반영
-      $('#searchCnd').val(gSearchCnd);
-      $('#searchWrd').val(gSearchWrd);
-
-      if(!bbsId){ alert('bbsId 파라미터가 없습니다.'); return; }
-      loadArticleList();
-    });
-  </script>
+/* ===== init ===== */
+document.addEventListener('DOMContentLoaded',()=>{
+  const qs=new URLSearchParams(location.search);
+  bbsId=qs.get('bbsId')||'';
+  gSearchCnd=qs.get('searchCnd')||'0';
+  gSearchWrd=qs.get('searchWrd')||'';
+  $('#searchCnd').val(gSearchCnd); $('#searchWrd').val(gSearchWrd);
+  if(!bbsId){alert('bbsId 파라미터가 없습니다.');return;}
+  loadArticleList();
+});
+</script>
 </main>
 </html>

@@ -33,14 +33,14 @@
 
     <!-- ───────────── 카테고리 / 구분 ───────────── -->
     <div class="mb-3">
-      <label class="form-label">게시판 카테고리</label>
+      <label class="form-label">게시판 카테고리 <span class="text-danger">*</span></label>
       <select id="categoryMain" name="categoryMain" class="form-select" required>
         <option value="">-- 선택하세요 --</option>
       </select>
     </div>
 
     <div class="mb-3">
-      <label class="form-label">게시판 구분</label>
+      <label class="form-label">게시판 구분 <span class="text-danger">*</span></label>
       <select id="categoryScope" name="categoryScope" class="form-select" required>
         <option value="">-- 선택하세요 --</option>
       </select>
@@ -67,7 +67,7 @@
 
     <!-- ───────────── 기타 옵션 (생략 없이 유지) ───────────── -->
     <div class="mb-3">
-      <label class="form-label">답장 가능 여부</label>
+      <label class="form-label">답장 가능 여부 <span class="text-danger">*</span></label>
       <select name="replyPosblAt" class="form-select" required>
         <option value="">-- 선택하세요 --</option>
         <option value="Y">예</option><option value="N">아니오</option>
@@ -75,7 +75,7 @@
     </div>
 
     <div class="mb-3">
-      <label class="form-label">파일 첨부 가능 여부</label>
+      <label class="form-label">파일 첨부 가능 여부 <span class="text-danger">*</span></label>
       <select id="fileAtchPosblAt" name="fileAtchPosblAt" class="form-select" required>
         <option value="">-- 선택하세요 --</option>
         <option value="Y">예</option><option value="N">아니오</option>
@@ -83,7 +83,7 @@
     </div>
 
     <div class="mb-3">
-      <label class="form-label">첨부 가능 파일 수</label>
+      <label class="form-label">첨부 가능 파일 수 <span class="text-danger">*</span></label>
       <select name="atchPosblFileNumber" class="form-select" required>
         <option value="0">없음</option><option value="1">1</option>
         <option value="2">2</option><option value="3">3</option>
@@ -91,10 +91,9 @@
     </div>
 
     <div class="mb-3">
-      <label class="form-label">사용 여부</label>
+      <label class="form-label">사용 여부 <span class="text-danger">*</span></label>
       <select name="useAt" class="form-select" required>
-        <option value="">-- 선택하세요 --</option>
-        <option value="Y">예</option><option value="N">아니오</option>
+        <option value="Y" selected>예</option><option value="N">아니오</option>
       </select>
     </div>
 

@@ -24,8 +24,19 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 @SuppressWarnings("serial")
 public class BoardMasterVO extends BoardMaster implements Serializable {
 
+	/** 부서 ID (조직코드) */
+	private String deptId;
+
+	public String getDeptId() {
+		return deptId;
+	}
+
+	public void setDeptId(String deptId) {
+		this.deptId = deptId;
+	}
+
 	private String categoryMainNm; // 상위 코드명
-	
+
 	public String getCategoryMainNm() {
 		return categoryMainNm;
 	}
