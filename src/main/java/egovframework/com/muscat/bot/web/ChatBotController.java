@@ -5,16 +5,13 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
-import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,35 +19,23 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.icu.impl.TimeZoneGenericNames.Pattern;
-
-import ch.qos.logback.core.boolex.Matcher;
-import egovframework.com.muscat.bot.service.Gemini;
-import egovframework.com.muscat.cal.mapper.ScudVO;
-import egovframework.com.muscat.cal.service.CalService;
 
 
 
 
-@CrossOrigin(origins = "*")
+
 @RestController
 @RequestMapping("/chatbot")
 public class ChatBotController {
 	
-	@Autowired
-	private Gemini geminiApiClient;  // 위 클래스 빈 등록 필요
-	
-	@Autowired
-	private CalService scheduleService;
-
+	@SuppressWarnings("deprecation")
 	@PostMapping("/message.do")
-	public String handleMessage(@RequestBody Map<String, String> payload) {
-	    System.out.println("handleMessage 호출됨, 메시지: " + payload.get("message"));
+	public ResponseEntity<String> handleMessage(@RequestBody Map<String, String> payload) {
 	    String message = payload.get("message");
+	    String reply;
 
-	    //  1. 도움말 명령어 처리
 	    if (message.contains("도움말") || message.contains("명령어")) {
-	        return "🧠 하리봇 도움말\n\n"
+	        reply = "🧠 하리봇 도움말\n\n"
 	             + "하리봇이 할 수 있는 일:\n"
 	             + "------------------------------\n"
 	             + "⏰ [시간 확인] 지금 몇 시야?\n"
@@ -63,42 +48,42 @@ public class ChatBotController {
 	             + "❓ [도움말] 도움말, 명령어 알려줘\n"
 	             + "------------------------------\n"
 	             + "궁금한 걸 자유롭게 물어보세요!";
-	    }
-
-	    //  2. 시간 관련 메시지
-	    if (message.contains("시간") || message.contains("몇 시") || message.contains("지금")) {
+	    } else if (message.contains("시간") || message.contains("몇 시") || message.contains("지금")) {
 	        if (message.contains("세계") || message.contains("다른 나라")) {
-	            return getWorldTime();
+	            reply = getWorldTime();
 	        } else {
-	            return getKoreanTime();
+	            reply = getKoreanTime();
 	        }
+	    } else if (message.contains("날씨") || message.contains("서울 날씨")) {
+	        reply = getWeather("60", "127"); // 서울 
+	        reply = getWeather("98", "76"); // 부산
+	        reply = getWeather("89", "90"); // 대구
+	        reply = getWeather("55", "124"); // 인천
+	        reply = getWeather("58", "74"); // 광주
+	        reply = getWeather("67", "100"); // 대전
+	        reply = getWeather("102", "84"); // 울산
+	        reply = getWeather("52", "38"); // 제주
+	        
+	    } else {
+	        reply = "죄송해요, 이해하지 못했어요. 도움말을 보시려면 '도움말'이라고 입력해주세요.";
 	    }
-	 // 3. 날씨 관련 메시지
-	    if (message.contains("날씨") || message.contains("서울 날씨")) {
-	        // 서울 = 대략 nx=60, ny=127
-	        return getWeather("60", "127");
-	    }
-	 // Gemini API 호출
-	    try {
-	        String jsonResponse = Gemini.askGemini(message);
-	        // jsonResponse에서 실제 답변 텍스트 추출 필요
-	        // 예) Jackson 라이브러리로 파싱
-	        ObjectMapper mapper = new ObjectMapper();
-	        JsonNode root = mapper.readTree(jsonResponse);
-	        String answer = root.at("/choices/0/message/content").asText();  // API 응답 형식에 따라 변경
-	        return answer;
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        return "⚠️ 챗봇 응답에 오류가 발생했습니다.";
-	    }
-//	    if (message.contains("일정") && message.matches(".*\\d{1,2}월.*\\d{1,2}일.*(오전|오후).*")) {
-//	        return processScheduleFromMessage(message); // ✅ 2단계에서 만들 함수
-//	    }
 
-	    
+	    // 이모지 유니코드 escape 방지 설정
+	    ObjectMapper mapper = new ObjectMapper();
+	    mapper.getFactory().configure(com.fasterxml.jackson.core.JsonGenerator.Feature.ESCAPE_NON_ASCII, false);
+
+	    try {
+	        String json = mapper.writeValueAsString(reply);
+	        return ResponseEntity.ok()
+	                .header("Content-Type", "application/json;charset=UTF-8")
+	                .body(json);
+	    } catch (Exception e) {
+	        return ResponseEntity.status(500)
+	                .body("\"⚠️ 오류가 발생했습니다.\"");
+	    }
 	}
 	private String getKoreanTime() {
-        LocalTime now = LocalTime.now(ZoneId.of("Asia/Seoul"));
+		LocalTime now = LocalTime.now(ZoneId.of("Asia/Seoul"));
         return "🕒 지금 시간은 " + now.format(DateTimeFormatter.ofPattern("HH:mm")) + "입니다.";
     }
 
@@ -112,23 +97,23 @@ public class ChatBotController {
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm");
 
         return String.format(
-            "🌍 세계 시간 안내입니다:\n" +
-            "🇰🇷 서울: %s\n" +
-            "🇺🇸 뉴욕: %s\n" +
-            "🇬🇧 런던: %s\n" +
-            "🇯🇵 도쿄: %s\n" +
-            "🇦🇺 시드니: %s",
-            seoul.format(fmt),
-            newYork.format(fmt),
-            london.format(fmt),
-            tokyo.format(fmt),
-            sydney.format(fmt)
-        );
+        	    "🌍 세계 시간 안내입니다:\n" +
+        	    "🇰🇷 서울: %s\n" +
+        	    "🇺🇸 뉴욕: %s\n" +
+        	    "🇬🇧 런던: %s\n" +
+        	    "🇯🇵 도쿄: %s\n" +
+        	    "🇦🇺 시드니: %s",
+        	    seoul.format(fmt),
+        	    newYork.format(fmt),
+        	    london.format(fmt),
+        	    tokyo.format(fmt),
+        	    sydney.format(fmt)
+        	);
     }
     
     //날씨
     private String getWeather(String nx, String ny) {
-        String serviceKey = "zLzDOKLTH0MnOy%2FJvMhvAEg1nkrknsHN1qxM%2BolnBQqGf0Ode1qcka7A9PfgCO9UK8u4F%2By1PD1yntKEheP83Q%3D%3D"; // 인코딩된 키 사용
+        String serviceKey = "zLzDOKLTH0MnOy%2FJvMhvAEg1nkrknsHN1qxM%2BolnBQqGf0Ode1qcka7A9PfgCO9UK8u4F%2By1PD1yntKEheP83Q%3D%3D"; // 여기 key 넣으면 됨 인코딩된 키 사용
         String baseDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         String baseTime = "0800"; // 예: 오전 8시 기준
 

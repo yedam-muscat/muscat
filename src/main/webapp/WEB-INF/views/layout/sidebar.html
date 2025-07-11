@@ -144,8 +144,8 @@
 				<div>
 					<h5 id="empName"
 						style="margin-bottom: 0; font-size: 1.1rem; font-weight: bold; color: #007bff;">사원명</h5>
-					<div id="empDetail" style="font-size: 0.85rem; color: #6c757d;">부서/
-						직급</div>
+					<div id="empDetail" style="font-size: 0.85rem; color: #6c757d;">
+						</div>
 					<div id="empPosition" style="font-size: 0.85rem; color: #6c757d;">직책</div>
 				</div>
 			</div>
@@ -175,123 +175,13 @@
 	</div>
 
 	<!-- 카드 애니메이션을 위한 키프레임 정의 (필수) -->
-	<style>
+	<!-- <style>
 @
 keyframes fadeSlideIn { 0% {
 	opacity: 0;
-	transform: translateY(-10px);
-}
-100
-
-
-
-
-
-
-
-
-
-
-%
-{
-opacity
-
-
-
-
-
-
-
-
-
-
-:
-
-
-
-
-
-
-
-
-
-
-1
-
-
-
-
-
-
-
-
-;
-transform
-
-
-
-
-
-
-
-
-
-
-:
-
-
-
-
-
-
-
-
-
-
-translateY
-
-
-
-
-
-
-
-
-(
-
-
-
-
-
-
-
-
-
-
-0
-
-
-
-
-
-
-
-
-
-
-)
-
-
-
-
-
-
-
-
-;
-}
-}
-</style>
+	transform: translateY(-10px);}
+100%{opacity:1;transform:translateY(0);}}
+</style> -->
 
 	<!-- 채팅방 목록 모달 -->
 	<!-- <div class="modal fade" id="chatListModal" tabindex="-1"
@@ -495,6 +385,11 @@ translateY
 	<!-- <link
 		href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
 		rel="stylesheet"> -->
+	<script th:inline="javascript">
+		let imageUrl = /*[[@{/assets/images/}]]*/'';
+	
+	</script>
+		
 	<script>
 	$(document).ready(function () {
 		  const STORAGE_KEY_PARENT = "activeSidebarParentId";
@@ -638,14 +533,14 @@ translateY
 			function showEmployeeCard(node, event) {
 				  const card = document.getElementById('employeeCard');
 				  const data = node.data || {};
-
+				  const imageRandom = Math.floor(Math.random()*8 + 1);
 				  // 데이터 설정
 				  document.getElementById('empName').innerText = node.text || "";
-				  document.getElementById('empDetail').innerText = `${data.dept || ""} / ${data.title || ""}`;
-				  document.getElementById('empPosition').innerText = data.position || "";
+				  //document.getElementById('empDetail').innerText = `${data.dept || ""} / ${data.title || ""}`;
+				  document.getElementById('empPosition').innerText = data.rank_nm || "";
 				  document.getElementById('empEmail').innerText = data.email || "-";
-				  document.getElementById('empPhone').innerText = data.phone || "-";
-				  document.getElementById('empPhoto').src = data.photoUrl || "/images/default-profile.png";
+				  document.getElementById('empPhone').innerText = data.tel || "-";
+				  document.getElementById('empPhoto').src = data.photoUrl || imageUrl + `faces/${imageRandom}.jpg`;
 
 				// 위치 계산
 				  let x = 100;
@@ -667,7 +562,7 @@ translateY
 				  card.style.left = x + 'px';
 				  card.style.top = y + 'px';
 				  card.style.display = 'block';
-				}
+				}// end showEmployeeCard
 
 		function hideCard() {
 			document.getElementById('employeeCard').style.display = 'none';
@@ -707,20 +602,7 @@ translateY
 			}
 		});
 
-		// 사이드바 메신저 클릭 → 채팅방 목록 모달 열기
-		/* $(function() {
-			$('#sidebarMessengerBtn').on('click', function(e) {
-						e.preventDefault(); // 링크 기본 동작 막기
-						$('#employeeCard').fadeOut();
-						$('#staticBackdrop').fadeOut();
-						//const modal = new bootstrap.Modal(document.getElementById('chatListModal'));
-						
-						//modal.show();
-						showchatroom();
-						socketopen();
-						
-						});
-					}); */
+		
 
 		// 목록 클릭 → 채팅방 열기
 		$('#chatList').on('click', '.chat-entry',()=>{});

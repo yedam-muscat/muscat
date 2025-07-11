@@ -67,5 +67,15 @@
 	
 	</delete>
 	
+	<!--  조직도에서 메신저 클릭시 방찾기 -->
+	<select id="findroomAlarm" parameterType="String" resultType="userVO">
+	select * from users where room_id in (
+        select room_id
+        from users 
+        where room_id in (select room_id from users where user_id = 'odin')
+        group by room_id
+        having count(*) = 2)
+        and user_id = #{userId}
+	 </select>
 	
 </mapper>
