@@ -12,7 +12,7 @@
 	
 	    void insertSchedule(ScudVO vo) throws Exception;
 	
-	    List<Map> selectScheduleList(String ownerId) throws Exception;
+	    List<Map> selectScheduleList(@Param("ownerId") String ownerId, @Param("mberId") String mberId);
 	    
 	    void insertCalendar(CalendarVO calendarVO);
 	

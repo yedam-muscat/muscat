@@ -1,22 +1,35 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/layout}">
 <head>
   <meta charset="UTF-8">
   <title>게시글 상세조회</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css">
+
+  <!-- SweetAlert2 -->
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <style>
-    th { width: 120px; background-color: #f8f8f8; }
-    #nttCn { min-height: 300px; white-space: pre-wrap; }
-    .reply-btn { font-size: 0.8rem; margin-left: 8px; }
+    th { width:120px; background:#f8f8f8; }
+     /* ▼ 스크롤 기능 추가된 부분 ▼ */
+    #nttCn{
+      min-height:300px;       /* 기본 높이   */
+      max-height:500px;       /* 500px 넘으면 내부 스크롤 */
+      overflow-y:auto;        /* 세로 스크롤 */
+      white-space:pre-wrap;   /* 줄바꿈 유지 */
+      word-break:break-word;  /* 너무 긴 단어도 줄바꿈 */
+    }
+
+    .reply-btn { font-size:.8rem; margin-left:8px; }
   </style>
 </head>
 
 <main layout:fragment="content" class="container mt-4">
   <h2>🔎 게시글 상세조회</h2>
 
-  <!-- 게시글 정보 -->
+  <!-- ================= 게시글 정보 ================= -->
   <table class="table table-bordered">
     <tbody>
       <tr><th>제목</th><td id="nttSj" colspan="5"></td></tr>
@@ -31,16 +44,22 @@
     </tbody>
   </table>
 
-  <!-- 상단 버튼 -->
+  <!-- 게시글 상단 버튼 -->
   <div class="text-end mb-4">
-    <button class="btn btn-primary" onclick="goEdit()">수정</button>
-    <button class="btn btn-danger" onclick="goDelete()">삭제</button>
-    <button class="btn btn-warning" onclick="goReply()">답글</button>
+    <button class="btn btn-primary"   onclick="goEdit()">수정</button>
+    <button class="btn btn-danger"    onclick="goDelete()">삭제</button>
+    <button class="btn btn-warning"   onclick="goReply()">답글</button>
     <button class="btn btn-secondary" onclick="goBack()">목록</button>
-    <!-- <button class="btn btn-info">스크랩</button> -->
   </div>
 
-  <!-- 댓글 영역 -->
+  <!-- 🔐 템플릿에서 로그인 ID 주입 (없을 수도 있음) -->
+  <input type="hidden" id="loginUserId"
+         th:value="${#authentication?.principal?.uniqId
+                    ?: #authentication?.principal?.id
+                    ?: #authentication?.principal?.username
+                    ?: ''}" />
+
+  <!-- ================= 댓글 영역 ================= -->
   <h4>💬 댓글 <span id="replyCount">0</span></h4>
   <div id="replyList" class="border p-3 mb-3">댓글이 없습니다.</div>
 
@@ -56,244 +75,197 @@
     <button class="btn btn-primary" onclick="submitReply()">댓글등록</button>
   </div>
 
-  <!-- 스크립트 -->
+  <!-- ================= SCRIPT ================= -->
   <script th:inline="javascript">
     const downloadBaseUrl = /*[[@{/cmm/fms/FileDown.do}]]*/ '';
   </script>
   <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const bbsId = urlParams.get("bbsId");
-    const nttId = urlParams.get("nttId");
-    const pageSize = 5;
-    let currentPage = 1;
-    let totalPages = 1;
+    /* ── 상수 & 전역 ───────────────────────── */
+    const params        = new URLSearchParams(location.search);
+    const bbsId         = params.get('bbsId');
+    const nttId         = params.get('nttId');
+    let   loginUserId   = document.getElementById('loginUserId').value || '';
+    const pageSize      = 5;
+    let currentPage = 1, totalPages = 1;
 
-    if (!bbsId || !nttId) Swal.fire("오류", "필수 파라미터 누락", "error");
+    if (!bbsId || !nttId) {
+      Swal.fire('오류','필수 파라미터 누락','error');
+      throw new Error('missing params');
+    }
 
-    // 게시글 정보 조회
+    /* ── 게시글 상세 (변경 없음) ─────────────── */
     fetch(`/muscat/board/articleDetail?bbsId=${bbsId}&nttId=${nttId}`)
-      .then(res => res.json())
-      .then(res => {
-        const data = res.article;
-        document.getElementById("nttSj").textContent = data.nttSj;
-        document.getElementById("frstRegisterNm").textContent = data.frstRegisterNm;
-        document.getElementById("frstRegisterPnttm").textContent = data.frstRegisterPnttm;
-        document.getElementById("inqireCo").textContent = data.inqireCo;
-        document.getElementById("nttCn").innerHTML = data.nttCn?.replace(/\n/g, "<br>");
-        document.getElementById("ntceBgnde").textContent = `${data.ntceBgnde} ~ ${data.ntceEndde}`;
-
-        if (res.fileList && res.fileList.length > 0) {
-          renderFileList(res.fileList);
-        } else {
-          document.getElementById("atchFileArea").textContent = '첨부 파일이 없습니다';
-        }
+      .then(r=>r.json()).then(res=>{
+        const d=res.article;
+        document.getElementById('nttSj').textContent          = d.nttSj;
+        document.getElementById('frstRegisterNm').textContent = d.frstRegisterNm;
+        document.getElementById('frstRegisterPnttm').textContent = d.frstRegisterPnttm;
+        document.getElementById('inqireCo').textContent       = d.inqireCo;
+        document.getElementById('nttCn').innerHTML            = (d.nttCn||'').replace(/\n/g,'<br>');
+        document.getElementById('ntceBgnde').textContent      = `${d.ntceBgnde} ~ ${d.ntceEndde}`;
+        if(res.fileList?.length) renderFiles(res.fileList);
+        else document.getElementById('atchFileArea').textContent='첨부 파일이 없습니다';
       });
 
-    function renderFileList(fileList) {
-      const cell = document.getElementById('atchFileArea');
-      cell.innerHTML = '';
-      const ul = document.createElement('ul');
-
-      fileList.forEach(f => {
-        const li = document.createElement('li');
-        const a  = document.createElement('a');
-        a.href = '#';
-        a.textContent = `${f.orignlFileNm} [${(f.fileMg).toLocaleString()} byte]`;
-        a.dataset.atchFileId = f.atchFileId;
-        a.dataset.fileSn = f.fileSn;
-        a.addEventListener('click', function (e) {
+    function renderFiles(list){
+      const cell=document.getElementById('atchFileArea'); cell.innerHTML='';
+      const ul=document.createElement('ul');
+      list.forEach(f=>{
+        const a=document.createElement('a'); a.href='#';
+        a.textContent=`${f.orignlFileNm} [${(+f.fileMg).toLocaleString()} byte]`;
+        a.onclick=e=>{
           e.preventDefault();
-          fn_egov_downFile(this.dataset.atchFileId, this.dataset.fileSn);
-        });
-        li.appendChild(a);
-        ul.appendChild(li);
+          window.open(`${downloadBaseUrl}?atchFileId=${f.atchFileId}&fileSn=${f.fileSn}`,'_blank');
+        };
+        const li=document.createElement('li'); li.appendChild(a); ul.appendChild(li);
       });
-
       cell.appendChild(ul);
     }
 
-    function fn_egov_downFile(id, sn) {
-      const url = `${downloadBaseUrl}?atchFileId=${id}&fileSn=${sn}`;
-      window.open(url, '_blank');
-    }
-
-    // 댓글 목록 조회
-    function loadReplies(page = 1) {
+    /* ── 댓글 목록 ─────────────────────────── */
+    function loadReplies(page=1){
       fetch(`/muscat/board/replyList?bbsId=${bbsId}&nttId=${nttId}&pageIndex=${page}&pageSize=${pageSize}`)
-        .then(res => res.json())
-        .then(res => {
-          const comments = res.comments || [];
-          const totalCount = res.totalCount || 0;
+        .then(r=>r.json()).then(res=>{
+          /* 서버가 내려준 로그인 ID → 템플릿 값이 없을 때만 보강 */
+          if(!loginUserId) loginUserId = res.currentUserId || '';
+
+          const list  = res.comments   || [];
+          const total = res.totalCount || 0;
           currentPage = page;
-          totalPages = Math.ceil(totalCount / pageSize);
+          totalPages  = Math.ceil(total / pageSize);
+          document.getElementById('replyCount').textContent = total;
 
-          document.getElementById("replyCount").textContent = totalCount;
-          const replyListEl = document.getElementById("replyList");
-
-          if (comments.length === 0) {
-            replyListEl.innerHTML = "댓글이 없습니다.";
-          } else {
-            replyListEl.innerHTML = comments.map(reply => `
-              <div class="border-bottom mb-2 pb-2">
-                <strong>${reply.wrterNm}</strong> <span class="text-muted small">(${reply.frstRegisterPnttm})</span>
-                <p>${reply.commentCn}</p>
-                <div class="text-end">
-                  <button class="btn btn-sm btn-outline-secondary reply-btn" onclick="editReply('${reply.commentNo}', \`${reply.commentCn?.replace(/`/g, '\\`')}\`)">수정</button>
-                  <button class="btn btn-sm btn-outline-danger reply-btn" onclick="deleteReply('${reply.commentNo}')">삭제</button>
-                </div>
-              </div>
-            `).join("");
+          const wrap=document.getElementById('replyList');
+          if(!list.length){
+            wrap.innerHTML='댓글이 없습니다.'; renderPagination(); return;
           }
 
+          wrap.innerHTML=list.map(c=>{
+            const writerId = c.wrterId || c.frstRegisterId || '';
+            const myReply  = writerId && writerId === loginUserId;
+            return `
+              <div class="border-bottom mb-2 pb-2">
+                <strong>${c.wrterNm}</strong>
+                <span class="text-muted small">(${c.frstRegisterPnttm})</span>
+                <p>${c.commentCn}</p>
+                ${ myReply ? `
+                  <div class="text-end">
+                    <button class="btn btn-sm btn-outline-secondary reply-btn"
+                            onclick="editReply('${c.commentNo}', \`${c.commentCn.replace(/`/g,'\\`')}\`)">수정</button>
+                    <button class="btn btn-sm btn-outline-danger reply-btn"
+                            onclick="deleteReply('${c.commentNo}')">삭제</button>
+                  </div>` : '' }
+              </div>`;
+          }).join('');
           renderPagination();
         });
     }
 
-    function renderPagination() {
-      const paginationEl = document.getElementById("pagination");
-      paginationEl.innerHTML = "";
-      const maxButtons = 5;
-      let start = Math.max(1, currentPage - Math.floor(maxButtons / 2));
-      let end = Math.min(totalPages, start + maxButtons - 1);
-      if (end - start < maxButtons - 1) {
-        start = Math.max(1, end - maxButtons + 1);
-      }
+    /* ── 페이징 UI (변경 없음) ─────────────── */
+    function renderPagination(){
+      const el=document.getElementById('pagination'); el.innerHTML='';
+      if(totalPages<=1) return;
+      const max=5;
+      let s=Math.max(1,currentPage-Math.floor(max/2)),
+          e=Math.min(totalPages,s+max-1);
+      if(e-s<max-1) s=Math.max(1,e-max+1);
 
-      function createPageItem(label, page, isActive = false, isDisabled = false) {
-        const li = document.createElement("li");
-        li.className = `page-item ${isActive ? "active" : ""} ${isDisabled ? "disabled" : ""}`;
-        const a = document.createElement("a");
-        a.className = "page-link";
-        a.href = "#";
-        a.innerHTML = label;
-        a.addEventListener("click", e => {
+      const mk=(lbl,p,act,dis)=>{
+        const li=document.createElement('li');
+        li.className=`page-item ${act?'active':''} ${dis?'disabled':''}`;
+        const a=document.createElement('a'); a.className='page-link'; a.href='#'; a.innerHTML=lbl;
+        a.onclick=e=>{
           e.preventDefault();
-          if (!isDisabled && page !== currentPage) loadReplies(page);
-        });
-        li.appendChild(a);
-        return li;
-      }
-
-      paginationEl.appendChild(createPageItem('«', currentPage - 1, false, currentPage === 1));
-      for (let i = start; i <= end; i++) {
-        paginationEl.appendChild(createPageItem(i, i, i === currentPage));
-      }
-      paginationEl.appendChild(createPageItem('»', currentPage + 1, false, currentPage === totalPages));
+          if(!dis && p!==currentPage) loadReplies(p);
+        };
+        li.appendChild(a); return li;
+      };
+      el.appendChild(mk('«',currentPage-1,false,currentPage===1));
+      for(let i=s;i<=e;i++) el.appendChild(mk(i,i,i===currentPage,false));
+      el.appendChild(mk('»',currentPage+1,false,currentPage===totalPages));
     }
 
-    function submitReply() {
-      const commentCn = document.getElementById("replyContent").value.trim();
-      if (!commentCn) return Swal.fire("입력 오류", "댓글 내용을 입력해주세요.", "warning");
-
-      fetch(`/muscat/board/replyInsert`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bbsId, nttId, commentCn })
+    /* ── 댓글 등록 / 수정 / 삭제 (변경 없음) ─ */
+    function submitReply(){
+      const cn=document.getElementById('replyContent').value.trim();
+      if(!cn) return Swal.fire('입력 오류','댓글 내용을 입력해주세요.','warning');
+      fetch('/muscat/board/replyInsert',{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({bbsId, nttId, commentCn:cn})
       })
-      .then(res => res.json())
-      .then(res => {
-        if (res.status === "success") {
-          Swal.fire("등록 완료", res.message, "success");
-          document.getElementById("replyContent").value = "";
+      .then(r=>r.json()).then(res=>{
+        if(res.status==='success'){
+          Swal.fire('등록 완료',res.message,'success');
+          document.getElementById('replyContent').value='';
           loadReplies(1);
-        } else {
-          Swal.fire("등록 실패", res.message, "error");
-        }
+        }else Swal.fire('등록 실패',res.message,'error');
       });
     }
 
-    function editReply(commentNo, commentCn) {
+    function editReply(commentNo,originCn){
       Swal.fire({
-        title: "댓글 수정",
-        input: "textarea",
-        inputValue: commentCn,
-        showCancelButton: true,
-        confirmButtonText: "수정",
-        cancelButtonText: "취소"
-      }).then(result => {
-        if (result.isConfirmed) {
-          fetch(`/muscat/board/replyUpdate`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ commentNo, commentCn: result.value })
-          })
-          .then(res => res.json())
-          .then(res => {
-            if (res.status === "success") {
-              Swal.fire("수정 완료", res.message, "success");
-              loadReplies(currentPage);
-            } else {
-              Swal.fire("수정 실패", res.message, "error");
-            }
-          });
-        }
+        title:'댓글 수정', input:'textarea', inputValue:originCn,
+        showCancelButton:true, confirmButtonText:'수정', cancelButtonText:'취소'
+      }).then(({isConfirmed,value})=>{
+        if(!isConfirmed) return;
+        const cn=value.trim();
+        if(!cn) return Swal.fire('입력 오류','내용을 입력하세요.','info');
+        fetch('/muscat/board/replyUpdate',{
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({commentNo, commentCn:cn})
+        })
+        .then(r=>r.json()).then(res=>{
+          if(res.status==='success'){
+            Swal.fire('수정 완료',res.message,'success');
+            loadReplies(currentPage);
+          }else Swal.fire('수정 실패',res.message,'error');
+        });
       });
     }
 
-    function deleteReply(commentNo) {
+    function deleteReply(commentNo){
       Swal.fire({
-        title: "댓글 삭제",
-        text: "정말 삭제하시겠습니까?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "삭제",
-        cancelButtonText: "취소"
-      }).then(result => {
-        if (result.isConfirmed) {
-          fetch(`/muscat/board/replyDelete`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ commentNo })
-          })
-          .then(res => res.json())
-          .then(res => {
-            if (res.status === "success") {
-              Swal.fire("삭제 완료", res.message, "success");
-              loadReplies(1);
-            } else {
-              Swal.fire("삭제 실패", res.message, "error");
-            }
-          });
-        }
+        title:'댓글 삭제', text:'정말 삭제하시겠습니까?', icon:'warning',
+        showCancelButton:true, confirmButtonText:'삭제', cancelButtonText:'취소'
+      }).then(({isConfirmed})=>{
+        if(!isConfirmed) return;
+        fetch('/muscat/board/replyDelete',{
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({commentNo})
+        })
+        .then(r=>r.json()).then(res=>{
+          if(res.status==='success'){
+            Swal.fire('삭제 완료',res.message,'success');
+            loadReplies(1);
+          }else Swal.fire('삭제 실패',res.message,'error');
+        });
       });
     }
 
-    function goEdit() {
-      location.href = `/muscat/board/articleUpdt.do?bbsId=${bbsId}&nttId=${nttId}`;
-    }
-    function goDelete() {
+    /* ── 게시글 버튼 (변경 없음) ─────────────── */
+    function goEdit(){ location.href=`/muscat/board/articleUpdt.do?bbsId=${bbsId}&nttId=${nttId}`; }
+    function goReply(){ location.href=`/muscat/board/articleReply.do?bbsId=${bbsId}&nttId=${nttId}`; }
+    function goBack(){ location.href=`/muscat/board/articleList.do?bbsId=${bbsId}`; }
+    function goDelete(){
       Swal.fire({
-        title: "정말 삭제하시겠습니까?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "삭제",
-        cancelButtonText: "취소"
-      }).then(result => {
-        if (result.isConfirmed) {
-          fetch(`/muscat/board/articleDelete`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ bbsId, nttId })
-          })
-          .then(res => res.json())
-          .then(res => {
-            if (res.resultCode === "SUCCESS") {
-              Swal.fire("삭제 완료", res.resultMessage, "success").then(goBack);
-            } else {
-              Swal.fire("삭제 실패", res.resultMessage, "error");
-            }
-          });
-        }
+        title:'정말 삭제하시겠습니까?', icon:'warning',
+        showCancelButton:true, confirmButtonText:'삭제', cancelButtonText:'취소'
+      }).then(({isConfirmed})=>{
+        if(!isConfirmed) return;
+        fetch('/muscat/board/articleDelete',{
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({bbsId, nttId})
+        })
+        .then(r=>r.json()).then(res=>{
+          if(res.resultCode==='SUCCESS'){
+            Swal.fire('삭제 완료',res.resultMessage,'success').then(goBack);
+          }else Swal.fire('삭제 실패',res.resultMessage,'error');
+        });
       });
     }
-    function goReply() {
-      location.href = `/muscat/board/articleReply.do?bbsId=${bbsId}&nttId=${nttId}`;
-    }
-    function goBack() {
-      location.href = `/muscat/board/articleList.do?bbsId=${bbsId}`;
-    }
 
-    document.addEventListener("DOMContentLoaded", () => loadReplies(1));
+    /* ── 최초 로드 ─────────────────────────── */
+    document.addEventListener('DOMContentLoaded', ()=>loadReplies(1));
   </script>
 </main>
 </html>

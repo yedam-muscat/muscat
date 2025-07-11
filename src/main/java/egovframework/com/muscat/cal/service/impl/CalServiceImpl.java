@@ -26,8 +26,8 @@ public class CalServiceImpl implements CalService {
     }
  
     @Override
-    public List<Map> selectScheduleList(String ownerId) throws Exception {
-        return calMapper.selectScheduleList(ownerId);
+    public List<Map> selectScheduleList(String ownerId, String mberId) throws Exception {
+        return calMapper.selectScheduleList(ownerId, mberId);
     }
    
 

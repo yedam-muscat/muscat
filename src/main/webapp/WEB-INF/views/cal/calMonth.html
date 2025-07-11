@@ -97,7 +97,7 @@
 
 			<h6
 				class="my-calendar-header border-top mt-2 d-flex justify-content-between align-items-center">
-				<strong>내 캘린더</strong>
+				<strong>내 캘린더함</strong>
 				<button class="btn btn-sm btn-outline-secondary py-0 px-2"
 					id="addMyCalendar">+</button>
 			</h6>
@@ -198,10 +198,11 @@
 						id="calendarSharedColor"
 						class="form-control form-control-color mb-3" value="#1e90ff">
 
-					<label class="form-label">공유 대상 선택</label>
-					<div class="border p-2" style="height: 300px; overflow-y: auto;"
-						id="tree"></div>
-
+					<div class="mb-3">
+						<label for="userList" class="form-label">공유 대상 선택</label>
+						<div id="userList"
+							style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 8px; border-radius: 4px;"></div>
+					</div>
 					<div class="mt-4 d-flex justify-content-end">
 						<button class="btn btn-secondary me-2" data-bs-dismiss="modal">취소</button>
 						<button class="btn btn-success" id="saveSharedCalendarBtn">등록</button>
@@ -251,6 +252,22 @@
 	
 	console.log(loginVO);
 	
+	// 공유 대상 선택용 사용자 리스트
+	  const selectedUsers = new Set();
+	
+	// 유저 선택 토글
+	function toggleUser(mberId, event) {
+		let selectedItem = $(event.target);
+
+		if (selectedUsers.has(mberId)) {
+			selectedUsers.delete(mberId);
+			selectedItem.css('background', 'transparent');
+		} else {
+			selectedUsers.add(mberId);
+			selectedItem.css('background', '#007bff');
+		}
+	}
+	
 	document.addEventListener('DOMContentLoaded', function () {
 		console.log('✅ 로그인 정보:', loginVO); 
 		
@@ -285,8 +302,6 @@
 
               const calName = (cal.CAL_NAME || '').trim();
               const ownerId = (cal.OWNER_ID || '').trim();
-
-              console.log('🔍 캘린더 소유자 비교:', 'loginVO.id =', loginVO.id, ', ownerId =', ownerId);
               
               const html = `
                 <div>
@@ -324,26 +339,6 @@
     }
 
 	  //loadCalendars();
-	  
-	  function initTree() {
-		  $('#tree').jstree('destroy');
-
-		  $.getJSON('/muscat/group/userData.do', function (data) {
-		    $('#tree').jstree({
-		      'core': {
-		        'data': data,
-		        'themes': { 'responsive': false }
-		      },
-		      'types': {
-		        'default': { 'icon': 'bi bi-folder' },
-		        'user': { 'icon': 'bi bi-person' }
-		      },
-		      'plugins': ['types', 'checkbox']
-		    }).on('loaded.jstree', function () {
-		      $('#tree').jstree(true).open_all();
-		    });
-		  });
-		}
 	  function loadSharedCalendars(callback) {
 		  $.ajax({
 		    url: '/muscat/cal/sharedCalendars',
@@ -357,21 +352,21 @@
 		      }
 
 		      response.forEach(cal => {
-		        const calId = (cal.cal_id || '').trim();
-		        const color = (cal.color || '#1e90ff').trim();
-		        const calName = (cal.cal_name || '').trim();
+		    	  const shareId = (cal.share_id || '').trim();  // 고유 식별자
+		    	  const color = (cal.shColor || '#1e90ff').trim();
+		    	  const calName = (cal.shereNm || '').trim(); // 공유된 캘린더 이름
 
-		        calendarColors[calId] = color;
+		    	  calendarColors[shareId] = color;
 
 		        const html = `
 		          <div>
-		            <input type="checkbox" class="calendar-toggle" data-calendar-id="${calId}" checked>
+		            <input type="checkbox" class="calendar-toggle" data-calendar-id="${shareId}" checked>
 		            <span style="color: ${color};">●</span> ${calName}
 		          </div>
 		        `;
 
 		        $('#sharedCalendarList').append(html);
-		        $('#calendarSelect').append(`<option value="${calId}">${calName}</option>`);
+		        $('#calendarSelect').append(`<option value="${shareId}">${calName}</option>`);
 		      });
 		    },
 		    error: function (xhr, status, error) {
@@ -409,38 +404,48 @@
 	    	    return;
 	    	  }
 
-	        $.ajax({
-	          url: '/muscat/cal/listSchedule',
-	          type: 'GET',
-	          dataType: 'json',
-	          xhrFields: {
-	        	    withCredentials: true  // 세션 쿠키 포함
-	        	  },
-	          success: function(response) {
-	            const list = response.result || response || [];
+	    	  $.ajax({
+	    		  url: '/muscat/cal/listSchedule',
+	    		  type: 'GET',
+	    		  dataType: 'json',
+	    		  xhrFields: {
+	    		    withCredentials: true // 세션 쿠키 포함
+	    		  },
+	    		  success: function(response) {
+	    		    const list = response.result || response || [];
 
-	            // 디버그용: 서버에서 받은 이벤트 로그 찍기
-	             console.log('✅ 서버 응답 받은 일정 리스트:', list);
-	            list.forEach(e => console.log('서버 이벤트 데이터:', e));
+	    		    console.log('✅ 서버 응답 받은 일정 리스트:', list);
+	    		    list.forEach(e => console.log('서버 이벤트 데이터:', e));
 
-	            const events = list
-	            .filter(e => checkedCalendars.includes((e.calId || '').trim())) //필터링
-	            .map(e => ({
-	              id: e.schdul_id,
-	              title: e.title || e.schdul_cn || '제목 없음',
-	              start: e.start_dt,
-	              end: e.end_dt,
-	              backgroundColor: calendarColors[e.calId] ||  e.color || '#3788d8',  // 캘린더 색상 사용
-	              borderColor: calendarColors[e.calId] ||  e.color || '#3788d8',
-	              extendedProps: {
-	                place: e.schdul_place,
-	                content: e.schdul_cn
-	              }
-	            }));
-	            successCallback(events);
-	          },
-	          error: failureCallback
-	        });
+	    		    const events = list
+	    		      .filter(e => {
+	    		        const calId = (e.calId || '').trim();
+	    		        const shareId = (e.shareId || '').trim();
+	    		        return checkedCalendars.includes(calId) || checkedCalendars.includes(shareId);
+	    		      })
+	    		      .map(e => {
+	    		        const calId = (e.calId || '').trim();
+	    		        const shareId = (e.shareId || '').trim();
+	    		        const key = calendarColors[calId] ? calId : shareId;
+
+	    		        return {
+	    		          id: e.schdul_id,
+	    		          title: e.title || e.schdul_cn || '제목 없음',
+	    		          start: e.start_dt,
+	    		          end: e.end_dt,
+	    		          backgroundColor: calendarColors[key] || e.color || '#3788d8',
+	    		          borderColor: calendarColors[key] || e.color || '#3788d8',
+	    		          extendedProps: {
+	    		            place: e.schdul_place,
+	    		            content: e.schdul_cn
+	    		          }
+	    		        };
+	    		      });
+
+	    		    successCallback(events); // ✅ 여기 위치로 이동해야 함
+	    		  },
+	    		  error: failureCallback
+	    		});
 	      },
 	      eventDidMount: function(info) {
 	        const dotEl = info.el.querySelector('.fc-daygrid-event-dot');
@@ -512,7 +517,10 @@
 	    const startDate = $('#eventStart').val();
 	    const startTime = $('#startTime').val();
 	    const endTime = $('#endTime').val();
-	    const calendarId = $('#calendarSelect').val();
+	    const calendarIdRaw = $('#calendarSelect').val();
+	    const calendarId = calendarIdRaw ? calendarIdRaw.trim() : '';
+	    const isShared = calendarId.startsWith('sh_');
+
 
 	    if (!title || !startDate || !startTime || !endTime || !calendarId) {
 	      Swal.fire({
@@ -531,18 +539,18 @@
 	    const end = `${startDate}T${endTime}`;
 
 	    const data = {
-	      schdulId: newScheduleId, 
-	      schdulNm: title,
-	      schdulCn: content,
-	      schdulPlace: location,
-	      schdulBgnde: convertToDBFormat(start),
-	      schdulEndde: convertToDBFormat(end),
-	      calId: calendarId,
-	      frstRegisterId: loginVO.id,
-	      leaderId: loginVO.id,
-	      schdulChargerId: loginVO.id
-	    };
-
+	    		  schdulId: newScheduleId,
+	    		  schdulNm: title,
+	    		  schdulCn: content,
+	    		  schdulPlace: location,
+	    		  schdulBgnde: convertToDBFormat(start),
+	    		  schdulEndde: convertToDBFormat(end),
+	    		  calId: isShared ? null : calendarId,
+	    		  shareId: isShared ? calendarId : null,
+	    		  frstRegisterId: loginVO.id,
+	    		  leaderId: loginVO.id,
+	    		  schdulChargerId: loginVO.id
+	    		};
 	    $.ajax({
 	      type: 'POST',
 	      url: '/muscat/cal/insertSchedule',
@@ -576,12 +584,54 @@
 	    calendarModal.show();
 	  });
 
+	  function toggleUser(userId, event) {
+	    event.stopPropagation();
+	    if (selectedUsers.has(userId)) {
+	      selectedUsers.delete(userId);
+	    } else {
+	      selectedUsers.add(userId);
+	    }
+	    renderUserList(); // 다시 렌더링
+	  }
+
+	  function renderUserList(filter = "") {
+	    const listContainer = document.getElementById("userList");
+	    listContainer.innerHTML = "";
+
+	    fetch("/muscat/chat/findMember.do")
+	      .then(res => res.json())
+	      .then(data => {
+	        data.result.forEach(member => {
+	          if (member.mberId !== loginVO.id) { // 본인 제외
+	            const isSelected = selectedUsers.has(member.mberId);
+
+	            const div = document.createElement("div");
+	            div.style = "display: flex; justify-content: space-between; align-items: center; padding: 8px 0; cursor: pointer;";
+	            div.innerHTML = `
+	              <span>${member.mberNm} (${member.mberId})</span>
+	              <div 
+	                onclick="toggleUser('${member.mberId}', event)" 
+	                style="width: 20px; height: 20px; border: 2px solid #007bff; border-radius: 50%;
+	                background: ${isSelected ? '#007bff' : 'transparent'};
+	                cursor: pointer;">
+	              </div>
+	            `;
+	            listContainer.appendChild(div);
+	          }
+	        });
+	      })
+	      .catch(error => {
+	        console.error("에러:", error);
+	        alert("서버 오류");
+	      });
+	  }
 	  // 공유 캘린더 추가 버튼 클릭
 	  $('#addSharedCalendar').on('click', function () {
   		$('#calendarSharedName').val('');
   		$('#calendarSharedColor').val('#1e90ff');
  		$('#calendarModalShared').modal('show');
-  		initTree();  // 조직도 초기화
+ 		selectedUsers.clear(); // 이전 선택 초기화
+ 		renderUserList(); // 사용자 목록 로드
 	  });
 
 	  // 캘린더 저장 버튼 클릭
@@ -643,55 +693,56 @@
 	    });
 	  });
 	  //공유캘린더
-	  $('#saveSharedCalendarBtn').on('click', function () {
-		  const name = $('#calendarSharedName').val().trim();
-		  const color = $('#calendarSharedColor').val();
-		  const selectedUsers = $('#tree').jstree(true).get_checked(true)
-		    .filter(node => node.type === 'user')
-		    .map(node => node.data?.mber_id)
-		 	.filter(Boolean);
+	 $('#saveSharedCalendarBtn').on('click', function () {
+  const name = $('#calendarSharedName').val().trim();
+  const color = $('#calendarSharedColor').val();
+  const users = Array.from(selectedUsers);
 
-		  if (!name || selectedUsers.length === 0) {
-		    Swal.fire({
-		      icon: 'warning',
-		      title: '입력 오류',
-		      text: '캘린더 이름과 공유 대상을 모두 입력하세요.'
-		    });
-		    return;
-		  }
+  if (!name || users.length === 0) {
+    Swal.fire({
+      icon: 'warning',
+      title: '입력 오류',
+      text: '캘린더 이름과 공유 대상을 모두 입력하세요.'
+    });
+    return;
+  }
 
-		  const newId = 'cal_' + Date.now().toString().slice(-6);
+  const newId = 'cal_' + Date.now().toString().slice(-6);
+  const timestamp = Date.now().toString().slice(-6);
 
-		  const payload = {
-		    calId: newId,
-		    calName: name,
-		    color: color,
-		    ownerId:  loginVO.id,
-		    sharedWith: selectedUsers  
-		  };
-
-		  $.ajax({
-		    type: 'POST',
-		    url: '/muscat/cal/insertSharedCalendar', 
-		    contentType: 'application/json',
-		    data: JSON.stringify(payload),
-		    success: function () {
-		      $('#calendarModalShared').modal('hide');
-		      Swal.fire({
-		        icon: 'success',
-		        title: '공유 캘린더 등록 완료',
-		        text: '공유 캘린더가 성공적으로 등록되었습니다.'
-		      }).then(() => location.reload());
-		    },
-		    error: function () {
-		      Swal.fire({
-		        icon: 'error',
-		        title: '등록 실패',
-		        text: '공유 캘린더 등록 중 오류가 발생했습니다.'
-		      });
-		    }
-		  });
-		});
+  function generateShareId(userId) {
+    return `sh_${timestamp}_${userId.substring(0, 6)}`.slice(0, 20);
+  }
+  const payload = users.map(userId => ({
+	  shareId: generateShareId(userId),  // ✅ 고유한 shareId
+	  authority: 'R',
+	  mberId: userId,
+	  shereNm: name,
+	  shColor: color,
+	  ownerId: loginVO.id
+  }));
+  $.ajax({
+    type: 'POST',
+    url: '/muscat/cal/insertSharedCalendar',
+    contentType: 'application/json',
+    data: JSON.stringify(payload),
+    success: function () {
+      $('#calendarModalShared').modal('hide');
+      Swal.fire({
+        icon: 'success',
+        title: '공유 캘린더 등록 완료',
+        text: '공유 캘린더가 성공적으로 등록되었습니다.'
+      }).then(() => location.reload());
+    },
+    error: function () {
+      Swal.fire({
+        icon: 'error',
+        title: '등록 실패',
+        text: '공유 캘린더 등록 중 오류가 발생했습니다.'
+      });
+    }
+  });
+});
 	  //삭제
 	  $('#deleteEventBtn').on('click', function () {
 		  const scheduleId = $('#detailScheduleId').val();
