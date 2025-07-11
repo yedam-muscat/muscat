@@ -32,12 +32,17 @@ public class MberManageVO extends UserDefaultVO {
 	 */
 	private int deptId;
 	private String deptName;
-	
+
 	/**
 	 * 직책
 	 */
 	private String rank;
 	private String rankName;
+
+	/**
+	 * 권한그룹
+	 */
+	private String userAuth;
 
 	public String getDeptName() {
 		return deptName;
@@ -571,6 +576,14 @@ public class MberManageVO extends UserDefaultVO {
 
 	public void setRank(String rank) {
 		this.rank = rank;
+	}
+
+	public String getUserAuth() {
+		return userAuth;
+	}
+
+	public void setUserAuth(String userAuth) {
+		this.userAuth = userAuth;
 	}
 
 }

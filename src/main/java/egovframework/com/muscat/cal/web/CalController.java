@@ -184,6 +184,7 @@ public class CalController {
 	public List<Map> listCalendar(HttpSession session) {
 	    LoginVO loginVO = (LoginVO) session.getAttribute("loginVO");
 	    String loginId = loginVO.getId();
+	    LOGGER.debug("LoginID : " + loginId);
 	    return calService.selectCalendarList(loginId);
 	}
 

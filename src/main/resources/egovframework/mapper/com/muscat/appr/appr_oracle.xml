@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!-- 수정일 수정자 수정내용 ========= ======= 
-	================================================= 2020.07.14 신용호 게시판마스터 페이징처리 
-	오류수정 (180. 게시판관리) -->
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper

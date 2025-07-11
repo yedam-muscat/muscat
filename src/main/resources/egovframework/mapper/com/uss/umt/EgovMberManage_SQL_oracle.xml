@@ -132,7 +132,7 @@ SELECT * FROM ( SELECT rownum rn, TB.* FROM (
     
     <select id="selectMber_S" resultType="egovframework.com.uss.umt.service.MberManageVO">
         
-            SELECT
+        SELECT
                 ESNTL_ID          uniqId,
                 'USR01'          userTy,
                 MBER_ID          mberId,
@@ -157,8 +157,11 @@ SELECT * FROM ( SELECT rownum rn, TB.* FROM (
                 LOCK_AT          lockAt,
                 PARENT_DEPT_ID   parentDeptId,
                 DEPT_ID          deptId,
-                RANK             rank
-            FROM COMTNGNRLMBER
+                RANK             rank,
+                au.author_code   userAuth
+            FROM COMTNGNRLMBER mb LEFT JOIN 
+            COMTNEMPLYRSCRTYESTBS au ON
+            mb.esntl_id = au.scrty_dtrmn_trget_id
             WHERE ESNTL_ID=#{uniqId}
         
     </select>
