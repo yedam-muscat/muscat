@@ -15,29 +15,39 @@
 
 <style>
 #chatbot-modal {
-	position: fixed;
-	bottom: 90px;
-	right: 20px;
-	width: 300px;
-	height: 400px;
-	background: white;
-	border: 1px solid #ccc;
-	border-radius: 10px;
-	box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-	z-index: 1000;
-	display: none; /* 기본적으로 숨김 */
-	flex-direction: column;
-	opacity: 0;
-	transform: translateY(20px);
-	transition: opacity 0.3s ease, transform 0.3s ease;
-
-	/*  아래 5줄 추가로 리사이즈 가능하게 설정 */
-	resize: both;
-	overflow: auto;
-	min-width: 250px;
-	min-height: 300px;
-	max-width: 500px;
-	max-height: 700px;
+	 position: fixed;
+   top: 100px;        /* ← 여기 */
+  left: 100px;
+  width: 300px;
+  height: 400px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  z-index: 1000;
+  display: none;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  resize: both;
+  overflow: auto;
+  min-width: 250px;
+  min-height: 300px;
+  max-width: 500px;
+  max-height: 700px;
+  user-select: none; /* 드래그시 텍스트 선택 방지 */
+}
+/* 헤더는 드래그 영역 */
+.chatbot-header {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  padding: 12px;
+  font-size: 16px;
+  cursor: move; /* 마우스 커서 이동 모양 */
+  flex-shrink: 0;
 }
 
 #chatbot-modal.show {
@@ -132,9 +142,8 @@
 
 </style>
 			<!--  챗봇 아이콘 -->
-			<div id="chatbot-icon"
-				style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #007bff; color: white; font-size: 30px; text-align: center; line-height: 60px; cursor: pointer; z-index: 1000;">
-				🤖</div>
+			<div id="chatbot-icon" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; 
+			background: #007bff; color: white; font-size: 30px; text-align: center; line-height: 60px; cursor: pointer; z-index: 1000;">🤖</div>
 
 			<!--  모달 챗봇창 -->
 			<div id="chatbot-modal">
@@ -162,8 +171,37 @@
 	<script>
     // 아이콘 클릭 시 모달 열기/닫기
     document.getElementById('chatbot-icon').onclick = function () {
-      const modal = document.getElementById('chatbot-modal');
-      modal.style.display = modal.style.display === 'none' ? 'flex' : 'none';
+    	const modal = document.getElementById('chatbot-modal');
+    	const header = document.querySelector('.chatbot-header');
+
+    	let isDragging = false;
+    	let offsetX, offsetY;
+
+    	header.addEventListener('mousedown', function(e) {
+    	  isDragging = true;
+    	  offsetX = e.clientX - modal.getBoundingClientRect().left;
+    	  offsetY = e.clientY - modal.getBoundingClientRect().top;
+    	  document.body.style.userSelect = 'none'; // 텍스트 선택 방지
+    	});
+
+    	document.addEventListener('mousemove', function(e) {
+    	  if (!isDragging) return;
+
+    	  const left = e.clientX - offsetX;
+    	  const top = e.clientY - offsetY;
+
+    	  modal.style.left = left + 'px';
+    	  modal.style.top = top + 'px';
+    	  modal.style.right = 'auto';
+    	  modal.style.bottom = 'auto';
+    	});
+
+    	document.addEventListener('mouseup', function(e) {
+    	  if (isDragging) {
+    	    isDragging = false;
+    	    document.body.style.userSelect = '';
+    	  }
+    	});
     };
 
     // 전송 버튼 클릭 시 메시지 전송
@@ -177,32 +215,14 @@
         sendChat();
       }
     });
-    function addSchedule(schedule) {
-    	  fetch('/api/schedule/add', {
-    	    method: 'POST',
-    	    headers: { 'Content-Type': 'application/json' },
-    	    body: JSON.stringify(schedule)
-    	  })
-    	  .then(res => res.json())
-    	  .then(data => {
-    	    if (data.success) {
-    	      appendMessage('챗봇', '일정이 성공적으로 추가되었습니다! 📅');
-    	    } else {
-    	      appendMessage('챗봇', '일정 추가에 실패했습니다. 다시 시도해주세요.');
-    	    }
-    	  })
-    	  .catch(() => {
-    	    appendMessage('챗봇', '서버 오류가 발생했습니다.');
-    	  });
-    	}
-
+  
     function sendChat() {
       const input = document.getElementById('chat-input');
       const msg = input.value.trim();
       if (!msg) return;
       appendMessage('나', msg);
       
-   // 룰 기반 명령 처리
+   // 캘린더 이동
       if (msg.includes('#캘린더') || msg.includes('#일정')) {
         appendMessage('챗봇', '📅 캘린더로 이동합니다.');
         window.location.href = '/muscat/cal/calMonth.do';  // 캘린더 페이지 경로로 이동
@@ -227,8 +247,7 @@
 
     	  // 줄바꿈 처리
     	  const formatted = message.replace(/\n/g, "<br>");
-
-    	  div.innerHTML = `<div class="bubble"><strong>${sender}:</strong><br>${formatted}`;
+    	  div.innerHTML = `<div class="bubble"><strong>${sender}:</strong><br>${formatted}</div>`;
     	  log.appendChild(div);
     	  log.scrollTop = log.scrollHeight;
     	}
@@ -240,25 +259,42 @@
     	  const input = document.getElementById('chat-input');
 
     	  icon.addEventListener('click', () => {
-    	    const isOpen = modal.classList.contains('show');
+    		  const isOpen = modal.classList.contains('show');
 
-    	    if (isOpen) {
-    	      /* 닫기 */
-    	      modal.classList.remove('show');
-    	      setTimeout(() => { modal.style.display = 'none'; }, 300);
-    	    } else {
-    	      /* 열기 */
-    	      modal.style.display = 'flex';          // 먼저 화면에 표시
-    	      requestAnimationFrame(() => {          // 다음 페인트 주기에…
-    	        modal.classList.add('show');         // 트랜지션 시작
-    	        input.focus();                       // 그리고 즉시 포커스!
-    	     //  챗봇 열릴 때 환영 메시지 추가
-    	        if (!document.getElementById('chat-log').hasChildNodes()) {
-    	          showWelcomeMessage();
-    	        }
-    	      });
-    	    }
-    	  });
+    		  if (isOpen) {
+    		    modal.classList.remove('show');
+    		    setTimeout(() => { modal.style.display = 'none'; }, 300);
+    		  } else {
+    		    // 위치 계산
+    		    const iconRect = icon.getBoundingClientRect();
+    		    const modalHeight = 400; // 또는 modal.offsetHeight
+    		    const modalWidth = 300;
+
+    		    // 🟡 화면 밖으로 나가지 않도록 top 보정
+    		    const calculatedTop = iconRect.top - modalHeight - 10;
+    		    const top = Math.max(10, calculatedTop); // 최소 10px 위 여백
+
+    		    // ⬅️ 왼쪽도 화면 벗어나지 않게
+    		    const calculatedLeft = iconRect.left + (iconRect.width / 2) - (modalWidth / 2);
+    		    const maxLeft = window.innerWidth - modalWidth - 10;
+    		    const left = Math.max(10, Math.min(calculatedLeft, maxLeft));
+
+    		    modal.style.display = 'flex';
+    		    modal.style.top = `${top}px`;
+    		    modal.style.left = `${left}px`;
+    		    modal.style.bottom = 'auto';
+    		    modal.style.right = 'auto';
+
+    		    requestAnimationFrame(() => {
+    		      modal.classList.add('show');
+    		      input.focus();
+
+    		      if (!document.getElementById('chat-log').hasChildNodes()) {
+    		        showWelcomeMessage();
+    		      }
+    		    });
+    		  }
+    		});
     	});
     function sendMessageToBot(message) {
     	  fetch('/muscat/chatbot/message.do', {
@@ -266,7 +302,7 @@
     	    headers: { 'Content-Type': 'application/json' },
     	    body: JSON.stringify({ message: message })
     	  })
-    	  .then(response => response.text())
+    	  .then(response => response.json())
     	  .then(botReply => {
     	    appendMessage('챗봇', botReply);
     	  })
@@ -276,6 +312,7 @@
     	  });
     	}
     
+    //도움말
     function showWelcomeMessage() {
     	  appendMessage('챗봇', `안녕하세요 😊 저는 하리입니다.\n무엇을 도와드릴까요?\n\n📝 사용법 안내\n------------------------------\n- ⏰ 현재 시간: "지금 몇 시야?"\n- 🌍 세계 시간: "세계 시간 알려줘"\n- 📅 페이지 이동: **#캘린더**, **#게시판** 등\n- 🧍 직원 검색: "김하리 찾아줘"\n\n👉 *페이지 이동 시에는 꼭 # 기호를 붙여주세요!*`);
     	}

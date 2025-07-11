@@ -7,7 +7,7 @@ import egovframework.com.muscat.group.service.GroupwithVO;
 
 public interface GroupMapper {
 	
-	List<GroupVO> selectGroupChart();
+	List<GroupVO> selectGroupChart(); // 부서 조회
 	List<GroupwithVO> selectgetGroupData();
 	List<GroupVO> selectGroupUser();
 	}

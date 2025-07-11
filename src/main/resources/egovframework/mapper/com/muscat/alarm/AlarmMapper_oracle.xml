@@ -1,16 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper
-	namespace="egovframework.mapper.com.muscat.alarm.AlarmMapper">
-	
-	<!-- 알람 -->
-	<select id="findroomAlarm" parameterType="String" resultType="userVO">
-	select * from users where room_id in (
-        select room_id
-        from users 
-        where room_id in (select room_id from users where user_id = 'odin')
-        group by room_id
-        having count(*) = 2)
-        and user_id = #{userId}
-	 </select>
+	namespace="egovframework.com.muscat.alarm.mapper.AlarmMapper">
+
+
+<!--알람조회 -->
+<select id="findAlarm" parameterType="userVO" resultType="alarmVO">
+	SELECT *
+	FROM COMTNNTFCINFO
+	WHERE user_id = ${}
+</select>
+
+<!-- 공시사항 등록 -->
+<insert id="insertPost" parameterType="alarmVO">
+INSERT INTO COMTNNTFCINFO(NTCN_CONTECT, NTCN_ID)
+VALUSE (${NTCNCONTECT}, ${NTCNID)
+</insert>
+
+<!-- 채팅방 등록  -->
+<insert id="insertChat" parameterType="alarmVO">
+INSERT INTO COMTNNTFCINFO(NTCN_CH_CONTECT, NTCN_CH_ID)
+VALUSE (${NTCNCHCONTECT,${NTCNNHID})
+</insert>
+
+<!-- 알람 전체 삭제 -->
+<delete id="deletewhole" parameterType="alarmVO">
+delete from COMTNNTFCINFO
+</delete>
+
+<!-- 알람 1개 삭제 -->
+<delete id="deleteAlram" parameterType="alarmVO">
+delete from COMTNNTFCINFO 
+where NTCN_NO = ${NTCNNO}
+</delete>
+
 </mapper>
