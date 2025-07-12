@@ -48,42 +48,43 @@
 
 	<select id="selectScheduleList" resultType="map">
 		SELECT
-		s.SCHDUL_ID AS
-		"schdul_id",
-		s.SCHDUL_NM AS "title",
+		TRIM(s.SCHDUL_ID) AS "schdul_id",
+		TRIM(s.SCHDUL_NM) AS "title",
 		CASE
-		WHEN s.SCHDUL_BGNDE IS NOT NULL
-		AND LENGTH(TRIM(s.SCHDUL_BGNDE)) = 14 THEN
-		TO_CHAR(TO_DATE(s.SCHDUL_BGNDE, 'YYYYMMDDHH24MISS'),
+		WHEN s.SCHDUL_BGNDE IS NOT NULL AND LENGTH(TRIM(s.SCHDUL_BGNDE)) = 14
+		THEN TO_CHAR(TO_DATE(TRIM(s.SCHDUL_BGNDE), 'YYYYMMDDHH24MISS'),
 		'YYYY-MM-DD"T"HH24:MI:SS')
 		ELSE NULL
 		END AS "start_dt",
 		CASE
 		WHEN
-		s.SCHDUL_ENDDE IS NOT NULL AND LENGTH(TRIM(s.SCHDUL_ENDDE)) = 14 THEN
-		TO_CHAR(TO_DATE(s.SCHDUL_ENDDE, 'YYYYMMDDHH24MISS'),
+		s.SCHDUL_ENDDE IS NOT NULL AND LENGTH(TRIM(s.SCHDUL_ENDDE)) = 14
+		THEN
+		TO_CHAR(TO_DATE(TRIM(s.SCHDUL_ENDDE), 'YYYYMMDDHH24MISS'),
 		'YYYY-MM-DD"T"HH24:MI:SS')
 		ELSE NULL
 		END AS "end_dt",
-		s.SCHDUL_PLACE AS
-		"schdul_place",
-		s.SCHDUL_CN AS
+		TRIM(s.SCHDUL_PLACE) AS "schdul_place",
+		TRIM(s.SCHDUL_CN) AS
 		"schdul_cn",
-		s.CAL_ID AS "calId",
-		s.SHARE_ID AS "shareId",
-		NVL(c.COLOR,
-		cs.SH_COLOR) AS "color"
-		FROM
-		COMTNLEADERSCHDUL s
-		LEFT JOIN CALENDAR c ON s.CAL_ID = c.CAL_ID
-		LEFT
-		JOIN CALSHARE cs ON s.SHARE_ID = cs.SHARE_ID
+		TRIM(s.CAL_ID) AS "calId",
+		TRIM(s.SHARE_ID) AS "shareId",
+		NVL(TRIM(c.COLOR), TRIM(cs.SH_COLOR)) AS "color"
+		FROM COMTNLEADERSCHDUL s
+		LEFT JOIN CALENDAR c ON TRIM(s.CAL_ID) = TRIM(c.CAL_ID)
+		LEFT JOIN CALSHARE cs ON TRIM(s.SHARE_ID) = TRIM(cs.SHARE_ID)
 		WHERE
-		TRIM(c.OWNER_ID) =
-		#{ownerId}
-		OR s.SHARE_ID IN (SELECT cs2.SHARE_ID
-		FROM CALSHARE cs2 WHERE
-		cs2.MBER_ID = #{mberId})
+		TRIM(s.CAL_ID) IN (
+		SELECT TRIM(cal_id)
+		FROM CALENDAR
+		WHERE TRIM(owner_id) = #{ownerId}
+		)
+		OR TRIM(s.SHARE_ID) IN (
+		SELECT TRIM(share_id)
+		FROM CALSHARE
+		WHERE TRIM(mber_id) IN (#{ownerId}, #{mberId})
+		OR TRIM(owner_id) IN (#{ownerId}, #{mberId})
+		)
 	</select>
 
 	<insert id="insertCalendar" parameterType="map">
@@ -179,12 +180,15 @@
 		MIN(TRIM(cs.MBER_ID)) AS mberId,
 		MIN(cs.SH_DE) AS shDe,
 		TRIM(cs.SH_COLOR) AS shColor,
-		TRIM(cs.SHERE_NM) AS shereNm,
+		TRIM(cs.SHERE_NM)
+		AS shereNm,
 		MIN(TRIM(cs.OWNER_ID)) AS ownerId
 		FROM CALSHARE cs
-		WHERE TRIM(cs.MBER_ID) = #{loginId}
+		WHERE
+		TRIM(cs.MBER_ID) = #{loginId}
 		OR TRIM(cs.OWNER_ID) = #{loginId}
-		GROUP BY TRIM(cs.SHERE_NM), TRIM(cs.SH_COLOR)
+		GROUP BY
+		TRIM(cs.SHERE_NM), TRIM(cs.SH_COLOR)
 	</select>
 
 	<update id="updateSchedule"
