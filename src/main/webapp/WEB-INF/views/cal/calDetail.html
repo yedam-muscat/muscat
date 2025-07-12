@@ -231,7 +231,7 @@ textarea {
     }
   });
 
-  function loadCalendars(selectedCalId = '') {
+  function loadCalendars(selectedCalId = '', selectedCalType = '') {
 	  const $calendar = $('#calendar');
 	  $calendar.empty().append(`<option value="">캘린더 선택</option>`);
 
@@ -249,7 +249,7 @@ textarea {
 
 	        $calendar.append(
 	          $('<option></option>')
-	            .val(calId)
+	            .val(`personal:${calId}`)
 	            .text(`[내] ${calName}`)
 	            .css('color', color)
 	        );
@@ -263,22 +263,22 @@ textarea {
 	        success: function (response2) {
 	          const shared = Array.isArray(response2) ? response2 : response2.result || [];
 	          shared.forEach(cal => {
-	            const calId = (cal.share_id || '').trim(); // 구분자
-	            const calName = (cal.shere_nm || '').trim();
+	            const calId = (cal.shareId || '').trim(); // 구분자
+	            const calName = (cal.shereNm || '').trim();
 	            const color = (cal.color || '#1e90ff').trim();
 
 	            $calendar.append(
 	              $('<option></option>')
-	                .val(calId)
+	                .val(`shared:${calId}`)
 	                .text(`[공유] ${calName}`)
 	                .css('color', color)
 	            );
 	          });
 
 	          // 선택된 ID 있으면 세팅
-	          if (selectedCalId) {
-	            $calendar.val(selectedCalId).prop("selected", true);
-	          }
+	         	if (selectedCalId && selectedCalType) {
+  					$calendar.val(`${selectedCalType}:${selectedCalId}`);
+				}
 	        },
 	        error: function () {
 	          alert('공유 캘린더를 불러오는 데 실패했습니다.');
@@ -298,6 +298,9 @@ textarea {
 	  const isEditMode = params.get('edit') === 'true';
 	  const schdulId = isEditMode ? params.get('schdulId') : 'sch_' + Date.now().toString().slice(-6);
 
+	  const calValue = $('#calendar').val();
+	  const [type, id] = calValue.split(':');
+	  
 	  const data = {
 	    schdulId: schdulId,
 	    schdulNm: $('#title').val(),
@@ -308,10 +311,18 @@ textarea {
 	    frstRegisterId: loginVO.id,
 	    leaderId: loginVO.id,
 	    schdulChargerId: loginVO.id,
-	    calId: $('#calendar').val(),
 	    reptitSeCode: $('#repeat').is(':checked') ? repeatMap[$('#repeatCycle').val()] : 'N',
 	    reservedRoom: $('#room').val()
 	  };
+	  
+	// 공유/내 캘린더에 따라 분기
+	  if (type === 'shared') {
+	    data.shareId = id; // ✅ 공유캘린더는 SHARE_ID에만 저장
+	    data.calId = null;
+	  } else {
+	    data.calId = id;   // ✅ 내캘린더는 CAL_ID에만 저장
+	    data.shareId = null;
+	  }
 
 	  const url = isEditMode 
 	    ? '/muscat/cal/updateSchedule' 
@@ -410,7 +421,7 @@ textarea {
 	        $('#location').val(data.schdulPlace);
 	        $('#description').val(data.schdulCn);
 	      
-	        loadCalendars(data.calId);
+	        loadCalendars(data.calId, data.calType);
 	        loadAvailableRooms(data.roomId);
 	      },
 	      error: function () {
