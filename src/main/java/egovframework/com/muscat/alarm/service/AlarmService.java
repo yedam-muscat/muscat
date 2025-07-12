@@ -15,4 +15,5 @@ public interface AlarmService {
 	int deleteAlram(AlarmVO deleteAlarm); // 알람 단건 삭제
 	
 	
+	
 }

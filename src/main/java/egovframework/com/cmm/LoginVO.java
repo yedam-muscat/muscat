@@ -2,6 +2,8 @@ package egovframework.com.cmm;
 
 import java.io.Serializable;
 
+import groovy.transform.ToString;
+
 /**
  * @Class Name : LoginVO.java
  * @Description : Login VO class
@@ -22,6 +24,7 @@ import java.io.Serializable;
  *  @see
  *  
  */
+@ToString
 public class LoginVO implements Serializable{
 	
 	/**

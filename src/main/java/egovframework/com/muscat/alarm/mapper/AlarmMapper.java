@@ -18,4 +18,6 @@ public interface AlarmMapper {
 	int deletewhole(AlarmVO deletewhole); // 알람 전체 삭제
 	
 	int deleteAlram(AlarmVO deleteAlarm); // 알람 단건 삭제
+	
+	List<String> findMember(); // 직원 리스트 조회
 }

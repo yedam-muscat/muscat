@@ -16,8 +16,8 @@ public class AlarmVO {
 	String lastUpdusrId;
 	String reciConfirmation;
 	String ntcnTy;
-	int ntcnContect;
-	int ntcnId;
+	long nttId;
+	String bbsId;
 	String ntcnChContect;
 	String ntcnChId;
 	String mberId;
