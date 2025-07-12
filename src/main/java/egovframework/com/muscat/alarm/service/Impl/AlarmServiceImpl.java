@@ -9,7 +9,7 @@ import egovframework.com.muscat.alarm.mapper.AlarmMapper;
 import egovframework.com.muscat.alarm.service.AlarmService;
 import egovframework.com.muscat.alarm.service.AlarmVO;
 
-@Service
+@Service("AlarmService")
 public class AlarmServiceImpl implements AlarmService {
 
 	@Autowired
@@ -49,5 +49,7 @@ public class AlarmServiceImpl implements AlarmService {
 		
 		return alarMapper.deleteAlram(deleteAlarm);
 	}
+
+	
 
 }

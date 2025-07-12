@@ -8,30 +8,58 @@
 <select id="findAlarm" parameterType="userVO" resultType="alarmVO">
 	SELECT *
 	FROM COMTNNTFCINFO
-	WHERE user_id = ${}
+	WHERE mber_id = #{mberId}
 </select>
 
-<!-- 공시사항 등록 -->
+<!-- 직원 리스트 조회 -->
+<select id="findMember" parameterType="alarmVO" resultType="String">
+select mber_id 
+from COMTNGNRLMBER
+where mber_sttus = 'P'
+</select>
+
+<!-- 공시사항  -->
 <insert id="insertPost" parameterType="alarmVO">
-INSERT INTO COMTNNTFCINFO(NTCN_CONTECT, NTCN_ID)
-VALUSE (${NTCNCONTECT}, ${NTCNID)
+<selectKey keyProperty="ntcnNo" resultType="Integer" order="BEFORE">
+		SELECT FCINFO_SEQ.nextval
+		FROM dual
+</selectKey>
+insert into COMTNNTFCINFO (
+	NTCN_NO
+	,NTCN_SJ
+	,NTCN_TM
+	,RECI_CONFIRMATION
+	,NTCN_TY
+	,NTT_ID
+	,BBS_ID
+	,NTCN_CH_CONTECT
+	,NTCN_CH_ID
+	,MBER_ID)
+values(
+	#{ntcnNo}
+	,#{ntcnSj}
+	,sysdate
+	,'0'
+	,#{ntcnTy}
+	,#{nttId}
+	,#{bbsId}
+	,#{ntcnChContect}
+	,#{ntcnChId}
+	,#{mberId})	
 </insert>
 
-<!-- 채팅방 등록  -->
-<insert id="insertChat" parameterType="alarmVO">
-INSERT INTO COMTNNTFCINFO(NTCN_CH_CONTECT, NTCN_CH_ID)
-VALUSE (${NTCNCHCONTECT,${NTCNNHID})
-</insert>
+
 
 <!-- 알람 전체 삭제 -->
 <delete id="deletewhole" parameterType="alarmVO">
 delete from COMTNNTFCINFO
+WHERE mber_id = #{mberId}
 </delete>
 
 <!-- 알람 1개 삭제 -->
 <delete id="deleteAlram" parameterType="alarmVO">
 delete from COMTNNTFCINFO 
-where NTCN_NO = ${NTCNNO}
+where NTCN_NO = ${ntcnno}
 </delete>
 
 </mapper>

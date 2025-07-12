@@ -31,7 +31,8 @@
 						</ul></li> -->
 					<li class="nav-item dropdown me-3">
 					<a class="nav-link active dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false"> 
-					<i class='bi bi-bell bi-sub fs-4 text-gray-600 position-relative'> <span id="notifCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">0</span></i>
+					<i id="alarmBell" class='bi bi-bell bi-sub fs-4 text-gray-600 position-relative'> 
+					<span id="notifCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">0</span></i>
 					</a>
 						<ul class="dropdown-menu dropdown-menu-end"
 							aria-labelledby="dropdownMenuButton">
@@ -250,6 +251,10 @@
 				function openChatRoomFromAlert() {
 				  window.location.href = `/muscat/chatroom/${latestChatRoomId}`;
 				}
+				
+				// 알람
+				
+				
 	</script>
 </header>
 </html>

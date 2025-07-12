@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 import org.egovframe.rte.fdl.cmmn.EgovAbstractServiceImpl;
 import org.egovframe.rte.fdl.idgnr.EgovIdGnrService;
 import org.egovframe.rte.fdl.property.EgovPropertyService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +20,9 @@ import egovframework.com.cop.bbs.service.Board;
 import egovframework.com.cop.bbs.service.BoardMasterVO;
 import egovframework.com.cop.bbs.service.BoardVO;
 import egovframework.com.cop.bbs.service.EgovArticleService;
+import egovframework.com.muscat.alarm.mapper.AlarmMapper;
+import egovframework.com.muscat.alarm.service.AlarmService;
+import egovframework.com.muscat.alarm.service.AlarmVO;
 
 /**
  * <pre>
@@ -48,6 +52,12 @@ public class EgovArticleServiceImpl extends EgovAbstractServiceImpl implements E
   private EgovFileMngUtil fileUtil;
   @Resource(name = "EgovFileMngService")
   private EgovFileMngService fileMngService;
+  
+  @Resource(name = "AlarmService")
+  private AlarmService alarmService;
+  
+  @Autowired
+  private AlarmMapper alarmMapper;
 	
 	@Override
 	public Map<String, Object> selectArticleList(BoardVO boardVO) {
@@ -120,6 +130,26 @@ public class EgovArticleServiceImpl extends EgovAbstractServiceImpl implements E
 		    board.setNttId(nttIdgenService.getNextIntegerId());//2011.09.22
 
 		    egovArticleDao.insertArticle(board);
+		    
+		    //알림보내기
+		    //직원 리스트 필요 , 직원 아이디 
+		    List<String> list = alarmMapper.findMember();
+		    
+		    //공지제목, 
+		    String title = "새로운 공지글이 도착했습니다.";
+		    AlarmVO alarm = new AlarmVO();
+		    alarm.setNtcnSj(title);
+		    alarm.setNtcnTy("공지");
+		    alarm.setBbsId(board.getBbsId());
+		    alarm.setNttId(board.getNttId());
+		    
+		    for(int i=0; i < list.size(); i++) {
+		    	alarm.setMberId(list.get(i));
+		    	alarmService.insertPost(alarm);
+		    	
+		    }
+		    
+		    
 		}
 	}
 
