@@ -110,23 +110,22 @@ public class CalController {
 					repeatVo.setCalId(vo.getCalId());
 					repeatVo.setReptitSeCode(vo.getReptitSeCode());
 					repeatVo.setReservedRoom(vo.getReservedRoom());
-					
 
 					calService.insertSchedule(repeatVo);
 				}
 			}
 			if (vo.getReservedRoom() != null && !vo.getReservedRoom().isEmpty()) {
-	            ReservationVO r = new ReservationVO();
-	            r.setResveId(UUID.randomUUID().toString().substring(0, 20));
-	            r.setMtgrumId(vo.getReservedRoom());
-	            r.setRsvctmId(vo.getLeaderId());
-	            r.setResveDe(vo.getSchdulBgnde().substring(0, 8));
-	            r.setResveBeginTm(vo.getSchdulBgnde().substring(8, 14));
-	            r.setResveEndTm(vo.getSchdulEndde().substring(8, 14));
-	            r.setFrstRegisterId(vo.getFrstRegisterId());
-	            r.setLastUpdusrId(vo.getLastUpdusrId());
-	            calService.insertRoomReserve(r);
-	        }
+				ReservationVO r = new ReservationVO();
+				r.setResveId(UUID.randomUUID().toString().substring(0, 20));
+				r.setMtgrumId(vo.getReservedRoom());
+				r.setRsvctmId(vo.getLeaderId());
+				r.setResveDe(vo.getSchdulBgnde().substring(0, 8));
+				r.setResveBeginTm(vo.getSchdulBgnde().substring(8, 14));
+				r.setResveEndTm(vo.getSchdulEndde().substring(8, 14));
+				r.setFrstRegisterId(vo.getFrstRegisterId());
+				r.setLastUpdusrId(vo.getLastUpdusrId());
+				calService.insertRoomReserve(r);
+			}
 		}
 
 		return "success";
@@ -136,24 +135,24 @@ public class CalController {
 	@GetMapping("/cal/listSchedule")
 	@ResponseBody
 	public Map<String, Object> listSchedule(HttpSession session) throws Exception {
-	    LoginVO loginVO = (LoginVO) session.getAttribute("loginVO");
-	    String loginId = loginVO.getId();
-	    List<Map> scheduleList = calService.selectScheduleList(loginId);
-	    
-	    Map<String, Object> result = new HashMap<>();
-	    result.put("result", scheduleList); // 👈 JS에서 response.result 로 쓰기 위함
-	    return  result;
+		LoginVO loginVO = (LoginVO) session.getAttribute("loginVO");
+		String loginId = loginVO.getId();
+		List<Map> scheduleList = calService.selectScheduleList(loginId, loginId); // 동일 ID 사용
+
+		Map<String, Object> result = new HashMap<>();
+		result.put("result", scheduleList);
+		return result;
 	}
-	
+
 	@GetMapping("/cal/getSchedule")
 	@ResponseBody
 	public ResponseEntity<ScudVO> getSchedule(@RequestParam String schdulId) {
-	    ScudVO schedule = calService.selectScheduleById(schdulId);
-	    if (schedule != null) {
-	        return ResponseEntity.ok(schedule);
-	    } else {
-	        return ResponseEntity.status(404).body(null);
-	    }
+		ScudVO schedule = calService.selectScheduleById(schdulId);
+		if (schedule != null) {
+			return ResponseEntity.ok(schedule);
+		} else {
+			return ResponseEntity.status(404).body(null);
+		}
 	}
 	// 단건조회
 //	@GetMapping("/cal/calDetail.do")
@@ -164,13 +163,13 @@ public class CalController {
 //	}
 
 	@RequestMapping("cal/calDetail.do")
-	public String calDetail(@RequestParam(defaultValue = "",required = false) String schdulId, Model model) {
+	public String calDetail(@RequestParam(defaultValue = "", required = false) String schdulId, Model model) {
 		ScudVO schedule = null;
 		System.out.println("스케줄 아이디");
-	   System.out.println(schdulId);
+		System.out.println(schdulId);
 		schedule = calService.selectScheduleById(schdulId);
 		model.addAttribute("schedule", schedule);
-		
+
 		return "cal/calDetail.html";
 	}
 
@@ -178,14 +177,13 @@ public class CalController {
 	public String calMonth() {
 		return "cal/calMonth.html";
 	}
-	
-	@GetMapping("/cal/listCalendar") 
+
+	@GetMapping("/cal/listCalendar")
 	@ResponseBody
 	public List<Map> listCalendar(HttpSession session) {
-	    LoginVO loginVO = (LoginVO) session.getAttribute("loginVO");
-	    String loginId = loginVO.getId();
-	    LOGGER.debug("LoginID : " + loginId);
-	    return calService.selectCalendarList(loginId);
+		LoginVO loginVO = (LoginVO) session.getAttribute("loginVO");
+		String loginId = loginVO.getId();
+		return calService.selectCalendarList(loginId);
 	}
 
 	@PostMapping("/cal/insertCalendar")
@@ -236,21 +234,27 @@ public class CalController {
 		return ResponseEntity.status(404).body("찾을 수 없는 일정입니다.");
 	}
 
-	//공유
-	@PostMapping("/cal/shareCalendar")
+	@PostMapping("/cal/insertSharedCalendar")
 	@ResponseBody
-	public String shareCalendar(@RequestBody CalendarShareVO vo) {
-	    vo.setShareId(UUID.randomUUID().toString().substring(0, 20));
-	    calService.insertCalendarShare(vo);  // 👈 Service 사용
-	    return "공유 완료";
+	public String insertSharedCalendar(@RequestBody List<CalendarShareVO> shareList) {
+		for (CalendarShareVO vo : shareList) {
+			if (vo.getShareId() == null || vo.getShareId().isEmpty()) {
+				vo.setShareId(UUID.randomUUID().toString().substring(0, 20));
+			}
+			if (vo.getShDe() == null) {
+				vo.setShDe(java.sql.Date.valueOf(java.time.LocalDate.now()));
+			}
+			calService.insertCalendarShare(vo);
+		}
+		return "공유 완료";
 	}
-	
+
 	@GetMapping("/cal/sharedCalendars")
 	@ResponseBody
 	public List<Map> getSharedCalendars(HttpSession session) {
-	    LoginVO loginVO = (LoginVO) session.getAttribute("loginVO");
-	    String loginId = loginVO.getId();
-	    return calService.getSharedCalendars(loginId);
+		LoginVO loginVO = (LoginVO) session.getAttribute("loginVO");
+		String loginId = loginVO.getId();
+		return calService.getSharedCalendars(loginId);
 	}
 
 }

@@ -58,6 +58,7 @@ public class GroupController {
 	
  @Autowired GroupService groupService;
  
+ //부서 조회
  @GetMapping("/chartData.do")
  @ResponseBody
  public List<GroupVO> ChartData() {

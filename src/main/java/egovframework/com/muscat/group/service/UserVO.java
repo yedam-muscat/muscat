@@ -10,6 +10,8 @@ private String type;
 private String rank;
 private String job;
 private String name; 
-private String dept; 
+private String dept;
+private String email;
+private String tel;
 private String rank_nm;
 }

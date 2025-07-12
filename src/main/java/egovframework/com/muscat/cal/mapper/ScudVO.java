@@ -10,6 +10,8 @@ public class ScudVO implements Serializable {
 	/** 리더 아이디 */
 	private String leaderId;
 	
+	private String shareId;
+	
 	private String schdulId;
 	
 	private String roomId; 

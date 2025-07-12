@@ -21,4 +21,7 @@ public interface ApprMapper {
 	// 문서양식 등록
 	int insertDocForm(DocFormVO docForm);
 	
+	// 문서양식 검색
+	
+	// 문서양식 검색 수
 }

@@ -12,7 +12,7 @@ public interface CalService {
 	
 	void insertSchedule(ScudVO vo) throws Exception;
 	
-	List<Map> selectScheduleList(String loginId) throws Exception;
+	List<Map> selectScheduleList(String ownerId, String mberId) throws Exception;
 	
 	List<Map> selectCalendarList(String loginId);
 

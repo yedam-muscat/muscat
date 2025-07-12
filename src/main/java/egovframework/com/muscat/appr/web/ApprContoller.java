@@ -1,23 +1,40 @@
 package egovframework.com.muscat.appr.web;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.egovframe.rte.fdl.property.EgovPropertyService;
+import org.egovframe.rte.ptl.mvc.tags.ui.pagination.PaginationInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import egovframework.com.cmm.ComDefaultCodeVO;
+import egovframework.com.cmm.service.CmmnDetailCode;
 import egovframework.com.muscat.appr.service.ApprService;
+import egovframework.com.muscat.appr.service.DocFormSearchVO;
 import egovframework.com.muscat.appr.service.DocFormVO;
 import egovframework.com.muscat.common.ResultVO;
+import egovframework.com.uss.umt.service.MberManageVO;
 
 @Controller
 public class ApprContoller {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ApprContoller.class);
 
+	/** EgovPropertyService */
+	@Resource(name = "propertiesService")
+	protected EgovPropertyService propertiesService;
+	
 	@Autowired
 	ApprService apprService;
 
@@ -74,8 +91,31 @@ public class ApprContoller {
 	// 문서 양식 조회
 	@GetMapping("/appr/getDocForm.do")
 	@ResponseBody
-	public String getDocForm() {
-		return "";
+	public Map<String, Object> getDocForm(@ModelAttribute("docFormSearchVO") DocFormSearchVO docFormSearchVO) {
+		Map<String, Object> resultMap = new HashMap<>();
+
+		/** EgovPropertyService */
+		docFormSearchVO.setPageUnit(propertiesService.getInt("pageUnit"));
+		docFormSearchVO.setPageSize(propertiesService.getInt("pageSize"));
+
+		/** pageing */
+		PaginationInfo paginationInfo = new PaginationInfo();
+		paginationInfo.setCurrentPageNo(docFormSearchVO.getPageIndex());
+		paginationInfo.setRecordCountPerPage(docFormSearchVO.getPageUnit());
+		paginationInfo.setPageSize(docFormSearchVO.getPageSize());
+
+		docFormSearchVO.setFirstIndex(paginationInfo.getFirstRecordIndex());
+		docFormSearchVO.setLastIndex(paginationInfo.getLastRecordIndex());
+		docFormSearchVO.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
+
+		List<DocFormVO> resultList = apprService.getDocFormList(docFormSearchVO);
+		resultMap.put("resultList", resultList);
+
+		int totCnt = apprService.getDocFormListTotCnt(docFormSearchVO);
+		paginationInfo.setTotalRecordCount(totCnt);
+		resultMap.put("paginationInfo", paginationInfo);
+		
+		return resultMap;
 	}
 
 	// 문서 양식 등록 페이지
@@ -103,4 +143,7 @@ public class ApprContoller {
 		
 		return result;
 	}
+	
+	// 문서 양식 수정
+	
 }

@@ -21,7 +21,11 @@
 		<typeAlias alias="messageVO"		type="egovframework.com.muscat.chat.service.MessageVO" />
 		<typeAlias alias="mberManageVO"		type="egovframework.com.uss.umt.service.MberManageVO" />
 		<typeAlias alias="docFormVO"		type="egovframework.com.muscat.appr.service.DocFormVO" />
+
+		<typeAlias alias="alarmVO"		type="egovframework.com.muscat.alarm.service.AlarmVO" />
+		<typeAlias alias="boardMasterVO"		type="egovframework.com.cop.bbs.service.BoardMasterVO" />
 		
+
 	</typeAliases>
     
 </configuration>

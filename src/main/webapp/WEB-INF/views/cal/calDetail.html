@@ -232,37 +232,64 @@ textarea {
   });
 
   function loadCalendars(selectedCalId = '') {
-	  console.log('칼아이디')
-	  return $.ajax({
+	  const $calendar = $('#calendar');
+	  $calendar.empty().append(`<option value="">캘린더 선택</option>`);
+
+	  // 내 캘린더 불러오기
+	  $.ajax({
 	    url: '/muscat/cal/listCalendar',
 	    type: 'GET',
 	    dataType: 'json',
-	    success: function (response) {
-	        console.log('값')
-	    	console.log(response)
-	      const calendars = Array.isArray(response.result) ? response.result : response;
-	      const $calendar = $('#calendar');
-	      $calendar.empty().append(`<option value="">캘린더 선택</option>`);
+	    success: function (response1) {
+	      const calendars = Array.isArray(response1.result) ? response1.result : response1;
 	      calendars.forEach(cal => {
-	    	  $calendar.append(
+	        const calId = (cal.CAL_ID || '').trim();
+	        const calName = (cal.CAL_NAME || '').trim();
+	        const color = (cal.COLOR || '#1e90ff').trim();
+
+	        $calendar.append(
 	          $('<option></option>')
-	            .val((cal.CAL_ID || '').trim())
-	            .text((cal.CAL_NAME || '').trim())
-	            .css('color', (cal.COLOR || '#1e90ff').trim())
+	            .val(calId)
+	            .text(`[내] ${calName}`)
+	            .css('color', color)
 	        );
 	      });
-	      
-	      if (selectedCalId) {
-	    	  $calendar.val(selectedCalId).prop("selected", true);
-	      }
+
+	      // 공유 캘린더도 이어서 불러오기
+	      $.ajax({
+	        url: '/muscat/cal/sharedCalendars',
+	        type: 'GET',
+	        dataType: 'json',
+	        success: function (response2) {
+	          const shared = Array.isArray(response2) ? response2 : response2.result || [];
+	          shared.forEach(cal => {
+	            const calId = (cal.share_id || '').trim(); // 구분자
+	            const calName = (cal.shere_nm || '').trim();
+	            const color = (cal.color || '#1e90ff').trim();
+
+	            $calendar.append(
+	              $('<option></option>')
+	                .val(calId)
+	                .text(`[공유] ${calName}`)
+	                .css('color', color)
+	            );
+	          });
+
+	          // 선택된 ID 있으면 세팅
+	          if (selectedCalId) {
+	            $calendar.val(selectedCalId).prop("selected", true);
+	          }
+	        },
+	        error: function () {
+	          alert('공유 캘린더를 불러오는 데 실패했습니다.');
+	        }
+	      });
 	    },
-	    error: function () {  
-	      alert('캘린더 목록을 불러오는 데 실패했습니다.');    
+	    error: function () {
+	      alert('내 캘린더 목록을 불러오는 데 실패했습니다.');
 	    }
 	  });
 	}
-
-
 
   $('#scheduleForm').on('submit', function (e) {
 	  e.preventDefault();

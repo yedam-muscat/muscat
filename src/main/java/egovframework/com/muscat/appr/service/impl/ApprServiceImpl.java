@@ -42,4 +42,9 @@ public class ApprServiceImpl implements ApprService {
 		return null;
 	}
 
+	@Override
+	public int getDocFormListTotCnt(DocFormVO docForm) {
+		return 0;
+	}
+
 }

@@ -34,12 +34,13 @@ import egovframework.com.cmm.service.EgovFileMngUtil;
 import egovframework.com.cmm.service.FileVO;
 import egovframework.com.cmm.util.EgovUserDetailsHelper;
 import egovframework.com.cmm.util.EgovXssChecker;
-import egovframework.com.cmm.web.EgovFileMngController;
 import egovframework.com.cop.bbs.service.Board;
 import egovframework.com.cop.bbs.service.BoardMasterVO;
 import egovframework.com.cop.bbs.service.BoardVO;
 import egovframework.com.cop.bbs.service.EgovArticleService;
 import egovframework.com.cop.bbs.service.EgovBBSMasterService;
+import egovframework.com.cop.cmt.service.CommentVO;
+import egovframework.com.cop.cmt.service.EgovArticleCommentService;
 
 @Controller
 public class BoardArticleController {
@@ -63,6 +64,9 @@ public class BoardArticleController {
 
 	@Resource(name = "egovMessageSource")
 	EgovMessageSource egovMessageSource;
+
+	@Resource(name = "EgovArticleCommentService")
+	private EgovArticleCommentService commentService;
 
 	@Autowired
 	private DefaultBeanValidator beanValidator;
@@ -106,46 +110,67 @@ public class BoardArticleController {
 		return "board/articleList.html"; // html로 forward
 	}
 
-	/** 📑 게시글 목록 데이터 (JSON) */
-	@GetMapping("/board/articleList")
-	@ResponseBody
-	public Map<String, Object> articleList(@ModelAttribute("searchVO") BoardVO boardVO,
-			@RequestParam("bbsId") String bbsId) throws Exception {
-		Map<String, Object> result = new HashMap<>();
+	  /* ==============================================================
+    📑 게시글 목록(JSON)  : commentCnt 포함
+ ============================================================== */
+ @GetMapping("/board/articleList")
+ @ResponseBody
+ public Map<String,Object> listJson(@ModelAttribute("searchVO") BoardVO vo,
+                                    @RequestParam("bbsId") String bbsId) throws Exception {
 
-		if (!EgovUserDetailsHelper.isAuthenticated()) {
-			result.put("resultCode", "FAIL");
-			result.put("resultMessage", "로그인이 필요합니다.");
-			return result;
-		}
+     Map<String,Object> res = new HashMap<>();
 
-		boardVO.setBbsId(bbsId);
-		boardVO.setPageUnit(propertyService.getInt("pageUnit"));
-		boardVO.setPageSize(propertyService.getInt("pageSize"));
+     if(!EgovUserDetailsHelper.isAuthenticated()){
+         res.put("resultCode","FAIL"); res.put("resultMessage","로그인이 필요합니다."); return res;
+     }
 
-		PaginationInfo pageInfo = new PaginationInfo();
-		pageInfo.setCurrentPageNo(boardVO.getPageIndex());
-		pageInfo.setRecordCountPerPage(boardVO.getPageUnit());
-		pageInfo.setPageSize(boardVO.getPageSize());
+     /* 페이징 설정 */
+     vo.setBbsId(bbsId);
+     vo.setPageUnit(propertyService.getInt("pageUnit"));
+     vo.setPageSize(propertyService.getInt("pageSize"));
 
-		boardVO.setFirstIndex(pageInfo.getFirstRecordIndex());
-		boardVO.setLastIndex(pageInfo.getLastRecordIndex());
-		boardVO.setRecordCountPerPage(pageInfo.getRecordCountPerPage());
+     PaginationInfo pi = new PaginationInfo();
+     pi.setCurrentPageNo(vo.getPageIndex());
+     pi.setRecordCountPerPage(vo.getPageUnit());
+     pi.setPageSize(vo.getPageSize());
 
-		Map<String, Object> dataMap = egovArticleService.selectArticleList(boardVO);
-		int totalCount = Integer.parseInt((String) dataMap.get("resultCnt"));
+     vo.setFirstIndex(pi.getFirstRecordIndex());
+     vo.setLastIndex (pi.getLastRecordIndex());
+     vo.setRecordCountPerPage(pi.getRecordCountPerPage());
 
-		pageInfo.setTotalRecordCount(totalCount);
+     /* 목록 조회 */
+     Map<String,Object> map = egovArticleService.selectArticleList(vo);
 
-		result.put("resultCode", "SUCCESS");
-		result.put("resultList", dataMap.get("resultList"));
-		result.put("resultCnt", dataMap.get("resultCnt"));
-		result.put("pageIndex", boardVO.getPageIndex());
-		result.put("pageUnit", boardVO.getPageUnit());
-		result.put("totalPageCount", pageInfo.getTotalPageCount());
+     @SuppressWarnings("unchecked")
+     List<BoardVO> list = (List<BoardVO>) map.getOrDefault("resultList", List.of());
 
-		return result;
-	}
+     /* ★ 댓글 수 계산 */
+     for(BoardVO row : list){
+         CommentVO cvo = new CommentVO();
+         cvo.setBbsId(row.getBbsId());
+         cvo.setNttId(row.getNttId());
+
+         int cnt = 0;
+         try{
+             Map<String,Object> cm = commentService.selectArticleCommentList(cvo);
+             cnt = Integer.parseInt((String)cm.getOrDefault("resultCnt","0"));
+         }catch(Exception e){
+             LOGGER.warn("댓글 수 조회 실패 bbsId={}, nttId={}", row.getBbsId(), row.getNttId());
+         }
+         row.setCommentCnt(cnt);          // BoardVO에 필드 필요
+     }
+
+     int total = Integer.parseInt((String)map.get("resultCnt"));
+     pi.setTotalRecordCount(total);
+
+     res.put("resultCode","SUCCESS");
+     res.put("resultList",list);
+     res.put("resultCnt",total);
+     res.put("pageIndex",vo.getPageIndex());
+     res.put("pageUnit",vo.getPageUnit());
+     res.put("totalPageCount",pi.getTotalPageCount());
+     return res;
+ }
 
 	/** 📄 게시글 상세 페이지 */
 	@GetMapping("/board/articleDetail.do")

@@ -213,8 +213,7 @@
 				style="display: flex; background: #fff; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); flex-direction: column; height: 80%;">
 
 				<!-- 채팅방 제목 + 아이콘 묶음 + 버튼들 전체 -->
-				<div
-					style="display: flex; justify-content: space-between; align-items: center; gap: 6px; position: relative; padding: 10px;">
+				<div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; position: relative; padding: 10px;">
 
 					<!-- 왼쪽: 제목 + 아이콘 -->
 					<div style="display: flex; align-items: center; gap: 6px;">
@@ -416,9 +415,8 @@
 							li.setAttribute("data-room-id", room.roomId);
 							li.setAttribute("data-room-name", room.roomName); //  채팅방 제목 속성 추가
 							li.setAttribute("data-participants", JSON.stringify(room.usered || [])); // 반드시 필요!
-
+							li.setAttribute("contenteditable", true);	 // 방제목 수정
 							const unreadCount = room.unreadCount || 0;
-
 							li.innerHTML = `
 			        	    ${room.roomName}
 			        	    <span class="badge bg-danger">${unreadCount}</span> `;

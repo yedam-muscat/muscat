@@ -5,372 +5,391 @@
 
 <mapper namespace="BBSMaster">
 
-    <!-- ================================================================
-         1. ResultMap
-    ===================================================================-->
-    <resultMap id="boardMasterList"
-               type="egovframework.com.cop.bbs.service.BoardMasterVO">
-        <result property="bbsId"              column="BBS_ID"/>
-        <result property="bbsTyCode"          column="BBS_TY_CODE"/>
-        <result property="bbsTyCodeNm"        column="BBS_TY_CODE_NM"/>
-        <result property="bbsNm"              column="BBS_NM"/>
-        <result property="tmplatId"           column="TMPLAT_ID"/>
-        <result property="useAt"              column="USE_AT"/>
-        <result property="frstRegisterPnttm"  column="FRST_REGIST_PNTTM"/>
-    </resultMap>
+	<!-- ================================================================ 1. 
+		ResultMap =================================================================== -->
+	<resultMap id="boardMasterList"
+		type="egovframework.com.cop.bbs.service.BoardMasterVO">
+		<result property="bbsId" column="BBS_ID" />
+		<result property="bbsTyCode" column="BBS_TY_CODE" />
+		<result property="bbsTyCodeNm" column="BBS_TY_CODE_NM" />
+		<result property="bbsNm" column="BBS_NM" />
+		<result property="tmplatId" column="TMPLAT_ID" />
+		<result property="useAt" column="USE_AT" />
+		<result property="frstRegisterPnttm" column="FRST_REGIST_PNTTM" />
+		<result property="deptId" column="DEPT_ID" />
+	</resultMap>
 
-    <resultMap id="boardMasterDetail"
-               type="egovframework.com.cop.bbs.service.BoardMasterVO">
-        <result property="bbsId"               column="BBS_ID"/>
-        <result property="bbsTyCode"           column="BBS_TY_CODE"/>
-        <result property="bbsNm"               column="BBS_NM"/>
-        <result property="bbsIntrcn"           column="BBS_INTRCN"/>
-        <result property="replyPosblAt"        column="REPLY_POSBL_AT"/>
-        <result property="fileAtchPosblAt"     column="FILE_ATCH_POSBL_AT"/>
-        <result property="atchPosblFileNumber" column="ATCH_POSBL_FILE_NUMBER"/>
-        <result property="atchPosblFileSize"   column="ATCH_POSBL_FILE_SIZE"/>
-        <result property="tmplatId"            column="TMPLAT_ID"/>
-        <result property="frstRegisterId"      column="FRST_REGISTER_ID"/>
-        <result property="frstRegisterNm"      column="FRST_REGISTER_NM"/>
-        <result property="frstRegisterPnttm"   column="FRST_REGIST_PNTTM"/>
-        <result property="bbsTyCodeNm"         column="BBS_TY_CODE_NM"/>
-        <result property="tmplatNm"            column="TMPLAT_NM"/>
-        <result property="authFlag"            column="AUTH_FLAG"/>
-        <result property="tmplatCours"         column="TMPLAT_COURS"/>
-        <result property="cmmntyId"            column="CMMNTY_ID"/>
-        <result property="blogId"              column="BLOG_ID"/>
-        <!-- 카테고리/구분 값 -->
-        <result property="categoryMain"        column="CATEGORY_MAIN"/>
-        <result property="categoryScope"       column="CATEGORY_SCOPE"/>
-        <!-- 카테고리/구분 이름 -->
-        <result property="categoryMainNm"      column="CATEGORY_MAIN_NM"/>
-        <result property="categoryScopeNm"     column="CATEGORY_SCOPE_NM"/>
-    </resultMap>
+	<resultMap id="boardMasterDetail"
+		type="egovframework.com.cop.bbs.service.BoardMasterVO">
+		<result property="bbsId" column="BBS_ID" />
+		<result property="bbsTyCode" column="BBS_TY_CODE" />
+		<result property="bbsNm" column="BBS_NM" />
+		<result property="bbsIntrcn" column="BBS_INTRCN" />
+		<result property="replyPosblAt" column="REPLY_POSBL_AT" />
+		<result property="fileAtchPosblAt" column="FILE_ATCH_POSBL_AT" />
+		<result property="atchPosblFileNumber"
+			column="ATCH_POSBL_FILE_NUMBER" />
+		<result property="atchPosblFileSize"
+			column="ATCH_POSBL_FILE_SIZE" />
+		<result property="tmplatId" column="TMPLAT_ID" />
+		<result property="frstRegisterId" column="FRST_REGISTER_ID" />
+		<result property="frstRegisterNm" column="FRST_REGISTER_NM" />
+		<result property="frstRegisterPnttm" column="FRST_REGIST_PNTTM" />
+		<result property="bbsTyCodeNm" column="BBS_TY_CODE_NM" />
+		<result property="tmplatNm" column="TMPLAT_NM" />
+		<result property="authFlag" column="AUTH_FLAG" />
+		<result property="tmplatCours" column="TMPLAT_COURS" />
+		<result property="cmmntyId" column="CMMNTY_ID" />
+		<result property="blogId" column="BLOG_ID" />
+		<!-- 카테고리/구분 값 -->
+		<result property="categoryMain" column="CATEGORY_MAIN" />
+		<result property="categoryScope" column="CATEGORY_SCOPE" />
+		<!-- 카테고리/구분 이름 -->
+		<result property="categoryMainNm" column="CATEGORY_MAIN_NM" />
+		<result property="categoryScopeNm" column="CATEGORY_SCOPE_NM" />
+	</resultMap>
 
-    <resultMap id="boardMasterAll"
-               type="egovframework.com.cop.bbs.service.BoardMasterVO">
-        <result property="bbsId"       column="BBS_ID"/>
-        <result property="bbsTyCode"   column="BBS_TY_CODE"/>
-        <result property="bbsNm"       column="BBS_NM"/>
-        <result property="tmplatId"    column="TMPLAT_ID"/>
-    </resultMap>
+	<resultMap id="boardMasterAll"
+		type="egovframework.com.cop.bbs.service.BoardMasterVO">
+		<result property="bbsId" column="BBS_ID" />
+		<result property="bbsTyCode" column="BBS_TY_CODE" />
+		<result property="bbsNm" column="BBS_NM" />
+		<result property="tmplatId" column="TMPLAT_ID" />
+	</resultMap>
 
-    <!-- ===== Blog 관련 ResultMap (원본 유지) ======================== -->
-    <resultMap id="BlogList" type="egovframework.com.cop.bbs.service.BlogVO">
-        <result property="blogId"          column="BLOG_ID"/>
-        <result property="bbsId"           column="BBS_ID"/>
-        <result property="blogNm"          column="BLOG_NM"/>
-        <result property="registSeCode"    column="REGIST_SE_CODE"/>
-        <result property="registSeCodeNm"  column="REGIST_SE_CODE_NM"/>
-        <result property="useAt"           column="USE_AT"/>
-        <result property="frstRegisterId"  column="FRST_REGISTER_ID"/>
-        <result property="frstRegisterNm"  column="FRST_REGISTER_NM"/>
-        <result property="frstRegisterPnttm" column="FRST_REGIST_PNTTM"/>
-    </resultMap>
+	<!-- ===== Blog 관련 ResultMap (원본 유지) ======================== -->
+	<resultMap id="BlogList"
+		type="egovframework.com.cop.bbs.service.BlogVO">
+		<result property="blogId" column="BLOG_ID" />
+		<result property="bbsId" column="BBS_ID" />
+		<result property="blogNm" column="BLOG_NM" />
+		<result property="registSeCode" column="REGIST_SE_CODE" />
+		<result property="registSeCodeNm" column="REGIST_SE_CODE_NM" />
+		<result property="useAt" column="USE_AT" />
+		<result property="frstRegisterId" column="FRST_REGISTER_ID" />
+		<result property="frstRegisterNm" column="FRST_REGISTER_NM" />
+		<result property="frstRegisterPnttm" column="FRST_REGIST_PNTTM" />
+	</resultMap>
 
-    <resultMap id="selectBlogDetail" type="egovframework.com.cop.bbs.service.BlogVO">
-        <result property="blogId"       column="BLOG_ID"/>
-        <result property="bbsId"        column="BBS_ID"/>
-        <result property="blogNm"       column="BLOG_NM"/>
-        <result property="blogIntrcn"   column="BLOG_INTRCN"/>
-    </resultMap>
+	<resultMap id="selectBlogDetail"
+		type="egovframework.com.cop.bbs.service.BlogVO">
+		<result property="blogId" column="BLOG_ID" />
+		<result property="bbsId" column="BBS_ID" />
+		<result property="blogNm" column="BLOG_NM" />
+		<result property="blogIntrcn" column="BLOG_INTRCN" />
+	</resultMap>
 
-    <resultMap id="selectBlogUser" type="egovframework.com.cop.bbs.service.BlogVO">
-        <result property="frstRegisterId" column="FRST_REGISTER_ID"/>
-    </resultMap>
+	<resultMap id="selectBlogUser"
+		type="egovframework.com.cop.bbs.service.BlogVO">
+		<result property="frstRegisterId" column="FRST_REGISTER_ID" />
+	</resultMap>
 
-    <resultMap id="BlogListPortlet" type="egovframework.com.cop.bbs.service.BlogVO">
-        <result property="blogId" column="BLOG_ID"/>
-        <result property="bbsId"  column="BBS_ID"/>
-        <result property="blogNm" column="BLOG_NM"/>
-    </resultMap>
+	<resultMap id="BlogListPortlet"
+		type="egovframework.com.cop.bbs.service.BlogVO">
+		<result property="blogId" column="BLOG_ID" />
+		<result property="bbsId" column="BBS_ID" />
+		<result property="blogNm" column="BLOG_NM" />
+	</resultMap>
 
-    <resultMap id="BBSListPortlet" type="egovframework.com.cop.bbs.service.BoardMasterVO">
-        <result property="bbsId"        column="BBS_ID"/>
-        <result property="bbsTyCodeNm"  column="BBS_TY_CODE"/>
-        <result property="bbsNm"        column="BBS_NM"/>
-    </resultMap>
+	<resultMap id="BBSListPortlet"
+		type="egovframework.com.cop.bbs.service.BoardMasterVO">
+		<result property="bbsId" column="BBS_ID" />
+		<result property="bbsTyCodeNm" column="BBS_TY_CODE" />
+		<result property="bbsNm" column="BBS_NM" />
+	</resultMap>
 
-    <!-- ================================================================
-         2. INSERT
-    ===================================================================-->
-    <insert id="insertBBSMaster"
-            parameterType="egovframework.com.cop.bbs.service.BoardMasterVO">
-        INSERT INTO COMTNBBSMASTER
-             (BBS_ID, BBS_TY_CODE, BBS_NM, BBS_INTRCN,
-              REPLY_POSBL_AT, FILE_ATCH_POSBL_AT, ATCH_POSBL_FILE_NUMBER,
-              TMPLAT_ID, USE_AT, CMMNTY_ID,
-              FRST_REGISTER_ID, FRST_REGIST_PNTTM,
-              BLOG_ID, BLOG_AT,
-              CATEGORY_MAIN, CATEGORY_SCOPE)
-        VALUES (#{bbsId}, #{bbsTyCode}, #{bbsNm}, #{bbsIntrcn},
-                #{replyPosblAt}, #{fileAtchPosblAt}, #{atchPosblFileNumber},
-                #{tmplatId}, #{useAt}, #{cmmntyId},
-                #{frstRegisterId}, SYSDATE,
-                #{blogId}, #{blogAt},
-                #{categoryMain}, #{categoryScope})
-    </insert>
+	<!-- ================================================================ 2. 
+		INSERT =================================================================== -->
+	<insert id="insertBBSMaster"
+		parameterType="egovframework.com.cop.bbs.service.BoardMasterVO">
+		INSERT INTO COMTNBBSMASTER
+		(BBS_ID, BBS_TY_CODE, BBS_NM, BBS_INTRCN,
+		REPLY_POSBL_AT, FILE_ATCH_POSBL_AT, ATCH_POSBL_FILE_NUMBER,
+		TMPLAT_ID, USE_AT, CMMNTY_ID,
+		FRST_REGISTER_ID, FRST_REGIST_PNTTM,
+		BLOG_ID, BLOG_AT,
+		CATEGORY_MAIN, CATEGORY_SCOPE)
+		VALUES (#{bbsId}, #{bbsTyCode}, #{bbsNm}, #{bbsIntrcn},
+		#{replyPosblAt}, #{fileAtchPosblAt}, #{atchPosblFileNumber},
+		#{tmplatId}, #{useAt}, #{cmmntyId},
+		#{frstRegisterId}, SYSDATE,
+		#{blogId}, #{blogAt},
+		#{categoryMain}, #{categoryScope})
+	</insert>
 
-    <!-- ================================================================
-         3. 게시판 목록 (selectBBSMasterList · TotCnt) : 원본 유지
-    ===================================================================-->
-    <!-- 목록 -->
-    <select id="selectBBSMasterList"
-            parameterType="egovframework.com.cop.bbs.service.BoardMasterVO"
-            resultMap="boardMasterList">
-        SELECT *
-          FROM ( SELECT ROWNUM rn, TB.* FROM (
-                 SELECT a.BBS_ID,
-                        a.BBS_TY_CODE,
-                        bt.CODE_NM  AS BBS_TY_CODE_NM,
-                        a.BBS_NM,
-                        a.TMPLAT_ID,
-                        a.USE_AT,
-                        TO_CHAR(a.FRST_REGIST_PNTTM,'YYYY-MM-DD') AS FRST_REGIST_PNTTM,
-                        usr.USER_NM AS FRST_REGISTER_NM
-                   FROM COMTNBBSMASTER a
-                   LEFT JOIN COMTCCMMNDETAILCODE bt
-                          ON bt.CODE_ID='COM101' AND bt.USE_AT='Y' AND bt.CODE=a.BBS_TY_CODE
-                   LEFT JOIN COMVNUSERMASTER usr
-                          ON usr.ESNTL_ID = a.FRST_REGISTER_ID
-                  WHERE 1=1
-                  <if test="cmmntyId != null and cmmntyId != ''">
-                    AND a.CMMNTY_ID = #{cmmntyId}
-                  </if>
-                  <if test="searchCnd == 0">
-                    AND a.BBS_NM LIKE '%'||#{searchWrd}||'%'
-                  </if>
-                  <if test="searchCnd == 1">
-                    AND a.BBS_INTRCN LIKE '%'||#{searchWrd}||'%'
-                  </if>
-                  ORDER BY a.FRST_REGIST_PNTTM DESC
-                 ) TB )
-         WHERE rn BETWEEN #{firstIndex}+1 AND #{firstIndex}+#{recordCountPerPage}
-    </select>
+	<!-- ================================================================ 3. 
+		게시판 목록 (selectBBSMasterList · TotCnt) : 원본 유지 =================================================================== -->
+	<!-- 목록 -->
+	<select id="selectBBSMasterList"
+		parameterType="egovframework.com.cop.bbs.service.BoardMasterVO"
+		resultMap="boardMasterList">
+		SELECT *
+		FROM ( SELECT ROWNUM rn, TB.* FROM (
+		SELECT a.BBS_ID,
+		a.BBS_TY_CODE,
+		bt.CODE_NM AS BBS_TY_CODE_NM,
+		a.BBS_NM,
+		a.TMPLAT_ID,
+		a.USE_AT,
+		TO_CHAR(a.FRST_REGIST_PNTTM,'YYYY-MM-DD') AS FRST_REGIST_PNTTM,
+		usr.USER_NM AS FRST_REGISTER_NM
+		FROM COMTNBBSMASTER a
+		LEFT JOIN COMTCCMMNDETAILCODE bt
+		ON bt.CODE_ID='COM101' AND bt.USE_AT='Y' AND bt.CODE=a.BBS_TY_CODE
+		LEFT JOIN COMVNUSERMASTER usr
+		ON usr.ESNTL_ID = a.FRST_REGISTER_ID
+		WHERE 1=1
+		<if test="cmmntyId != null and cmmntyId != ''">
+			AND a.CMMNTY_ID = #{cmmntyId}
+		</if>
+		<if test="searchCnd == 0">
+			AND a.BBS_NM LIKE '%'||#{searchWrd}||'%'
+		</if>
+		<if test="searchCnd == 1">
+			AND a.BBS_INTRCN LIKE '%'||#{searchWrd}||'%'
+		</if>
+		ORDER BY a.FRST_REGIST_PNTTM DESC
+		) TB )
+		WHERE rn BETWEEN #{firstIndex}+1 AND #{firstIndex}+#{recordCountPerPage}
+	</select>
 
-    <!-- 목록 TotCnt -->
-    <select id="selectBBSMasterListTotCnt"
-            parameterType="egovframework.com.cop.bbs.service.BoardMasterVO"
-            resultType="java.lang.Integer">
-        SELECT COUNT(a.BBS_ID)
-          FROM COMTNBBSMASTER a
-          LEFT JOIN COMTCCMMNDETAILCODE bt
-                 ON bt.CODE_ID='COM101' AND bt.USE_AT='Y' AND bt.CODE=a.BBS_TY_CODE
-         WHERE 1=1
-           <if test="cmmntyId != null and cmmntyId != ''">
-             AND a.CMMNTY_ID = #{cmmntyId}
-           </if>
-           <if test="searchCnd == 0">
-             AND a.BBS_NM LIKE '%'||#{searchWrd}||'%'
-           </if>
-           <if test="searchCnd == 1">
-             AND a.BBS_INTRCN LIKE '%'||#{searchWrd}||'%'
-           </if>
-    </select>
+	<!-- 목록 TotCnt -->
+	<select id="selectBBSMasterListTotCnt"
+		parameterType="egovframework.com.cop.bbs.service.BoardMasterVO"
+		resultType="java.lang.Integer">
+		SELECT COUNT(a.BBS_ID)
+		FROM COMTNBBSMASTER a
+		LEFT JOIN COMTCCMMNDETAILCODE bt
+		ON bt.CODE_ID='COM101' AND bt.USE_AT='Y' AND bt.CODE=a.BBS_TY_CODE
+		WHERE 1=1
+		<if test="cmmntyId != null and cmmntyId != ''">
+			AND a.CMMNTY_ID = #{cmmntyId}
+		</if>
+		<if test="searchCnd == 0">
+			AND a.BBS_NM LIKE '%'||#{searchWrd}||'%'
+		</if>
+		<if test="searchCnd == 1">
+			AND a.BBS_INTRCN LIKE '%'||#{searchWrd}||'%'
+		</if>
+	</select>
 
-    <!-- ================================================================
-         4. 상세조회 : 코드 → 이름 JOIN
-    ===================================================================-->
-    <select id="selectBBSMasterDetail"
-            parameterType="egovframework.com.cop.bbs.service.BoardMasterVO"
-            resultMap="boardMasterDetail">
-        SELECT a.BBS_ID,
-               a.BBS_TY_CODE,
-               bt.CODE_NM                          AS BBS_TY_CODE_NM,
-               a.BBS_NM,
-               a.BBS_INTRCN,
-               a.TMPLAT_ID,
-               tpl.TMPLAT_NM,
-               tpl.TMPLAT_COURS,
-               a.FILE_ATCH_POSBL_AT,
-               a.ATCH_POSBL_FILE_NUMBER,
-               a.ATCH_POSBL_FILE_SIZE,
-               a.REPLY_POSBL_AT,
-               a.FRST_REGISTER_ID,
-               usr.USER_NM                         AS FRST_REGISTER_NM,
-               a.CMMNTY_ID,
-               a.USE_AT,
-               TO_CHAR(a.FRST_REGIST_PNTTM,'YYYY-MM-DD') AS FRST_REGIST_PNTTM,
-               a.CATEGORY_MAIN,
-               cm.CODE_NM                          AS CATEGORY_MAIN_NM,
-               a.CATEGORY_SCOPE,
-               cs.CODE_NM                          AS CATEGORY_SCOPE_NM,
-               (SELECT NVL(USE_AT,'N')
-                  FROM COMTNBBSUSE
-                 WHERE BBS_ID  = #{bbsId}
-                   AND TRGET_ID IN (#{uniqId}, 'SYSTEM_DEFAULT_BOARD')) AS AUTH_FLAG,
-               a.BLOG_ID
-          FROM COMTNBBSMASTER a
-          LEFT JOIN COMTCCMMNDETAILCODE bt
-                 ON bt.CODE_ID='COM101' AND bt.USE_AT='Y' AND bt.CODE=a.BBS_TY_CODE
-          LEFT JOIN COMTNTMPLATINFO tpl
-                 ON tpl.TMPLAT_ID = a.TMPLAT_ID
-          LEFT JOIN COMVNUSERMASTER usr
-                 ON usr.ESNTL_ID = a.FRST_REGISTER_ID
-          LEFT JOIN COMTCCMMNDETAILCODE cm
-                 ON cm.CODE_ID='COM104' AND cm.USE_AT='Y' AND cm.CODE=a.CATEGORY_MAIN
-          LEFT JOIN COMTCCMMNDETAILCODE cs
-                 ON cs.CODE_ID='COM105' AND cs.USE_AT='Y' AND cs.CODE=a.CATEGORY_SCOPE
-         WHERE a.BBS_ID = #{bbsId}
-    </select>
+	<!-- ================================================================ 4. 
+		상세조회 : 코드 → 이름 JOIN =================================================================== -->
+	<select id="selectBBSMasterDetail"
+		parameterType="egovframework.com.cop.bbs.service.BoardMasterVO"
+		resultMap="boardMasterDetail">
+		SELECT a.BBS_ID,
+		a.BBS_TY_CODE,
+		bt.CODE_NM AS BBS_TY_CODE_NM,
+		a.BBS_NM,
+		a.BBS_INTRCN,
+		a.TMPLAT_ID,
+		tpl.TMPLAT_NM,
+		tpl.TMPLAT_COURS,
+		a.FILE_ATCH_POSBL_AT,
+		a.ATCH_POSBL_FILE_NUMBER,
+		a.ATCH_POSBL_FILE_SIZE,
+		a.REPLY_POSBL_AT,
+		a.FRST_REGISTER_ID,
+		usr.USER_NM AS FRST_REGISTER_NM,
+		a.CMMNTY_ID,
+		a.USE_AT,
+		TO_CHAR(a.FRST_REGIST_PNTTM,'YYYY-MM-DD') AS FRST_REGIST_PNTTM,
+		a.CATEGORY_MAIN,
+		cm.CODE_NM AS CATEGORY_MAIN_NM,
+		a.CATEGORY_SCOPE,
+		cs.CODE_NM AS CATEGORY_SCOPE_NM,
+		(SELECT NVL(USE_AT,'N')
+		FROM COMTNBBSUSE
+		WHERE BBS_ID = #{bbsId}
+		AND TRGET_ID IN (#{uniqId}, 'SYSTEM_DEFAULT_BOARD')) AS AUTH_FLAG,
+		a.BLOG_ID
+		FROM COMTNBBSMASTER a
+		LEFT JOIN COMTCCMMNDETAILCODE bt
+		ON bt.CODE_ID='COM101' AND bt.USE_AT='Y' AND bt.CODE=a.BBS_TY_CODE
+		LEFT JOIN COMTNTMPLATINFO tpl
+		ON tpl.TMPLAT_ID = a.TMPLAT_ID
+		LEFT JOIN COMVNUSERMASTER usr
+		ON usr.ESNTL_ID = a.FRST_REGISTER_ID
+		LEFT JOIN COMTCCMMNDETAILCODE cm
+		ON cm.CODE_ID='COM104' AND cm.USE_AT='Y' AND cm.CODE=a.CATEGORY_MAIN
+		LEFT JOIN COMTCCMMNDETAILCODE cs
+		ON cs.CODE_ID='COM105' AND cs.USE_AT='Y' AND cs.CODE=a.CATEGORY_SCOPE
+		WHERE a.BBS_ID = #{bbsId}
+	</select>
 
-    <!-- ================================================================
-         5. UPDATE
-    ===================================================================-->
-    <update id="updateBBSMaster"
-            parameterType="egovframework.com.cop.bbs.service.BoardMasterVO">
-        UPDATE COMTNBBSMASTER
-           SET BBS_NM                 = #{bbsNm},
-               BBS_INTRCN             = #{bbsIntrcn},
-               BBS_TY_CODE            = #{bbsTyCode},
-               FILE_ATCH_POSBL_AT     = #{fileAtchPosblAt},
-               ATCH_POSBL_FILE_NUMBER = #{atchPosblFileNumber},
-               ATCH_POSBL_FILE_SIZE   = #{atchPosblFileSize},
-               TMPLAT_ID              = #{tmplatId},
-               CATEGORY_MAIN          = #{categoryMain},
-               CATEGORY_SCOPE         = #{categoryScope},
-               LAST_UPDUSR_ID         = #{lastUpdusrId},
-               LAST_UPDT_PNTTM        = SYSDATE,
-               USE_AT                 = #{useAt}
-         WHERE BBS_ID                = #{bbsId}
-    </update>
+	<!-- ================================================================ 5. 
+		UPDATE =================================================================== -->
+	<update id="updateBBSMaster"
+		parameterType="egovframework.com.cop.bbs.service.BoardMasterVO">
+		UPDATE COMTNBBSMASTER
+		SET BBS_NM = #{bbsNm},
+		BBS_INTRCN = #{bbsIntrcn},
+		BBS_TY_CODE = #{bbsTyCode},
+		FILE_ATCH_POSBL_AT = #{fileAtchPosblAt},
+		ATCH_POSBL_FILE_NUMBER = #{atchPosblFileNumber},
+		ATCH_POSBL_FILE_SIZE = #{atchPosblFileSize},
+		TMPLAT_ID = #{tmplatId},
+		CATEGORY_MAIN = #{categoryMain},
+		CATEGORY_SCOPE = #{categoryScope},
+		LAST_UPDUSR_ID = #{lastUpdusrId},
+		LAST_UPDT_PNTTM = SYSDATE,
+		USE_AT = #{useAt}
+		WHERE BBS_ID = #{bbsId}
+	</update>
 
-    <!-- ================================================================
-         6. DELETE  (원본 그대로)
-    ===================================================================-->
-    <update id="deleteBBSMaster"
-            parameterType="egovframework.com.cop.bbs.service.BoardMasterVO">
-        UPDATE COMTNBBSMASTER
-           SET USE_AT        = 'N',
-               LAST_UPDUSR_ID = #{lastUpdusrId},
-               LAST_UPDT_PNTTM= SYSDATE
-         WHERE BBS_ID        = #{bbsId}
-    </update>
+	<!-- ================================================================ 6. 
+		DELETE (원본 그대로) =================================================================== -->
+	<update id="deleteBBSMaster"
+		parameterType="egovframework.com.cop.bbs.service.BoardMasterVO">
+		UPDATE COMTNBBSMASTER
+		SET USE_AT = 'N',
+		LAST_UPDUSR_ID = #{lastUpdusrId},
+		LAST_UPDT_PNTTM= SYSDATE
+		WHERE BBS_ID = #{bbsId}
+	</update>
 
-    <!-- ================================================================
-         7. Blog 관련 쿼리 (원본 유지)
-    ===================================================================-->
-    <!-- selectBlogMasterList -->
-    <select id="selectBlogMasterList"
-            parameterType="egovframework.com.cop.bbs.service.BlogVO"
-            resultMap="BlogList">
-        SELECT *
-          FROM ( SELECT ROWNUM rn, TB.* FROM (
-                 SELECT a.BLOG_ID,
-                        a.BLOG_NM,
-                        a.USE_AT,
-                        a.REGIST_SE_CODE,
-                        dc.CODE_NM AS REGIST_SE_CODE_NM,
-                        TO_CHAR(a.FRST_REGIST_PNTTM,'YYYY-MM-DD') AS FRST_REGIST_PNTTM,
-                        a.FRST_REGISTER_ID,
-                        usr.USER_NM AS FRST_REGISTER_NM,
-                        a.BBS_ID,
-                        se.AUTHOR_CODE
-                   FROM COMTNBLOG a
-                   LEFT JOIN COMVNUSERMASTER usr
-                          ON usr.ESNTL_ID = a.FRST_REGISTER_ID
-                   LEFT JOIN COMTCCMMNDETAILCODE dc
-                          ON dc.CODE_ID='COM001' AND dc.CODE = a.REGIST_SE_CODE
-                   LEFT JOIN COMTNEMPLYRSCRTYESTBS se
-                          ON se.SCRTY_DTRMN_TRGET_ID = a.FRST_REGISTER_ID
-                  WHERE dc.CODE_ID='COM001'
-                  <if test="searchCnd == 0">
-                     AND a.BLOG_NM LIKE '%'||#{searchWrd}||'%'
-                  </if>
-                  ORDER BY a.FRST_REGIST_PNTTM DESC
-                ) TB )
-         WHERE rn BETWEEN #{firstIndex}+1 AND #{firstIndex}+#{recordCountPerPage}
-    </select>
+	<!-- ================================================================ 7. 
+		Blog 관련 쿼리 (원본 유지) =================================================================== -->
+	<!-- selectBlogMasterList -->
+	<select id="selectBlogMasterList"
+		parameterType="egovframework.com.cop.bbs.service.BlogVO"
+		resultMap="BlogList">
+		SELECT *
+		FROM ( SELECT ROWNUM rn, TB.* FROM (
+		SELECT a.BLOG_ID,
+		a.BLOG_NM,
+		a.USE_AT,
+		a.REGIST_SE_CODE,
+		dc.CODE_NM AS REGIST_SE_CODE_NM,
+		TO_CHAR(a.FRST_REGIST_PNTTM,'YYYY-MM-DD') AS FRST_REGIST_PNTTM,
+		a.FRST_REGISTER_ID,
+		usr.USER_NM AS FRST_REGISTER_NM,
+		a.BBS_ID,
+		se.AUTHOR_CODE
+		FROM COMTNBLOG a
+		LEFT JOIN COMVNUSERMASTER usr
+		ON usr.ESNTL_ID = a.FRST_REGISTER_ID
+		LEFT JOIN COMTCCMMNDETAILCODE dc
+		ON dc.CODE_ID='COM001' AND dc.CODE = a.REGIST_SE_CODE
+		LEFT JOIN COMTNEMPLYRSCRTYESTBS se
+		ON se.SCRTY_DTRMN_TRGET_ID = a.FRST_REGISTER_ID
+		WHERE dc.CODE_ID='COM001'
+		<if test="searchCnd == 0">
+			AND a.BLOG_NM LIKE '%'||#{searchWrd}||'%'
+		</if>
+		ORDER BY a.FRST_REGIST_PNTTM DESC
+		) TB )
+		WHERE rn BETWEEN #{firstIndex}+1 AND #{firstIndex}+#{recordCountPerPage}
+	</select>
 
-    <!-- selectBlogMasterListTotCnt -->
-    <select id="selectBlogMasterListTotCnt"
-            parameterType="egovframework.com.cop.bbs.service.BoardMasterVO"
-            resultType="java.lang.Integer">
-        SELECT COUNT(*)
-          FROM COMTNBLOG a
-          LEFT JOIN COMVNUSERMASTER usr
-                 ON usr.ESNTL_ID = a.FRST_REGISTER_ID
-          LEFT JOIN COMTCCMMNDETAILCODE dc
-                 ON dc.CODE_ID='COM001' AND dc.CODE = a.REGIST_SE_CODE
-          LEFT JOIN COMTNEMPLYRSCRTYESTBS se
-                 ON se.SCRTY_DTRMN_TRGET_ID = a.FRST_REGISTER_ID
-         WHERE dc.CODE_ID='COM001'
-           <if test="searchCnd == 0">
-             AND a.BLOG_NM LIKE '%'||#{searchWrd}||'%'
-           </if>
-    </select>
+	<!-- selectBlogMasterListTotCnt -->
+	<select id="selectBlogMasterListTotCnt"
+		parameterType="egovframework.com.cop.bbs.service.BoardMasterVO"
+		resultType="java.lang.Integer">
+		SELECT COUNT(*)
+		FROM COMTNBLOG a
+		LEFT JOIN COMVNUSERMASTER usr
+		ON usr.ESNTL_ID = a.FRST_REGISTER_ID
+		LEFT JOIN COMTCCMMNDETAILCODE dc
+		ON dc.CODE_ID='COM001' AND dc.CODE = a.REGIST_SE_CODE
+		LEFT JOIN COMTNEMPLYRSCRTYESTBS se
+		ON se.SCRTY_DTRMN_TRGET_ID = a.FRST_REGISTER_ID
+		WHERE dc.CODE_ID='COM001'
+		<if test="searchCnd == 0">
+			AND a.BLOG_NM LIKE '%'||#{searchWrd}||'%'
+		</if>
+	</select>
 
-    <!-- selectBlogDetail -->
-    <select id="selectBlogDetail"
-            parameterType="egovframework.com.cop.bbs.service.BlogVO"
-            resultMap="selectBlogDetail">
-        SELECT BLOG_ID, BBS_ID, BLOG_NM, BLOG_INTRCN
-          FROM COMTNBLOG
-         WHERE BLOG_ID = #{blogId}
-    </select>
+	<!-- selectBlogDetail -->
+	<select id="selectBlogDetail"
+		parameterType="egovframework.com.cop.bbs.service.BlogVO"
+		resultMap="selectBlogDetail">
+		SELECT BLOG_ID, BBS_ID, BLOG_NM, BLOG_INTRCN
+		FROM COMTNBLOG
+		WHERE BLOG_ID = #{blogId}
+	</select>
 
-    <!-- checkExistUser -->
-    <select id="checkExistUser"
-            parameterType="egovframework.com.cop.bbs.service.BlogVO"
-            resultType="java.lang.Integer">
-        SELECT COUNT(FRST_REGISTER_ID)
-          FROM COMTNBLOG
-         WHERE FRST_REGISTER_ID = #{frstRegisterId}
-    </select>
+	<!-- checkExistUser -->
+	<select id="checkExistUser"
+		parameterType="egovframework.com.cop.bbs.service.BlogVO"
+		resultType="java.lang.Integer">
+		SELECT COUNT(FRST_REGISTER_ID)
+		FROM COMTNBLOG
+		WHERE FRST_REGISTER_ID = #{frstRegisterId}
+	</select>
 
-    <!-- checkExistUser2 -->
-    <select id="checkExistUser2"
-            parameterType="egovframework.com.cop.bbs.service.BlogVO"
-            resultMap="selectBlogUser">
-        SELECT FRST_REGISTER_ID
-          FROM COMTNBLOG
-         WHERE FRST_REGISTER_ID = #{frstRegisterId}
-    </select>
+	<!-- checkExistUser2 -->
+	<select id="checkExistUser2"
+		parameterType="egovframework.com.cop.bbs.service.BlogVO"
+		resultMap="selectBlogUser">
+		SELECT FRST_REGISTER_ID
+		FROM COMTNBLOG
+		WHERE FRST_REGISTER_ID = #{frstRegisterId}
+	</select>
 
-    <!-- insertBoardBlogUserRqst -->
-    <insert id="insertBoardBlogUserRqst"
-            parameterType="egovframework.com.cop.bbs.service.BlogUser">
-        INSERT INTO COMTNBLOGUSER
-              (BLOG_ID, EMPLYR_ID, MNGR_AT,
-               SBSCRB_DE, MBER_STTUS, USE_AT,
-               FRST_REGIST_PNTTM, FRST_REGISTER_ID)
-        VALUES (#{blogId}, #{emplyrId}, #{mngrAt},
-                SYSDATE, #{mberSttus}, #{useAt},
-                SYSDATE, #{frstRegisterId})
-    </insert>
+	<!-- insertBoardBlogUserRqst -->
+	<insert id="insertBoardBlogUserRqst"
+		parameterType="egovframework.com.cop.bbs.service.BlogUser">
+		INSERT INTO COMTNBLOGUSER
+		(BLOG_ID, EMPLYR_ID, MNGR_AT,
+		SBSCRB_DE, MBER_STTUS, USE_AT,
+		FRST_REGIST_PNTTM, FRST_REGISTER_ID)
+		VALUES (#{blogId}, #{emplyrId}, #{mngrAt},
+		SYSDATE, #{mberSttus}, #{useAt},
+		SYSDATE, #{frstRegisterId})
+	</insert>
 
-    <!-- insertBlogMaster -->
-    <insert id="insertBlogMaster"
-            parameterType="egovframework.com.cop.bbs.service.BlogVO">
-        INSERT INTO COMTNBLOG
-              (BLOG_ID, BLOG_NM, BLOG_INTRCN,
-               REGIST_SE_CODE, TMPLAT_ID, USE_AT,
-               FRST_REGISTER_ID, FRST_REGIST_PNTTM,
-               BBS_ID, BLOG_AT)
-        VALUES (#{blogId}, #{blogNm}, #{blogIntrcn},
-                #{registSeCode}, #{tmplatId}, #{useAt},
-                #{frstRegisterId}, SYSDATE,
-                #{bbsId}, #{blogAt})
-    </insert>
+	<!-- insertBlogMaster -->
+	<insert id="insertBlogMaster"
+		parameterType="egovframework.com.cop.bbs.service.BlogVO">
+		INSERT INTO COMTNBLOG
+		(BLOG_ID, BLOG_NM, BLOG_INTRCN,
+		REGIST_SE_CODE, TMPLAT_ID, USE_AT,
+		FRST_REGISTER_ID, FRST_REGIST_PNTTM,
+		BBS_ID, BLOG_AT)
+		VALUES (#{blogId}, #{blogNm}, #{blogIntrcn},
+		#{registSeCode}, #{tmplatId}, #{useAt},
+		#{frstRegisterId}, SYSDATE,
+		#{bbsId}, #{blogAt})
+	</insert>
 
-    <!-- selectBlogListPortlet -->
-    <select id="selectBlogListPortlet"
-            parameterType="egovframework.com.cop.bbs.service.BlogVO"
-            resultMap="BlogListPortlet">
-        SELECT BLOG_ID, BBS_ID, BLOG_NM, FRST_REGIST_PNTTM
-          FROM COMTNBLOG
-         WHERE USE_AT = 'Y'
-         ORDER BY FRST_REGIST_PNTTM DESC
-    </select>
+	<!-- selectBlogListPortlet -->
+	<select id="selectBlogListPortlet"
+		parameterType="egovframework.com.cop.bbs.service.BlogVO"
+		resultMap="BlogListPortlet">
+		SELECT BLOG_ID, BBS_ID, BLOG_NM, FRST_REGIST_PNTTM
+		FROM COMTNBLOG
+		WHERE USE_AT = 'Y'
+		ORDER BY FRST_REGIST_PNTTM DESC
+	</select>
 
-    <!-- selectBBSListPortlet -->
-    <select id="selectBBSListPortlet"
-            parameterType="egovframework.com.cop.bbs.service.BoardMasterVO"
-            resultMap="BBSListPortlet">
-        SELECT BBS_ID, BBS_TY_CODE, BBS_NM, FRST_REGIST_PNTTM
-          FROM COMTNBBSMASTER
-         WHERE USE_AT = 'Y'
-         ORDER BY FRST_REGIST_PNTTM DESC
-    </select>
+	<!-- selectBBSListPortlet -->
+	<select id="selectBBSListPortlet"
+		parameterType="egovframework.com.cop.bbs.service.BoardMasterVO"
+		resultMap="BBSListPortlet">
+		SELECT BBS_ID, BBS_TY_CODE, BBS_NM, FRST_REGIST_PNTTM
+		FROM COMTNBBSMASTER
+		WHERE USE_AT = 'Y'
+		ORDER BY FRST_REGIST_PNTTM DESC
+	</select>
+
+	<!-- INSERT -->
+	<insert id="insertBBSMasterInf" parameterType="boardMasterVO">
+		INSERT INTO COMTNBBSMASTER (
+		BBS_ID, BBS_NM, … , DEPT_ID
+		) VALUES (
+		#{bbsId}, #{bbsNm}, … , #{deptId}
+		)
+	</insert>
+
+	<!-- UPDATE -->
+	<update id="updateBBSMasterInf" parameterType="boardMasterVO">
+		UPDATE COMTNBBSMASTER
+		SET BBS_NM = #{bbsNm},
+		…,
+		DEPT_ID = #{deptId}
+		WHERE BBS_ID = #{bbsId}
+	</update>
 
 </mapper>
