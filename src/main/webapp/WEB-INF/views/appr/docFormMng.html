@@ -12,8 +12,8 @@
 		<select id="searchCondition" class="form-select form-select-sm"
 			style="width: 130px">
 			<option value="" selected>-- 검색조건 --</option>
-			<option value="0">제목</option>
-			<option value="1">문서양식</option>
+			<option value="0">문서양식ID</option>
+			<option value="1">문서양식제목</option>
 		</select>
 
 		<!-- 검색어 -->
@@ -36,9 +36,9 @@
 			<tr>
 				<th>문서양식ID</th>
 				<th>문서양식제목</th>
-				<th>사용여부</th>
 				<th>작성일자</th>
-				<th>저장일자</th>
+				<th>수정일자</th>
+				<th>사용여부</th>
 			</tr>
 		</thead>
 		<tbody id="listBody">
@@ -84,18 +84,19 @@
 	        const totalPages = Math.ceil(totalCount / pageSize);
 	        
 	        resultList.forEach(item => {
-	          tbody.append(`<tr data-temp-id="${'TEST' }">
-	  	            <td>${'TEST' }</td>
-	  	            <td>${'TEST' }</td>
-	  	            <td>${'TEST' }</td>
-	  	            <td>${'TEST' }</td>
+	          tbody.append(`<tr data-temp-id="${item.dformId }">
+	  	            <td>${item.dformId }</td>
+	  	            <td>${item.dformName }</td>
+	  	            <td>${item.frstRegistPnttm }</td>
+	  	            <td>${item.lastUpdtPnttm }</td>
+	  	            <td>${item.useYn == 'Y' ? '사용함' : '사용안함' }</td>
 	  	            </tr>
 	  	          `);
 	        });
 	        
 	        tbody.on('click', 'tr', function () {
 	        	  const id = $(this).data('temp-id');
-	        	  window.location.href = `${tempDetailUrl}?selectedId=${encodeURIComponent(id)}`;
+	        	  //window.location.href = `${tempDetailUrl}?selectedId=${encodeURIComponent(id)}`;
 	        	});
 
 	        renderPagination(totalPages);
@@ -137,7 +138,7 @@
 
     // 초기 로딩
     document.addEventListener('DOMContentLoaded', () => {
-    	//loadList();
+    	loadList();
     	
     	$('#btnSearch').on('click', function() {
     	    searchCondition = $('#searchCondition').val();

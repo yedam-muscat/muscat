@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import egovframework.com.muscat.appr.mapper.ApprMapper;
 import egovframework.com.muscat.appr.service.ApprDocVO;
 import egovframework.com.muscat.appr.service.ApprService;
+import egovframework.com.muscat.appr.service.DocFormSearchVO;
 import egovframework.com.muscat.appr.service.DocFormVO;
 
 @Service
@@ -30,7 +31,7 @@ public class ApprServiceImpl implements ApprService {
 	public List<ApprDocVO> getApprDocHistory() {
 		return apprMapper.selectApprDocHistory();
 	}
-	
+
 	// 문서양식 등록
 	@Override
 	public int regDocForm(DocFormVO docForm) {
@@ -38,13 +39,13 @@ public class ApprServiceImpl implements ApprService {
 	}
 
 	@Override
-	public List<DocFormVO> getDocFormList(DocFormVO docForm) {
-		return null;
+	public List<DocFormVO> getDocFormList(DocFormSearchVO docFormSearch) {
+		return apprMapper.selectDocFormList(docFormSearch);
 	}
 
 	@Override
-	public int getDocFormListTotCnt(DocFormVO docForm) {
-		return 0;
+	public int getDocFormListTotCnt(DocFormSearchVO docFormSearch) {
+		return apprMapper.selectDocFormListTotCnt(docFormSearch);
 	}
 
 }

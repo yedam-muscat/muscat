@@ -7,17 +7,63 @@
 	<select id="selectTime" resultType="string">
 		SELECT SYSDATE FROM DUAL
 	</select>
-	
+
 	<insert id="insertDocForm" parameterType="docFormVO">
-		INSERT INTO DOCFORM VALUES 
+		INSERT INTO DOCFORM
+		VALUES
 		('DOC-' || TO_CHAR(DOCFORM_SEQ.nextval)
 		, #{dformName}
-		, #{dformContent}
-		, SYSDATE
+		,
+		#{dformContent}
+		,
+		SYSDATE
 		, SYSDATE
 		, #{dformDesc}
 		, #{useYn}
 		)
 	</insert>
+
+	<select id="selectDocFormList" parameterType="docFormSearchVO"
+		resultType="docFormVO">
+		SELECT * FROM ( SELECT rownum rn, TB.* FROM (
+		SELECT
+		DFORM_ID
+		,DFORM_NAME
+		,DFORM_CONTENT
+		,FRST_REGIST_PNTTM
+		,LAST_UPDT_PNTTM
+		,DFORM_DESC
+		,USE_YN
+		FROM DOCFORM
+		WHERE 1=1
+		<if
+			test="@egovframework.com.cmm.util.EgovMybatisUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">AND
+				DFORM_ID LIKE '%' || #{searchKeyword} || '%'
+			</if>
+			<if test="searchCondition == 1">AND
+				DFORM_NAME LIKE '%' ||#{searchKeyword}|| '%'
+			</if>
+		</if>
+         <![CDATA[
+        ORDER BY 1 DESC
+        ) TB ) WHERE rn BETWEEN #{firstIndex} + 1 AND #{firstIndex} + #{recordCountPerPage}
+        ]]>
+	</select>
+
+	<select id="selectDocFormListTotCnt" resultType="int">
+		SELECT COUNT(1) totcnt
+		FROM DOCFORM
+		WHERE 1=1
+		<if
+			test="@egovframework.com.cmm.util.EgovMybatisUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">AND
+				DFORM_ID LIKE '%' || #{searchKeyword} || '%'
+			</if>
+			<if test="searchCondition == 1">AND
+				DFORM_NAME LIKE '%' ||#{searchKeyword}|| '%'
+			</if>
+		</if>
+	</select>
 
 </mapper>

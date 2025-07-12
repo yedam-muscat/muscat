@@ -17,9 +17,9 @@ public interface ApprService {
 	int regDocForm(DocFormVO docForm);
 	
 	// 문서양식 검색
-	List<DocFormVO> getDocFormList(DocFormVO docForm);
+	List<DocFormVO> getDocFormList(DocFormSearchVO docForm);
 	
 	// 문서양식 검색 수
-	int getDocFormListTotCnt(DocFormVO docForm);
+	int getDocFormListTotCnt(DocFormSearchVO docForm);
 	
 }

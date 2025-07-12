@@ -38,9 +38,16 @@ public class ApprContoller {
 	@Autowired
 	ApprService apprService;
 
-	// 문서기안
+	// 문서기안 페이지
 	@GetMapping("/appr/regAppr.do")
 	public String regAppr() {
+		return "appr/regAppr.html";
+	}
+	
+	// 문서기안
+	@PostMapping("/appr/regAppr.do")
+	@ResponseBody
+	public String postAppr() {
 		return "appr/regAppr.html";
 	}
 
@@ -89,7 +96,7 @@ public class ApprContoller {
 	}
 
 	// 문서 양식 조회
-	@GetMapping("/appr/getDocForm.do")
+	@GetMapping("/appr/docFormList.do")
 	@ResponseBody
 	public Map<String, Object> getDocForm(@ModelAttribute("docFormSearchVO") DocFormSearchVO docFormSearchVO) {
 		Map<String, Object> resultMap = new HashMap<>();
