@@ -35,6 +35,6 @@ public interface CalService {
 	void insertCalendarShare(CalendarShareVO vo);
 
 	List<Map> getSharedCalendars(String loginId);
-
+	
 	
 }
