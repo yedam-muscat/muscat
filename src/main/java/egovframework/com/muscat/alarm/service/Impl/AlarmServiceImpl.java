@@ -2,6 +2,8 @@ package egovframework.com.muscat.alarm.service.Impl;
 
 import java.util.List;
 
+import javax.annotation.Resource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +14,9 @@ import egovframework.com.muscat.alarm.service.AlarmVO;
 @Service("AlarmService")
 public class AlarmServiceImpl implements AlarmService {
 
+	 @Resource(name = "alarmMapper")
+	    private AlarmMapper alarmMapper;
+	
 	@Autowired
 	AlarmMapper alarMapper;
 	
@@ -48,6 +53,18 @@ public class AlarmServiceImpl implements AlarmService {
 	public int deleteAlram(AlarmVO deleteAlarm) {
 		
 		return alarMapper.deleteAlram(deleteAlarm);
+	}
+
+	@Override
+	public int countUnreadAlarms(AlarmVO vo) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void markAsRead(AlarmVO vo) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	

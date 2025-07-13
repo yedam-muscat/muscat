@@ -1,6 +1,59 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <header class="" th:fragment="header">
+<style>
+/* 드롭다운 메뉴 전체 크기 확장 */
+.dropdown-menu {
+  min-width: 350px !important; /* 기본보다 넓게 */
+  max-height: 400px;
+  overflow-y: auto; /* 스크롤 가능 */
+  padding: 10px 0;
+}
+
+/* 알림 아이템 스타일 */
+.alarm-item {
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin: 8px 16px;
+  background-color: #fff;
+  position: relative;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* X 버튼 */
+.alarm-item .close-btn {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: #999;
+  cursor: pointer;
+}
+
+.alarm-item .close-btn:hover {
+  color: #dc3545;
+}
+
+/* 전체삭제 버튼 오른쪽 정렬 */
+.dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px 5px 16px;
+}
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+}
+.alarm-read {
+  background-color: #f8f9fa;
+  opacity: 0.6;
+}
+</style>
 	<nav class="navbar navbar-expand navbar-light ">
 		<div class="container-fluid">
 			<a href="#" class="burger-btn d-block"> <i
@@ -41,12 +94,16 @@
 					</a>
 						<ul class="dropdown-menu dropdown-menu-end"
 							aria-labelledby="dropdownMenuButton">
-							<li>
-								<h6 class="dropdown-header">알림</h6>
+							<li
+								class="d-flex justify-content-between align-items-center px-3 py-2">
+								<h6 class="dropdown-header mb-0">알림</h6>
+								<button class="btn btn-sm btn-outline-danger" onclick="deleteAllAlarms()">전체삭제</button>
 							</li>
-							<li><a class="dropdown-item">미확인 알림이 없습니다.</a></li>
-						</ul></li>
-				</ul>
+							<!-- 여기에만 리스트를 넣게 분리 -->
+							<div id="alarmListArea">
+								<li><a class="dropdown-item">미확인 알림이 없습니다.</a></li>
+							</div>
+						</ul></ul>
 				<div class="dropdown me-3">
 					<div class="user-menu d-flex">
 						<div id="sessionInfo" class="user-name text-end me-3">
@@ -105,9 +162,122 @@
 	</script>
 	<script>
 	
+	//알람 
 	$('#alarmBellLink').on('show.bs.dropdown', function () {
-		console.log('클릭되냐?');
-	});
+    fetch('/muscat/alarm/alarmfind.do')
+        .then(response => response.json())
+        .then(data => {
+            const area = document.getElementById('alarmListArea');
+            area.innerHTML = ''; // 기존 알림 초기화
+
+            if (data.length === 0) {
+                area.innerHTML = '<li><a class="dropdown-item">미확인 알림이 없습니다.</a></li>';
+                return;
+            }
+
+            data.forEach(alarm => {
+                const li = document.createElement('li');
+                li.className =  'alarm-item';
+                if (alarm.readYn === 'Y') {
+                    li.classList.add('alarm-read'); // 읽은 알람이면 스타일 적용
+                }
+
+                li.innerHTML = `
+                    <div class="flex-grow-1">
+                        <div class="fw-bold">${alarm.ntcnSj}</div>
+                        <div class="small text-muted">${alarm.ntcnCn}</div>
+                        <div class="small text-muted">${alarm.ntcnTm}</div>
+                    </div>
+                    <button class="close-btn" onclick="deleteAlarm(${alarm.ntcnNo}, this)">✕</button>
+                `;
+
+                area.appendChild(li);
+            });
+        })
+        .catch(error => {
+            console.error('알림 불러오기 실패:', error);
+        });
+});
+	
+	//알람 전체 삭제
+	function deleteAllAlarms() {
+	    if (!confirm("정말 모든 알림을 삭제하시겠습니까?")) return;
+
+	    fetch('/muscat/alarm/deleteall.do', {
+	        method: 'POST',
+	        credentials: 'include'
+	    })
+	    .then(res => res.json())
+	    .then(data => {
+	        if (data.success) {
+	            document.getElementById("alarmListArea").innerHTML = `<li><a class="dropdown-item">미확인 알림이 없습니다.</a></li>`;
+	            document.getElementById("notifCount").style.display = "none";
+	        } else {
+	            alert("알림 삭제 실패: " + (data.message || ""));
+	        }
+	    });
+	}
+	
+	//단건삭제
+	function deleteAlarm(ntcnNo, buttonEl) {
+	    fetch('/muscat/alarm/delete.do', {
+	        method: 'POST',
+	        headers: { 'Content-Type': 'application/json' },
+	        body: JSON.stringify({ ntcnNo: ntcnNo })
+	    })
+	    .then(res => res.json())
+	    .then(data => {
+	        if (data.success) {
+	            // 해당 li 삭제
+	            const li = buttonEl.closest('li');
+	            li.remove();
+
+	            // 전체가 비었는지 확인
+	            const area = document.getElementById('alarmListArea');
+	            if (area.children.length === 0) {
+	                area.innerHTML = '<li><a class="dropdown-item">미확인 알림이 없습니다.</a></li>';
+	                document.getElementById("notifCount").style.display = "none";
+	            }
+	        } else {
+	            alert('삭제 실패');
+	        }
+	    });
+	}
+	//알람 읽음 처리 함수
+	function handleAlarmClick(ntcnNo, liDivEl) {
+	    const liEl = liDivEl.closest('li');
+	    if (liEl.classList.contains('alarm-read')) return; // 이미 읽은 거면 무시
+
+	    fetch('/muscat/alarm/read.do', {
+	        method: 'POST',
+	        headers: { 'Content-Type': 'application/json' },
+	        body: JSON.stringify({ ntcnNo: ntcnNo })
+	    })
+	    .then(res => res.json())
+	    .then(data => {
+	        if (data.success) {
+	            liEl.classList.add('alarm-read');
+	            updateUnreadBadge(); // 뱃지 갱신
+	        }
+	    });
+	}
+	//숫자 갱신 함수
+	function updateUnreadBadge() {
+	    fetch('/muscat/alarm/unreadcount.do', {
+	        method: 'POST',
+	        credentials: 'include'
+	    })
+	    .then(res => res.text())
+	    .then(count => {
+	        const badge = document.getElementById("notifCount");
+	        if (parseInt(count) > 0) {
+	            badge.innerText = count;
+	            badge.style.display = "inline-block";
+	        } else {
+	            badge.style.display = "none";
+	        }
+	    });
+	}
 		
 		$("#logout").on('click', function(event) {
 			event.preventDefault();
