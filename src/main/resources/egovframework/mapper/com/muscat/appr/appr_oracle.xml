@@ -4,11 +4,247 @@
 <mapper
 	namespace="egovframework.com.muscat.appr.mapper.ApprMapper">
 
+	<resultMap id="ApprDocResultMap" type="apprDocVO">
+		<id property="adocId" column="ADOC_ID" />
+		<result property="adocContent" column="ADOC_CONTENT" />
+		<result property="apprStatus" column="APPR_STATUS" />
+		<result property="alineId" column="ALINE_ID" />
+		<result property="dformId" column="DFORM_ID" />
+		<result property="adocTitle" column="ADOC_TITLE" />
+		<result property="mberId" column="MBER_ID" />
+		<collection property="approvers" ofType="string"
+			column="ALINE_ID" javaType="java.util.ArrayList"
+			select="egovframework.com.muscat.appr.mapper.ApprMapper.selectApproversByAlineId" />
+	</resultMap>
+
+	<select id="selectApproversByAlineId" parameterType="string"
+		resultType="string">
+		SELECT MBER_ID
+		FROM APPRLINEDETAIL
+		WHERE ALINE_ID =
+		#{alineId}
+		ORDER BY ALINE_ORDER
+	</select>
+
+	<select id="selectApprDoc" parameterType="apprDocSearchVO"
+		resultMap="ApprDocResultMap">
+		SELECT * FROM ( SELECT rownum rn, TB.* FROM (
+		SELECT
+		AP.ADOC_ID,
+		AP.ADOC_CONTENT,
+		AP.APPR_STATUS,
+		AP.ALINE_ID,
+		AP.DFORM_ID,
+		DF.DFORM_NAME,
+		AP.ADOC_TITLE,
+		AP.MBER_ID,
+		MB.MBER_NM,
+		AP.REG_DATE,
+		AP.UPD_DATE
+		FROM
+		APPRDOC AP
+		JOIN DOCFORM DF ON
+		AP.dform_id = DF.dform_id
+		JOIN
+		COMTNGNRLMBER MB ON AP.mber_id =
+		MB.mber_id
+		WHERE AP.MBER_ID =
+		#{mberId}
+		AND 1=1
+		<if
+			test="@egovframework.com.cmm.util.EgovMybatisUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">AND
+				DFORM_ID LIKE '%' || #{searchKeyword} || '%'
+			</if>
+			<if test="searchCondition == 1">AND
+				MBER_ID LIKE '%' ||#{searchKeyword}|| '%'
+			</if>
+		</if>
+         <![CDATA[
+        ORDER BY 1 DESC
+        ) TB ) WHERE rn BETWEEN #{firstIndex} + 1 AND #{firstIndex} + #{recordCountPerPage}
+        ]]>
+	</select>
+
+	<select id="selectApprDocTotCnt" resultType="int">
+		SELECT COUNT(1) totcnt
+		FROM APPRDOC AP
+		JOIN DOCFORM DF ON AP.dform_id =
+		DF.dform_id
+		JOIN COMTNGNRLMBER MB ON AP.mber_id = MB.mber_id
+		WHERE
+		AP.MBER_ID =
+		#{mberId}
+		AND 1=1
+		<if
+			test="@egovframework.com.cmm.util.EgovMybatisUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">AND
+				DFORM_ID LIKE '%' || #{searchKeyword} || '%'
+			</if>
+			<if test="searchCondition == 1">AND
+				MBER_ID LIKE '%' ||#{searchKeyword}|| '%'
+			</if>
+		</if>
+	</select>
+
+	<!-- 결재요청 -->
+	<select id="selectReqAppr" parameterType="apprDocSearchVO"
+		resultMap="ApprDocResultMap">
+		SELECT * FROM ( SELECT rownum rn, TB.* FROM (
+		SELECT
+		PA.*,
+		df.dform_name,
+		mb.mber_nm
+		FROM
+		VW_PENDING_APPR PA
+		JOIN DOCFORM DF ON PA.dform_id = DF.dform_id
+		JOIN
+		COMTNGNRLMBER MB ON pa.mber_id = mb.mber_id
+		WHERE pa.mber_id =
+		#{mberId}
+		AND 1=1
+		<if
+			test="@egovframework.com.cmm.util.EgovMybatisUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">AND
+				d.adoc_id LIKE '%' || #{searchKeyword} || '%'
+			</if>
+			<if test="searchCondition == 1">AND
+				d.adoc_id LIKE '%' ||#{searchKeyword}|| '%'
+			</if>
+		</if>
+         <![CDATA[
+        ORDER BY 1 DESC
+        ) TB ) WHERE rn BETWEEN #{firstIndex} + 1 AND #{firstIndex} + #{recordCountPerPage}
+        ]]>
+	</select>
+
+	<!-- 결재요청 수 -->
+	<select id="selectReqApprTotCnt" resultType="int">
+		SELECT COUNT(1) totcnt
+		FROM
+		VW_PENDING_APPR PA
+		JOIN DOCFORM DF ON
+		PA.dform_id = DF.dform_id
+		JOIN COMTNGNRLMBER MB ON pa.mber_id =
+		mb.mber_id
+		WHERE pa.mber_id = #{mberId}
+		AND 1=1
+		<if
+			test="@egovframework.com.cmm.util.EgovMybatisUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">AND
+				DFORM_ID LIKE '%' || #{searchKeyword} || '%'
+			</if>
+			<if test="searchCondition == 1">AND
+				MBER_ID LIKE '%' ||#{searchKeyword}|| '%'
+			</if>
+		</if>
+	</select>
+
+	<!-- 결재요청 상세 -->
+	<select id="selectReqApprDetail" parameterType="string"
+		resultMap="ApprDocResultMap">
+		SELECT
+		AP.ADOC_ID,
+		AP.ADOC_CONTENT,
+		AP.APPR_STATUS,
+		AP.ALINE_ID,
+		AP.DFORM_ID,
+		DF.DFORM_NAME,
+		DF.DFORM_CONTENT,
+		AP.ADOC_TITLE,
+		AP.MBER_ID,
+		MB.MBER_NM
+		FROM APPRDOC AP
+		JOIN DOCFORM DF ON
+		AP.dform_id = DF.dform_id
+		JOIN COMTNGNRLMBER MB ON AP.mber_id =
+		MB.mber_id
+		WHERE AP.ADOC_ID =
+		#{adocId}
+	</select>
+
+	<!-- 결재요청 결재선 -->
+	<select id="selectReqApprLineDetail" parameterType="string"
+		resultType="apprLineDetailVO">
+		SELECT *
+		FROM APPRLINEDETAIL
+		WHERE ALINE_ID = #{alineId}
+		ORDER BY ALINE_ORDER
+	</select>
+
+	<!-- 결재요청 결재내역 -->
+	<select id="selectReqApprHistory" parameterType="string"
+		resultType="apprHistoryVO">
+		SELECT *
+		FROM APPRHISTORY
+		WHERE ADOC_ID = #{adocId}
+		ORDER BY
+		aline_order
+	</select>
+
 	<insert id="insertApprLine" parameterType="apprDocVO">
-		INSERT INTO APPRLINE
-		VALUE ('ALINE-' || APPRLINE_SEQ.nextval,  #{mberId})
+		<selectKey keyProperty="alineId" resultType="string"
+			order="BEFORE">
+			SELECT 'ALINE-' || APPRLINE_SEQ.NEXTVAL
+			FROM dual
+		</selectKey>
+		INSERT INTO APPRLINE (aline_id, mber_id)
+		VALUES (#{alineId}, #{mberId})
 	</insert>
 
+	<insert id="insertApprDoc" parameterType="apprDocVO">
+		<selectKey keyProperty="adocId" resultType="string"
+			order="BEFORE">
+			SELECT 'ADOC-' || APPRDOC_SEQ.NEXTVAL
+			FROM dual
+		</selectKey>
+		INSERT INTO APPRDOC (
+		ADOC_ID,
+		MBER_ID,
+		ADOC_CONTENT,
+		APPR_STATUS,
+		ALINE_ID,
+		DFORM_ID,
+		ADOC_TITLE,
+		REG_DATE,
+		UPD_DATE)
+		VALUES (
+		#{adocId},
+		#{mberId},
+		#{adocContent},
+		'A0',
+		#{alineId},
+		#{dformId},
+		#{adocTitle},
+		SYSDATE,
+		SYSDATE
+		)
+	</insert>
+
+	<insert id="insertApprApprovers" parameterType="apprDocVO">
+		INSERT ALL
+		<foreach collection="approvers" item="id" index="idx">
+			INTO
+			APPRLINEDETAIL
+			(aline_id, mber_id, aline_order, appr_type)
+			VALUES
+			(
+			#{alineId},
+			#{id},
+			#{idx},
+			'B0'
+			)
+		</foreach>
+		SELECT 1 FROM DUAL
+	</insert>
+
+	<insert id="insertApprReferences" parameterType="apprDocVO">
+		INSERT INTO approval_line_reference (aline_id, mber_id, reference_id)
+		VALUES
+		<foreach collection="references" item="ref" separator=",">
+			(#{alineId}, #{mberId}, #{ref})
+		</foreach>
+	</insert>
 
 	<insert id="insertDocForm" parameterType="docFormVO">
 		INSERT INTO DOCFORM

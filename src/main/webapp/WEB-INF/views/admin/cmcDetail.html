@@ -34,7 +34,7 @@
 								</div>
 								<div class="col-auto">
 									<input type="text" id="codeIdNm" class="form-control"
-										th:value="${result.codeIdNm}" readonly>
+										th:value="${result.codeIdNm}">
 								</div>
 								<div class="col-auto"></div>
 							</div>
@@ -99,15 +99,14 @@
 				
 				const payload = {
 					codeId : $('#codeId').val().trim(),
-					code : $('#code').val().trim(),
-					codeNm : $('#codeNm').val().trim(),
-					codeDc : $('#codeDc').val().trim(),
+					codeIdNm : $('#codeIdNm').val().trim(),
+					codeIdDc : $('#codeIdDc').val().trim(),
 					useAt : $('#useAt').val(),
 				};
 
 				$.ajax({
 					type : "POST",
-					url : cmdcModifyUrl,
+					url : cmcModifyUrl,
 					contentType : "application/json; charset=utf-8",
 					data : JSON.stringify(payload),
 					dataType : 'json'
@@ -116,7 +115,7 @@
 					if (data.resultSuccess)  {
 						Swal.fire({
 							icon : "success",
-							title : "세부코드가 수정되었습니다"
+							title : "공통코드가 수정되었습니다"
 						})
 					} else {
 						Swal.fire({
@@ -134,7 +133,7 @@
 			});
 
 			$('#btnToList').on('click', function() {
-				location.href = cmdcMngUrl;
+				location.href = cmcMngUrl;
 			});
 		});
 	</script>

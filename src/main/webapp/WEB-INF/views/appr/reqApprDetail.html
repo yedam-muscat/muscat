@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
+
+<main layout:fragment="content">
+	<div id="auth">
+		<div class="row h-100">
+			<div class="col-lg-8 col-12">
+				<div id="auth-left px-2 py-2">
+					<div class="card">
+						<div class="card-header text-white">
+							<h5 class="mb-0">결재요청상세</h5>
+						</div>
+						<div class="card-body">
+							<!-- 2-1 결재선 표시 ---------------------------------------------->
+							<div class="d-flex gap-4 flex-wrap mb-4" id="stampArea">
+								<th:block th:each="appr : ${apprLine}">
+									<div class="text-center" style="width: 100px;">
+										<!-- 										<img th:if="${appr.status == 'APPROVE'}"
+											th:src="${appr.stampUrl}" class="border rounded-circle mb-1"
+											width="70" height="70"> <img
+											th:if="${appr.status == 'REJECT'}"
+											th:src="@{/assets/img/reject_stamp.png}"
+											class="border rounded-circle mb-1 opacity-75" width="70"
+											height="70"> -->
+										<div
+											class="border rounded-circle mb-1 d-flex align-items-center
+                    justify-content-center text-muted"
+											style="width: 70px; height: 70px; font-size: 1.75rem;">–</div>
+
+										<div class="fw-bold small" th:text="${appr.mberId}">홍길동</div>
+										<!-- 										<small th:text="${#dates.format(appr.actionDt,'MM-dd HH:mm')}"
+											th:if="${appr.actionDt != null}"></small> -->
+									</div>
+								</th:block>
+							</div>
+
+							<!-- 2-2 문서 본문 (읽기 전용) -------------------------------------->
+							<div id="formRender" class="border p-3 bg-light"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://formbuilder.online/assets/js/form-render.min.js"></script>
+	<script th:inline="javascript">
+		let apprDoc = /*[[ ${apprDoc} ]]*/'';
+		let apprLine = /*[[ ${apprLine} ]]*/'';
+		let apprHistory = /*[[ ${apprHistory} ]]*/'';
+
+		let mngUrl = /*[[ @{/appr/reqAppr.do} ]]*/'';
+		let confirmUrl = /*[[ @{/appr/confirmAppr.do} ]]*/'';
+
+		console.log(apprDoc)
+		console.log(apprLine)
+		console.log(apprHistory)
+
+		$('document').ready(function() {
+
+			$('#btnToSave').on('click', function() {
+
+				const payload = {
+					codeId : $('#codeId').val().trim(),
+					codeIdNm : $('#codeIdNm').val().trim(),
+					codeIdDc : $('#codeIdDc').val().trim(),
+					useAt : $('#useAt').val(),
+				};
+
+				$.ajax({
+					type : "POST",
+					url : cmcModifyUrl,
+					contentType : "application/json; charset=utf-8",
+					data : JSON.stringify(payload),
+					dataType : 'json'
+				}).done(function(data, textStatus, xhr) {
+
+					if (data.resultSuccess) {
+						Swal.fire({
+							icon : "success",
+							title : "공통코드가 수정되었습니다"
+						})
+					} else {
+						Swal.fire({
+							icon : "error",
+							title : data.resultMsg
+						})
+					}
+
+				}).fail(function() {
+					Swal.fire({
+						icon : "error",
+						title : "오류가 발생했습니다"
+					})
+				});
+			});
+
+			$('#btnToList').on('click', function() {
+				location.href = mngUrl;
+			});
+			
+			
+			$('#formRender').formRender({
+				    formData : apprDoc.adocContent,
+				    dataType : 'json',
+				  });	
+		});
+		
+
+	</script>
+</main>

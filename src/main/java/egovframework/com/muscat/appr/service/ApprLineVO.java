@@ -8,6 +8,7 @@ import lombok.Data;
 public class ApprLineVO {
 	private String alineId;
 	private String mberId;
+	private String mberNm;
 
     private List<String> approvers;
     private List<String> references;
