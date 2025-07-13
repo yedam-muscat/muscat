@@ -27,11 +27,14 @@ import egovframework.com.cmm.EgovMessageSource;
 import egovframework.com.cmm.service.CmmnDetailCode;
 import egovframework.com.cmm.service.EgovCmmUseService;
 import egovframework.com.cmm.util.EgovUserDetailsHelper;
+import egovframework.com.muscat.admin.mapper.UserMapper;
 import egovframework.com.muscat.common.ResultVO;
 import egovframework.com.muscat.group.service.GroupService;
 import egovframework.com.muscat.group.service.GroupVO;
 import egovframework.com.sec.ram.service.AuthorManageVO;
 import egovframework.com.sec.ram.service.EgovAuthorManageService;
+import egovframework.com.sec.rgm.service.AuthorGroup;
+import egovframework.com.sec.rgm.service.EgovAuthorGroupService;
 import egovframework.com.sym.ccm.cca.service.EgovCcmCmmnCodeManageService;
 import egovframework.com.sym.ccm.ccc.service.EgovCcmCmmnClCodeManageService;
 import egovframework.com.sym.ccm.cde.service.EgovCcmCmmnDetailCodeManageService;
@@ -70,6 +73,9 @@ public class UserController {
 	/** EgovPropertyService */
 	@Resource(name = "propertiesService")
 	protected EgovPropertyService propertiesService;
+	
+    @Resource(name = "egovAuthorGroupService")
+    private EgovAuthorGroupService egovAuthorGroupService;
 
 	/** DefaultBeanValidator beanValidator */
 	@Autowired
@@ -78,6 +84,9 @@ public class UserController {
 	/** group service */
 	@Autowired
 	private GroupService groupService;
+	
+	@Autowired
+	private UserMapper userMapper;
 
 	/**
 	 * 일반회원목록을 조회한다. (pageing)
@@ -216,6 +225,16 @@ public class UserController {
 			mberManageVO.setGroupId(null);
 		}
 		mberManageService.updateMber(mberManageVO);
+		
+		AuthorGroup ag = new AuthorGroup();
+		ag.setMberTyCode(mberManageVO.getUserTy());
+		ag.setAuthorCode(mberManageVO.getUserAuth());
+		ag.setUniqId(mberManageVO.getUniqId());
+		if (userMapper.checkUserAuth(mberManageVO.getUniqId()) > 0) {
+		    egovAuthorGroupService.updateAuthorGroup(ag);
+		} else {
+		    egovAuthorGroupService.insertAuthorGroup(ag);
+		}
 
 		result.setResultCode("");
 		result.setResultSuccess(true);

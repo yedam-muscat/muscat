@@ -168,21 +168,20 @@
 								</div>
 							</div>
 
-							<!-- <input type="hidden" id="mberSttus" value="A"> -->
-
 							<!-- 권한  -->
-							<!-- <div class="row g-3 align-items-center mb-2">
-								<div class="col-2">
-									<label for="sexdstnCode" class="col-form-label">권한</label>
+							<div class="row g-3 align-items-center mb-2">
+								<div class="col-3">
+									<label for="userAuth" class="col-form-label">권한</label>
 								</div>
 								<div class="col-auto">
-									<select class="form-select" id="sexdstnCode">
+									<select class="form-select" id="userAuth">
 										<option selected value="">-- 권한 구분 --</option>
-										<option th:each="item : ${sexdstnCode_result}"
-											th:value="${item.code}" th:text="${item.codeNm}"></option>
+										<option th:each="item : ${auth_result}"
+											th:value="${item.authorCode}" th:text="${item.authorNm}"
+											th:selected="${item.authorCode == mberManageVO.userAuth}"></option>
 									</select>
 								</div>
-							</div> -->
+							</div>
 
 							<!-- 버튼 -->
 							<div class="d-flex justify-content-start">
@@ -204,10 +203,14 @@
 	let selectedDeptId = /*[[${mberManageVO.deptId}]]*/ "";
 	let parent_dept_result = /*[[${parent_dept_result}]]*/ "";
 	let childDeptList = /*[[${child_dept_result}]]*/ "";
+	let authResult = /*[[${auth_result}]]*/ "";
 
 	let userMngUrl = /*[[ @{/admin/user/userMng.do} ]]*/ '';
 	let userListUrl = /*[[ @{/admin/user/userList.do} ]]*/ '';
 	let modifyUserUrl = /*[[ @{/admin/user/modifyUser.do} ]]*/ '';
+	
+	console.log(mber);
+	console.log(authResult);
 	
 		$('document').ready(function() {
 
@@ -264,6 +267,7 @@
 			let childDeptId = $('#childDept').val();
 			let rank = $('#rank').val();
 			let mberSttus = $('#mberSttus').val();
+			let userAuth = $('#userAuth').val();
 			
 			if (!rank) {
 				return alert('직급 없음');
@@ -271,6 +275,8 @@
 				return alert('부서 없음');
 			} else if (!mberSttus) {
 				return alert('상태 없음');
+			} else if (!userAuth) {
+				return alert('권한 없음');
 			}
 			
 			if (parentDeptId && childDeptId) {
@@ -283,6 +289,7 @@
 		
 			mber.rank = rank;
 			mber.mberSttus = mberSttus;
+			mber.userAuth = userAuth;
 			
 			$.ajax({
 				type: "POST",

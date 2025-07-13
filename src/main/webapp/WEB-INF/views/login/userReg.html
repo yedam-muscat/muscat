@@ -151,7 +151,7 @@
 								</div>
 								<div class="col-auto">
 									<select class="form-select" id="rank">
-										<option selected value="">-- 부서 선택 --</option>
+										<option selected value="">-- 직급 선택 --</option>
 										<option th:each="item : ${rank_result}"
 											th:value="${item.code}" th:text="${item.codeNm}"></option>
 									</select>
@@ -161,14 +161,13 @@
 							<!-- 성별 -->
 							<div class="row g-3 align-items-center mb-2">
 								<div class="col-2">
-									<label for="sexdstnCode" class="col-form-label">성별</label>
+									<label for="" class="col-form-label">성별</label>
 								</div>
 								<div class="col-auto">
-									<select class="form-select" id="sexdstnCode">
-										<option selected value="">-- 성별 구분 --</option>
-										<option th:each="item : ${sexdstnCode_result}"
-											th:value="${item.code}" th:text="${item.codeNm}"></option>
-									</select>
+									<div class="form-check form-check-inline" th:each="item, idx : ${sexdstnCode_result}">
+										<input class="form-check-input" type="radio" name="sexdstnCode" th:value="${item.code}" th:id="${item.code + idx.index}"> 
+											<label class="form-check-label" th:for="${item.code + idx.index}" th:text="${item.codeNm}"></label>
+									</div>
 								</div>
 							</div>
 
@@ -386,7 +385,7 @@
 					endTelno : $('#endTelno').val(),
 					moblphonNo : getMoblphonNo(),
 					mberSttus : $('#mberSttus').val(),
-					sexdstnCode : $('#sexdstnCode').val(),
+					sexdstnCode : $('input[name="sexdstnCode"]:checked').val(),
 					parentDeptId : $('#parentDept').val(),
 					deptId : $('#childDept').val(),
 					rank : $('#rank').val(),
@@ -545,7 +544,7 @@
 		  const pwConfirm     = $("#confirmPassword").val();
 		  const passwordHint  = $("#passwordHint").val();
 		  const passwordCnsr  = $("#passwordCnsr").val().trim();
-		  const sexdstnCode   = $("#sexdstnCode").val();
+		  const sexdstnCode   = $('input[name="sexdstnCode"]:checked').val();
 		  const areaNo        = $("#areaNo").val();
 		  const middleTel     = $("#middleTelno").val().trim();
 		  const endTel        = $("#endTelno").val().trim();
