@@ -27,6 +27,7 @@ where mber_sttus = 'P'
 insert into COMTNNTFCINFO (
 	NTCN_NO
 	,NTCN_SJ
+	,NTCN_CN
 	,NTCN_TM
 	,RECI_CONFIRMATION
 	,NTCN_TY
@@ -38,6 +39,7 @@ insert into COMTNNTFCINFO (
 values(
 	#{ntcnNo}
 	,#{ntcnSj}
+	,#{ntcnCn}
 	,sysdate
 	,'0'
 	,#{ntcnTy}
@@ -59,7 +61,22 @@ WHERE mber_id = #{mberId}
 <!-- 알람 1개 삭제 -->
 <delete id="deleteAlram" parameterType="alarmVO">
 delete from COMTNNTFCINFO 
-where NTCN_NO = ${ntcnno}
+where NTCN_NO = #{ntcnNo}
 </delete>
+
+<!-- 안 읽은 알람 개수 조회 -->
+<select id="countUnreadAlarms" parameterType="alarmVO" resultType="int">
+  SELECT COUNT(*) 
+  FROM COMTNNTFCINFO
+  WHERE MBER_ID = #{mberId}
+    AND READ_YN = 'N'
+</select>
+
+<!-- 알람 읽음 처리 -->
+<update id="markAsRead" parameterType="alarmVO">
+  UPDATE COMTNNTFCINFO
+  SET READ_YN = 'Y'
+  WHERE NTCN_NO = #{ntcnNo}
+</update>
 
 </mapper>
