@@ -20,4 +20,8 @@ public interface AlarmMapper {
 	int deleteAlram(AlarmVO deleteAlarm); // 알람 단건 삭제
 	
 	List<String> findMember(); // 직원 리스트 조회
+	
+	int countUnreadAlarms(AlarmVO vo); //안읽은 메시지 갯수
+	
+    void markAsRead(AlarmVO vo); //읽음 처리
 }

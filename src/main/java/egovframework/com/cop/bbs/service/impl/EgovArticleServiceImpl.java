@@ -139,6 +139,7 @@ public class EgovArticleServiceImpl extends EgovAbstractServiceImpl implements E
 		    String title = "새로운 공지글이 도착했습니다.";
 		    AlarmVO alarm = new AlarmVO();
 		    alarm.setNtcnSj(title);
+		    alarm.setNtcnCn(board.getNttSj());
 		    alarm.setNtcnTy("공지");
 		    alarm.setBbsId(board.getBbsId());
 		    alarm.setNttId(board.getNttId());
