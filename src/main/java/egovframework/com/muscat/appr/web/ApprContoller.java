@@ -18,13 +18,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import egovframework.com.cmm.ComDefaultCodeVO;
-import egovframework.com.cmm.service.CmmnDetailCode;
+import egovframework.com.muscat.appr.service.ApprDocVO;
 import egovframework.com.muscat.appr.service.ApprService;
 import egovframework.com.muscat.appr.service.DocFormSearchVO;
 import egovframework.com.muscat.appr.service.DocFormVO;
 import egovframework.com.muscat.common.ResultVO;
-import egovframework.com.uss.umt.service.MberManageVO;
 
 @Controller
 public class ApprContoller {
@@ -44,11 +42,11 @@ public class ApprContoller {
 		return "appr/regAppr.html";
 	}
 	
-	// 문서기안
+	// 문서기안 (트랜잭션 처리 고려할 것)
 	@PostMapping("/appr/regAppr.do")
 	@ResponseBody
-	public String postAppr() {
-		return "appr/regAppr.html";
+	public ResultVO regApprPost(@RequestBody ApprDocVO apprDoc) {
+		return apprService.regApprDoc(apprDoc);
 	}
 
 	// 임시저장

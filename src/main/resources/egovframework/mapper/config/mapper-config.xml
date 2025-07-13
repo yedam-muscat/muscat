@@ -22,6 +22,7 @@
 		<typeAlias alias="mberManageVO"		type="egovframework.com.uss.umt.service.MberManageVO" />
 		<typeAlias alias="docFormVO"		type="egovframework.com.muscat.appr.service.DocFormVO" />
 		<typeAlias alias="docFormSearchVO"		type="egovframework.com.muscat.appr.service.DocFormSearchVO" />
+		<typeAlias alias="apprDocVO"		type="egovframework.com.muscat.appr.service.ApprDocVO" />
 
 		<typeAlias alias="alarmVO"		type="egovframework.com.muscat.alarm.service.AlarmVO" />
 		<typeAlias alias="boardMasterVO"		type="egovframework.com.cop.bbs.service.BoardMasterVO" />

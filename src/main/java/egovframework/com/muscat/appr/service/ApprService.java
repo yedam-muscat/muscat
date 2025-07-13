@@ -2,12 +2,11 @@ package egovframework.com.muscat.appr.service;
 
 import java.util.List;
 
+import egovframework.com.muscat.common.ResultVO;
+
 public interface ApprService {
 	
-	
-	
-
-	String test();
+	ResultVO regApprDoc(ApprDocVO apprDoc);
 	
 	List<ApprDocVO> getApprDocRecent();
 	

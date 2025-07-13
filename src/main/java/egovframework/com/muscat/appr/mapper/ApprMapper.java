@@ -11,13 +11,17 @@ import egovframework.com.muscat.appr.service.DocFormVO;
 @Mapper
 public interface ApprMapper {
 	
-	String selectTime();
+	int insertApprLine(ApprDocVO apprDoc);
+
+	int insertApprDoc(ApprDocVO apprDoc);
+	
+	int insertApprApprovers(ApprDocVO apprDoc);
+	
+	int insertApprReferences(ApprDocVO apprDoc);
 	
 	List<ApprDocVO> selectApprDocRecent();
 	
 	List<ApprDocVO> selectApprDocHistory();
-	
-	
 	
 	// 문서양식 등록
 	int insertDocForm(DocFormVO docForm);
