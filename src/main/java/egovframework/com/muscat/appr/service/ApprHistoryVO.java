@@ -13,4 +13,5 @@ public class ApprHistoryVO extends ApprLineDetailVO {
 	private Date frstRegistPnttm;
 	private Date lastUpdtPnttm;
 	private String adocId;
+	private String ahistoryStatus;
 }
