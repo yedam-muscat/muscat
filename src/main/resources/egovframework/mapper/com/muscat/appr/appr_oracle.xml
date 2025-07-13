@@ -4,9 +4,11 @@
 <mapper
 	namespace="egovframework.com.muscat.appr.mapper.ApprMapper">
 
-	<select id="selectTime" resultType="string">
-		SELECT SYSDATE FROM DUAL
-	</select>
+	<insert id="insertApprLine" parameterType="apprDocVO">
+		INSERT INTO APPRLINE
+		VALUE ('ALINE-' || APPRLINE_SEQ.nextval,  #{mberId})
+	</insert>
+
 
 	<insert id="insertDocForm" parameterType="docFormVO">
 		INSERT INTO DOCFORM

@@ -10,6 +10,7 @@ import egovframework.com.muscat.appr.service.ApprDocVO;
 import egovframework.com.muscat.appr.service.ApprService;
 import egovframework.com.muscat.appr.service.DocFormSearchVO;
 import egovframework.com.muscat.appr.service.DocFormVO;
+import egovframework.com.muscat.common.ResultVO;
 
 @Service
 public class ApprServiceImpl implements ApprService {
@@ -17,9 +18,24 @@ public class ApprServiceImpl implements ApprService {
 	@Autowired
 	ApprMapper apprMapper;
 
+	// 트랜잭션 처리 고려할 것, 오류 처리
 	@Override
-	public String test() {
-		return apprMapper.selectTime();
+	public ResultVO regApprDoc(ApprDocVO apprDoc) {
+		ResultVO result = new ResultVO();
+	
+		int count = apprMapper.insertApprLine(apprDoc);
+	
+		count = apprMapper.insertApprDoc(apprDoc);
+		
+		count = apprMapper.insertApprApprovers(apprDoc);
+		
+		count = apprMapper.insertApprReferences(apprDoc);
+		
+		result.setResultCode("");
+		result.setResultMsg("");
+		result.setResultSuccess(true);
+		
+		return result;
 	}
 
 	@Override
@@ -47,5 +63,4 @@ public class ApprServiceImpl implements ApprService {
 	public int getDocFormListTotCnt(DocFormSearchVO docFormSearch) {
 		return apprMapper.selectDocFormListTotCnt(docFormSearch);
 	}
-
 }
