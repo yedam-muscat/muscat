@@ -1,4 +1,3 @@
-<!-- /WEB-INF/views/board/articleList.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -7,43 +6,36 @@
   <meta charset="UTF-8">
   <title>게시글 목록</title>
 
-  <!-- jQuery · Bootstrap · Bootstrap-icons -->
-  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-  <link  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"  rel="stylesheet">
-  <link  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Bootstrap 아이콘 (🔊 📎 🔒 …) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
+  <!-- 기본 링크/셀 스타일 -->
   <style>
-    /* 기본 링크/셀 스타일 */
-    a{color:inherit;text-decoration:none}
-    a:hover{text-decoration:underline}
-    td.title-cell{white-space:nowrap}
+    a            { color:inherit; text-decoration:none }
+    a:hover      { text-decoration:underline }
+    td.title-cell{ white-space:nowrap }
 
-    /* ── 댓글 수 뱃지 ── */
+    /* 댓글 수 뱃지 */
     .cmt-badge{
-      display:inline-flex;align-items:center;gap:.25rem;
-      font-size:.75rem;background:#f1f3f5;color:#0d6efd;
-      border-radius:.4rem;padding:.05rem .4rem
+      display:inline-flex; align-items:center; gap:.25rem;
+      font-size:.75rem; background:#f1f3f5; color:#0d6efd;
+      border-radius:.5rem; padding:.05rem .45rem
     }
+    /* 첨부/공지 아이콘 */
+    .attach-icon{ font-size:1rem; color:#6c757d }
+    .notice-icon{ font-size:1.05rem; color:#dc3545; vertical-align:-.05em }
 
-    /* ── (NEW) 제목이 길면 … 처리 ──
-       - 셀 전체 대신 a 태그만 잘라 주면 ↓ 중첩 공백·들여쓰기에도 자연스러움  */
-    .title-link{
-      display:inline-block;          /* inline 요소에 너비 지정 */
-      max-width:420px;               /* ★ 원하는 최대 너비 조절 */
-      overflow:hidden;
-      text-overflow:ellipsis;
-      vertical-align:middle;
-      white-space:nowrap;
-    }
-    /* 첨부 클립 아이콘 */
-    .attach-icon{font-size:1rem;color:#6c757d}
+    /* 비밀글(타인) – 글자·커서·hover 비활성화 */
+    .locked            { color:#adb5bd!important; cursor:not-allowed!important }
+    .locked:hover      { text-decoration:none!important }
+    .locked-row:hover  { background:inherit!important }
   </style>
 </head>
 
-<main layout:fragment="content" class="container mt-4">
+<main layout:fragment="content">
   <h2 id="boardTitle" class="fw-bold mb-3">📄 게시글 목록</h2>
 
-  <!-- 검색 + 새글쓰기 -->
+  <!-- ===== 검색 + 새글 ===== -->
   <div class="d-flex align-items-center gap-2 mb-3">
     <select id="searchCnd" class="form-select form-select-sm" style="width:130px">
       <option value="0">제목</option><option value="1">내용</option><option value="2">작성자</option>
@@ -51,11 +43,12 @@
     <input id="searchWrd" type="text" class="form-control form-control-sm" style="max-width:260px"
            placeholder="검색어를 입력하세요">
     <button id="btnSearch" class="btn btn-primary btn-sm">조회</button>
+
     <div class="flex-grow-1"></div>
     <button id="regBtn" class="btn btn-primary btn-sm">+ 새글쓰기</button>
   </div>
 
-  <!-- 목록 -->
+  <!-- ===== 목록 ===== -->
   <table class="table table-bordered align-middle">
     <thead class="table-light text-center">
       <tr>
@@ -73,43 +66,67 @@
   <nav><ul id="pagination" class="pagination justify-content-center"></ul></nav>
 
 <script>
-/* ===== 전역 ===== */
-const pageSize=10; let bbsId='', currentPage=1, gSearchCnd='0', gSearchWrd='';
+/* ───────── 전역 설정 ───────── */
+const pageSize = 10;
+let bbsId='', currentPage=1, gSearchCnd='0', gSearchWrd='';
 
-/* ===== 목록 ===== */
+/* ▷ 서버가 내려준 로그인 사용자 고유 ID (없으면 '') */
+const loginUserId = /*[[${loginUserId}]]*/ '';
+
+/* ───────── 글 목록 조회 ───────── */
 function loadArticleList(page=1){
-  currentPage=page;
-  const qs=new URLSearchParams({
-    bbsId,pageIndex:page,pageSize,
-    searchCnd:gSearchCnd,searchWrd:gSearchWrd
+  currentPage = page;
+  const qs = new URLSearchParams({
+    bbsId, pageIndex:page, pageSize,
+    searchCnd:gSearchCnd, searchWrd:gSearchWrd
   });
-  fetch('/muscat/board/articleList?'+qs)
-    .then(r=>r.json()).then(d=>{
-      const body=document.getElementById('articleBody'); body.innerHTML='';
-      const list=d.resultList||[], total=+d.resultCnt||0;
-      const totalPages=Math.ceil(total/pageSize);
+  fetch('/muscat/board/articleList?' + qs)
+    .then(r=>r.json())
+    .then(d=>{
+      const body = document.getElementById('articleBody');
+      body.innerHTML = '';
 
-      if(d.boardInfo?.bbsNm) document.getElementById('boardTitle').textContent='📄 '+d.boardInfo.bbsNm+' 게시글 목록';
+      const list  = d.resultList || [];
+      const total = +d.resultCnt || 0;
+      const totalPages = Math.ceil(total / pageSize);
 
-      if(!list.length){
-        body.innerHTML='<tr><td colspan="6" class="text-center">게시글이 없습니다.</td></tr>';
-      }else{
-        list.forEach((row,idx)=>{
-          const depth=+(row.replyLc||0);
-          const indent='&nbsp;'.repeat(depth*4);
-          const arrow=depth?'↳&nbsp;':'';
-          const badge=row.commentCnt>0?` <span class="cmt-badge">💬 ${row.commentCnt}</span>`:'';
-          const attachIcon=row.atchFileId?'<i class="bi bi-paperclip attach-icon"></i>':'';
+      if (d.boardInfo?.bbsNm)
+        document.getElementById('boardTitle').textContent = '📄 ' + d.boardInfo.bbsNm + ' 게시글 목록';
 
-          const tr=document.createElement('tr'); tr.className='text-center';
-          tr.innerHTML=`
-            <td>${total-((page-1)*pageSize)-idx}</td>
+      if (!list.length){
+        body.innerHTML = '<tr><td colspan="6" class="text-center">게시글이 없습니다.</td></tr>';
+      } else {
+        list.forEach((row, idx)=>{
+          const isNotice = row.noticeAt === 'Y';
+          const isBold   = row.sjBoldAt === 'Y';
+          const isSecret = row.secretAt === 'Y';
+          const isMine   = row.frstRegisterId === loginUserId;
+
+          /* ── 제목 링크 / 잠금 ── */
+          let titleTag;
+          if (isSecret && !isMine){          // 비밀글 + 타인
+            titleTag = `<span class="title-link locked" title="비밀글입니다.">${row.nttSj}</span>`;
+          }else{
+            titleTag = `<a class="title-link${isBold?' fw-bold':''}"
+                           href="/muscat/board/articleDetail.do?bbsId=${bbsId}&nttId=${row.nttId}">
+                           ${row.nttSj}</a>`;
+          }
+
+          /* ── 아이콘/뱃지 구성 ── */
+          const noticeIcon = isNotice ? '<i class="bi bi-megaphone-fill notice-icon me-1"></i>' : '';
+          const lockIcon   = isSecret ? '<i class="bi bi-lock-fill text-danger me-1"></i>'     : '';
+          const attachIcon = row.atchFileId ? '<i class="bi bi-paperclip attach-icon"></i>'    : '';
+          const cmtBadge   = row.commentCnt>0 ? ` <span class="cmt-badge">💬 ${row.commentCnt}</span>` : '';
+
+          /* ── 행 레코드 ── */
+          const tr = document.createElement('tr');
+          if (isSecret && !isMine) tr.classList.add('locked-row');   // hover X
+          tr.classList.add('text-center');
+
+          tr.innerHTML = `
+            <td>${total - ((page-1)*pageSize) - idx}</td>
             <td class="text-start title-cell">
-               ${indent}${arrow}
-               <a class="title-link"
-                  href="/muscat/board/articleDetail.do?bbsId=${bbsId}&nttId=${row.nttId}">
-                  ${row.nttSj}
-               </a>${badge}
+              ${noticeIcon}${lockIcon}${titleTag}${cmtBadge}
             </td>
             <td>${attachIcon}</td>
             <td>${row.frstRegisterNm||''}</td>
@@ -123,36 +140,47 @@ function loadArticleList(page=1){
     .catch(()=>alert('목록 로딩 중 오류가 발생했습니다.'));
 }
 
-/* ===== 페이지네이션 ===== */
-function renderPagination(totalPages){
-  const pag=document.getElementById('pagination'); pag.innerHTML='';
-  const add=(lbl,p,dis,act)=>{
-    const li=document.createElement('li');
-    li.className=`page-item ${act?'active':''} ${dis?'disabled':''}`;
-    li.innerHTML=`<a class="page-link" href="#">${lbl}</a>`;
-    li.querySelector('a').onclick=e=>{e.preventDefault(); if(!dis&&!act) loadArticleList(p);};
+/* ───────── 페이지네이션 ───────── */
+function renderPagination(total){
+  const pag = document.getElementById('pagination');
+  pag.innerHTML = '';
+  const add = (lbl,p,dis,act)=>{
+    const li = document.createElement('li');
+    li.className = `page-item ${act?'active':''} ${dis?'disabled':''}`;
+    li.innerHTML = `<a class="page-link" href="#">${lbl}</a>`;
+    li.querySelector('a').onclick = e=>{
+      e.preventDefault();
+      if(!dis && !act) loadArticleList(p);
+    };
     pag.appendChild(li);
   };
-  add('«',currentPage-1,currentPage===1);
-  const max=5; let s=Math.max(1,currentPage-Math.floor(max/2)), e=Math.min(totalPages,s+max-1);
-  if(e-s<max-1) s=Math.max(1,e-max+1);
+  add('«', currentPage-1, currentPage===1);
+  const max = 5;
+  let s = Math.max(1, currentPage-Math.floor(max/2));
+  let e = Math.min(total, s+max-1);
+  if(e-s < max-1) s = Math.max(1, e-max+1);
   for(let i=s;i<=e;i++) add(i,i,false,currentPage===i);
-  add('»',currentPage+1,currentPage===totalPages);
+  add('»', currentPage+1, currentPage===total || total===0);
 }
 
-/* ===== 검색 & 새글 ===== */
-$('#btnSearch').click(()=>{gSearchCnd=$('#searchCnd').val(); gSearchWrd=$('#searchWrd').val().trim(); loadArticleList(1);});
-$('#searchWrd').keyup(e=>{if(e.key==='Enter') $('#btnSearch').click();});
+/* ───────── 검색 & 새글쓰기 ───────── */
+$('#btnSearch').click(()=>{
+  gSearchCnd = $('#searchCnd').val();
+  gSearchWrd = $('#searchWrd').val().trim();
+  loadArticleList(1);
+});
+$('#searchWrd').keyup(e=>{ if(e.key==='Enter') $('#btnSearch').click(); });
 $('#regBtn').click(()=>location.href=`/muscat/board/articleRegist.do?bbsId=${bbsId}`);
 
-/* ===== init ===== */
+/* ───────── 초기화 ───────── */
 document.addEventListener('DOMContentLoaded',()=>{
-  const qs=new URLSearchParams(location.search);
-  bbsId=qs.get('bbsId')||'';
-  gSearchCnd=qs.get('searchCnd')||'0';
-  gSearchWrd=qs.get('searchWrd')||'';
+  const qs = new URLSearchParams(location.search);
+  bbsId       = qs.get('bbsId') || '';
+  gSearchCnd  = qs.get('searchCnd') || '0';
+  gSearchWrd  = qs.get('searchWrd') || '';
   $('#searchCnd').val(gSearchCnd); $('#searchWrd').val(gSearchWrd);
-  if(!bbsId){alert('bbsId 파라미터가 없습니다.');return;}
+
+  if(!bbsId){ alert('bbsId 파라미터가 없습니다.'); return; }
   loadArticleList();
 });
 </script>

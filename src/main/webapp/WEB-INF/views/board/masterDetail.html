@@ -61,10 +61,13 @@
         <th>게시판 소개</th>
         <td colspan="3" id="bbsIntrcn"></td>
       </tr>
+
+      <!-- ★ 추가 선택사항(댓글 기능만 사용) -->
       <tr>
         <th>추가 선택사항</th>
-        <td colspan="3" id="option"></td>
+        <td colspan="3" id="optionTxt"></td>
       </tr>
+
       <tr>
         <th>게시판 주소</th>
         <td colspan="3">
@@ -83,61 +86,60 @@
   </div>
 
   <script>
-    // 0. 파라미터(bbsId) 확인
-    const urlParams = new URLSearchParams(window.location.search);
+    /* ===== 파라미터 체크 ===== */
+    const urlParams = new URLSearchParams(location.search);
     const bbsId = urlParams.get("bbsId");
     if (!bbsId) {
       Swal.fire("오류", "게시판 ID가 없습니다.", "error");
       throw new Error("bbsId missing");
     }
 
-    // 1. 상세조회 Ajax → 화면 반영
+    /* ===== 상세 조회 ===== */
     fetch(`/muscat/board/masterDetail?bbsId=${encodeURIComponent(bbsId)}`)
       .then(res => res.json())
       .then(data => {
-        // 기본 정보
+        /* ─ 기본 정보 ─ */
         document.getElementById("bbsNm").textContent             = data.bbsNm            || "-";
         document.getElementById("bbsTyCodeNm").textContent       = data.bbsTyCodeNm      || "-";
         document.getElementById("frstRegisterNm").textContent    = data.frstRegisterNm   || "-";
         document.getElementById("frstRegisterPnttm").textContent = data.frstRegisterPnttm|| "-";
-        document.getElementById("useAt").textContent             = data.useAt === "Y"    ? "예" : "아니오";
+        document.getElementById("useAt").textContent             = data.useAt === "Y" ? "예" : "아니오";
         document.getElementById("replyPosblAt").textContent      = data.replyPosblAt === "Y" ? "예" : "아니오";
         document.getElementById("fileAtchPosblAt").textContent   = data.fileAtchPosblAt === "Y" ? "예" : "아니오";
         document.getElementById("atchPosblFileNumber").textContent = data.atchPosblFileNumber || "-";
 
-        // 카테고리 / 구분
+        /* ─ 카테고리/구분 ─ */
         document.getElementById("categoryMain").textContent  = data.categoryMainNm  || "-";
         document.getElementById("categoryScope").textContent = data.categoryScopeNm || "-";
 
-        // 부서게시판일 때만 부서명 표시
+        /* ─ 부서 표시 ─ */
         if (data.categoryScope === "BT101") {
           document.getElementById("deptRow").style.display = "";
-          // JSON에 deptFullNm 또는 deptNm 필드를 포함시켜야 합니다
           document.getElementById("deptFullNm").textContent =
             data.deptFullNm || data.deptNm || "-";
         }
 
-        // 소개 / 옵션
+        /* ─ 소개 ─ */
         document.getElementById("bbsIntrcn").innerHTML =
-          (data.bbsIntrcn || "").replace(/\n/g, "<br>");
-        document.getElementById("option").textContent =
-          data.option === "comment" ? "댓글 기능"
-        : data.option === "stsfdg"  ? "만족도 조사"
-        : "미선택";
+          (data.bbsIntrcn || "").replace(/\n/g,"<br>");
 
-        // 게시판 링크
+        /* ★ 추가 선택사항 (댓글 기능만) */
+        const optTxt = (data.option === "comment") ? "댓글 기능" : "미사용";
+        document.getElementById("optionTxt").textContent = optTxt;
+
+        /* ─ 게시판 주소 ─ */
         const articleUrl = `/muscat/board/articleList.do?bbsId=${bbsId}`;
-        const link       = document.getElementById("bbsUrl");
+        const link = document.getElementById("bbsUrl");
         link.textContent = articleUrl;
-        link.href        = articleUrl;
+        link.href = articleUrl;
 
-        // 수정 버튼 링크
+        /* 수정 버튼 링크 */
         document.getElementById("editBtn").href =
           `/muscat/board/masterUpdt.do?bbsId=${bbsId}`;
       })
       .catch(() => Swal.fire("오류", "상세정보를 불러오지 못했습니다.", "error"));
 
-    // 2. 삭제
+    /* ===== 삭제 ===== */
     document.getElementById("deleteBtn").addEventListener("click", () => {
       Swal.fire({
         title: "삭제하시겠습니까?",
@@ -151,7 +153,7 @@
         fetch("/muscat/board/masterDelete", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body:    JSON.stringify({ bbsId })
+          body: JSON.stringify({ bbsId })
         })
         .then(res => res.json())
         .then(ret => {

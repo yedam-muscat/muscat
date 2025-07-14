@@ -22,11 +22,10 @@
     }
   </style>
 </head>
-<body>
-<main layout:fragment="content" class="container mt-4">
+<main layout:fragment="content">
   <h2>✏ 게시글 수정</h2>
 
-  <form id="editForm" enctype="multipart/form-data">
+  <form id="editForm" enctype="multipart/form-data" style="max-width:700px; margin-left:40px;">
     <!-- 숨겨진 필드 -->
     <input type="hidden" name="bbsId" id="bbsId">
     <input type="hidden" name="nttId" id="nttId">
@@ -38,11 +37,11 @@
       <input type="text" class="form-control" id="nttSj" name="nttSj" required>
     </div>
 
-    <!-- 제목 굵게 
+    <!-- 제목 굵게 -->
     <div class="mb-3 form-check">
       <input type="checkbox" class="form-check-input" id="sjBoldAt" name="sjBoldAt" value="Y">
       <label class="form-check-label" for="sjBoldAt">제목 굵게</label>
-    </div>-->
+    </div>
 
     <!-- 내용 -->
     <div class="mb-3">
@@ -50,7 +49,7 @@
       <textarea class="form-control" id="nttCn" name="nttCn" rows="10" required></textarea>
     </div>
 
-    <!-- 공지/비밀 
+    <!-- 공지/비밀 -->
     <div class="mb-3 form-check">
       <input type="checkbox" class="form-check-input" id="noticeAt" name="noticeAt" value="Y">
       <label class="form-check-label" for="noticeAt">공지글</label>
@@ -58,7 +57,7 @@
     <div class="mb-3 form-check">
       <input type="checkbox" class="form-check-input" id="secretAt" name="secretAt" value="Y">
       <label class="form-check-label" for="secretAt">비밀글</label>
-    </div>-->
+    </div>
 
     <!-- 게시기간 -->
     <div class="mb-3">
@@ -155,5 +154,4 @@
     });
   </script>
 </main>
-</body>
 </html>
