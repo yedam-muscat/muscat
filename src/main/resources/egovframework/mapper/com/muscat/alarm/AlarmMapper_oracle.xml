@@ -35,7 +35,9 @@ insert into COMTNNTFCINFO (
 	,BBS_ID
 	,NTCN_CH_CONTECT
 	,NTCN_CH_ID
-	,MBER_ID)
+	,MBER_ID
+	,READ_YN
+	,LINK_URL)
 values(
 	#{ntcnNo}
 	,#{ntcnSj}
@@ -47,7 +49,9 @@ values(
 	,#{bbsId}
 	,#{ntcnChContect}
 	,#{ntcnChId}
-	,#{mberId})	
+	,#{mberId}
+	,#{readYn}
+	,#{linkUrl})	
 </insert>
 
 
