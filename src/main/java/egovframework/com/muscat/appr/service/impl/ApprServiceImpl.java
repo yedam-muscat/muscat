@@ -1,6 +1,7 @@
 package egovframework.com.muscat.appr.service.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -103,6 +104,55 @@ public class ApprServiceImpl implements ApprService {
 	@Override
 	public int getDocFormListTotCnt(DocFormSearchVO docFormSearch) {
 		return apprMapper.selectDocFormListTotCnt(docFormSearch);
+	}
+
+	// 결재처리
+	@Override
+	public int handleAppr(ApprHistoryVO apprHistory) {
+		return apprMapper.insertApprHistory(apprHistory);
+	}
+
+	// 결재순번 확인
+	@Override
+	public boolean isLastAppr(ApprHistoryVO apprHistory) {
+		return apprMapper.isLastApprover(apprHistory);
+	}
+
+	// 문서 상태 갱신
+	@Override
+	public int modifyApprDoc(Map<String, String> param) {
+		return apprMapper.updateApprDoc(param);
+	}
+
+	// 문서함 3총사
+	@Override
+	public List<ApprDocVO> regHistory(ApprDocSearchVO apprDocSearchVO) {
+		return apprMapper.selectRegHistory(apprDocSearchVO);
+	}
+
+	@Override
+	public List<ApprDocVO> reqHistory(ApprDocSearchVO apprDocSearchVO) {
+		return apprMapper.selectReqHistory(apprDocSearchVO);
+	}
+
+	@Override
+	public List<ApprDocVO> refHistory(ApprDocSearchVO apprDocSearchVO) {
+		return apprMapper.selectRefHistory(apprDocSearchVO);
+	}
+
+	@Override
+	public int regHistoryTotCnt(ApprDocSearchVO apprDocSearchVO) {
+		return apprMapper.regHistoryTotCnt(apprDocSearchVO);
+	}
+
+	@Override
+	public int reqHistoryTotCnt(ApprDocSearchVO apprDocSearchVO) {
+		return apprMapper.reqHistoryTotCnt(apprDocSearchVO);
+	}
+
+	@Override
+	public int refHistoryTotCnt(ApprDocSearchVO apprDocSearchVO) {
+		return apprMapper.refHistoryTotCnt(apprDocSearchVO);
 	}
 
 }

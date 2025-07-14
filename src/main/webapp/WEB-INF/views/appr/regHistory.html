@@ -47,8 +47,8 @@
 	</nav>
 
 	<script th:inline="javascript">
-		let tempListUrl = /*[[ @{/admin/user/userList.do} ]]*/ '';
-		let tempDetailUrl = /*[[ @{/admin/user/userDetail.do} ]]*/ '';
+		let listUrl = /*[[ @{/appr/reqHistoryList.do} ]]*/ '';
+		let detailUrl = /*[[ @{/appr/reqHistoryDetail.do} ]]*/ '';
 	</script>
 	<script>
     const pageSize = 10;
@@ -62,11 +62,12 @@
         
     	$.ajax({
 			type : "GET",
-			url : tempListUrl,
+			url : listUrl,
 			data : {
 				pageIndex : page,
 				searchCondition : searchCondition,
 				searchKeyword : searchKeyword,
+				mberId : loginVO.id
 			},
 		}).done(function(data, textStatus, xhr) {
 	        let tbody = $('#listBody');
@@ -90,7 +91,7 @@
 	        
 	        tbody.on('click', 'tr', function () {
 	        	  const id = $(this).data('temp-id');
-	        	  window.location.href = `${tempDetailUrl}?selectedId=${encodeURIComponent(id)}`;
+	        	  window.location.href = `${detailUrl}?id=${encodeURIComponent(id)}`;
 	        	});
 
 	        renderPagination(totalPages);
@@ -132,7 +133,7 @@
 
     // 초기 로딩
     document.addEventListener('DOMContentLoaded', () => {
-    	//loadList();
+    	loadList();
     	
     	$('#btnSearch').on('click', function() {
     	    searchCondition = $('#searchCondition').val();

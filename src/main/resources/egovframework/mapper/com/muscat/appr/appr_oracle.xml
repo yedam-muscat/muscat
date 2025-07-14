@@ -97,9 +97,11 @@
 		mb.mber_nm
 		FROM
 		VW_PENDING_APPR PA
-		JOIN DOCFORM DF ON PA.dform_id = DF.dform_id
+		JOIN DOCFORM DF ON
+		PA.dform_id = DF.dform_id
 		JOIN
-		COMTNGNRLMBER MB ON pa.mber_id = mb.mber_id
+		COMTNGNRLMBER MB ON pa.mber_id =
+		mb.mber_id
 		WHERE pa.mber_id =
 		#{mberId}
 		AND 1=1
@@ -156,10 +158,12 @@
 		MB.MBER_NM
 		FROM APPRDOC AP
 		JOIN DOCFORM DF ON
-		AP.dform_id = DF.dform_id
+		AP.dform_id =
+		DF.dform_id
 		JOIN COMTNGNRLMBER MB ON AP.mber_id =
 		MB.mber_id
-		WHERE AP.ADOC_ID =
+		WHERE
+		AP.ADOC_ID =
 		#{adocId}
 	</select>
 
@@ -180,6 +184,233 @@
 		WHERE ADOC_ID = #{adocId}
 		ORDER BY
 		aline_order
+	</select>
+
+	<insert id="insertApprHistory" parameterType="apprHistoryVO">
+		INSERT INTO
+		APPRHISTORY
+		(
+		AHISTORY_ID
+		,MBER_ID
+		,ALINE_ORDER
+		,APPR_TYPE
+		,AHISTORY_COMMENT
+		,FRST_REGIST_PNTTM
+		,LAST_UPDT_PNTTM
+		,ADOC_ID
+		,ALINE_DETAIL_ID
+		,AHISTORY_STATUS
+		)
+		VALUES
+		(
+		'AHIS-' ||
+		TO_CHAR(APPRHISTORY_SEQ.NEXTVAL)
+		, #{mberId}
+		, #{alineOrder}
+		,
+		#{apprType}
+		, #{ahistoryComment}
+		, SYSDATE
+		, SYSDATE
+		, #{adocId}
+		,
+		#{alineDetailId}
+		, #{ahistoryStatus}
+		)
+	</insert>
+
+	<!-- 결재 순번 확인 -->
+	<select id="isLastApprover" parameterType="apprHistoryVO"
+		resultType="boolean">
+		SELECT
+		CASE
+		WHEN (SELECT ALINE_ORDER FROM APPRLINEDETAIL
+		WHERE ALINE_ID = #{alineId}
+		AND TRIM(MBER_ID) =
+		TRIM(#{mberId}))
+		=
+		(SELECT
+		MAX(ALINE_ORDER) FROM APPRLINEDETAIL WHERE ALINE_ID =
+		#{alineId})
+		THEN 1
+		ELSE 0
+		END
+		FROM DUAL
+	</select>
+
+	<!-- 문서 상태 갱신 -->
+	<update id="updateApprDoc" parameterType="map">
+		UPDATE APPRDOC
+		SET
+		APPR_STATUS = #{apprStatus}
+		WHERE ADOC_ID = #{adocId}
+	</update>
+
+	<select id="selectRegHistory" parameterType="apprDocSearchVO"
+		resultType="apprDocVO">
+		SELECT * FROM ( SELECT rownum rn, TB.* FROM (
+		SELECT
+		AD.ADOC_ID,
+		AD.APPR_STATUS,
+		FIND_CODENAME(AD.APPR_STATUS,
+		'COM106') AS
+		APPR_STATU_NAME ,
+		AD.ALINE_ID,
+		AD.DFORM_ID,
+		AD.DFORM_NAME,
+		AD.ADOC_TITLE,
+		AD.MBER_ID,
+		AD.MBER_NM
+		FROM VW_APPRDOC_DETAIL AD
+		WHERE
+		AD.MBER_ID =
+		#{mberId}
+		AND AD.APPR_STATUS IN ('A2', 'A3')
+		<if
+			test="@egovframework.com.cmm.util.EgovMybatisUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">AND
+				DFORM_ID LIKE '%' || #{searchKeyword} || '%'
+			</if>
+			<if test="searchCondition == 1">AND
+				MBER_ID LIKE '%' ||#{searchKeyword}|| '%'
+			</if>
+		</if>
+		<![CDATA[
+        ORDER BY 1 DESC
+        ) TB ) WHERE rn BETWEEN #{firstIndex} + 1 AND #{firstIndex} + #{recordCountPerPage}
+        ]]>
+	</select>
+
+	<select id="regHistoryTotCnt" parameterType="apprDocSearchVO"
+		resultType="int">
+		SELECT COUNT(1)
+		FROM VW_APPRDOC_DETAIL AD
+		WHERE
+		AD.MBER_ID =
+		#{mberId}
+		AND
+		AD.APPR_STATUS IN ('A2', 'A3')
+		<if
+			test="@egovframework.com.cmm.util.EgovMybatisUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">AND
+				DFORM_ID LIKE '%' || #{searchKeyword} || '%'
+			</if>
+			<if test="searchCondition == 1">AND
+				MBER_ID LIKE '%' ||#{searchKeyword}|| '%'
+			</if>
+		</if>
+	</select>
+
+	<select id="selectReqHistory" parameterType="apprDocSearchVO"
+		resultType="apprDocVO">
+		SELECT * FROM ( SELECT rownum rn, TB.* FROM (
+		SELECT DISTINCT
+		AD.ADOC_ID,
+		AD.APPR_STATUS,
+		FIND_CODENAME(AD.APPR_STATUS, 'COM106') AS
+		APPR_STATU_NAME ,
+		AD.ALINE_ID,
+		AD.DFORM_ID,
+		AD.DFORM_NAME,
+		AD.ADOC_TITLE,
+		AD.MBER_ID,
+		AD.MBER_NM
+		FROM VW_APPRDOC_DETAIL AD
+		JOIN APPRLINE AL ON
+		AD.aline_Id =
+		AL.aline_Id
+		JOIN APPRLINEDETAIL ALD ON AL.aline_Id =
+		ALD.aline_Id
+		WHERE
+		APPR_STATUS IN ('A1', 'A2', 'A3')
+		AND ALD.MBER_ID =
+		#{mberId}
+		<if
+			test="@egovframework.com.cmm.util.EgovMybatisUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">AND
+				DFORM_ID LIKE '%' || #{searchKeyword} || '%'
+			</if>
+			<if test="searchCondition == 1">AND
+				MBER_ID LIKE '%' ||#{searchKeyword}|| '%'
+			</if>
+		</if>
+		<![CDATA[
+        ORDER BY 1 DESC
+        ) TB ) WHERE rn BETWEEN #{firstIndex} + 1 AND #{firstIndex} + #{recordCountPerPage}
+        ]]>
+	</select>
+
+	<select id="reqHistoryTotCnt" parameterType="apprDocSearchVO"
+		resultType="int">
+		SELECT COUNT(1)
+		FROM VW_APPRDOC_DETAIL AD
+		JOIN APPRLINE AL ON
+		AD.aline_Id =
+		AL.aline_Id
+		JOIN APPRLINEDETAIL ALD ON AL.aline_Id =
+		ALD.aline_Id
+		WHERE
+		APPR_STATUS IN ('A1', 'A2', 'A3')
+		AND ALD.MBER_ID =
+		#{mberId}
+		<if
+			test="@egovframework.com.cmm.util.EgovMybatisUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">AND
+				DFORM_ID LIKE '%' || #{searchKeyword} || '%'
+			</if>
+			<if test="searchCondition == 1">AND
+				MBER_ID LIKE '%' ||#{searchKeyword}|| '%'
+			</if>
+		</if>
+	</select>
+
+	<select id="selectRefHistory" parameterType="apprDocSearchVO"
+		resultType="apprDocVO">
+		SELECT * FROM ( SELECT rownum rn, TB.* FROM (
+		SELECT
+		AD.ADOC_ID,
+		AD.APPR_STATUS,
+		FIND_CODENAME(AD.APPR_STATUS, 'COM106') AS
+		APPR_STATU_NAME ,
+		AD.ALINE_ID,
+		AD.DFORM_ID,
+		AD.DFORM_NAME,
+		AD.ADOC_TITLE,
+		AD.MBER_ID,
+		AD.MBER_NM
+		FROM VW_APPRDOC_DETAIL AD
+		WHERE AD.MBER_ID =
+		#{mberId}
+		<if
+			test="@egovframework.com.cmm.util.EgovMybatisUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">AND
+				DFORM_ID LIKE '%' || #{searchKeyword} || '%'
+			</if>
+			<if test="searchCondition == 1">AND
+				MBER_ID LIKE '%' ||#{searchKeyword}|| '%'
+			</if>
+		</if>
+		<![CDATA[
+        ORDER BY 1 DESC
+        ) TB ) WHERE rn BETWEEN #{firstIndex} + 1 AND #{firstIndex} + #{recordCountPerPage}
+        ]]>
+	</select>
+
+	<select id="refHistoryTotCnt" parameterType="apprDocSearchVO"
+		resultType="int">
+		SELECT COUNT(1)
+		FROM VW_APPRDOC_DETAIL AD
+		WHERE AD.MBER_ID =
+		#{mberId}
+		<if
+			test="@egovframework.com.cmm.util.EgovMybatisUtil@isNotEmpty(searchKeyword)">
+			<if test="searchCondition == 0">AND
+				DFORM_ID LIKE '%' || #{searchKeyword} || '%'
+			</if>
+			<if test="searchCondition == 1">AND
+				MBER_ID LIKE '%' ||#{searchKeyword}|| '%'
+			</if>
+		</if>
 	</select>
 
 	<insert id="insertApprLine" parameterType="apprDocVO">

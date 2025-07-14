@@ -63,12 +63,13 @@
 								ahistoryStatus : ahistoryStatus,
 								mberId : loginVO.id,
 								alineOrder : apprOne.alineOrder,
+								alineId : apprOne.alineId,
 								alineDetailId : apprOne.alineDetailId,
 							};
 						
 						console.log(payload);
 						
-/* 						$.ajax({
+ 						$.ajax({
 							type : "POST",
 							url : handleUrl,
 							contentType : "application/json; charset=utf-8",
@@ -95,7 +96,7 @@
 								icon : "error",
 								title : "오류가 발생했습니다"
 							})
-						}); */
+						});
 					}
 					
 					
