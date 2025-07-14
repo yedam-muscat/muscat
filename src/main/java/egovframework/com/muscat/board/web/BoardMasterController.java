@@ -78,6 +78,9 @@ public class BoardMasterController {
 
         model.addAttribute("parent_dept_result", parents);
         model.addAttribute("child_dept_result",  childs);
+        
+        /* ★ 화면의 <option th:each="d : ${dept_result}"> 용 전체 리스트 */
+        model.addAttribute("dept_result", all);   // ← 이 한 줄만 추가!
 
         /* JS에서 안전히 쓰고 싶다면 ↓ 직렬화 */
         String childJson = new ObjectMapper().writeValueAsString(childs);

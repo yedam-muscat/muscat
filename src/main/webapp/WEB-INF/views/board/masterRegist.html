@@ -16,8 +16,8 @@
 <main layout:fragment="content">
   <h2>📝 게시판 등록</h2>
 
-  <form id="bbsForm" style="max-width:700px;margin-left:40px;">
-    <!-- ───────────── 기본정보 ───────────── -->
+  <form id="bbsForm" style="max-width:700px; margin-left:40px;">
+    <!-- ─────────── 기본정보 ─────────── -->
     <div class="mb-3">
       <label class="form-label">게시판명 <span class="text-danger">*</span></label>
       <input type="text" class="form-control" name="bbsNm" required>
@@ -31,7 +31,7 @@
     <input type="hidden" name="bbsTyCode" value="BBST01">
     <input type="hidden" id="deptId"   name="deptId"><!-- 최종 부서코드 -->
 
-    <!-- ───────────── 카테고리 / 구분 ───────────── -->
+    <!-- ─────────── 카테고리 / 구분 ─────────── -->
     <div class="mb-3">
       <label class="form-label">게시판 카테고리 <span class="text-danger">*</span></label>
       <select id="categoryMain" name="categoryMain" class="form-select" required>
@@ -46,26 +46,28 @@
       </select>
     </div>
 
-    <!-- ───────────── 부서 선택 (부서게시판일 때만) ───────────── -->
+    <!-- ─────────── 부서 선택 (부서게시판) ─────────── -->
     <div id="deptWrap" class="mb-3" style="display:none">
-      <label class="form-label fw-bold">부서선택 <span class="text-danger">*</span></label>
-
-      <div class="d-flex gap-2">
-        <!-- 상위 부서 -->
-        <select id="parentDept" class="form-select">
-          <option value="">-- 상위 부서 --</option>
-          <option th:each="p : ${parent_dept_result}"
-                  th:value="${p.id}" th:text="${p.text}"></option>
-        </select>
-
-        <!-- 하위 부서 -->
-        <select id="childDept" class="form-select">
-          <option value="">-- 하위 부서 --</option>
-        </select>
-      </div>
+      <label class="form-label fw-bold">부서 선택 <span class="text-danger">*</span></label>
+      <select id="deptSelect" class="form-select">
+        <option value="">-- 부서 선택 --</option>
+        <option th:each="d : ${dept_result}"
+                th:value="${d.id}"
+                th:text="${d.text}"></option>
+      </select>
     </div>
 
-    <!-- ───────────── 기타 옵션 (생략 없이 유지) ───────────── -->
+    <!-- ─────────── ★ 댓글 기능 사용 여부 ─────────── -->
+    <div class="mb-3">
+      <label class="form-label">댓글 기능 <span class="text-danger">*</span></label>
+      <select id="commentOption" name="option" class="form-select" required>
+        <option value="">-- 선택하세요 --</option>
+        <option value="comment">사용</option>
+        <option value="na">미사용</option><!-- ‘na’ 는 기존 로직과 호환 -->
+      </select>
+    </div>
+
+    <!-- ─────────── 파일/첨부 옵션 ─────────── -->
     <div class="mb-3">
       <label class="form-label">답장 가능 여부 <span class="text-danger">*</span></label>
       <select name="replyPosblAt" class="form-select" required>
@@ -84,7 +86,8 @@
 
     <div class="mb-3">
       <label class="form-label">첨부 가능 파일 수 <span class="text-danger">*</span></label>
-      <select name="atchPosblFileNumber" class="form-select" required>
+      <select id="atchPosblFileNumber" name="atchPosblFileNumber"
+              class="form-select" required>
         <option value="0">없음</option><option value="1">1</option>
         <option value="2">2</option><option value="3">3</option>
       </select>
@@ -97,103 +100,75 @@
       </select>
     </div>
 
-    <!-- ───────────── 버튼 ───────────── -->
+    <!-- ─────────── 버튼 ─────────── -->
     <div class="mt-4">
       <button type="submit" class="btn btn-primary">등록</button>
       <a href="/muscat/board/masterList.do" class="btn btn-secondary">목록</a>
     </div>
   </form>
 
-  <!-- ───────────── SCRIPT ───────────── -->
+  <!-- ─────────── SCRIPT ─────────── -->
   <script th:inline="javascript">
-  /* ======= 상수 & 초기 데이터 ============================================ */
-  const SCOPE_DEPT       = 'BT101';                         // “부서게시판” 코드
-  const CHILD_DEPT_LIST  = /*[[${child_dept_result}]]*/ [];  // 하위부서 전체
+  const SCOPE_DEPT = 'BT101';       // 부서게시판
+  const CHILD_DEPT_LIST = /*[[${child_dept_result}]]*/ [];
 
-  /* ======= 공통상세코드 비동기 로딩 ====================================== */
-  async function loadCodes(codeId, targetId) {
-    try {
-      const res  = await fetch(`/muscat/board/commonCodes?groupCode=${codeId}`);
-      const list = await res.json();
-      const sel  = document.getElementById(targetId);
-      list.forEach(c => sel.add(new Option(c.codeNm, c.code)));
-    } catch (e) {
-      console.error(`${codeId} 로딩 실패`, e);
-    }
+  /* 공통코드 로딩 */
+  async function loadCodes(codeId, targetId){
+    const res  = await fetch(`/muscat/board/commonCodes?groupCode=${codeId}`);
+    const list = await res.json();
+    const sel  = document.getElementById(targetId);
+    list.forEach(c=>sel.add(new Option(c.codeNm,c.code)));
   }
 
-  /* ======= 상위 → 하위 부서 동적 로딩 ==================================== */
-  function bindChild(parentId) {
-    const childSel = document.getElementById('childDept');
-    childSel.innerHTML = '<option value="">-- 하위 부서 --</option>';
-
-    CHILD_DEPT_LIST
-      .filter(d => d.parent === parentId)
-      .forEach(d => childSel.add(new Option(d.text, d.id)));
-
-    /* 하위 옵션이 있으면 필수, 없으면 비필수 */
-    childSel.required = CHILD_DEPT_LIST.some(d => d.parent === parentId);
+  /* 부서 영역 토글 */
+  function toggleDept(scopeVal){
+    const wrap=document.getElementById('deptWrap');
+    const sel =document.getElementById('deptSelect');
+    if(scopeVal===SCOPE_DEPT){ wrap.style.display=''; sel.required=true; }
+    else{ wrap.style.display='none'; sel.required=false; sel.value=''; }
   }
 
-  /* ======= 부서선택 영역 토글 =========================================== */
-  function toggleDept(scopeVal) {
-    const wrap = document.getElementById('deptWrap');
-    const pSel = document.getElementById('parentDept');
-    const cSel = document.getElementById('childDept');
-
-    if (scopeVal === SCOPE_DEPT) {            // 부서게시판
-      wrap.style.display = '';
-      pSel.required = true;
-    } else {                                  // 그 외 게시판
-      wrap.style.display = 'none';
-      pSel.required = false;
-      cSel.required = false;
-      pSel.value = ''; cSel.value = '';
-    }
-  }
-
-  /* ======= 초기화 ======================================================== */
-  document.addEventListener('DOMContentLoaded', () => {
-    loadCodes('COM104', 'categoryMain');   // 카테고리
-    loadCodes('COM105', 'categoryScope');  // 구분
-
-    const scopeSel = document.getElementById('categoryScope');
-    scopeSel.addEventListener('change', e => toggleDept(e.target.value));
-
-    document.getElementById('parentDept')
-            .addEventListener('change', e => bindChild(e.target.value));
-
-    /* 최초 로드 시 기본 구분 값에 따라 토글 */
-    toggleDept(scopeSel.value);
+  document.addEventListener('DOMContentLoaded',()=>{
+    loadCodes('COM104','categoryMain');
+    loadCodes('COM105','categoryScope');
+    document.getElementById('categoryScope')
+            .addEventListener('change',e=>toggleDept(e.target.value));
+    toggleDept(document.getElementById('categoryScope').value);
   });
 
-  /* ======= 저장 ========================================================== */
-  document.getElementById('bbsForm').addEventListener('submit', async e => {
+  /* 파일첨부 숫자 활성/비활성 */
+  document.getElementById('fileAtchPosblAt').addEventListener('change',e=>{
+    document.getElementById('atchPosblFileNumber').disabled=(e.target.value==='N');
+  });
+
+  /* 저장 */
+  document.getElementById('bbsForm').addEventListener('submit',async e=>{
     e.preventDefault();
+    document.getElementById('deptId').value =
+        document.getElementById('deptSelect').value;
 
-    /* deptId : 하위부서가 있으면 하위, 없으면 상위 */
-    const p = document.getElementById('parentDept').value;
-    const c = document.getElementById('childDept').value;
-    document.getElementById('deptId').value = c || p;
+    const payload=Object.fromEntries(new FormData(e.target).entries());
 
-    const payload = Object.fromEntries(new FormData(e.target).entries());
+    /* ‘미사용’ 선택 시 option 값을 빈 문자열로 보내도 되지만
+       기존 서비스 로직(빈값→'na')에 맞춰 na 로 전송하도록 처리 */
+    if(payload.option==='na') payload.option='na';
 
-    try {
-      const res  = await fetch('/muscat/board/masterInsert', {
-        method : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body   : JSON.stringify(payload)
+    try{
+      const res=await fetch('/muscat/board/masterInsert',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload)
       });
-      const json = await res.json();
-      if (res.ok && json.resultCode === 'SUCCESS') {
-        await Swal.fire('성공', '게시판이 등록되었습니다.', 'success');
-        location.href = '/muscat/board/masterList.do';
-      } else {
-        Swal.fire('실패', json.resultMessage || '등록 실패', 'error');
+      const json=await res.json();
+      if(res.ok&&json.resultCode==='SUCCESS'){
+        await Swal.fire('성공','게시판이 등록되었습니다.','success');
+        location.href='/muscat/board/masterList.do';
+      }else{
+        Swal.fire('실패',json.resultMessage||'등록 실패','error');
       }
-    } catch (err) {
+    }catch(err){
       console.error(err);
-      Swal.fire('오류', '서버 통신 실패', 'error');
+      Swal.fire('오류','서버 통신 실패','error');
     }
   });
   </script>

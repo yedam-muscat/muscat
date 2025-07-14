@@ -290,7 +290,11 @@
 			b.USER_NM LIKE '%' || #{searchWrd} || '%'
 		</if>
 
-		ORDER BY a.SORT_ORDR DESC, a.NTT_NO ASC, a.ANSWER_LC ASC
+		<!-- ① 공지(Y) 우선   ② 스레드(최신)   ③ 글 순서   ④ 답글 단계 -->
+		ORDER BY DECODE(a.NOTICE_AT,'Y',1,0) DESC   -- 공지글 → 항상 맨 위
+       , a.SORT_ORDR             DESC       -- 최신 글(스레드 번호)
+       , a.NTT_NO                ASC        -- 스레드 내 순서
+       , a.ANSWER_LC             ASC        -- 답글 들여쓰기
 		) TB ) WHERE
 		rn BETWEEN #{firstIndex} + 1 AND #{firstIndex} +
 		#{recordCountPerPage}
