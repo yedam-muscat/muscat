@@ -165,7 +165,7 @@
 			style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px; width: 100%; padding: 10px; box-sizing: border-box; height: 100vh;">
 			<!--  채팅방 목록 패널 (왼쪽 열) -->
 			<div id="chatListPanel"
-				style="background-color: #f8f9fa; border: 1px solid #ccc; border-radius: 5px; overflow-y: auto; height: 80%;">
+				style="background-color: #f8f9fa; border: 1px solid #ccc; border-radius: 5px; overflow-y: auto; height: 80%; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);">
 				<div class="d-flex justify-content-between align-items-center mb-2"
 					style="background-color: #0d6efd; color: white; padding: 10px; position: relative;">
 					<h5 style="margin: 0;">채팅방 목록</h5>
@@ -327,6 +327,8 @@
 
 		<script th:inline="javascript">
 			let webSocket;
+			let selectedRoomId = null; // 또는 빈 문자열 ''
+			var roomId = /*[[${roomId}]];*/'';
 			var username = /*[[${session.loginVO.id}]]*/ '';
 			//-------------------------------------------------------tree 조직도-------------------------------------------------------		
 			$(function () {
@@ -417,13 +419,18 @@
 							li.setAttribute("data-participants", JSON.stringify(room.usered || [])); // 반드시 필요!
 							li.setAttribute("contenteditable", true);	 // 방제목 수정
 							const unreadCount = room.unreadCount || 0;
-							li.innerHTML = `
-			        	    ${room.roomName}
-			        	    <span class="badge bg-danger">${unreadCount}</span> `;
+							li.innerHTML = `${room.roomName}<span class="badge bg-danger">${unreadCount}</span> `;
+			        	    
+			        	 //  이벤트 리스너 직접 추가
+			                li.addEventListener("click", function() {
+					          selectedRoomId = room.roomId;
+					          const participants = JSON.parse(li.getAttribute("data-participants") || "[]");
+					          openChatRoom(selectedRoomId, room.roomName, participants);
+					        });
 
 							chatList.appendChild(li);
 						});
-					})
+					    })
 					.catch(err => console.error("채팅방 불러오기 실패:", err));
 			}
 
@@ -600,7 +607,7 @@
 				});
 
 				// 채팅방 열기 함수
-				function openChatRoom(roomName, participants = []) {
+				function openChatRoom(roomId, roomName, participants = []) {
 					chatUserName.textContent = roomName; // 상단 사용자 이름 변경
 					chatRoom.style.display = 'flex'; // 채팅방 보이기
 					chatInput.disabled = false;
@@ -615,6 +622,21 @@
 						li.textContent = name;
 						chatUserList.appendChild(li);
 					});
+					// 4. 메시지 영역 초기화 및 서버에서 메시지 불러오기
+					  const chatMessages = document.getElementById("gridChatMessages");
+					  chatMessages.innerHTML = ""; // 초기화
+
+					  fetch(`/muscat/chat/findMessage.do?roomId=${roomId}`)
+					    .then(res => res.json())
+					    .then(data => {
+					      const messages = data.result || [];
+					      messages.forEach(msg => {
+					        const p = document.createElement("p");
+					        p.textContent = `[${msg.username}] ${msg.messageContent}`; // 메시지 형식에 맞게 수정 필요
+					        chatMessages.appendChild(p);
+					      });
+					    });
+
 
 					// 참여자 팝업 기본은 닫힌 상태
 					document.getElementById("userListPopup").style.display = "none";
@@ -859,7 +881,6 @@
 			function receiveMessage(fromUser, text) {
 				appendChatMessage(fromUser, text); // 내 메시지 호출
 			}
-
 
 			//접속 인원 표시
 			let currentChatTarget = null; // 또는 원하는 상대 이름

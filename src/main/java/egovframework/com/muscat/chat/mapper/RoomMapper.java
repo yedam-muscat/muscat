@@ -28,4 +28,6 @@ public interface RoomMapper {
 	List<MberManageVO> findMember(); //  인원 조회
 	
 	List<String> findroomAlarm(String userId); // 조직도 채팅
+
+	List<String> getUserNamesByIds(List<String> userList); // 채팅방
 }

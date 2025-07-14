@@ -37,4 +37,10 @@
 		void insertCalendarShare(CalendarShareVO vo);
 		
 		List<Map> selectSharedCalendars(String loginId);
+		
+		void updateCalendar(CalendarVO vo);
+		void updateSharedCalendar(CalendarVO vo);
+		
+		int deleteCalendar(@Param("calId") String calId);
+		int deleteSharedCalendar(@Param("calId") String calId);
 	}

@@ -16,7 +16,6 @@
 		<result property="tmplatId" column="TMPLAT_ID" />
 		<result property="useAt" column="USE_AT" />
 		<result property="frstRegisterPnttm" column="FRST_REGIST_PNTTM" />
-		<result property="deptId" column="DEPT_ID" />
 	</resultMap>
 
 	<resultMap id="boardMasterDetail"
@@ -47,6 +46,9 @@
 		<!-- 카테고리/구분 이름 -->
 		<result property="categoryMainNm" column="CATEGORY_MAIN_NM" />
 		<result property="categoryScopeNm" column="CATEGORY_SCOPE_NM" />
+		 <!-- ❖ 부서 -->
+    	<result property="deptId"    column="DEPT_ID"/>
+    	<result property="deptFullNm"         column="DEPT_FULL_NM"/>
 	</resultMap>
 
 	<resultMap id="boardMasterAll"
@@ -98,24 +100,27 @@
 		<result property="bbsNm" column="BBS_NM" />
 	</resultMap>
 
-	<!-- ================================================================ 2. 
-		INSERT =================================================================== -->
-	<insert id="insertBBSMaster"
-		parameterType="egovframework.com.cop.bbs.service.BoardMasterVO">
-		INSERT INTO COMTNBBSMASTER
-		(BBS_ID, BBS_TY_CODE, BBS_NM, BBS_INTRCN,
-		REPLY_POSBL_AT, FILE_ATCH_POSBL_AT, ATCH_POSBL_FILE_NUMBER,
-		TMPLAT_ID, USE_AT, CMMNTY_ID,
-		FRST_REGISTER_ID, FRST_REGIST_PNTTM,
-		BLOG_ID, BLOG_AT,
-		CATEGORY_MAIN, CATEGORY_SCOPE)
-		VALUES (#{bbsId}, #{bbsTyCode}, #{bbsNm}, #{bbsIntrcn},
-		#{replyPosblAt}, #{fileAtchPosblAt}, #{atchPosblFileNumber},
-		#{tmplatId}, #{useAt}, #{cmmntyId},
-		#{frstRegisterId}, SYSDATE,
-		#{blogId}, #{blogAt},
-		#{categoryMain}, #{categoryScope})
-	</insert>
+	<!-- ================================================================ 2. INSERT ================================================================ -->
+  <insert id="insertBBSMaster"
+          parameterType="egovframework.com.cop.bbs.service.BoardMasterVO">
+    INSERT INTO COMTNBBSMASTER (
+        BBS_ID, BBS_TY_CODE, BBS_NM, BBS_INTRCN,
+        REPLY_POSBL_AT, FILE_ATCH_POSBL_AT, ATCH_POSBL_FILE_NUMBER,
+        TMPLAT_ID, USE_AT, CMMNTY_ID,
+        FRST_REGISTER_ID, FRST_REGIST_PNTTM,
+        BLOG_ID, BLOG_AT,
+        CATEGORY_MAIN, CATEGORY_SCOPE,
+        DEPT_ID                    <!-- ❖ 새 컬럼 -->
+    ) VALUES (
+        #{bbsId}, #{bbsTyCode}, #{bbsNm}, #{bbsIntrcn},
+        #{replyPosblAt}, #{fileAtchPosblAt}, #{atchPosblFileNumber},
+        #{tmplatId}, #{useAt}, #{cmmntyId},
+        #{frstRegisterId}, SYSDATE,
+        #{blogId}, #{blogAt},
+        #{categoryMain}, #{categoryScope},
+        #{deptId}                  <!-- ❖ 바인딩 -->
+    )
+  </insert>
 
 	<!-- ================================================================ 3. 
 		게시판 목록 (selectBBSMasterList · TotCnt) : 원본 유지 =================================================================== -->
@@ -173,70 +178,81 @@
 		</if>
 	</select>
 
-	<!-- ================================================================ 4. 
-		상세조회 : 코드 → 이름 JOIN =================================================================== -->
-	<select id="selectBBSMasterDetail"
-		parameterType="egovframework.com.cop.bbs.service.BoardMasterVO"
-		resultMap="boardMasterDetail">
-		SELECT a.BBS_ID,
-		a.BBS_TY_CODE,
-		bt.CODE_NM AS BBS_TY_CODE_NM,
-		a.BBS_NM,
-		a.BBS_INTRCN,
-		a.TMPLAT_ID,
-		tpl.TMPLAT_NM,
-		tpl.TMPLAT_COURS,
-		a.FILE_ATCH_POSBL_AT,
-		a.ATCH_POSBL_FILE_NUMBER,
-		a.ATCH_POSBL_FILE_SIZE,
-		a.REPLY_POSBL_AT,
-		a.FRST_REGISTER_ID,
-		usr.USER_NM AS FRST_REGISTER_NM,
-		a.CMMNTY_ID,
-		a.USE_AT,
-		TO_CHAR(a.FRST_REGIST_PNTTM,'YYYY-MM-DD') AS FRST_REGIST_PNTTM,
-		a.CATEGORY_MAIN,
-		cm.CODE_NM AS CATEGORY_MAIN_NM,
-		a.CATEGORY_SCOPE,
-		cs.CODE_NM AS CATEGORY_SCOPE_NM,
-		(SELECT NVL(USE_AT,'N')
-		FROM COMTNBBSUSE
-		WHERE BBS_ID = #{bbsId}
-		AND TRGET_ID IN (#{uniqId}, 'SYSTEM_DEFAULT_BOARD')) AS AUTH_FLAG,
-		a.BLOG_ID
-		FROM COMTNBBSMASTER a
-		LEFT JOIN COMTCCMMNDETAILCODE bt
-		ON bt.CODE_ID='COM101' AND bt.USE_AT='Y' AND bt.CODE=a.BBS_TY_CODE
-		LEFT JOIN COMTNTMPLATINFO tpl
-		ON tpl.TMPLAT_ID = a.TMPLAT_ID
-		LEFT JOIN COMVNUSERMASTER usr
-		ON usr.ESNTL_ID = a.FRST_REGISTER_ID
-		LEFT JOIN COMTCCMMNDETAILCODE cm
-		ON cm.CODE_ID='COM104' AND cm.USE_AT='Y' AND cm.CODE=a.CATEGORY_MAIN
-		LEFT JOIN COMTCCMMNDETAILCODE cs
-		ON cs.CODE_ID='COM105' AND cs.USE_AT='Y' AND cs.CODE=a.CATEGORY_SCOPE
-		WHERE a.BBS_ID = #{bbsId}
-	</select>
+	  <!-- =========================================================== 4. 상세조회 -->
+  <select id="selectBBSMasterDetail"
+          parameterType="egovframework.com.cop.bbs.service.BoardMasterVO"
+          resultMap="boardMasterDetail">
+    SELECT a.BBS_ID,
+           a.BBS_TY_CODE,
+           bt.CODE_NM                  AS BBS_TY_CODE_NM,
+           a.BBS_NM,
+           a.BBS_INTRCN,
+           a.TMPLAT_ID,
+           tpl.TMPLAT_NM,
+           tpl.TMPLAT_COURS,
+           a.FILE_ATCH_POSBL_AT,
+           a.ATCH_POSBL_FILE_NUMBER,
+           a.ATCH_POSBL_FILE_SIZE,
+           a.REPLY_POSBL_AT,
+           a.FRST_REGISTER_ID,
+           usr.USER_NM                 AS FRST_REGISTER_NM,
+           a.CMMNTY_ID,
+           a.USE_AT,
+           TO_CHAR(a.FRST_REGIST_PNTTM,'YYYY-MM-DD') AS FRST_REGIST_PNTTM,
+           a.CATEGORY_MAIN,
+           cm.CODE_NM                  AS CATEGORY_MAIN_NM,
+           a.CATEGORY_SCOPE,
+           cs.CODE_NM                  AS CATEGORY_SCOPE_NM,
+           a.DEPT_ID,
+           d.TEXT                      AS DEPT_FULL_NM          <!-- ★ 부서명 -->
+         , (SELECT NVL(USE_AT,'N')
+              FROM COMTNBBSUSE
+             WHERE BBS_ID  = #{bbsId}
+               AND TRGET_ID IN (#{uniqId}, 'SYSTEM_DEFAULT_BOARD')) AS AUTH_FLAG,
+           a.BLOG_ID
+      FROM COMTNBBSMASTER a
+           /* ───────── 기존 JOIN ───────── */
+      LEFT JOIN COMTCCMMNDETAILCODE bt
+             ON bt.CODE_ID='COM101'
+            AND bt.USE_AT='Y'
+            AND bt.CODE   =a.BBS_TY_CODE
+      LEFT JOIN COMTNTMPLATINFO tpl
+             ON tpl.TMPLAT_ID = a.TMPLAT_ID
+      LEFT JOIN COMVNUSERMASTER usr
+             ON usr.ESNTL_ID  = a.FRST_REGISTER_ID
+      LEFT JOIN COMTCCMMNDETAILCODE cm
+             ON cm.CODE_ID='COM104'
+            AND cm.USE_AT='Y'
+            AND cm.CODE   =a.CATEGORY_MAIN
+      LEFT JOIN COMTCCMMNDETAILCODE cs
+             ON cs.CODE_ID='COM105'
+            AND cs.USE_AT='Y'
+            AND cs.CODE   =a.CATEGORY_SCOPE
+      /* ★ 부서 뷰 조인 (ID = PK) */
+      LEFT JOIN VW_DEPARTMENT d
+             ON d.ID = a.DEPT_ID
+     WHERE a.BBS_ID = #{bbsId}
+  </select>
 
-	<!-- ================================================================ 5. 
-		UPDATE =================================================================== -->
-	<update id="updateBBSMaster"
-		parameterType="egovframework.com.cop.bbs.service.BoardMasterVO">
-		UPDATE COMTNBBSMASTER
-		SET BBS_NM = #{bbsNm},
-		BBS_INTRCN = #{bbsIntrcn},
-		BBS_TY_CODE = #{bbsTyCode},
-		FILE_ATCH_POSBL_AT = #{fileAtchPosblAt},
-		ATCH_POSBL_FILE_NUMBER = #{atchPosblFileNumber},
-		ATCH_POSBL_FILE_SIZE = #{atchPosblFileSize},
-		TMPLAT_ID = #{tmplatId},
-		CATEGORY_MAIN = #{categoryMain},
-		CATEGORY_SCOPE = #{categoryScope},
-		LAST_UPDUSR_ID = #{lastUpdusrId},
-		LAST_UPDT_PNTTM = SYSDATE,
-		USE_AT = #{useAt}
-		WHERE BBS_ID = #{bbsId}
-	</update>
+	<!-- ================================================================ 5. UPDATE ================================================================ -->
+  <update id="updateBBSMaster"
+          parameterType="egovframework.com.cop.bbs.service.BoardMasterVO">
+    UPDATE COMTNBBSMASTER
+       SET BBS_NM                 = #{bbsNm},
+           BBS_INTRCN             = #{bbsIntrcn},
+           BBS_TY_CODE            = #{bbsTyCode},
+           FILE_ATCH_POSBL_AT     = #{fileAtchPosblAt},
+           ATCH_POSBL_FILE_NUMBER = #{atchPosblFileNumber},
+           ATCH_POSBL_FILE_SIZE   = #{atchPosblFileSize},
+           TMPLAT_ID              = #{tmplatId},
+           CATEGORY_MAIN          = #{categoryMain},
+           CATEGORY_SCOPE         = #{categoryScope},
+           DEPT_ID                = #{deptId},     <!-- ❖ -->
+           LAST_UPDUSR_ID         = #{lastUpdusrId},
+           LAST_UPDT_PNTTM        = SYSDATE,
+           USE_AT                 = #{useAt}
+     WHERE BBS_ID = #{bbsId}
+  </update>
 
 	<!-- ================================================================ 6. 
 		DELETE (원본 그대로) =================================================================== -->
@@ -373,23 +389,5 @@
 		WHERE USE_AT = 'Y'
 		ORDER BY FRST_REGIST_PNTTM DESC
 	</select>
-
-	<!-- INSERT -->
-	<insert id="insertBBSMasterInf" parameterType="boardMasterVO">
-		INSERT INTO COMTNBBSMASTER (
-		BBS_ID, BBS_NM, … , DEPT_ID
-		) VALUES (
-		#{bbsId}, #{bbsNm}, … , #{deptId}
-		)
-	</insert>
-
-	<!-- UPDATE -->
-	<update id="updateBBSMasterInf" parameterType="boardMasterVO">
-		UPDATE COMTNBBSMASTER
-		SET BBS_NM = #{bbsNm},
-		…,
-		DEPT_ID = #{deptId}
-		WHERE BBS_ID = #{bbsId}
-	</update>
 
 </mapper>
