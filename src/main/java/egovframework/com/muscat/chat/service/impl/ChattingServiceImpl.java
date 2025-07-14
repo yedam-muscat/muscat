@@ -48,11 +48,7 @@ public class ChattingServiceImpl implements ChattingService{
 		//초대 한 사람 등록
 		insertUsers(roomVO.getRoomId(), userList);
 
-		if (result > 0 ) {
-			return "success";
-		}else {
-			return "false";
-		}
+		return roomVO.getRoomId();
 	}
 	
 
@@ -85,7 +81,7 @@ public class ChattingServiceImpl implements ChattingService{
 		
 	}
 	
-	// 채팅방 
+	// 채팅방 조회
 	@Override
 	public List<RoomVO> findroom(UserVO findroom) {
 		

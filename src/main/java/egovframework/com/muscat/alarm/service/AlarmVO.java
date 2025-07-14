@@ -16,10 +16,13 @@ public class AlarmVO {
 	String lastUpdusrId;		//최초수정자ID
 	String reciConfirmation;	//수신확인여부
 	String ntcnTy;				//알림구분
-	long nttId;					//연결번호
-	String bbsId;				//연결ID
+	long nttId;					//연결번호게시판
+	String bbsId;				//연결ID게시판
 	String ntcnChContect;		//채팅연결번호
 	String ntcnChId;			//채팅룸ID
 	String mberId;				//받는사람
 	String readYn;             // 'N': 안 읽음, 'Y': 읽음
+	String linkUrl;             // 알림 클릭 시 이동할 URL
+		
+	
 }
