@@ -36,5 +36,9 @@ public interface CalService {
 
 	List<Map> getSharedCalendars(String loginId);
 	
+	void updateCalendar(CalendarVO vo);
+	
+	int deleteCalendar(String calId);
+	int deleteSharedCalendar(String calId);
 	
 }

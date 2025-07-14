@@ -19,4 +19,6 @@ public class CalendarVO implements Serializable {
 	private String shareId;
 	private String authority;
 	private List<String> sharedUserIds;
+	
+	private String calendarType;
 }

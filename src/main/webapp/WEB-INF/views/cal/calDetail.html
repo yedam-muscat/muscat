@@ -235,59 +235,51 @@ textarea {
 	  const $calendar = $('#calendar');
 	  $calendar.empty().append(`<option value="">캘린더 선택</option>`);
 
-	  // 내 캘린더 불러오기
-	  $.ajax({
+	  return $.ajax({
 	    url: '/muscat/cal/listCalendar',
 	    type: 'GET',
 	    dataType: 'json',
-	    success: function (response1) {
-	      const calendars = Array.isArray(response1.result) ? response1.result : response1;
-	      calendars.forEach(cal => {
-	        const calId = (cal.CAL_ID || '').trim();
-	        const calName = (cal.CAL_NAME || '').trim();
-	        const color = (cal.COLOR || '#1e90ff').trim();
+	  }).then(response1 => {
+	    const calendars = Array.isArray(response1.result) ? response1.result : response1;
+	    calendars.forEach(cal => {
+	      const calId = (cal.CAL_ID || '').trim();
+	      const calName = (cal.CAL_NAME || '').trim();
+	      const color = (cal.COLOR || '#1e90ff').trim();
 
-	        $calendar.append(
-	          $('<option></option>')
-	            .val(`personal:${calId}`)
-	            .text(`[내] ${calName}`)
-	            .css('color', color)
-	        );
-	      });
+	      $calendar.append(
+	        $('<option></option>')
+	          .val(`personal:${calId}`)
+	          .text(`[내] ${calName}`)
+	          .css('color', color)
+	      );
+	    });
 
-	      // 공유 캘린더도 이어서 불러오기
-	      $.ajax({
-	        url: '/muscat/cal/sharedCalendars',
-	        type: 'GET',
-	        dataType: 'json',
-	        success: function (response2) {
-	          const shared = Array.isArray(response2) ? response2 : response2.result || [];
-	          shared.forEach(cal => {
-	            const calId = (cal.shareId || '').trim(); // 구분자
-	            const calName = (cal.shereNm || '').trim();
-	            const color = (cal.color || '#1e90ff').trim();
+	    return $.ajax({
+	      url: '/muscat/cal/sharedCalendars',
+	      type: 'GET',
+	      dataType: 'json',
+	    });
+	  }).then(response2 => {
+	    const shared = Array.isArray(response2) ? response2 : response2.result || [];
+	    shared.forEach(cal => {
+	      const calId = (cal.shareId || '').trim();
+	      const calName = (cal.shereNm || '').trim();
+	      const color = (cal.shColor || cal.color || '#1e90ff').trim();
 
-	            $calendar.append(
-	              $('<option></option>')
-	                .val(`shared:${calId}`)
-	                .text(`[공유] ${calName}`)
-	                .css('color', color)
-	            );
-	          });
+	      $calendar.append(
+	        $('<option></option>')
+	          .val(`shared:${calId}`)
+	          .text(`[공유] ${calName}`)
+	          .css('color', color)
+	      );
+	    });
 
-	          // 선택된 ID 있으면 세팅
-	         	if (selectedCalId && selectedCalType) {
-  					$calendar.val(`${selectedCalType}:${selectedCalId}`);
-				}
-	        },
-	        error: function () {
-	          alert('공유 캘린더를 불러오는 데 실패했습니다.');
-	        }
-	      });
-	    },
-	    error: function () {
-	      alert('내 캘린더 목록을 불러오는 데 실패했습니다.');
+	    // 여기서 선택값 세팅 (내/공유 캘린더 모두 로딩 완료 후)
+	    if (selectedCalId && selectedCalType) {
+	      $calendar.val(`${selectedCalType}:${selectedCalId}`);
 	    }
+	  }).catch(() => {
+	    alert('캘린더 목록을 불러오는 데 실패했습니다.');
 	  });
 	}
 
@@ -312,6 +304,7 @@ textarea {
 	    leaderId: loginVO.id,
 	    schdulChargerId: loginVO.id,
 	    reptitSeCode: $('#repeat').is(':checked') ? repeatMap[$('#repeatCycle').val()] : 'N',
+	    roomId: $('#room').val(),
 	    reservedRoom: $('#room').val()
 	  };
 	  
@@ -350,8 +343,7 @@ textarea {
 
   $('#start, #startTime, #end, #endTime').on('change', loadAvailableRooms);
 
-  function loadAvailableRooms(selectedRoomId = '') {
-	  console.log('룸아이디')
+  function loadAvailableRooms(selectedRoomId = '', selectedRoomName = '') {
 	  const start = $('#start').val();
 	  const startTime = $('#startTime').val();
 	  const $roomSelect = $('#room');
@@ -362,13 +354,23 @@ textarea {
 	    rooms.forEach(room => {
 	      $roomSelect.append(`<option value="${room.MTGRUM_ID}">${room.MTGRUM_NM}</option>`);
 	    });
-	    if (selectedRoomId) {
-	        $roomSelect.val(selectedRoomId).prop("selected", true);
 
-	        const selectedRoomName = $roomSelect.find('option:selected').text();
+	    if (selectedRoomId) {
+	    	  $roomSelect.val(selectedRoomId);
+	      
+	      if (!$roomSelect.val()) {
+	    	    $roomSelect.find('option').each(function () {
+	    	      if ($(this).text().trim() === selectedRoomName?.trim()) {
+	    	        $roomSelect.val($(this).val());
+	    	      }
+	    	    });
+	    	  }
+
+	      if (selectedRoomName) {
 	        $('#location').val(selectedRoomName === '선택 안 함' ? '' : selectedRoomName);
 	      }
-	    };
+	    }
+	  };
 
 	  if (!start || !startTime) {
 	    $.ajax({
@@ -398,7 +400,6 @@ textarea {
 	    });
 	  }
 	}
-
   $(document).ready(() => {
 	  const params = new URLSearchParams(window.location.search);
 	  const isEditMode = (params.get('edit') || '').toLowerCase() === 'true';
@@ -421,8 +422,13 @@ textarea {
 	        $('#location').val(data.schdulPlace);
 	        $('#description').val(data.schdulCn);
 	      
-	        loadCalendars(data.calId, data.calType);
-	        loadAvailableRooms(data.roomId);
+	        const calType = data.shareId ? 'shared' : 'personal';
+	        const calId = data.shareId || data.calId;
+
+
+	        loadCalendars(calId, calType).then(() => {
+	          loadAvailableRooms(data.roomId, data.schdulPlace);
+	        });
 	      },
 	      error: function () {
 	        alert('일정 정보를 불러오지 못했습니다.');

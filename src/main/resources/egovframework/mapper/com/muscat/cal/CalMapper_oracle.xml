@@ -70,19 +70,24 @@
 		TRIM(s.CAL_ID) AS "calId",
 		TRIM(s.SHARE_ID) AS "shareId",
 		NVL(TRIM(c.COLOR), TRIM(cs.SH_COLOR)) AS "color"
-		FROM COMTNLEADERSCHDUL s
+		FROM COMTNLEADERSCHDUL
+		s
 		LEFT JOIN CALENDAR c ON TRIM(s.CAL_ID) = TRIM(c.CAL_ID)
-		LEFT JOIN CALSHARE cs ON TRIM(s.SHARE_ID) = TRIM(cs.SHARE_ID)
+		LEFT JOIN
+		CALSHARE cs ON TRIM(s.SHARE_ID) = TRIM(cs.SHARE_ID)
 		WHERE
 		TRIM(s.CAL_ID) IN (
 		SELECT TRIM(cal_id)
 		FROM CALENDAR
-		WHERE TRIM(owner_id) = #{ownerId}
+		WHERE
+		TRIM(owner_id) = #{ownerId}
 		)
 		OR TRIM(s.SHARE_ID) IN (
-		SELECT TRIM(share_id)
+		SELECT
+		TRIM(share_id)
 		FROM CALSHARE
-		WHERE TRIM(mber_id) IN (#{ownerId}, #{mberId})
+		WHERE TRIM(mber_id) IN (#{ownerId},
+		#{mberId})
 		OR TRIM(owner_id) IN (#{ownerId}, #{mberId})
 		)
 	</select>
@@ -227,18 +232,44 @@
 		schdulPlace,
 		TRIM(s.SCHDUL_BGNDE) AS schdulBgnde,
 		TRIM(s.SCHDUL_ENDDE)
-		AS
-		schdulEndde,
+		AS schdulEndde,
 		TRIM(s.CAL_ID) AS calId,
-		TRIM(s.RESERVED_ROOM) AS roomId,
+		TRIM(s.RESERVED_ROOM) AS
+		roomId,
+		TRIM(s.SHARE_ID) AS shareId,
 		TRIM(r.MTGRUM_NM) AS roomName
-		FROM COMTNLEADERSCHDUL s
-		LEFT JOIN
-		COMTNMTGPLACEMANAGE r ON s.RESERVED_ROOM = r.MTGRUM_ID
-		WHERE
-		TRIM(s.SCHDUL_ID) = TRIM(#{schdulId})
+		FROM
+		COMTNLEADERSCHDUL s
+		LEFT JOIN COMTNMTGPLACEMANAGE r ON s.RESERVED_ROOM
+		= r.MTGRUM_ID
+		WHERE TRIM(s.SCHDUL_ID) = TRIM(#{schdulId})
 	</select>
 
+	<update id="updateCalendar"
+		parameterType="egovframework.com.muscat.cal.mapper.CalendarVO">
+		UPDATE CALENDAR
+		SET CAL_NAME = #{calName},
+		COLOR =
+		#{color}
+		WHERE TRIM(CAL_ID) = #{calId}
+	</update>
+
+	<update id="updateSharedCalendar"
+		parameterType="egovframework.com.muscat.cal.mapper.CalendarVO">
+		UPDATE CALSHARE
+		SET SHERE_NM = #{calName},
+		SH_COLOR =
+		#{color}
+		WHERE TRIM(SHARE_ID) = #{calId}
+	</update>
+
+	<delete id="deleteCalendar" parameterType="string">
+		DELETE FROM CALENDAR WHERE TRIM(CAL_ID) = TRIM(#{calId})
+	</delete>
+
+	<delete id="deleteSharedCalendar" parameterType="string">
+		DELETE FROM CALSHARE WHERE TRIM(SHARE_ID) = TRIM(#{calId})
+	</delete>
 
 </mapper>
 
