@@ -83,4 +83,23 @@ public class CalServiceImpl implements CalService {
 	    return calMapper.selectSharedCalendars(loginId);
 	}
 	
+	@Override
+	public void updateCalendar(CalendarVO vo) {
+	    if ("shared".equals(vo.getCalendarType())) {
+	        calMapper.updateSharedCalendar(vo);
+	    } else {
+	        calMapper.updateCalendar(vo);
+	    }
+	}
+	
+	@Override
+	public int deleteCalendar(String calId) {
+	    return calMapper.deleteCalendar(calId);
+	}
+
+	@Override
+	public int deleteSharedCalendar(String calId) {
+	    return calMapper.deleteSharedCalendar(calId);
+	}
+	
 }
