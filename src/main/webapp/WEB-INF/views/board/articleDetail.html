@@ -1,3 +1,4 @@
+<!-- /WEB-INF/views/board/articleDetail.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -12,24 +13,16 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
-    th { width:120px; background:#f8f8f8; }
-     /* ▼ 스크롤 기능 추가된 부분 ▼ */
-    #nttCn{
-      min-height:300px;       /* 기본 높이   */
-      max-height:500px;       /* 500px 넘으면 내부 스크롤 */
-      overflow-y:auto;        /* 세로 스크롤 */
-      white-space:pre-wrap;   /* 줄바꿈 유지 */
-      word-break:break-word;  /* 너무 긴 단어도 줄바꿈 */
-    }
-
-    .reply-btn { font-size:.8rem; margin-left:8px; }
+    th{width:120px;background:#f8f8f8}
+    #nttCn{min-height:300px;max-height:500px;overflow-y:auto;white-space:pre-wrap;word-break:break-word}
+    .reply-btn{font-size:.8rem;margin-left:8px}
   </style>
 </head>
 
 <main layout:fragment="content">
   <h2>🔎 게시글 상세조회</h2>
 
-  <!-- ================= 게시글 정보 ================= -->
+  <!-- ========== 게시글 정보 ========== -->
   <table class="table table-bordered">
     <tbody>
       <tr><th>제목</th><td id="nttSj" colspan="5"></td></tr>
@@ -44,22 +37,22 @@
     </tbody>
   </table>
 
-  <!-- 게시글 상단 버튼 -->
+  <!-- ========== 상단 버튼 ========== -->
   <div class="text-end mb-4">
-    <button class="btn btn-primary"   onclick="goEdit()">수정</button>
-    <button class="btn btn-danger"    onclick="goDelete()">삭제</button>
-    <button class="btn btn-warning"   onclick="goReply()">답글</button>
+    <button id="btnEdit"   class="btn btn-primary"   onclick="goEdit()">수정</button>
+    <button id="btnDelete" class="btn btn-danger"    onclick="goDelete()">삭제</button>
+    <button id="btnReply"  class="btn btn-warning"   onclick="goReply()">답글</button>
     <button class="btn btn-secondary" onclick="goBack()">목록</button>
   </div>
 
-  <!-- 🔐 템플릿에서 로그인 ID 주입 (없을 수도 있음) -->
+  <!-- 🔐 로그인 ID (없을 수도 있음) -->
   <input type="hidden" id="loginUserId"
          th:value="${#authentication?.principal?.uniqId
                     ?: #authentication?.principal?.id
                     ?: #authentication?.principal?.username
                     ?: ''}" />
 
-  <!-- ================= 댓글 영역 ================= -->
+  <!-- ========== 댓글 영역 ========== -->
   <h4>💬 댓글 <span id="replyCount">0</span></h4>
   <div id="replyList" class="border p-3 mb-3">댓글이 없습니다.</div>
 
@@ -75,36 +68,49 @@
     <button class="btn btn-primary" onclick="submitReply()">댓글등록</button>
   </div>
 
-  <!-- ================= SCRIPT ================= -->
+  <!-- ========== SCRIPT ========== -->
   <script th:inline="javascript">
     const downloadBaseUrl = /*[[@{/cmm/fms/FileDown.do}]]*/ '';
   </script>
   <script>
     /* ── 상수 & 전역 ───────────────────────── */
-    const params        = new URLSearchParams(location.search);
-    const bbsId         = params.get('bbsId');
-    const nttId         = params.get('nttId');
-    let   loginUserId   = document.getElementById('loginUserId').value || '';
-    const pageSize      = 5;
-    let currentPage = 1, totalPages = 1;
+    const qs           = new URLSearchParams(location.search);
+    const bbsId        = qs.get('bbsId');
+    const nttId        = qs.get('nttId');
+    let   loginUserId  = document.getElementById('loginUserId').value || '';
+    const pageSize     = 5;
+    let   currentPage  = 1, totalPages = 1;
 
-    if (!bbsId || !nttId) {
-      Swal.fire('오류','필수 파라미터 누락','error');
-      throw new Error('missing params');
-    }
+    /* 안전 검증 */
+    if(!bbsId||!nttId){Swal.fire('오류','필수 파라미터 누락','error');throw new Error('missing params')}
 
-    /* ── 게시글 상세 (변경 없음) ─────────────── */
+    /* ── 게시글 상세 ───────────────────────── */
+    let ARTICLE = {};          /* ★ 전역 보관 – 버튼 제어용 */
+
     fetch(`/muscat/board/articleDetail?bbsId=${bbsId}&nttId=${nttId}`)
       .then(r=>r.json()).then(res=>{
-        const d=res.article;
+        const d = ARTICLE = res.article || {};
+        /* 등록자 – 익명 처리 ★ */
+        const writerNm = d.anonymousAt==='Y' ? 'anonymous' : (d.frstRegisterNm||'');
+
         document.getElementById('nttSj').textContent          = d.nttSj;
-        document.getElementById('frstRegisterNm').textContent = d.frstRegisterNm;
+        document.getElementById('frstRegisterNm').textContent = writerNm;
         document.getElementById('frstRegisterPnttm').textContent = d.frstRegisterPnttm;
         document.getElementById('inqireCo').textContent       = d.inqireCo;
-        document.getElementById('nttCn').innerHTML            = (d.nttCn||'').replace(/\n/g,'<br>');
+        document.getElementById('nttCn').innerHTML            =(d.nttCn||'').replace(/\n/g,'<br>');
         document.getElementById('ntceBgnde').textContent      = `${d.ntceBgnde} ~ ${d.ntceEndde}`;
+
+        /* 첨부파일 */
         if(res.fileList?.length) renderFiles(res.fileList);
         else document.getElementById('atchFileArea').textContent='첨부 파일이 없습니다';
+
+        /* ★ 버튼 노출 제어 */
+        const isMine   = loginUserId && loginUserId===d.frstRegisterId;
+        const anonymous= d.anonymousAt==='Y';
+        document.getElementById('btnEdit' ).style.display = anonymous || !isMine ? 'none':'' ;
+        document.getElementById('btnDelete').style.display = anonymous || !isMine ? 'none':'' ;
+        /* 답글 허용여부(boardMasterVO.replyPosblAt=='Y')를 백엔드에서 내려주면 체크 */
+        if(d.replyPosblAt==='N') document.getElementById('btnReply').style.display='none';
       });
 
     function renderFiles(list){
@@ -126,13 +132,12 @@
     function loadReplies(page=1){
       fetch(`/muscat/board/replyList?bbsId=${bbsId}&nttId=${nttId}&pageIndex=${page}&pageSize=${pageSize}`)
         .then(r=>r.json()).then(res=>{
-          /* 서버가 내려준 로그인 ID → 템플릿 값이 없을 때만 보강 */
           if(!loginUserId) loginUserId = res.currentUserId || '';
 
           const list  = res.comments   || [];
           const total = res.totalCount || 0;
           currentPage = page;
-          totalPages  = Math.ceil(total / pageSize);
+          totalPages  = Math.ceil(total/pageSize);
           document.getElementById('replyCount').textContent = total;
 
           const wrap=document.getElementById('replyList');
@@ -141,27 +146,29 @@
           }
 
           wrap.innerHTML=list.map(c=>{
-            const writerId = c.wrterId || c.frstRegisterId || '';
-            const myReply  = writerId && writerId === loginUserId;
+            /* 익명 댓글 처리 ★ */
+            const writerNm = c.anonymousAt==='Y' ? 'anonymous' : (c.wrterNm||'');
+            const writerId = c.wrterId     || c.frstRegisterId || '';
+            const myReply  = writerId && writerId===loginUserId;
             return `
               <div class="border-bottom mb-2 pb-2">
-                <strong>${c.wrterNm}</strong>
+                <strong>${writerNm}</strong>
                 <span class="text-muted small">(${c.frstRegisterPnttm})</span>
                 <p>${c.commentCn}</p>
-                ${ myReply ? `
+                ${myReply?`
                   <div class="text-end">
                     <button class="btn btn-sm btn-outline-secondary reply-btn"
                             onclick="editReply('${c.commentNo}', \`${c.commentCn.replace(/`/g,'\\`')}\`)">수정</button>
                     <button class="btn btn-sm btn-outline-danger reply-btn"
                             onclick="deleteReply('${c.commentNo}')">삭제</button>
-                  </div>` : '' }
+                  </div>`:''}
               </div>`;
           }).join('');
           renderPagination();
         });
     }
 
-    /* ── 페이징 UI (변경 없음) ─────────────── */
+    /* ── 댓글 페이징 ────────────────────────── */
     function renderPagination(){
       const el=document.getElementById('pagination'); el.innerHTML='';
       if(totalPages<=1) return;
@@ -176,7 +183,7 @@
         const a=document.createElement('a'); a.className='page-link'; a.href='#'; a.innerHTML=lbl;
         a.onclick=e=>{
           e.preventDefault();
-          if(!dis && p!==currentPage) loadReplies(p);
+          if(!dis&&p!==currentPage) loadReplies(p);
         };
         li.appendChild(a); return li;
       };
@@ -185,13 +192,13 @@
       el.appendChild(mk('»',currentPage+1,false,currentPage===totalPages));
     }
 
-    /* ── 댓글 등록 / 수정 / 삭제 (변경 없음) ─ */
+    /* ── 댓글 등록/수정/삭제 ────────────────── */
     function submitReply(){
       const cn=document.getElementById('replyContent').value.trim();
       if(!cn) return Swal.fire('입력 오류','댓글 내용을 입력해주세요.','warning');
       fetch('/muscat/board/replyInsert',{
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({bbsId, nttId, commentCn:cn})
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({bbsId,nttId,commentCn:cn})
       })
       .then(r=>r.json()).then(res=>{
         if(res.status==='success'){
@@ -204,15 +211,15 @@
 
     function editReply(commentNo,originCn){
       Swal.fire({
-        title:'댓글 수정', input:'textarea', inputValue:originCn,
-        showCancelButton:true, confirmButtonText:'수정', cancelButtonText:'취소'
+        title:'댓글 수정',input:'textarea',inputValue:originCn,
+        showCancelButton:true,confirmButtonText:'수정',cancelButtonText:'취소'
       }).then(({isConfirmed,value})=>{
         if(!isConfirmed) return;
         const cn=value.trim();
         if(!cn) return Swal.fire('입력 오류','내용을 입력하세요.','info');
         fetch('/muscat/board/replyUpdate',{
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({commentNo, commentCn:cn})
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({commentNo,commentCn:cn})
         })
         .then(r=>r.json()).then(res=>{
           if(res.status==='success'){
@@ -225,12 +232,12 @@
 
     function deleteReply(commentNo){
       Swal.fire({
-        title:'댓글 삭제', text:'정말 삭제하시겠습니까?', icon:'warning',
-        showCancelButton:true, confirmButtonText:'삭제', cancelButtonText:'취소'
+        title:'댓글 삭제',text:'정말 삭제하시겠습니까?',icon:'warning',
+        showCancelButton:true,confirmButtonText:'삭제',cancelButtonText:'취소'
       }).then(({isConfirmed})=>{
         if(!isConfirmed) return;
         fetch('/muscat/board/replyDelete',{
-          method:'POST', headers:{'Content-Type':'application/json'},
+          method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({commentNo})
         })
         .then(r=>r.json()).then(res=>{
@@ -242,30 +249,34 @@
       });
     }
 
-    /* ── 게시글 버튼 (변경 없음) ─────────────── */
-    function goEdit(){ location.href=`/muscat/board/articleUpdt.do?bbsId=${bbsId}&nttId=${nttId}`; }
-    function goReply(){ location.href=`/muscat/board/articleReply.do?bbsId=${bbsId}&nttId=${nttId}`; }
-    function goBack(){ location.href=`/muscat/board/articleList.do?bbsId=${bbsId}`; }
+    /* ── 상단 버튼 ──────────────────────────── */
+    function goEdit (){location.href=`/muscat/board/articleUpdt.do?bbsId=${bbsId}&nttId=${nttId}`;}
+    function goReply(){location.href=`/muscat/board/articleReply.do?bbsId=${bbsId}&nttId=${nttId}`;}
+    function goBack (){location.href=`/muscat/board/articleList.do?bbsId=${bbsId}`;}
+
     function goDelete(){
       Swal.fire({
-        title:'정말 삭제하시겠습니까?', icon:'warning',
-        showCancelButton:true, confirmButtonText:'삭제', cancelButtonText:'취소'
+        title:'정말 삭제하시겠습니까?',icon:'warning',
+        showCancelButton:true,confirmButtonText:'삭제',cancelButtonText:'취소'
       }).then(({isConfirmed})=>{
         if(!isConfirmed) return;
         fetch('/muscat/board/articleDelete',{
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({bbsId, nttId})
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({bbsId,nttId})
         })
         .then(r=>r.json()).then(res=>{
           if(res.resultCode==='SUCCESS'){
-            Swal.fire('삭제 완료',res.resultMessage,'success').then(goBack);
-          }else Swal.fire('삭제 실패',res.resultMessage,'error');
+            Swal.fire('삭제 완료',res.resultMessage,'success')
+              .then(()=>goBack());
+          }else{
+            Swal.fire('삭제 실패',res.resultMessage,'error');
+          }
         });
       });
     }
 
-    /* ── 최초 로드 ─────────────────────────── */
-    document.addEventListener('DOMContentLoaded', ()=>loadReplies(1));
+    /* ── 최초 실행 ───────────────────────────── */
+    document.addEventListener('DOMContentLoaded',()=>loadReplies(1));
   </script>
 </main>
 </html>

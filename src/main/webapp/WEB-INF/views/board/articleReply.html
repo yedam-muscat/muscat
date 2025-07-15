@@ -1,147 +1,159 @@
+<!-- /WEB-INF/views/board/articleReply.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/layout}">
-
 <head>
   <meta charset="UTF-8">
-  <title>게시글 답글 작성</title>
+  <title>답글 작성</title>
 
-  <!-- jQuery / jQuery-UI / CKEditor / SweetAlert2 (등록 화면과 동일) -->
-  <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+  <!-- jQuery / jQuery-UI / CKEditor / SweetAlert2 -->
+  <link  rel="stylesheet"
+         href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
   <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <!-- CKEditor 경고창 숨김 -->
-  <style>
-    .cke_notification{display:none!important}
-  </style>
+  <!-- CKEditor “업데이트 알림” 숨김 -->
+  <style>.cke_top .cke_notification,
+         .cke_notification_warning,
+         .cke_notification_message{display:none!important}</style>
 </head>
 
 <body>
 <main layout:fragment="content">
-  <h2>✏ 게시글 답글 작성</h2>
 
-  <form id="replyForm" action="articleReply" enctype="multipart/form-data" method="post">
-    <!--──────── hidden ────────-->
-    <input type="hidden" name="bbsId"    id="bbsId"    th:value="${boardMasterVO.bbsId}">
+  <h2>↪️ 답글 작성</h2>
+
+  <!-- origin : 부모글, boardMasterVO : 게시판 속성 -->
+  <form id="replyForm" enctype="multipart/form-data" style="max-width:700px;"
+        th:action="@{/board/articleReply.do}" method="post">
+
+    <!-- ───── 필수 hidden ───── -->
+    <input type="hidden" name="bbsId"    th:value="${origin.bbsId}">
     <input type="hidden" name="parnts"   th:value="${origin.nttId}">
     <input type="hidden" name="sortOrdr" th:value="${origin.sortOrdr}">
     <input type="hidden" name="replyLc"  th:value="${origin.replyLc}">
+    <input type="hidden" name="nttId"    th:value="${origin.nttId}">
+    <!-- ※ Controller 에서 필요하면 추가 hidden 자유롭게 주입 -->
 
-    <!-- 제목 -->
+    <!-- ─── 제목 + 굵게 ─── -->
     <div class="mb-3">
-      <label for="nttSj">제목 <span class="text-danger">*</span></label>
-      <input type="text" class="form-control" id="nttSj" name="nttSj"
-             th:value="'RE: ' + ${origin.nttSj}" required>
-    </div>
+      <label for="nttSj" class="form-label">제목 <span class="text-danger">*</span></label>
+      <input type="text" id="nttSj" name="nttSj" class="form-control"
+             th:value="'RE: ' + ${origin.nttSj}" maxlength="70" required>
 
-    <!-- 제목 굵게 
-    <div class="mb-3 form-check">
-      <input type="checkbox" class="form-check-input" id="sjBoldAt" name="sjBoldAt" value="Y">
-      <label class="form-check-label" for="sjBoldAt">제목 굵게</label>
-    </div>-->
-
-    <!-- 내용 -->
-    <div class="mb-3">
-      <label for="nttCn">내용 <span class="text-danger">*</span></label>
-      <textarea class="form-control" id="nttCn" name="nttCn" rows="10" required></textarea>
-    </div>
-
-    <!-- 공지 / 익명 
-    <div class="mb-3 form-check">
-      <input type="checkbox" class="form-check-input" id="noticeAt" name="noticeAt" value="Y">
-      <label class="form-check-label" for="noticeAt">공지글</label>
-    </div>
-    <div class="mb-3 form-check">
-      <input type="checkbox" class="form-check-input" id="anonymousAt" name="anonymousAt" value="Y">
-      <label class="form-check-label" for="anonymousAt">익명글</label>
-    </div>-->
-
-    <!-- 게시기간 -->
-    <div class="mb-3">
-      <label>게시기간</label>
-      <div class="d-flex">
-        <input type="text" class="form-control me-2" id="ntceBgnde" name="ntceBgnde" readonly>
-        <span class="mt-2">~</span>
-        <input type="text" class="form-control ms-2" id="ntceEndde" name="ntceEndde" readonly>
+      <div class="form-check mt-2">
+        <input class="form-check-input" type="checkbox" id="sjBoldAt"
+               name="sjBoldAt" value="Y">
+        <label class="form-check-label" for="sjBoldAt">제목 굵게</label>
       </div>
     </div>
 
-    <!-- 첨부파일 (게시판 설정에 따라) -->
-    <div class="mb-3" th:if="${boardMasterVO.fileAtchPosblAt == 'Y'}">
-      <label for="file_1">첨부파일</label>
-      <input type="file" class="form-control" id="file_1" name="file_1" multiple>
+    <!-- ─── 내용 ─── -->
+    <div class="mb-3">
+      <label for="nttCn" class="form-label">내용 <span class="text-danger">*</span></label>
+      <textarea id="nttCn" name="nttCn" class="form-control" rows="10" required></textarea>
     </div>
 
-    <!-- 버튼 -->
+    <!-- ─── 체크박스 (공지/익명) ─── -->
+    <div class="form-check mb-2">
+      <input class="form-check-input" type="checkbox" id="noticeAt"
+             name="noticeAt" value="Y">
+      <label class="form-check-label" for="noticeAt">공지글</label>
+    </div>
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" id="anonymousAt"
+             name="anonymousAt" value="Y">
+      <label class="form-check-label" for="anonymousAt">익명글</label>
+    </div>
+
+    <!-- ─── 게시기간 ─── -->
+    <div class="mb-3">
+      <label class="form-label">게시기간</label>
+      <div class="d-flex">
+        <input type="text" id="ntceBgnde" name="ntceBgnde"
+               class="form-control me-2" placeholder="시작일" readonly>
+        <span class="mt-2">~</span>
+        <input type="text" id="ntceEndde" name="ntceEndde"
+               class="form-control ms-2" placeholder="종료일" readonly>
+      </div>
+    </div>
+
+    <!-- ─── 첨부파일 (게시판 허용 시) ─── -->
+    <div class="mb-3" id="fileWrap">
+      <label for="file_1" class="form-label">첨부파일</label>
+      <input type="file" id="file_1" name="file_1"
+             class="form-control" multiple>
+    </div>
+
+    <!-- ─── 버튼 ─── -->
     <button type="submit" class="btn btn-primary">등록</button>
     <a href="#" id="cancelBtn" class="btn btn-secondary">목록</a>
   </form>
 
-  <!--──────── SCRIPT ────────-->
+  <!-- ========== Script ========== -->
   <script>
-    $(function () {
-      /* datepicker */
-      $("#ntceBgnde, #ntceEndde").datepicker({dateFormat:'yy-mm-dd'});
+  $(function(){
 
-      /* CKEditor */
-      CKEDITOR.replace("nttCn");
+    /* 달력 */
+    $("#ntceBgnde,#ntceEndde").datepicker({dateFormat:"yy-mm-dd"});
 
-      const bbsId = new URLSearchParams(location.search).get("bbsId");
-      $("#bbsId").val(bbsId);
+    /* CKEditor */
+    CKEDITOR.replace("nttCn",{filebrowserImageUploadUrl:"/muscat/ckUploadImage"});
 
-      /* 목록 버튼 */
-      $("#cancelBtn").on("click", function (e) {
-        e.preventDefault();
-        location.href = `/muscat/board/articleList.do?bbsId=${bbsId}`;
-      });
+    const bbsId = $("[name='bbsId']").val();
+    const atchOk = /*[[${boardMasterVO.fileAtchPosblAt}]]*/"Y";
+    if(atchOk!=="Y") $("#fileWrap").hide();
 
-      /* 저장 */
-      $("#replyForm").on("submit", async function (e) {
-        e.preventDefault();
-
-        /* CKEditor 데이터 반영 */
-        if (CKEDITOR.instances.nttCn) {
-          CKEDITOR.instances.nttCn.updateElement();
-        }
-
-        /* 익명 + 공지 불가 */
-        if (this.anonymousAt.checked && this.noticeAt.checked) {
-          Swal.fire("알림", "익명글은 공지로 등록할 수 없습니다.", "warning");
-          return;
-        }
-
-        const fd = new FormData(this);
-
-        /* 게시기간 검증 */
-        const s = fd.get("ntceBgnde").replaceAll("-", "");
-        const eDate = fd.get("ntceEndde").replaceAll("-", "");
-        if (s && eDate && s > eDate) {
-          Swal.fire("오류", "시작일이 종료일보다 늦습니다.", "error");
-          return;
-        }
-
-        /* 확인 후 전송 */
-        const ok = await Swal.fire({title:"답글을 등록할까요?",icon:"question",showCancelButton:true});
-        if (!ok.isConfirmed) return;
-
-        fetch("/muscat/board/articleReply.do", {method:"POST", body:fd})
-          .then(r=>r.json())
-          .then(d=>{
-            if (d.success) {
-              Swal.fire("완료", "답글이 등록되었습니다.", "success")
-                  .then(()=>location.href=`/muscat/board/articleList.do?bbsId=${bbsId}`);
-            } else {
-              Swal.fire("오류", d.message||"등록 실패", "error");
-            }
-          })
-          .catch(()=>Swal.fire("오류","서버 통신 실패","error"));
-      });
+    /* 목록 이동 */
+    $("#cancelBtn").click(e=>{
+      e.preventDefault();
+      location.href=`/muscat/board/articleList.do?bbsId=${bbsId}`;
     });
+
+    /* 공지 ↔ 익명 상호배제 */
+    $("#anonymousAt").change(function(){
+      if(this.checked) $("#noticeAt").prop({checked:false,disabled:true});
+      else             $("#noticeAt").prop("disabled",false);
+    });
+
+    /* 등록 */
+    $("#replyForm").submit(async function(e){
+      e.preventDefault();
+      CKEDITOR.instances.nttCn.updateElement();
+
+      if(!this.nttSj.value.trim()){ return Swal.fire("경고","제목을 입력하세요.","warning"); }
+      if(!this.nttCn.value.trim()){ return Swal.fire("경고","내용을 입력하세요.","warning"); }
+
+      const bg=this.ntceBgnde.value.replace(/-/g,"");
+      const ed=this.ntceEndde.value.replace(/-/g,"");
+      if(bg&&ed&&bg>ed){ return Swal.fire("경고","게시시작일이 종료일보다 늦습니다.","warning"); }
+
+      if(this.anonymousAt.checked && this.noticeAt.checked){
+        return Swal.fire("경고","익명글은 공지로 등록할 수 없습니다.","warning");
+      }
+
+      const fd=new FormData(this);
+
+      try{
+        const res=await fetch(this.action,{method:"POST",body:fd});
+        const json=await res.json();
+        if(json.success){
+          await Swal.fire("등록 완료","답글이 등록되었습니다.","success");
+          location.href=`/muscat/board/articleList.do?bbsId=${bbsId}`;
+        }else{
+          Swal.fire("실패",json.message||"등록 실패","error");
+        }
+      }catch(err){
+        console.error(err);
+        Swal.fire("서버 오류","처리 중 오류가 발생했습니다.","error");
+      }
+    });
+  });
   </script>
+
 </main>
 </body>
 </html>
