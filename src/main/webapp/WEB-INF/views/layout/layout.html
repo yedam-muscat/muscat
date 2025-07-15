@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard - Mazer Admin Dashboard</title>
+<title>MUSCAT - Groupware with eGov]</title>
 
 <link rel="preconnect" href="https://fonts.gstatic.com">
 <link
@@ -27,10 +27,14 @@
 <link rel="stylesheet"
 	th:href="@{/assets/vendors/bootstrap-icons/bootstrap-icons.css}">
 <link rel="stylesheet" th:href="@{/assets/css/app.css}">
-<link rel="shortcut icon" th:href="@{/assets/images/favicon.ico}"
+<link rel="shortcut icon" th:href="@{/assets/images/favicon.png}"
 	type="image/x-icon">
 <link rel="stylesheet"
 	href="https://cdn.ckeditor.com/ckeditor5/45.2.0/ckeditor5.css">
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+	rel="stylesheet">
+
 <script
 	src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script
@@ -39,6 +43,67 @@
 <style>
 .sidebar-hidden {
 	visibility: hidden;
+}
+
+.navbar {
+	background-color: lavender;
+}
+
+html, body, #app {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+#main {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	background-color: #f8f9fa;
+}
+
+main {
+	flex-grow: 1;
+	overflow-y: auto;
+	padding: 1.0rem;
+}
+
+.sidebar-wrapper .sidebar-header img {
+    height: 3.0rem;
+}
+
+.table {
+	background-color: #FFFFFF;
+}
+</style>
+
+<style>
+.approval-stamp {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    margin: auto;
+    font-size: 0.8em;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.approval-stamp.approved {
+    background-color: transparent; /* 배경 투명 */
+    border: 2px solid #dc3545; /* 붉은색 테두리 */
+    color: #dc3545; /* 붉은색 글씨 */
+}
+.approval-stamp.rejected {
+    background-color: transparent; /* 배경 투명 */
+    border: 2px solid #007bff; /* 파란색 테두리 */
+    color: #007bff; /* 파란색 글씨 */
+}
+.approval-stamp.pending {
+    border: 2px dashed #ccc;
+    color: #ccc;
+    background-color: transparent;
 }
 </style>
 </head>
@@ -58,5 +123,6 @@
 	<script th:src="@{/assets/vendors/sweetalert2/sweetalert2.all.min.js}"></script>
 
 	<script th:src="@{/assets/js/main.js}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </body>
 </html>
