@@ -192,8 +192,6 @@
 			type : "GET",
 			url : mainBoardUrl,
 		}).done(function(data, textStatus, xhr) {
-
-			console.log(data);
 			
 	          const body = document.getElementById('articleBody');
 	          body.innerHTML = '';
@@ -206,6 +204,7 @@
 	          }else{
 	            list.forEach((row,idx)=>{
 	              /* ① 답글 들여쓰기 & 아이콘 */
+	              if (idx < 5) {
 	              const depth   = Number(row.replyLc||0);          // 0,1,2…
 	              const indent  = '&nbsp;'.repeat(depth*4);        // 4칸×깊이
 	              const icon    = depth>0 ? '↳&nbsp;' : '';        // 화살표
@@ -224,6 +223,7 @@
 	                <td>${(row.frstRegisterPnttm||'').slice(0,10)}</td>
 	                <td>${(row.inqireCo||0).toLocaleString()}</td>`;
 	              body.appendChild(tr);
+	              }
 	            });
 	          }
 		}).fail(function() {

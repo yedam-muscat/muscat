@@ -37,23 +37,18 @@
 					<ul class="submenu " id="appr">
 						<li class="submenu-item " id="regAppr"><a
 							href="/muscat/appr/regAppr.do">문서기안</a></li>
-<!-- 						<li class="submenu-item " id="tempAppr"><a
-							href="/muscat/appr/tempAppr.do">임시저장</a></li> -->
 						<li class="submenu-item " id="readyAppr"><a
 							href="/muscat/appr/readyAppr.do">결재대기</a></li>
 						<li class="submenu-item " id="reqAppr"><a
 							href="/muscat/appr/reqAppr.do">결재요청</a></li>
-						<li><span>------------------------</span></li>
 						<li class="submenu-item " id="regHistory"><a
 							href="/muscat/appr/regHistory.do">기안문서함</a></li>
 						<li class="submenu-item " id="reqHistory"><a
 							href="/muscat/appr/reqHistory.do">결재문서함</a></li>
 						<li class="submenu-item " id="refHistory"><a
 							href="/muscat/appr/refHistory.do">참조문서함</a></li>
-						<!-- 						<li class="submenu-item "><a
-							href="/muscat/appr/apprHistory.do">부서문서함</a></li> -->
-						<li><span>------------------------</span></li>
-						<li class="submenu-item " id="docFormMng"><a
+						<li th:if="${loginUserAuth.contains('ROLE_ADMIN') }"
+							class="submenu-item " id="docFormMng"><a
 							href="/muscat/appr/docFormMng.do">문서양식관리</a></li>
 						<!-- <li class="submenu-item " id="docFormReg"><a
 							href="/muscat/appr/docFormReg.do">문서양식관리</a></li> -->
@@ -64,11 +59,13 @@
 					class='sidebar-link'> <i class="bi bi-collection-fill"></i> <span>게시판</span>
 				</a>
 					<ul class="submenu ">
-						<li class="submenu-item " id="masterList"><a
+						<li th:if="${loginUserAuth.contains('ROLE_ADMIN') }"
+							class="submenu-item " id="masterList"><a
 							href="/muscat/board/masterList.do">게시판 관리</a></li>
 						<!-- 게시판 마스터 목록 반복 -->
 						<li class="submenu-item" th:each="board : ${boardList}"
 							th:id="${board.bbsId}"><a
+							th:if="${session.loginVO.deptId == board.deptId || board.categoryScope == 'BT100'}"
 							th:href="@{/board/articleList.do(bbsId=${board.bbsId})}"
 							th:text="${board.bbsNm}">게시판명</a></li>
 					</ul></li>
@@ -135,11 +132,12 @@
 		<div class="card-body p-3">
 			<button type="button" class="btn-close float-end" aria-label="Close" onclick="hideCard()" style="font-size: 0.7rem;"></button>
 			<div class="d-flex align-items-center mb-3">
-				<img id="empPhoto" src="/images/default-profile.png" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid #dee2e6; background-color: #f8f9fa; object-fit: cover; margin-right: 12px;">
+				<img id="empPhoto" src=""
+					style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid #dee2e6; background-color: #f8f9fa; object-fit: cover; margin-right: 12px;">
 				<div>
 					<h5 id="empName" style="margin-bottom: 0; font-size: 1.1rem; font-weight: bold; color: #007bff;">사원명</h5>
 					<div id="empDetail" style="font-size: 0.85rem; color: #6c757d;">
-						</div>
+					</div>
 					<div id="empPosition" style="font-size: 0.85rem; color: #6c757d;">직책</div>
 				</div>
 			</div>
@@ -170,11 +168,25 @@
 	</div>
 
 	<!-- 카드 애니메이션을 위한 키프레임 정의 (필수) -->
-<style>
-@keyframes fadeSlideIn { 0% {
+	<style>
+@
+keyframes fadeSlideIn { 0% {
 	opacity: 0;
-	transform: translateY(-10px);}
-100%{opacity:1;transform:translateY(0);}}
+	transform: translateY(-10px);
+}
+100
+%
+{
+opacity
+:
+1;
+transform
+:
+translateY(
+0
+);
+}
+}
 </style>
 
 	<!-- 채팅방 목록 모달 -->
@@ -223,15 +235,15 @@
 
 
 
-	 <!-- 채팅방 -->
-	<!--  <div id="chatRoom"
+	<!-- 채팅방 -->
+	<div id="chatRoom"
 		style="display: none; position: fixed; bottom: 20px; right: 20px; width: 300px; height: 400px; background: #fff; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); z-index: 1045; flex-direction: column;">
 		<div class="header"
 			style="background: #fff; color: black; padding: 10px; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center;">
 
 			<span id="chatUserName"></span>
 			<div style="display: flex; align-items: center; gap: 5px;">
-				파일 아이콘 (input-group 시작점 처럼 보이게)
+				<!-- 파일 아이콘 (input-group 시작점 처럼 보이게) -->
 				<span class="input-group-text"
 					style="padding: 0.375rem 0.75rem; background: transparent; border: none;">
 					<i id="attachFileIcon" class="bi bi-paperclip"
@@ -257,7 +269,7 @@
 				style="padding: 0.25rem 0.75rem; font-size: 0.9rem; white-space: nowrap;"
 				disabled>전송</button>
 		</div>
-	</div>   -->
+	</div>
 
 	<!-- 보고 모달 -->
 	<div class="modal fade" id="fileAttachModal" tabindex="-1"
@@ -381,9 +393,13 @@
 		rel="stylesheet"> -->
 	<script th:inline="javascript">
 		let imageUrl = /*[[@{/assets/images/}]]*/'';
-	
+		let loginTest= /*[[ ${session.loginVO} ]]*/ '';
+		let boardListTest = /*[[${boardList}]]*/'';
+
+		console.log(loginTest);
+		console.log(boardListTest);
 	</script>
-		
+
 	<script>
 	
 		$(function () {

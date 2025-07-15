@@ -12,13 +12,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import egovframework.com.muscat.appr.service.ApprDocSearchVO;
 import egovframework.com.muscat.appr.service.ApprDocVO;
+import egovframework.com.muscat.appr.service.ApprHistoryVO;
 import egovframework.com.muscat.appr.service.ApprService;
 import egovframework.com.muscat.appr.service.DocFormSearchVO;
 import egovframework.com.muscat.appr.service.DocFormVO;
@@ -32,7 +35,7 @@ public class ApprContoller {
 	/** EgovPropertyService */
 	@Resource(name = "propertiesService")
 	protected EgovPropertyService propertiesService;
-	
+
 	@Autowired
 	ApprService apprService;
 
@@ -41,7 +44,7 @@ public class ApprContoller {
 	public String regAppr() {
 		return "appr/regAppr.html";
 	}
-	
+
 	// 문서기안 (트랜잭션 처리 고려할 것)
 	@PostMapping("/appr/regAppr.do")
 	@ResponseBody
@@ -60,30 +63,255 @@ public class ApprContoller {
 	public String readyAppr() {
 		return "appr/readyAppr.html";
 	}
-	
+
+	// 결재대기
+	@GetMapping("/appr/readyApprList.do")
+	@ResponseBody
+	public Map<String, Object> readyAppr(@ModelAttribute("apprDocSearchVO") ApprDocSearchVO apprDocSearchVO) {
+
+		Map<String, Object> resultMap = new HashMap<>();
+
+//		LoginVO user = (LoginVO) EgovUserDetailsHelper.getAuthenticatedUser();
+//        Boolean isAuthenticated = EgovUserDetailsHelper.isAuthenticated();
+//        
+//        if (!isAuthenticated) {
+//        	return resultMap;
+//        }
+//        
+//	    apprDocSearchVO.setMberId(user.getId());
+
+		/** EgovPropertyService */
+		apprDocSearchVO.setPageUnit(propertiesService.getInt("pageUnit"));
+		apprDocSearchVO.setPageSize(propertiesService.getInt("pageSize"));
+
+		/** pageing */
+		PaginationInfo paginationInfo = new PaginationInfo();
+		paginationInfo.setCurrentPageNo(apprDocSearchVO.getPageIndex());
+		paginationInfo.setRecordCountPerPage(apprDocSearchVO.getPageUnit());
+		paginationInfo.setPageSize(apprDocSearchVO.getPageSize());
+
+		apprDocSearchVO.setFirstIndex(paginationInfo.getFirstRecordIndex());
+		apprDocSearchVO.setLastIndex(paginationInfo.getLastRecordIndex());
+		apprDocSearchVO.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
+
+		List<ApprDocVO> resultList = apprService.readyAppr(apprDocSearchVO);
+		resultMap.put("resultList", resultList);
+
+		int totCnt = apprService.readyApprTotCnt(apprDocSearchVO);
+		paginationInfo.setTotalRecordCount(totCnt);
+		resultMap.put("paginationInfo", paginationInfo);
+
+		return resultMap;
+	}
+
+	// 결재대기 상세
+
 	// 결재요청
 	@GetMapping("/appr/reqAppr.do")
 	public String reqAppr() {
 		return "appr/reqAppr.html";
 	}
-	
+
+	@GetMapping("/appr/reqApprList.do")
+	@ResponseBody
+	public Map<String, Object> reqAppr(@ModelAttribute("apprDocSearchVO") ApprDocSearchVO apprDocSearchVO) {
+		Map<String, Object> resultMap = new HashMap<>();
+
+//		LoginVO user = (LoginVO) EgovUserDetailsHelper.getAuthenticatedUser();
+//        Boolean isAuthenticated = EgovUserDetailsHelper.isAuthenticated();
+//        
+//        if (!isAuthenticated) {
+//        	return resultMap;
+//        }
+//        
+//	    apprDocSearchVO.setMberId(user.getId());
+
+		/** EgovPropertyService */
+		apprDocSearchVO.setPageUnit(propertiesService.getInt("pageUnit"));
+		apprDocSearchVO.setPageSize(propertiesService.getInt("pageSize"));
+
+		/** pageing */
+		PaginationInfo paginationInfo = new PaginationInfo();
+		paginationInfo.setCurrentPageNo(apprDocSearchVO.getPageIndex());
+		paginationInfo.setRecordCountPerPage(apprDocSearchVO.getPageUnit());
+		paginationInfo.setPageSize(apprDocSearchVO.getPageSize());
+
+		apprDocSearchVO.setFirstIndex(paginationInfo.getFirstRecordIndex());
+		apprDocSearchVO.setLastIndex(paginationInfo.getLastRecordIndex());
+		apprDocSearchVO.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
+
+		List<ApprDocVO> resultList = apprService.reqAppr(apprDocSearchVO);
+		resultMap.put("resultList", resultList);
+
+		int totCnt = apprService.reqApprTotCnt(apprDocSearchVO);
+		paginationInfo.setTotalRecordCount(totCnt);
+		resultMap.put("paginationInfo", paginationInfo);
+
+		return resultMap;
+	}
+
+	// 결재요청 상세
+	@GetMapping("/appr/reqApprDetail.do")
+	public String reqApprDeatil(@ModelAttribute("apprDocSearchVO") ApprDocSearchVO apprDocSearchVO, Model model) {
+
+		ApprDocVO apprDoc = apprService.reqApprDetail(apprDocSearchVO.getAdocId());
+
+		model.addAttribute("apprDoc", apprDoc);
+
+		model.addAttribute("apprLine", apprService.reqApprLineDetail(apprDoc.getAlineId()));
+
+		model.addAttribute("apprHistory", apprService.reqApprHistory(apprDocSearchVO.getAdocId()));
+
+		return "appr/reqApprDetail.html";
+	}
+
+	// 반려 및 결재 처리
+	@PostMapping("/appr/handleAppr.do")
+	@ResponseBody
+	public ResultVO handleAppr(@RequestBody ApprHistoryVO apprHistory) {
+
+		ResultVO result = new ResultVO();
+
+		int count = apprService.handleAppr(apprHistory);
+
+		if (count > 0) {
+
+			Map<String, String> param = new HashMap<>();
+			param.put("adocId", apprHistory.getAdocId());
+
+			if (apprHistory.getAhistoryStatus().equals("B0")) {
+
+				param.put("apprStatus", "A2");
+				count = apprService.modifyApprDoc(param);
+
+			} else if (apprService.isLastAppr(apprHistory)) {
+
+				param.put("apprStatus", "A3");
+				count = apprService.modifyApprDoc(param);
+			}
+
+			if (count > 0) {
+				result.setResultCode("");
+				result.setResultMsg("처리가 완료되었습니다");
+				result.setResultSuccess(true);
+			} else {
+				result.setResultCode("");
+				result.setResultMsg("처리 중 오류가 발생했습니다");
+				result.setResultSuccess(false);
+			}
+		} else {
+			result.setResultCode("");
+			result.setResultMsg("처리 중 오류가 발생했습니다");
+			result.setResultSuccess(false);
+		}
+
+		return result;
+	}
+
 	// 문서함
 	// 기안문서함
 	@GetMapping("/appr/regHistory.do")
 	public String regHistory() {
 		return "appr/regHistory.html";
 	}
-	
+
+	@GetMapping("/appr/regHistoryList.do")
+	@ResponseBody
+	public Map<String, Object> regHistoryList(@ModelAttribute("apprDocSearchVO") ApprDocSearchVO apprDocSearchVO) {
+		Map<String, Object> resultMap = new HashMap<>();
+
+		/** EgovPropertyService */
+		apprDocSearchVO.setPageUnit(propertiesService.getInt("pageUnit"));
+		apprDocSearchVO.setPageSize(propertiesService.getInt("pageSize"));
+
+		/** pageing */
+		PaginationInfo paginationInfo = new PaginationInfo();
+		paginationInfo.setCurrentPageNo(apprDocSearchVO.getPageIndex());
+		paginationInfo.setRecordCountPerPage(apprDocSearchVO.getPageUnit());
+		paginationInfo.setPageSize(apprDocSearchVO.getPageSize());
+
+		apprDocSearchVO.setFirstIndex(paginationInfo.getFirstRecordIndex());
+		apprDocSearchVO.setLastIndex(paginationInfo.getLastRecordIndex());
+		apprDocSearchVO.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
+
+		List<ApprDocVO> resultList = apprService.regHistory(apprDocSearchVO);
+		resultMap.put("resultList", resultList);
+
+		int totCnt = apprService.regHistoryTotCnt(apprDocSearchVO);
+		paginationInfo.setTotalRecordCount(totCnt);
+		resultMap.put("paginationInfo", paginationInfo);
+
+		return resultMap;
+	}
+
 	// 결재문서함
 	@GetMapping("/appr/reqHistory.do")
 	public String reqHistory() {
 		return "appr/reqHistory.html";
 	}
-	
+
+	@GetMapping("/appr/reqHistoryList.do")
+	@ResponseBody
+	public Map<String, Object> reqHistoryList(@ModelAttribute("apprDocSearchVO") ApprDocSearchVO apprDocSearchVO) {
+		Map<String, Object> resultMap = new HashMap<>();
+
+		/** EgovPropertyService */
+		apprDocSearchVO.setPageUnit(propertiesService.getInt("pageUnit"));
+		apprDocSearchVO.setPageSize(propertiesService.getInt("pageSize"));
+
+		/** pageing */
+		PaginationInfo paginationInfo = new PaginationInfo();
+		paginationInfo.setCurrentPageNo(apprDocSearchVO.getPageIndex());
+		paginationInfo.setRecordCountPerPage(apprDocSearchVO.getPageUnit());
+		paginationInfo.setPageSize(apprDocSearchVO.getPageSize());
+
+		apprDocSearchVO.setFirstIndex(paginationInfo.getFirstRecordIndex());
+		apprDocSearchVO.setLastIndex(paginationInfo.getLastRecordIndex());
+		apprDocSearchVO.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
+
+		List<ApprDocVO> resultList = apprService.reqHistory(apprDocSearchVO);
+		resultMap.put("resultList", resultList);
+
+		int totCnt = apprService.reqHistoryTotCnt(apprDocSearchVO);
+		paginationInfo.setTotalRecordCount(totCnt);
+		resultMap.put("paginationInfo", paginationInfo);
+
+		return resultMap;
+	}
+
 	// 참조문서함
 	@GetMapping("/appr/refHistory.do")
 	public String refHistory() {
 		return "appr/refHistory.html";
+	}
+
+	@GetMapping("/appr/refHistoryList.do")
+	@ResponseBody
+	public Map<String, Object> refHistoryList(@ModelAttribute("apprDocSearchVO") ApprDocSearchVO apprDocSearchVO) {
+		Map<String, Object> resultMap = new HashMap<>();
+
+		/** EgovPropertyService */
+		apprDocSearchVO.setPageUnit(propertiesService.getInt("pageUnit"));
+		apprDocSearchVO.setPageSize(propertiesService.getInt("pageSize"));
+
+		/** pageing */
+		PaginationInfo paginationInfo = new PaginationInfo();
+		paginationInfo.setCurrentPageNo(apprDocSearchVO.getPageIndex());
+		paginationInfo.setRecordCountPerPage(apprDocSearchVO.getPageUnit());
+		paginationInfo.setPageSize(apprDocSearchVO.getPageSize());
+
+		apprDocSearchVO.setFirstIndex(paginationInfo.getFirstRecordIndex());
+		apprDocSearchVO.setLastIndex(paginationInfo.getLastRecordIndex());
+		apprDocSearchVO.setRecordCountPerPage(paginationInfo.getRecordCountPerPage());
+
+		List<ApprDocVO> resultList = apprService.refHistory(apprDocSearchVO);
+		resultMap.put("resultList", resultList);
+
+		int totCnt = apprService.refHistoryTotCnt(apprDocSearchVO);
+		paginationInfo.setTotalRecordCount(totCnt);
+		resultMap.put("paginationInfo", paginationInfo);
+
+		return resultMap;
 	}
 
 	// 문서 양식 관련
@@ -119,7 +347,7 @@ public class ApprContoller {
 		int totCnt = apprService.getDocFormListTotCnt(docFormSearchVO);
 		paginationInfo.setTotalRecordCount(totCnt);
 		resultMap.put("paginationInfo", paginationInfo);
-		
+
 		return resultMap;
 	}
 
@@ -135,7 +363,7 @@ public class ApprContoller {
 	public ResultVO postDocFormReg(@RequestBody DocFormVO docForm) {
 		ResultVO result = new ResultVO();
 		int count = apprService.regDocForm(docForm);
-		
+
 		if (count > 0) {
 			result.setResultCode("");
 			result.setResultMsg("문서양식이 등록되었습니다");
@@ -145,10 +373,9 @@ public class ApprContoller {
 			result.setResultMsg("문서양식 등록 중 오류가 발생했습니다");
 			result.setResultSuccess(false);
 		}
-		
+
 		return result;
 	}
-	
+
 	// 문서 양식 수정
-	
 }

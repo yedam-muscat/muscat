@@ -164,9 +164,13 @@
 									<label for="" class="col-form-label">성별</label>
 								</div>
 								<div class="col-auto">
-									<div class="form-check form-check-inline" th:each="item, idx : ${sexdstnCode_result}">
-										<input class="form-check-input" type="radio" name="sexdstnCode" th:value="${item.code}" th:id="${item.code + idx.index}"> 
-											<label class="form-check-label" th:for="${item.code + idx.index}" th:text="${item.codeNm}"></label>
+									<div class="form-check form-check-inline"
+										th:each="item, idx : ${sexdstnCode_result}">
+										<input class="form-check-input" type="radio"
+											name="sexdstnCode" th:value="${item.code}"
+											th:id="${item.code + idx.index}"> <label
+											class="form-check-label" th:for="${item.code + idx.index}"
+											th:text="${item.codeNm}"></label>
 									</div>
 								</div>
 							</div>
@@ -618,8 +622,6 @@
 	<script th:src="@{/assets/js/bootstrap.bundle.min.js}"></script>
 
 	<script th:src="@{/assets/vendors/sweetalert2/sweetalert2.all.min.js}"></script>
-
-	<!-- <script th:src="@{/assets/js/main.js}"></script> -->
 </body>
 
 </html>

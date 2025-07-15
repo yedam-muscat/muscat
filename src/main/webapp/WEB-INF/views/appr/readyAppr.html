@@ -12,8 +12,8 @@
 		<select id="searchCondition" class="form-select form-select-sm"
 			style="width: 130px">
 			<option value="" selected>-- 검색조건 --</option>
-			<option value="0">제목</option>
-			<option value="1">문서양식</option>
+			<option value="0">문서양식</option>
+			<option value="1">작성자</option>
 		</select>
 
 		<!-- 검색어 -->
@@ -31,10 +31,11 @@
 	<table class="table table-bordered">
 		<thead class="table-light">
 			<tr>
-				<th>제목</th>
+				<th>문서ID</th>
 				<th>문서양식</th>
-				<th>작성일자</th>
-				<th>저장일자</th>
+				<th>기안자</th>
+				<th>기안일자</th>
+				<th>갱신일자</th>
 			</tr>
 		</thead>
 		<tbody id="listBody">
@@ -47,8 +48,8 @@
 	</nav>
 
 	<script th:inline="javascript">
-		let tempListUrl = /*[[ @{/admin/user/userList.do} ]]*/ '';
-		let tempDetailUrl = /*[[ @{/admin/user/userDetail.do} ]]*/ '';
+		let listUrl = /*[[ @{/appr/readyApprList.do} ]]*/ '';
+		let detailUrl = /*[[ @{/appr/readyApprDetail.do} ]]*/ '';
 	</script>
 	<script>
     const pageSize = 10;
@@ -62,8 +63,9 @@
         
     	$.ajax({
 			type : "GET",
-			url : tempListUrl,
+			url : listUrl,
 			data : {
+				mberId : loginVO.id,
 				pageIndex : page,
 				searchCondition : searchCondition,
 				searchKeyword : searchKeyword,
@@ -79,18 +81,19 @@
 	        const totalPages = Math.ceil(totalCount / pageSize);
 	        
 	        resultList.forEach(item => {
-	          tbody.append(`<tr data-temp-id="${'TEST' }">
-	  	            <td>${'TEST' }</td>
-	  	            <td>${'TEST' }</td>
-	  	            <td>${'TEST' }</td>
-	  	            <td>${'TEST' }</td>
+	          tbody.append(`<tr data-temp-id="${item.adocId }">
+	  	            <td>${item.adocId }</td>
+	  	            <td>${item.dformName }</td>
+	  	            <td>${item.mberNm }</td>
+	  	            <td>${item.regDate }</td>
+	  	            <td>${item.updDate }</td>
 	  	            </tr>
 	  	          `);
 	        });
 	        
 	        tbody.on('click', 'tr', function () {
 	        	  const id = $(this).data('temp-id');
-	        	  window.location.href = `${tempDetailUrl}?selectedId=${encodeURIComponent(id)}`;
+	        	  window.location.href = `${detailUrl}?adocId=${encodeURIComponent(id)}`;
 	        	});
 
 	        renderPagination(totalPages);
@@ -132,7 +135,7 @@
 
     // 초기 로딩
     document.addEventListener('DOMContentLoaded', () => {
-    	//loadList();
+    	loadList();
     	
     	$('#btnSearch').on('click', function() {
     	    searchCondition = $('#searchCondition').val();

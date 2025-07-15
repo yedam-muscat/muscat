@@ -23,6 +23,9 @@
 		<typeAlias alias="docFormVO"		type="egovframework.com.muscat.appr.service.DocFormVO" />
 		<typeAlias alias="docFormSearchVO"		type="egovframework.com.muscat.appr.service.DocFormSearchVO" />
 		<typeAlias alias="apprDocVO"		type="egovframework.com.muscat.appr.service.ApprDocVO" />
+		<typeAlias alias="apprDocSearchVO"		type="egovframework.com.muscat.appr.service.ApprDocSearchVO" />
+		<typeAlias alias="apprHistoryVO"		type="egovframework.com.muscat.appr.service.ApprHistoryVO" />
+		<typeAlias alias="apprLineDetailVO"		type="egovframework.com.muscat.appr.service.ApprLineDetailVO" />
 
 		<typeAlias alias="alarmVO"		type="egovframework.com.muscat.alarm.service.AlarmVO" />
 		<typeAlias alias="boardMasterVO"		type="egovframework.com.cop.bbs.service.BoardMasterVO" />

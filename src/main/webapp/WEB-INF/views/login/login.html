@@ -106,14 +106,14 @@
 	</script>
 	<script>
 		$(function() {
-			
+
 			if (loginMessage) {
 				Swal.fire({
 					icon : "error",
 					title : loginMessage
 				})
 			}
-			
+
 			$('#password').on('keyup', function(e) {
 				if (e.key === 'Enter') {
 					e.preventDefault();
@@ -151,8 +151,6 @@
 	<script th:src="@{/assets/js/bootstrap.bundle.min.js}"></script>
 
 	<script th:src="@{/assets/vendors/sweetalert2/sweetalert2.all.min.js}"></script>
-
-	<!-- <script th:src="@{/assets/js/main.js}"></script> -->
 </body>
 
 </html>
