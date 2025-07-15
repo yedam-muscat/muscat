@@ -89,7 +89,7 @@ public final class AlarmController {
 	    return map;
 	}
 	
-	// ✅ 알람 읽음 처리
+	//  알람 읽음 처리
 	@PostMapping("/alarm/read.do")
 	@ResponseBody
 	public Map<String, Object> markAlarmAsRead(@RequestBody AlarmVO vo) {
@@ -103,7 +103,7 @@ public final class AlarmController {
 	    return result;
 	}
 
-	// ✅ 안 읽은 알람 개수 조회 (뱃지용)
+	//  안 읽은 알람 개수 조회 (뱃지용)
 	@PostMapping("/alarm/unreadcount.do")
 	@ResponseBody
 	public int getUnreadCount(HttpServletRequest request) {

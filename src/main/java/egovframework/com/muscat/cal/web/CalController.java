@@ -256,5 +256,45 @@ public class CalController {
 		String loginId = loginVO.getId();
 		return calService.getSharedCalendars(loginId);
 	}
+	
+	@PostMapping("/cal/updateCalendar")
+	@ResponseBody
+	public ResponseEntity<String> updateCalendar(@RequestBody CalendarVO vo) {
+	    try {
+	        calService.updateCalendar(vo);
+	        return ResponseEntity.ok("수정 성공");
+	    } catch (Exception e) {
+	        return ResponseEntity.status(500).body("수정 실패: " + e.getMessage());
+	    }
+	}
+	
+	@DeleteMapping("/cal/deleteCalendar")
+	@ResponseBody
+	public ResponseEntity<String> deleteCalendar(@RequestParam String calId, @RequestParam String calType) {
+	    int result = 0;
+
+	    if ("personal".equalsIgnoreCase(calType)) {
+	        result = calService.deleteCalendar(calId);
+	    } else if ("shared".equalsIgnoreCase(calType)) {
+	        result = calService.deleteSharedCalendar(calId); // 이 메서드도 CalService에 필요함
+	    }
+
+	    if (result > 0) {
+	        return ResponseEntity.ok("삭제 성공");
+	    } else {
+	        return ResponseEntity.status(404).body("삭제 실패 또는 캘린더 없음");
+	    }
+	}
+	
+	@DeleteMapping("/cal/deleteSharedCalendar")
+	@ResponseBody
+	public ResponseEntity<String> deleteSharedCalendar(@RequestParam String calId, @RequestParam String calType) {
+	    int result = calService.deleteSharedCalendar(calId);
+	    if (result > 0) {
+	        return ResponseEntity.ok("삭제 성공");
+	    } else {
+	        return ResponseEntity.status(404).body("삭제 실패 또는 캘린더 없음");
+	    }
+	}
 
 }
