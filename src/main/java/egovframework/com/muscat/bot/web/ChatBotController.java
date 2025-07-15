@@ -35,18 +35,18 @@ public class ChatBotController {
 	    String reply;
 
 	    if (message.contains("도움말") || message.contains("명령어")) {
-	        reply = "🧠 하리봇 도움말\n\n"
-	             + "하리봇이 할 수 있는 일:\n"
-	             + "------------------------------\n"
-	             + "⏰ [시간 확인] 지금 몇 시야?\n"
-	             + "🌍 [세계 시간] 세계 시간 알려줘\n"
-	             + "📅 [캘린더] #캘린더, 일정 보여줘\n"
-	             + "🧍 [직원 검색] 김하리 찾아줘\n"
-	             + "📝 [게시판] #게시판, 공지 보여줘\n"
-	             + "🌦️ [날씨] 날씨 어때?, 서울 날씨 알려줘\n"
-	             + "🕘 [출퇴근] 출근했어?, 근태 보여줘\n"
-	             + "❓ [도움말] 도움말, 명령어 알려줘\n"
-	             + "------------------------------\n"
+	        reply = " 하리봇 도움말"
+	             + "하리봇이 할 수 있는 일:"
+	             + "------------------------------"
+	             + " [시간 확인] 지금 몇 시야?"
+	             + " [세계 시간] 세계 시간 알려줘"
+	             + " [캘린더] #캘린더, 일정 보여줘"
+	             + " [직원 검색] 김하리 찾아줘"
+	             + " [게시판] #게시판, 공지 보여줘"
+	             + " [날씨] 날씨 어때?, 서울 날씨 알려줘"
+	             + " [출퇴근] 출근했어?, 근태 보여줘"
+	             + " [도움말] 도움말, 명령어 알려줘"
+	             + "------------------------------"
 	             + "궁금한 걸 자유롭게 물어보세요!";
 	    } else if (message.contains("시간") || message.contains("몇 시") || message.contains("지금")) {
 	        if (message.contains("세계") || message.contains("다른 나라")) {
@@ -68,23 +68,20 @@ public class ChatBotController {
 	        reply = "죄송해요, 이해하지 못했어요. 도움말을 보시려면 '도움말'이라고 입력해주세요.";
 	    }
 
-	    // 이모지 유니코드 escape 방지 설정
-	    ObjectMapper mapper = new ObjectMapper();
-	    mapper.getFactory().configure(com.fasterxml.jackson.core.JsonGenerator.Feature.ESCAPE_NON_ASCII, false);
-
+	  
 	    try {
-	        String json = mapper.writeValueAsString(reply);
+	        
 	        return ResponseEntity.ok()
 	                .header("Content-Type", "application/json;charset=UTF-8")
-	                .body(json);
+	                .body(reply);
 	    } catch (Exception e) {
 	        return ResponseEntity.status(500)
-	                .body("\"⚠️ 오류가 발생했습니다.\"");
+	                .body("\" 오류가 발생했습니다.\"");
 	    }
 	}
 	private String getKoreanTime() {
 		LocalTime now = LocalTime.now(ZoneId.of("Asia/Seoul"));
-        return "🕒 지금 시간은 " + now.format(DateTimeFormatter.ofPattern("HH:mm")) + "입니다.";
+        return " 지금 시간은 " + now.format(DateTimeFormatter.ofPattern("HH:mm")) + "입니다.";
     }
 
     private String getWorldTime() {
@@ -97,12 +94,12 @@ public class ChatBotController {
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm");
 
         return String.format(
-        	    "🌍 세계 시간 안내입니다:\n" +
-        	    "🇰🇷 서울: %s\n" +
-        	    "🇺🇸 뉴욕: %s\n" +
-        	    "🇬🇧 런던: %s\n" +
-        	    "🇯🇵 도쿄: %s\n" +
-        	    "🇦🇺 시드니: %s",
+        	    " 세계 시간 안내입니다:\n" +
+        	    " 서울: %s" +
+        	    " 뉴욕: %s" +
+        	    " 런던: %s" +
+        	    " 도쿄: %s" +
+        	    " 시드니: %s",
         	    seoul.format(fmt),
         	    newYork.format(fmt),
         	    london.format(fmt),
@@ -144,16 +141,16 @@ public class ChatBotController {
             JsonNode root = mapper.readTree(response.toString());
             JsonNode items = root.at("/response/body/items/item");
 
-            StringBuilder result = new StringBuilder("🌦️ 현재 날씨 정보\n");
+            StringBuilder result = new StringBuilder(" 현재 날씨 정보\n");
             for (JsonNode item : items) {
                 String category = item.get("category").asText();
                 String obsrValue = item.get("obsrValue").asText();
 
                 switch (category) {
-                    case "T1H": result.append("🌡️ 기온: ").append(obsrValue).append("℃\n"); break;
-                    case "RN1": result.append("☔ 1시간 강수량: ").append(obsrValue).append("mm\n"); break;
-                    case "REH": result.append("💧 습도: ").append(obsrValue).append("%\n"); break;
-                    case "WSD": result.append("💨 풍속: ").append(obsrValue).append("m/s\n"); break;
+                    case "T1H": result.append(" 기온: ").append(obsrValue).append("℃"); break;
+                    case "RN1": result.append(" 1시간 강수량: ").append(obsrValue).append("mm"); break;
+                    case "REH": result.append(" 습도: ").append(obsrValue).append("%"); break;
+                    case "WSD": result.append(" 풍속: ").append(obsrValue).append("m/s"); break;
                 }
             }
 
@@ -161,7 +158,7 @@ public class ChatBotController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return "⚠️ 날씨 정보를 불러오는 중 오류가 발생했어요.";
+            return "⚠ 날씨 정보를 불러오는 중 오류가 발생했어요.";
         }
     }
 

@@ -262,20 +262,16 @@ function appendMessage(sender, message) {
   const isBot = sender === '챗봇';
   div.className = isBot ? 'message bot' : 'message user';
 
-  let html = message.replace(/\n/g, "<br>");
-
-  // 간단한 이미지 응답 예시
-  
-
-  // 링크 자동 감지
-  html = html.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+  let html = message
+  .replace(/\n/g, "<br>")
+ .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
 
   div.innerHTML = `<div class="bubble"><strong>${sender}:</strong><br>${html}</div>`;
   log.appendChild(div);
   log.scrollTo({ top: log.scrollHeight, behavior: 'smooth' });
 
   // 저장
-  //saveChatLog();
+  saveChatLog();
 }
 
 // localStorage 채팅 저장/불러오기
@@ -323,7 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // 페이지 로드시 이전 대화 불러오기
-  //restoreChatLog();
+  restoreChatLog();
 
   // 3초 뒤 테스트 알림 표시
   setTimeout(() => {
