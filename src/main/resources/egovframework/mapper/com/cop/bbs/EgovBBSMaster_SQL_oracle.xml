@@ -384,10 +384,10 @@
 	<select id="selectBBSListPortlet"
 		parameterType="egovframework.com.cop.bbs.service.BoardMasterVO"
 		resultMap="BBSListPortlet">
-		SELECT BBS_ID, BBS_TY_CODE, BBS_NM, FRST_REGIST_PNTTM
+		SELECT *
 		FROM COMTNBBSMASTER
 		WHERE USE_AT = 'Y'
-		ORDER BY FRST_REGIST_PNTTM DESC
+		ORDER BY CATEGORY_SCOPE, CATEGORY_MAIN
 	</select>
 
 </mapper>
