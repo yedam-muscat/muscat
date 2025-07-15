@@ -12,10 +12,12 @@
 						<div class="card-header text-white">
 							<h5 class="mb-0">결재요청상세</h5>
 						</div>
-						<div class="card-body" style="max-width: 800px">
+						<div class="card-body" id="adocForm" style="max-width: 800px">
 							<div id="approval-header" class="mb-4"></div>
 							<div id="formRender" class="border mb-3 p-3 bg-light"></div>
+						</div>
 
+						<div class="card-body" style="max-width: 800px">
 							<div class="mb-3">
 								<label for="approvalComment" class="form-label fw-bold">코멘트</label>
 								<textarea class="form-control" id="ahistoryComment" rows="3"
@@ -27,8 +29,11 @@
 									class="btn btn-danger px-4">반려</button>
 								<button type="button" id="confirmApprBtn"
 									class="btn btn-primary px-4">결재</button>
+								<button type="button" id="printPdfBtn" class="btn btn-info px-4">PDF
+									출력</button>
 							</div>
 						</div>
+
 					</div>
 				</div>
 			</div>
@@ -49,6 +54,37 @@
 		console.log(apprDoc)
 		console.log(apprLine)
 		console.log(apprHistory)
+
+		// Function to draw approval stamps
+		function drawApprovalStamps(approvalLine, approvalHistory) {
+		    const historyMap = new Map();
+		    (approvalHistory || []).forEach(history => {
+		        historyMap.set(history.mberId, history.ahistoryStatus);
+		    });
+
+		    (approvalLine || []).forEach(approver => {
+		        const stampArea = document.querySelector(`.approval-stamp-area[data-approver-id="${approver.mberId}"]`);
+		        if (stampArea) {
+		            const status = historyMap.get(approver.mberId);
+		            const stampDiv = document.createElement('div');
+		            stampDiv.classList.add('approval-stamp');
+
+		            if (status === 'B1') { // 승인
+		                stampDiv.classList.add('approved');
+		                stampDiv.textContent = approver.mberId;
+		            } else if (status === 'B0') { // 반려
+		                stampDiv.classList.add('rejected');
+		                stampDiv.textContent = '반려';
+		            } else { // 대기 또는 미결
+		                stampDiv.classList.add('pending');
+		                stampDiv.textContent = '대기';
+		            }
+		            stampArea.innerHTML = ''; // Clear existing content
+		            stampArea.appendChild(stampDiv);
+		        }
+		    });
+		}
+
 
 		$('document').ready(
 				function() {
@@ -137,17 +173,10 @@
 					// --- 결재선 동적 생성 로직 ---
 		            let approverCellsHtml = '';
 		            (apprLine || []).forEach(approver => {
-		                let signContent = '';
-/* 		                if (approver.status === '승인') {
-		                    signContent = `<div class="d-flex justify-content-center align-items-center h-100">
-		                                       <span class="text-danger fw-bold fs-4">결재</span>
-		                                   </div>`;
-		                } */
-
 		                approverCellsHtml += `
 		                    <div class="col border-start text-center" style="width: 100px;">
 		                        <div class="py-1 bg-light border-bottom"></div>
-		                        <div class="py-3" style="height: 80px;"></div>
+		                        <div class="py-3 approval-stamp-area" style="height: 80px;" data-approver-id="${approver.mberId}"></div>
 		                        <div class="py-1 border-top">${approver.mberId}</div>
 		                    </div>
 		                `;
@@ -167,6 +196,9 @@
 		            `;
 		            $('#approval-header').html(approvalHeaderHtml);
 					
+					// Call drawApprovalStamps after the approval line HTML is rendered
+					drawApprovalStamps(apprLine, apprHistory);
+
 			        try {
 			            // 1. 양식 구조만으로 빈 폼을 렌더링합니다.
 			            const formStructureObject = JSON.parse(apprDoc.dformContent);
@@ -217,5 +249,25 @@
 			        }
 				});
 		/*]]>*/
+	</script>
+
+	<script>
+		function generatePdf() {
+			const element = document.querySelector('#adocForm'); // PDF로 변환할 요소 선택
+			
+			html2pdf(element, {
+				margin: 10,
+				filename: `${apprDoc.dformName + '_' + apprDoc.mberNm}.pdf`,
+				image: { type: 'jpeg', quality: 0.98 },
+				html2canvas: { scale: 2 },
+				jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+			});
+		}
+
+		$('document').ready(function() {
+			$('#printPdfBtn').on('click', function() {
+				generatePdf();
+			});
+		});
 	</script>
 </main>

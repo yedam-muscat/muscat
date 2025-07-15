@@ -14,6 +14,34 @@
 	text-decoration: none !important;
 	color: inherit !important;
 }
+
+/* 로고 이미지 크기 조정 */
+#sidebar .sidebar-header .logo {
+    width: 100%; /* 로고 컨테이너가 사용 가능한 모든 가로 공간을 차지하도록 */
+}
+
+#sidebar .sidebar-header .logo img {
+    height: auto; /* 높이 자동 조절 */
+    width: auto; /* 너비 자동 조절 */
+    max-width: 100%; /* 부모 요소의 100%를 넘지 않도록 */
+    max-height: 2.5rem; /* 최대 높이 설정 (원하는 크기로 조절) */
+}
+
+/* 하위 메뉴 스타일 조정 (우선순위 높임) */
+#sidebar .submenu {
+    padding-left: 1.5rem; /* 왼쪽 여백 줄이기 */
+}
+
+#sidebar .submenu-item a {
+    font-size: 1rem; /* 글자 크기 키우기 */
+    display: flex;
+    align-items: center;
+}
+
+#sidebar .submenu-item a i {
+    margin-right: 10px; /* 아이콘과 텍스트 간격 */
+    font-size: 1rem; /* 아이콘 크기 조정 */
+}
 </style>
 <div id="sidebar" class="active" th:fragment="sidebar">
 	<div class="sidebar-wrapper active">
@@ -21,7 +49,7 @@
 			<div class="d-flex justify-content-between">
 				<div class="logo">
 					<a href="/muscat/main.do"><img
-						th:src="@{/assets/images/logo/logo.png}" alt="Logo" srcset=""></a>
+						th:src="@{/assets/images/logo/muscat_logo_cropped_512.png}" alt="Logo" srcset=""></a>
 				</div>
 				<div class="toggler">
 					<a href="#" class="sidebar-hide d-xl-none d-block"><i
@@ -36,20 +64,20 @@
 				</a>
 					<ul class="submenu " id="appr">
 						<li class="submenu-item " id="regAppr"><a
-							href="/muscat/appr/regAppr.do">문서기안</a></li>
+							href="/muscat/appr/regAppr.do"><i class="bi bi-pencil-square"></i> 문서기안</a></li>
 						<li class="submenu-item " id="readyAppr"><a
-							href="/muscat/appr/readyAppr.do">결재대기</a></li>
+							href="/muscat/appr/readyAppr.do"><i class="bi bi-hourglass-split"></i> 결재대기</a></li>
 						<li class="submenu-item " id="reqAppr"><a
-							href="/muscat/appr/reqAppr.do">결재요청</a></li>
+							href="/muscat/appr/reqAppr.do"><i class="bi bi-send"></i> 결재요청</a></li>
 						<li class="submenu-item " id="regHistory"><a
-							href="/muscat/appr/regHistory.do">기안문서함</a></li>
+							href="/muscat/appr/regHistory.do"><i class="bi bi-folder-symlink"></i> 기안문서함</a></li>
 						<li class="submenu-item " id="reqHistory"><a
-							href="/muscat/appr/reqHistory.do">결재문서함</a></li>
+							href="/muscat/appr/reqHistory.do"><i class="bi bi-folder-check"></i> 결재문서함</a></li>
 						<li class="submenu-item " id="refHistory"><a
-							href="/muscat/appr/refHistory.do">참조문서함</a></li>
+							href="/muscat/appr/refHistory.do"><i class="bi bi-folder-plus"></i> 참조문서함</a></li>
 						<li th:if="${loginUserAuth.contains('ROLE_ADMIN') }"
 							class="submenu-item " id="docFormMng"><a
-							href="/muscat/appr/docFormMng.do">문서양식관리</a></li>
+							href="/muscat/appr/docFormMng.do"><i class="bi bi-file-earmark-ruled"></i> 문서양식관리</a></li>
 						<!-- <li class="submenu-item " id="docFormReg"><a
 							href="/muscat/appr/docFormReg.do">문서양식관리</a></li> -->
 					</ul></li>
@@ -61,13 +89,13 @@
 					<ul class="submenu ">
 						<li th:if="${loginUserAuth.contains('ROLE_ADMIN') }"
 							class="submenu-item " id="masterList"><a
-							href="/muscat/board/masterList.do">게시판 관리</a></li>
+							href="/muscat/board/masterList.do"><i class="bi bi-kanban"></i> 게시판 관리</a></li>
 						<!-- 게시판 마스터 목록 반복 -->
-						<li class="submenu-item" th:each="board : ${boardList}"
-							th:id="${board.bbsId}"><a
-							th:if="${'' + session.loginVO.deptId == board.deptId || board.categoryScope == 'BT100'}"
-							th:href="@{/board/articleList.do(bbsId=${board.bbsId})}"
-							th:text="${board.bbsNm}">게시판명</a></li>
+						<li class="submenu-item" th:each="board : ${boardList}" th:id="${board.bbsId}" th:if="${#strings.toString(session.loginVO.deptId) == board.deptId or board.categoryScope == 'BT100'}">
+							<a th:href="@{/board/articleList.do(bbsId=${board.bbsId})}">
+								<i class="bi bi-card-text"></i> <span th:text="${board.bbsNm}">게시판명</span>
+							</a>
+						</li>
 					</ul></li>
 
 				<li class="sidebar-item  has-sub" id="cal"><a href="#"
@@ -75,7 +103,7 @@
 				</a>
 					<ul class="submenu ">
 						<li class="submenu-item " id="calMonth"><a
-							href="/muscat/cal/calMonth.do">캘린더</a></li>
+							href="/muscat/cal/calMonth.do"><i class="bi bi-calendar-event"></i> 캘린더</a></li>
 					</ul></li>
 
 				<li class="sidebar-item" id="chat"><a
@@ -94,11 +122,11 @@
 				</a>
 					<ul class="submenu ">
 						<li class="submenu-item " id="userMng"><a
-							th:href="@{/admin/user/userMng.do}">사용자관리</a></li>
+							th:href="@{/admin/user/userMng.do}"><i class="bi bi-people"></i> 사용자관리</a></li>
 						<li class="submenu-item " id="cmcMng"><a
-							th:href="@{/admin/code/cmcMng.do}">공통코드관리</a></li>
+							th:href="@{/admin/code/cmcMng.do}"><i class="bi bi-journal-code"></i> 공통코드관리</a></li>
 						<li class="submenu-item " id="cmdcMng"><a
-							th:href="@{/admin/code/cmdcMng.do}">공통세부코드관리</a></li>
+							th:href="@{/admin/code/cmdcMng.do}"><i class="bi bi-journal-richtext"></i> 공통세부코드관리</a></li>
 					</ul></li>
 			</ul>
 		</div>
@@ -379,7 +407,7 @@ translateY(
 	<!-- Scripts -->
 	<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
 	<!-- <script
-		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>  -->
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"> </script>  -->
 	<script
 		src="https://cdn.jsdelivr.net/npm/jstree@3.3.12/dist/jstree.min.js"></script>
 	<!-- jQuery UI CSS -->
@@ -453,7 +481,6 @@ translateY(
 			    // 상태 저장
 			    sessionStorage.setItem(PARENT_KEY, parentId);
 			    sessionStorage.setItem(CHILD_KEY , childId);
-
 			    // 시각적 활성화
 			    activateItem(parentId, childId);
 			  });
@@ -541,7 +568,7 @@ translateY(
 					             (node.original.rank  || '').includes(str); */
 					  }
 				    }
-				  })				    				   
+				  })							
 				  .on('loaded.jstree', async function (e, data) {
 				    // 자식 노드를 동적으로 로딩하기 위해 클릭한 후 get_json을 호출
 				    $('#tree').jstree(true).open_all();  // 모든 노드를 펼침		
@@ -907,15 +934,15 @@ translateY(
 					       
 					          // 파일 아이콘 생성
 						          const fileIconContainer = $('<div></div>').css({
-						            position: 'relative',
-						            display: 'inline-block',
-						            margin: '5px'
-						          });
-						          const fileIcon = $('<i class="bi bi-file-earmark-text"></i>').css({
-						              fontSize: '2rem',
-						              cursor: 'pointer',
-						              color: '#0d6efd'
-						            }).attr('title', '보고서 보기');
+					            position: 'relative',
+					            display: 'inline-block',
+					            margin: '5px'
+					          });
+					          const fileIcon = $('<i class="bi bi-file-earmark-text"></i>').css({
+					              fontSize: '2rem',
+					              cursor: 'pointer',
+					              color: '#0d6efd'
+					            }).attr('title', '보고서 보기');
 
 					          // 아이콘 클릭 시 상세 모달 열기
 					          fileIcon.on('click', function() {
@@ -1038,7 +1065,7 @@ translateY(
 		var url = 'ws://' + window.location.host + `/muscat/usersServerEndpoint`;
 		websocket = connection(url);
 		
-/* 		websocket.onopen = function(){			
+/* 		websocket.onopen = function(){ 			
 			console.log('Info: WebSocket open.');
 			//send(username);
 			$('#sendBtn').attr("disabled", false);
@@ -1100,7 +1127,7 @@ translateY(
 			
 			displaybubble(jsonData);
 		} else if (jsonData.messageType == "UsersMessage") {
-			$('#users').empty(); // 🧹 먼저 비워주기
+			$('#users').empty(); // 			 먼저 비워주기
 			var other = "";
 			for(var i=0; i<jsonData.users.length; i++) {
 				if ("${loginVO.name}"!=jsonData.users[i]) {

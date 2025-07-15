@@ -3,7 +3,7 @@
 <header class="" th:fragment="header">
 	<style>
 /* 드롭다운 메뉴 전체 크기 확장 */
-.dropdown-menu {
+#alarmUl {
 	min-width: 350px !important; /* 기본보다 넓게 */
 	max-height: 400px;
 	overflow-y: auto; /* 스크롤 가능 */
@@ -95,7 +95,7 @@
 						</i>
 					</a>
 						<ul class="dropdown-menu dropdown-menu-end"
-							aria-labelledby="dropdownMenuButton">
+							aria-labelledby="dropdownMenuButton" id="alarmUl">
 							<li
 								class="d-flex justify-content-between align-items-center px-3 py-2">
 								<h6 class="dropdown-header mb-0">알림</h6>
