@@ -168,7 +168,7 @@
 	</div>
 
 	<!-- 카드 애니메이션을 위한 키프레임 정의 (필수) -->
-	<style>
+	<!-- <style>
 @
 keyframes fadeSlideIn { 0% {
 	opacity: 0;
@@ -187,7 +187,7 @@ translateY(
 );
 }
 }
-</style>
+</style> -->
 
 	<!-- 채팅방 목록 모달 -->
 	<!-- <div class="modal fade" id="chatListModal" tabindex="-1"
@@ -236,14 +236,14 @@ translateY(
 
 
 	<!-- 채팅방 -->
-	<div id="chatRoom"
+	<!-- <div id="chatRoom"
 		style="display: none; position: fixed; bottom: 20px; right: 20px; width: 300px; height: 400px; background: #fff; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); z-index: 1045; flex-direction: column;">
 		<div class="header"
 			style="background: #fff; color: black; padding: 10px; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center;">
 
 			<span id="chatUserName"></span>
 			<div style="display: flex; align-items: center; gap: 5px;">
-				<!-- 파일 아이콘 (input-group 시작점 처럼 보이게) -->
+				파일 아이콘 (input-group 시작점 처럼 보이게)
 				<span class="input-group-text"
 					style="padding: 0.375rem 0.75rem; background: transparent; border: none;">
 					<i id="attachFileIcon" class="bi bi-paperclip"
@@ -269,7 +269,7 @@ translateY(
 				style="padding: 0.25rem 0.75rem; font-size: 0.9rem; white-space: nowrap;"
 				disabled>전송</button>
 		</div>
-	</div>
+	</div> -->
 
 	<!-- 보고 모달 -->
 	<div class="modal fade" id="fileAttachModal" tabindex="-1"
@@ -1105,6 +1105,13 @@ translateY(
 				$('#users').empty();
 				$('#users').append("대화상대가 아무도 없습니다.");
 			} 
+			//다른 사용자와 대화하고자 시도할 때, 채팅창을 팝업
+			if (jsonData.enterChatId != null) {
+				var roomId = jsonData.enterChatId;
+				$("#roomId").val(roomId);
+				$("#username").val(jsonData.username);
+				//openPopup(roomId);
+			}
 		}
 	}
 	
