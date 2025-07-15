@@ -65,7 +65,7 @@
 						<!-- 게시판 마스터 목록 반복 -->
 						<li class="submenu-item" th:each="board : ${boardList}"
 							th:id="${board.bbsId}"><a
-							th:if="${session.loginVO.deptId == board.deptId || board.categoryScope == 'BT100'}"
+							th:if="${'' + session.loginVO.deptId == board.deptId || board.categoryScope == 'BT100'}"
 							th:href="@{/board/articleList.do(bbsId=${board.bbsId})}"
 							th:text="${board.bbsNm}">게시판명</a></li>
 					</ul></li>
