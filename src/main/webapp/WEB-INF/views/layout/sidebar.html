@@ -1038,11 +1038,19 @@ translateY(
 		var url = 'ws://' + window.location.host + `/muscat/usersServerEndpoint`;
 		websocket = connection(url);
 		
-		websocket.onopen = function(){			
+/* 		websocket.onopen = function(){			
 			console.log('Info: WebSocket open.');
 			//send(username);
 			$('#sendBtn').attr("disabled", false);
-		};
+		}; */
+		
+		websocket.addEventListener('open', () => {
+			const payload = {
+				"connectionType" : "firstConnection",
+				"username": loginTest.id,
+			};
+			websocket.send(JSON.stringify(payload));
+		});
 
 		websocket.onmessage = function(message) {
 			const jsonData = JSON.parse(message.data);
@@ -1110,10 +1118,12 @@ translateY(
 				var roomId = jsonData.enterChatId;
 				$("#roomId").val(roomId);
 				$("#username").val(jsonData.username);
-				//openPopup(roomId);
+				console.log(jsonData);
+				alert('hi');
 			}
 		}
 	}
+
 	
 	function connection(url) {
 		var websocket = null;

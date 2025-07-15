@@ -470,6 +470,7 @@
 						room: roomId
 					};
 					webSocket.send(JSON.stringify(payload));
+
 				});
 
 				webSocket.addEventListener('message', e => handleMessage(e));
@@ -799,6 +800,8 @@
 									'message': msg,
 									'room': roomId
 								}));
+
+								//websocket.send(JSON.stringify({ "connectionType" : "chatConnection", "username" : username, "connectingUser" : "USER" }));
 								$("#gridChatInput").val(""); // 입력창 초기화
 							} else {
 								alert("메시지 저장 실패");

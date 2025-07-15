@@ -186,7 +186,7 @@ function sendQuick(msg) {
 }
 
 // 알림 클릭 시 → 챗봇 자동 열림 + 자동 입력
-function simulateAlertChat(msg) {
+/* function simulateAlertChat(msg) {
   document.getElementById('miniAlert').style.display = 'none';
   const modal = document.getElementById('chatbot-modal');
   if (!modal.classList.contains('show')) {
@@ -196,7 +196,7 @@ function simulateAlertChat(msg) {
     document.getElementById('chat-input').value = msg;
     sendChat();
   }, 400);
-}
+} */
 
 // 아이콘 클릭 시 모달 위치 계산 및 드래그 설정
 document.getElementById('chatbot-icon').onclick = function () {
@@ -322,9 +322,9 @@ document.addEventListener('DOMContentLoaded', () => {
   restoreChatLog();
 
   // 3초 뒤 테스트 알림 표시
-  setTimeout(() => {
+/*   setTimeout(() => {
     document.getElementById('miniAlert').style.display = 'block';
-  }, 3000);
+  }, 3000); */
 });
 
 function sendMessageToBot(message) {
