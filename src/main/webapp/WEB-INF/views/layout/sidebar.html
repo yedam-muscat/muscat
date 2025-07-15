@@ -37,23 +37,17 @@
 					<ul class="submenu " id="appr">
 						<li class="submenu-item " id="regAppr"><a
 							href="/muscat/appr/regAppr.do">문서기안</a></li>
-<!-- 						<li class="submenu-item " id="tempAppr"><a
-							href="/muscat/appr/tempAppr.do">임시저장</a></li> -->
 						<li class="submenu-item " id="readyAppr"><a
 							href="/muscat/appr/readyAppr.do">결재대기</a></li>
 						<li class="submenu-item " id="reqAppr"><a
 							href="/muscat/appr/reqAppr.do">결재요청</a></li>
-						<li><span>------------------------</span></li>
 						<li class="submenu-item " id="regHistory"><a
 							href="/muscat/appr/regHistory.do">기안문서함</a></li>
 						<li class="submenu-item " id="reqHistory"><a
 							href="/muscat/appr/reqHistory.do">결재문서함</a></li>
 						<li class="submenu-item " id="refHistory"><a
 							href="/muscat/appr/refHistory.do">참조문서함</a></li>
-						<!-- 						<li class="submenu-item "><a
-							href="/muscat/appr/apprHistory.do">부서문서함</a></li> -->
-						<li><span>------------------------</span></li>
-						<li class="submenu-item " id="docFormMng"><a
+						<li th:if="${loginUserAuth.contains('ROLE_ADMIN') }" class="submenu-item " id="docFormMng"><a
 							href="/muscat/appr/docFormMng.do">문서양식관리</a></li>
 						<!-- 						<li class="submenu-item " id="docFormReg"><a
 							href="/muscat/appr/docFormReg.do">문서양식관리</a></li> -->
@@ -64,7 +58,7 @@
 					class='sidebar-link'> <i class="bi bi-collection-fill"></i> <span>게시판</span>
 				</a>
 					<ul class="submenu ">
-						<li class="submenu-item " id="masterList"><a
+						<li th:if="${loginUserAuth.contains('ROLE_ADMIN') }" class="submenu-item " id="masterList"><a
 							href="/muscat/board/masterList.do">게시판 관리</a></li>
 						<!-- 게시판 마스터 목록 반복 -->
 						<li class="submenu-item" th:each="board : ${boardList}"

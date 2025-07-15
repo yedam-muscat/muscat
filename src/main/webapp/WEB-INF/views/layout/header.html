@@ -1,57 +1,59 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <header class="" th:fragment="header">
-<style>
+	<style>
 /* 드롭다운 메뉴 전체 크기 확장 */
 .dropdown-menu {
-  min-width: 350px !important; /* 기본보다 넓게 */
-  max-height: 400px;
-  overflow-y: auto; /* 스크롤 가능 */
-  padding: 10px 0;
+	min-width: 350px !important; /* 기본보다 넓게 */
+	max-height: 400px;
+	overflow-y: auto; /* 스크롤 가능 */
+	padding: 10px 0;
 }
 
 /* 알림 아이템 스타일 */
 .alarm-item {
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
-  padding: 10px 12px;
-  margin: 8px 16px;
-  background-color: #fff;
-  position: relative;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+	border: 1px solid #dee2e6;
+	border-radius: 6px;
+	padding: 10px 12px;
+	margin: 8px 16px;
+	background-color: #fff;
+	position: relative;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 /* X 버튼 */
 .alarm-item .close-btn {
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  border: none;
-  background: transparent;
-  font-size: 16px;
-  color: #999;
-  cursor: pointer;
+	position: absolute;
+	top: 10px;
+	right: 12px;
+	border: none;
+	background: transparent;
+	font-size: 16px;
+	color: #999;
+	cursor: pointer;
 }
 
 .alarm-item .close-btn:hover {
-  color: #dc3545;
+	color: #dc3545;
 }
 
 /* 전체삭제 버튼 오른쪽 정렬 */
 .dropdown-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 16px 5px 16px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0 16px 5px 16px;
 }
+
 .close-btn {
-  position: absolute;
-  top: 10px;
-  right: 12px;
+	position: absolute;
+	top: 10px;
+	right: 12px;
 }
+
 .alarm-read {
-  background-color: #f8f9fa;
-  opacity: 0.6;
+	background-color: #f8f9fa;
+	opacity: 0.6;
 }
 </style>
 	<nav class="navbar navbar-expand navbar-light ">
@@ -84,8 +86,8 @@
 						</ul></li> -->
 					<li class="nav-item dropdown me-3"><a
 						class="nav-link active dropdown-toggle" href="#"
-						data-bs-toggle="dropdown" aria-expanded="false" id="alarmBellLink"> <i
-							id="alarmBell"
+						data-bs-toggle="dropdown" aria-expanded="false" id="alarmBellLink">
+							<i id="alarmBell"
 							class='bi bi-bell bi-sub fs-4 text-gray-600 position-relative'>
 								<span id="notifCount"
 								class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
@@ -97,13 +99,15 @@
 							<li
 								class="d-flex justify-content-between align-items-center px-3 py-2">
 								<h6 class="dropdown-header mb-0">알림</h6>
-								<button class="btn btn-sm btn-outline-danger" onclick="deleteAllAlarms()">전체삭제</button>
+								<button class="btn btn-sm btn-outline-danger"
+									onclick="deleteAllAlarms()">전체삭제</button>
 							</li>
 							<!-- 여기에만 리스트를 넣게 분리 -->
 							<div id="alarmListArea">
 								<li><a class="dropdown-item">미확인 알림이 없습니다.</a></li>
 							</div>
-						</ul></ul>
+						</ul>
+				</ul>
 				<div class="dropdown me-3">
 					<div class="user-menu d-flex">
 						<div id="sessionInfo" class="user-name text-end me-3">
@@ -155,12 +159,17 @@
 		</div>
 	</nav>
 	<script th:inline="javascript">
+	let loginUser = /*[[${loginUser}]]*/ "";
+	let loginUserAuth = /*[[${loginUserAuth}]]*/ "";
 		let egovLatestServerTime = /*[[${egovLatestServerTime}]]*/ "";
 		let egovExpireSessionTime = /*[[${egovExpireSessionTime}]]*/ "";
 		let refreshSessionUrl = /*[[ @{/uat/uia/refreshSessionTimeout.do} ]]*/ '';
 		let loginVO = /*[[ ${session.loginVO} ]]*/ '';
 	</script>
 	<script>
+	
+	console.log(loginUser)
+	console.log(loginUserAuth)
 	
 	//알람 
 	$('#alarmBellLink').on('show.bs.dropdown', function () {
