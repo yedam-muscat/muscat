@@ -118,7 +118,7 @@ public class ApprContoller {
 
 		return "appr/readyApprDetail.html";
 	}
-	
+
 	// 결재요청
 	@GetMapping("/appr/reqAppr.do")
 	public String reqAppr() {
@@ -255,6 +255,20 @@ public class ApprContoller {
 		resultMap.put("paginationInfo", paginationInfo);
 
 		return resultMap;
+	}
+
+	@GetMapping("/appr/regHistoryDetail.do")
+	public String regHistoryDetail(@ModelAttribute("apprDocSearchVO") ApprDocSearchVO apprDocSearchVO, Model model) {
+
+		ApprDocVO apprDoc = apprService.reqApprDetail(apprDocSearchVO.getAdocId());
+
+		model.addAttribute("apprDoc", apprDoc);
+
+		model.addAttribute("apprLine", apprService.reqApprLineDetail(apprDoc.getAlineId()));
+
+		model.addAttribute("apprHistory", apprService.reqApprHistory(apprDocSearchVO.getAdocId()));
+
+		return "appr/regHistoryDetail.html";
 	}
 
 	// 결재문서함
