@@ -10,7 +10,7 @@
 				<div id="auth-left px-2 py-2">
 					<div class="card">
 						<div class="card-header text-white">
-							<h5 class="mb-0">결재요청상세</h5>
+							<h5 class="mb-0">결재대기상세</h5>
 						</div>
 						<div class="card-body" id="adocForm" style="max-width: 800px">
 							<div id="approval-header" class="mb-4"></div>
@@ -18,19 +18,15 @@
 						</div>
 
 						<div class="card-body" style="max-width: 800px">
-							<div class="mb-3">
+							<!-- 							<div class="mb-3">
 								<label for="approvalComment" class="form-label fw-bold">코멘트</label>
 								<textarea class="form-control" id="ahistoryComment" rows="3"
 									placeholder="반려 또는 승인에 대한 의견을 남겨주세요."></textarea>
-							</div>
+							</div> -->
 
 							<div class="d-flex justify-content-end gap-2 mt-4">
-								<button type="button" id="rejectApprBtn"
-									class="btn btn-danger px-4">반려</button>
-								<button type="button" id="confirmApprBtn"
-									class="btn btn-primary px-4">승인</button>
-								<button type="button" id="printPdfBtn" class="btn btn-info px-4">PDF
-									출력</button>
+								<button type="button" id="retrieveApprBtn"
+									class="btn btn-danger px-4">회수</button>
 							</div>
 						</div>
 
@@ -38,7 +34,7 @@
 				</div>
 			</div>
 		</div>
-		</div>
+	</div>
 
 	<script src="https://formbuilder.online/assets/js/form-render.min.js"></script>
 
@@ -68,7 +64,7 @@
 		            const status = historyMap.get(approver.mberId);
 		            const stampDiv = document.createElement('div');
 		            stampDiv.classList.add('approval-stamp');
-		            
+
 		            if (approver.isDraft) {                      // ★ 추가: 기안자
 		                stampDiv.classList.add('approved');
 		                stampDiv.textContent = approver.mberNm;
@@ -139,36 +135,21 @@
 					}
 					
 					
-					$('#rejectApprBtn').on('click', function() {
+					$('#retrieveApprBtn').on('click', function() {
 						Swal.fire({
-						    title: '반려처리 하시겠습니까?',
+						    title: '회수처리 하시겠습니까?',
 						    icon: 'warning',
 						    showCancelButton: true,
 							})
 						  .then(result => {
 						    if (result.isConfirmed) {
-						    	handleAppr('B0');
+						    	//handleAppr('B0');
 						    } else if (result.isDismissed) {
 						    	
 						    }
 						  });
 					})
 					
-					$('#confirmApprBtn').on('click', function() {
-						Swal.fire({
-						    title: '승인처리 하시겠습니까?',
-						    icon: 'warning',
-						    showCancelButton: true,
-							})
-						  .then(result => {
-						    if (result.isConfirmed) {
-						    	handleAppr('B1');
-						    } else if (result.isDismissed) {
-						    	
-						    }
-						  });
-					})
-
 					$('#btnToList').on('click', function() {
 						location.href = mngUrl;
 					});
@@ -381,22 +362,5 @@ const drafter = {
 	</script>
 
 	<script>
-		function generatePdf() {
-			const element = document.querySelector('#adocForm'); // PDF로 변환할 요소 선택
-			
-			html2pdf(element, {
-				margin: 10,
-				filename: `${apprDoc.dformName + '_' + apprDoc.mberNm}.pdf`,
-				image: { type: 'jpeg', quality: 0.98 },
-				html2canvas: { scale: 2 },
-				jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-			});
-		}
-
-		$('document').ready(function() {
-			$('#printPdfBtn').on('click', function() {
-				generatePdf();
-			});
-		});
 	</script>
 </main>

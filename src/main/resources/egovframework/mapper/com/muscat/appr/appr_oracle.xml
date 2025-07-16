@@ -50,14 +50,15 @@
 		MB.mber_id
 		WHERE AP.MBER_ID =
 		#{mberId}
+		AND AP.APPR_STATUS IN ('A0', 'A1')
 		AND 1=1
 		<if
 			test="@egovframework.com.cmm.util.EgovMybatisUtil@isNotEmpty(searchKeyword)">
 			<if test="searchCondition == 0">AND
-				DFORM_ID LIKE '%' || #{searchKeyword} || '%'
+				DF.DFORM_NAME LIKE '%' || #{searchKeyword} || '%'
 			</if>
 			<if test="searchCondition == 1">AND
-				MBER_ID LIKE '%' ||#{searchKeyword}|| '%'
+				MB.MBER_NM LIKE '%' ||#{searchKeyword}|| '%'
 			</if>
 		</if>
          <![CDATA[
@@ -75,14 +76,15 @@
 		WHERE
 		AP.MBER_ID =
 		#{mberId}
+		AND AP.APPR_STATUS IN ('A0', 'A1')
 		AND 1=1
 		<if
 			test="@egovframework.com.cmm.util.EgovMybatisUtil@isNotEmpty(searchKeyword)">
 			<if test="searchCondition == 0">AND
-				DFORM_ID LIKE '%' || #{searchKeyword} || '%'
+				DF.DFORM_NAME LIKE '%' || #{searchKeyword} || '%'
 			</if>
 			<if test="searchCondition == 1">AND
-				MBER_ID LIKE '%' ||#{searchKeyword}|| '%'
+				MB.MBER_NM LIKE '%' ||#{searchKeyword}|| '%'
 			</if>
 		</if>
 	</select>
@@ -108,10 +110,10 @@
 		<if
 			test="@egovframework.com.cmm.util.EgovMybatisUtil@isNotEmpty(searchKeyword)">
 			<if test="searchCondition == 0">AND
-				d.adoc_id LIKE '%' || #{searchKeyword} || '%'
+				df.dform_name LIKE '%' || #{searchKeyword} || '%'
 			</if>
 			<if test="searchCondition == 1">AND
-				d.adoc_id LIKE '%' ||#{searchKeyword}|| '%'
+				mb.mber_nm LIKE '%' ||#{searchKeyword}|| '%'
 			</if>
 		</if>
          <![CDATA[
@@ -134,10 +136,10 @@
 		<if
 			test="@egovframework.com.cmm.util.EgovMybatisUtil@isNotEmpty(searchKeyword)">
 			<if test="searchCondition == 0">AND
-				DFORM_ID LIKE '%' || #{searchKeyword} || '%'
+				df.dform_name LIKE '%' || #{searchKeyword} || '%'
 			</if>
 			<if test="searchCondition == 1">AND
-				MBER_ID LIKE '%' ||#{searchKeyword}|| '%'
+				mb.mber_nm LIKE '%' ||#{searchKeyword}|| '%'
 			</if>
 		</if>
 	</select>
@@ -170,8 +172,16 @@
 	<!-- 결재요청 결재선 -->
 	<select id="selectReqApprLineDetail" parameterType="string"
 		resultType="apprLineDetailVO">
-		SELECT *
-		FROM APPRLINEDETAIL
+		SELECT
+		ALD.MBER_ID,
+		ALD.ALINE_ORDER,
+		ALD.APPR_TYPE,
+		ALD.ALINE_ID,
+		ALD.ALINE_DETAIL_ID,
+		MB.mber_nm
+		FROM APPRLINEDETAIL ALD
+		JOIN COMTNGNRLMBER MB ON ALD.mber_id =
+		MB.mber_id
 		WHERE ALINE_ID = #{alineId}
 		ORDER BY ALINE_ORDER
 	</select>
@@ -179,8 +189,20 @@
 	<!-- 결재요청 결재내역 -->
 	<select id="selectReqApprHistory" parameterType="string"
 		resultType="apprHistoryVO">
-		SELECT *
-		FROM APPRHISTORY
+		SELECT
+		AH.ahistory_id,
+		AH.ahistory_comment,
+		AH.frst_regist_pnttm,
+		AH.last_updt_pnttm,
+		AH.adoc_id,
+		AH.mber_id,
+		MB.mber_nm,
+		AH.aline_order,
+		AH.ahistory_status,
+		AH.appr_type,
+		AH.aline_detail_id
+		FROM APPRHISTORY AH
+		JOIN COMTNGNRLMBER MB ON AH.mber_id = MB.mber_id
 		WHERE ADOC_ID = #{adocId}
 		ORDER BY
 		aline_order
@@ -260,7 +282,9 @@
 		AD.DFORM_NAME,
 		AD.ADOC_TITLE,
 		AD.MBER_ID,
-		AD.MBER_NM
+		AD.MBER_NM,
+		AD.REG_DATE,
+		AD.UPD_DATE
 		FROM VW_APPRDOC_DETAIL AD
 		WHERE
 		AD.MBER_ID =

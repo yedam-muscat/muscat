@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class ApprLineDetailVO {
 	private String mberId;
+	private String mberNm;
 	private int alineOrder;
 	private String apprType;
 	private String alineId;

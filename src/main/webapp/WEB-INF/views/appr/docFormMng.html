@@ -25,13 +25,20 @@
 		<button id="btnSearch" class="btn btn-primary btn-sm">조회</button>
 		<!-- 초기화 버튼 -->
 		<button id="btnReset" class="btn btn-secondary btn-sm">초기화</button>
-		
+
 		<!-- 우측 여백 & 새글쓰기 -->
 		<div class="flex-grow-1"></div>
-		<button id="btnReg" class="btn btn-primary btn-sm">+ 등록</button>
+		<button id="btnReg" class="btn btn-primary btn-sm">+ 문서양식등록</button>
 	</div>
 
-	<table class="table table-bordered">
+	<table class="table table-bordered text-center">
+		<colgroup>
+			<col style="width: 10%">
+			<col style="width: 30%">
+			<col style="width: 15%">
+			<col style="width: 15%">
+			<col style="width: 10%">
+		</colgroup>
 		<thead class="table-light">
 			<tr>
 				<th>문서양식ID</th>
@@ -85,11 +92,11 @@
 	        
 	        resultList.forEach(item => {
 	          tbody.append(`<tr data-temp-id="${item.dformId }">
-	  	            <td>${item.dformId }</td>
-	  	            <td>${item.dformName }</td>
-	  	            <td>${item.frstRegistPnttm }</td>
-	  	            <td>${item.lastUpdtPnttm }</td>
-	  	            <td>${item.useYn == 'Y' ? '사용함' : '사용안함' }</td>
+	        		    <td>${item.dformId}</td>
+	        		    <td>${item.dformName}</td>
+	        		    <td>${fmtDateTime(item.frstRegistPnttm)}</td>
+	        		    <td>${fmtDateTime(item.lastUpdtPnttm)}</td>
+	        		    <td>${item.useYn === 'Y' ? '사용함' : '사용안함'}</td>
 	  	            </tr>
 	  	          `);
 	        });
