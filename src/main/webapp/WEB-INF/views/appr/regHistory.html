@@ -12,8 +12,8 @@
 		<select id="searchCondition" class="form-select form-select-sm"
 			style="width: 130px">
 			<option value="" selected>-- 검색조건 --</option>
-			<option value="0">제목</option>
-			<option value="1">문서양식</option>
+			<option value="0">문서ID</option>
+			<option value="1">문서양식제목</option>
 		</select>
 
 		<!-- 검색어 -->
@@ -28,13 +28,21 @@
 
 	</div>
 
-	<table class="table table-bordered">
+	<table class="table table-bordered text-center">
+		<colgroup>
+			<col style="width: 10%">
+			<col style="width: 30%">
+			<col style="width: 15%">
+			<col style="width: 15%">
+			<col style="width: 10%">
+		</colgroup>
 		<thead class="table-light">
 			<tr>
-				<th>제목</th>
+				<th>문서ID</th>
 				<th>문서양식</th>
 				<th>작성일자</th>
 				<th>저장일자</th>
+				<th>문서상태</th>
 			</tr>
 		</thead>
 		<tbody id="listBody">
@@ -47,8 +55,8 @@
 	</nav>
 
 	<script th:inline="javascript">
-		let listUrl = /*[[ @{/appr/reqHistoryList.do} ]]*/ '';
-		let detailUrl = /*[[ @{/appr/reqHistoryDetail.do} ]]*/ '';
+		let listUrl = /*[[ @{/appr/regHistoryList.do} ]]*/ '';
+		let detailUrl = /*[[ @{/appr/regHistoryDetail.do} ]]*/ '';
 	</script>
 	<script>
     const pageSize = 10;
@@ -80,18 +88,19 @@
 	        const totalPages = Math.ceil(totalCount / pageSize);
 	        
 	        resultList.forEach(item => {
-	          tbody.append(`<tr data-temp-id="${'TEST' }">
-	  	            <td>${'TEST' }</td>
-	  	            <td>${'TEST' }</td>
-	  	            <td>${'TEST' }</td>
-	  	            <td>${'TEST' }</td>
+	          tbody.append(`<tr data-temp-id="${item.adocId }">
+		  	            <td>${item.adocId }</td>
+		  	            <td>${item.dformName }</td>
+	        		    <td>${fmtDateTime(item.regDate)}</td>
+	        		    <td>${fmtDateTime(item.updDate)}</td>
+	        		    <td>${item.apprStatus == 'A2' ? '반려' : '승인'}</td>
 	  	            </tr>
 	  	          `);
 	        });
 	        
 	        tbody.on('click', 'tr', function () {
 	        	  const id = $(this).data('temp-id');
-	        	  window.location.href = `${detailUrl}?id=${encodeURIComponent(id)}`;
+	        	  window.location.href = `${detailUrl}?adocId=${encodeURIComponent(id)}`;
 	        	});
 
 	        renderPagination(totalPages);

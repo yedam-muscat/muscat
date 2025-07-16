@@ -10,7 +10,7 @@
 				<div id="auth-left px-2 py-2">
 					<div class="card">
 						<div class="card-header text-white">
-							<h5 class="mb-0">결재요청상세</h5>
+							<h5 class="mb-0">결재대기상세</h5>
 						</div>
 						<div class="card-body" id="adocForm" style="max-width: 800px">
 							<div id="approval-header" class="mb-4"></div>
@@ -18,19 +18,15 @@
 						</div>
 
 						<div class="card-body" style="max-width: 800px">
-							<div class="mb-3">
+							<!-- 							<div class="mb-3">
 								<label for="approvalComment" class="form-label fw-bold">코멘트</label>
 								<textarea class="form-control" id="ahistoryComment" rows="3"
 									placeholder="반려 또는 승인에 대한 의견을 남겨주세요."></textarea>
-							</div>
+							</div> -->
 
 							<div class="d-flex justify-content-end gap-2 mt-4">
-								<button type="button" id="rejectApprBtn"
-									class="btn btn-danger px-4">반려</button>
-								<button type="button" id="confirmApprBtn"
-									class="btn btn-primary px-4">승인</button>
-								<button type="button" id="printPdfBtn" class="btn btn-info px-4">PDF
-									출력</button>
+								<button type="button" id="retrieveApprBtn"
+									class="btn btn-danger px-4">회수</button>
 							</div>
 						</div>
 
@@ -38,7 +34,7 @@
 				</div>
 			</div>
 		</div>
-		</div>
+	</div>
 
 	<script src="https://formbuilder.online/assets/js/form-render.min.js"></script>
 
@@ -68,7 +64,7 @@
 		            const status = historyMap.get(approver.mberId);
 		            const stampDiv = document.createElement('div');
 		            stampDiv.classList.add('approval-stamp');
-		            
+
 		            if (approver.isDraft) {                      // ★ 추가: 기안자
 		                stampDiv.classList.add('approved');
 		                stampDiv.textContent = approver.mberNm;
@@ -139,36 +135,21 @@
 					}
 					
 					
-					$('#rejectApprBtn').on('click', function() {
+					$('#retrieveApprBtn').on('click', function() {
 						Swal.fire({
-						    title: '반려처리 하시겠습니까?',
+						    title: '회수처리 하시겠습니까?',
 						    icon: 'warning',
 						    showCancelButton: true,
 							})
 						  .then(result => {
 						    if (result.isConfirmed) {
-						    	handleAppr('B0');
+						    	//handleAppr('B0');
 						    } else if (result.isDismissed) {
 						    	
 						    }
 						  });
 					})
 					
-					$('#confirmApprBtn').on('click', function() {
-						Swal.fire({
-						    title: '승인처리 하시겠습니까?',
-						    icon: 'warning',
-						    showCancelButton: true,
-							})
-						  .then(result => {
-						    if (result.isConfirmed) {
-						    	handleAppr('B1');
-						    } else if (result.isDismissed) {
-						    	
-						    }
-						  });
-					})
-
 					$('#btnToList').on('click', function() {
 						location.href = mngUrl;
 					});
@@ -213,9 +194,127 @@ const drafter = {
 			            // 1. 양식 구조만으로 빈 폼을 렌더링합니다.
 			            const formStructureObject = JSON.parse(apprDoc.dformContent);
 			            
+			            // 한국어 번역 객체 정의
+			            const koreanI18n = {
+			                locale: 'ko-KR',
+			                override: {
+			                    'ko-KR': {
+			                        addOption: '옵션 추가 +',
+			                        allFieldsRemoved: '모든 필드가 제거되었습니다.',
+			                        allowMultipleFiles: '사용자가 여러 파일을 업로드하도록 허용',
+			                        autocomplete: '자동 완성',
+			                        button: '버튼',
+			                        cannotBeEmpty: '이 필드는 비워 둘 수 없습니다.',
+			                        checkboxGroup: '체크박스 그룹',
+			                        className: '클래스',
+			                        clearAllMessage: '모든 필드를 지우시겠습니까?',
+			                        clear: '지우기',
+			                        close: '닫기',
+			                        content: '내용',
+			                        copy: '복사하여 붙여넣기',
+			                        copyButton: '복사',
+			                        copyButtonTooltip: '클립보드에 복사',
+			                        dateField: '날짜 필드',
+			                        description: '설명',
+			                        descriptionField: '설명 필드',
+			                        devMode: '개발자 모드',
+			                        editNames: '이름 편집',
+			                        editorTitle: '양식 요소',
+			                        editXML: 'XML 편집',
+			                        email: '이메일',
+			                        enableOther: '다른 옵션 활성화',
+			                        enableOtherMsg: '사용자가 "기타" 옵션을 입력할 수 있도록 허용',
+			                        fieldNonEditable: '이 필드는 편집할 수 없습니다.',
+			                        fieldRemoveWarning: '이 필드를 제거하시겠습니까?',
+			                        fileUpload: '파일 업로드',
+			                        formUpdated: '양식이 업데이트되었습니다.',
+			                        getStarted: '여기에 필드를 끌어다 놓으세요.',
+			                        header: '헤더',
+			                        hidden: '숨겨진 입력',
+			                        hide: '숨기기',
+			                        hiddenText: '숨겨진 텍스트',
+			                        inline: '인라인',
+			                        inlineDesc: '인라인으로 표시',
+			                        label: '레이블',
+			                        labelEmpty: '필드 레이블은 비워 둘 수 없습니다.',
+			                        large: '큼',
+			                        limitFileSize: '파일 크기 제한',
+			                        limitFileSize_kb: '파일 크기 제한(KB)',
+			                        loading: '로드 중...', 
+			                        max: '최대',
+			                        maxlength: '최대 길이',
+			                        medium: '중간',
+			                        min: '최소',
+			                        min_max_step: '최소/최대/스텝',
+			                        minlength: '최소 길이',
+			                        multiple: '다중',
+			                        name: '이름',
+			                        no: '아니요',
+			                        noFieldsToClear: '지울 필드가 없습니다.',
+			                        number: '숫자',
+			                        off: '끄기',
+			                        on: '켜기',
+			                        option: '옵션',
+			                        optional: '선택 사항',
+			                        optionLabelPlaceholder: '레이블',
+			                        optionValuePlaceholder: '값',
+			                        optionEmpty: '옵션 값은 비워 둘 수 없습니다.',
+			                        other: '기타',
+			                        paragraph: '단락',
+			                        placeholder: '자리 표시자',
+			                        'placeholder.value': '값',
+			                        'placeholder.label': '레이블',
+			                        'placeholder.text': '',
+			                        'placeholder.textarea': '',
+			                        'placeholder.email': '이메일을 입력하세요',
+			                        'placeholder.placeholder': '',
+			                        'placeholder.className': '공백으로 구분된 클래스',
+			                        'placeholder.password': '비밀번호를 입력하세요',
+			                        preview: '미리보기',
+			                        radioGroup: '라디오 그룹',
+			                        remove: '제거',
+			                        removeMessage: '요소 제거',
+			                        required: '필수',
+			                        richText: '리치 텍스트 편집기',
+			                        roles: '역할',
+			                        save: '저장',
+			                        select: '선택',
+			                        selectColor: '색상 선택',
+			                        selectOptions: '옵션 선택',
+			                        selectAFile: '파일 선택',
+			                        selectionsMessage: '다중 선택 허용',
+			                        small: '작음',
+			                        'size.xs': '매우 작음',
+			                        'size.sm': '작음',
+			                        'size.m': '보통',
+			                        'size.lg': '큼',
+			                        style: '스타일',
+			                        styles: {
+			                            btn: {
+			                                'default': '기본값',
+			                                danger: '위험',
+			                                info: '정보',
+			                                primary: '기본',
+			                                success: '성공',
+			                                warning: '경고'
+			                            }
+			                        },
+			                        subtype: '유형',
+			                        text: '텍스트 필드',
+			                        textArea: '텍스트 영역',
+			                        toggle: '토글',
+			                        warning: '경고!',
+			                        value: '값',
+			                        viewJSON: '{ }',
+			                        viewXML: '</>',
+			                        yes: '예'
+			                    }
+			                }
+			            };
 			            $('#formRender').formRender({
 			                formData: formStructureObject,
 			                render: true,
+			                i18n: koreanI18n // 한국어 번역 객체 추가
 			            });
 
 			            // 2. 입력 데이터를 객체로 변환합니다.
@@ -263,22 +362,5 @@ const drafter = {
 	</script>
 
 	<script>
-		function generatePdf() {
-			const element = document.querySelector('#adocForm'); // PDF로 변환할 요소 선택
-			
-			html2pdf(element, {
-				margin: 10,
-				filename: `${apprDoc.dformName + '_' + apprDoc.mberNm}.pdf`,
-				image: { type: 'jpeg', quality: 0.98 },
-				html2canvas: { scale: 2 },
-				jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-			});
-		}
-
-		$('document').ready(function() {
-			$('#printPdfBtn').on('click', function() {
-				generatePdf();
-			});
-		});
 	</script>
 </main>

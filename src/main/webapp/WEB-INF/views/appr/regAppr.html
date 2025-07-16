@@ -90,8 +90,8 @@
 						</div>
 					</div>
 					<div class="modal-footer d-flex justify-content-end gap-2">
-						<button class="btn btn-outline-secondary" id="saveFavorite">즐겨찾기
-							저장</button>
+<!-- 						<button class="btn btn-outline-secondary" id="saveFavorite">즐겨찾기
+							저장</button> -->
 						<button class="btn btn-primary" id="saveApprovalLine">결재선
 							저장</button>
 					</div>
@@ -105,12 +105,17 @@
 
 	<script src="https://formbuilder.online/assets/js/form-builder.min.js"></script>
 	<script src="https://formbuilder.online/assets/js/form-render.min.js"></script>
+	
+	
 
 	<!-- ▣ 서버 경로 (Thymeleaf) -->
 	<script th:inline="javascript">
     let docFormListUrl = /*[[ @{/appr/docFormList.do} ]]*/ '';
     let userListUrl    = /*[[ @{/chat/findMember.do} ]]*/ '';
     let reqApprUrl    = /*[[ @{/appr/regAppr.do} ]]*/ '';
+    let readyApprUrl    = /*[[ @{/appr/readyAppr.do} ]]*/ '';
+    let loginVO2 = /*[[ ${session.loginVO} ]]*/ '';
+
   </script>
 
 	<!-- ▣ 메인 스크립트 -->
@@ -180,7 +185,10 @@
    * =============================*/
   function loadUserList(){
     $.get(userListUrl).done(res => {
-      available = res.result.slice();   // 깊은 복사
+    	console.log(res.result.slice());
+    	console.log(loginVO);
+    	
+      available = res.result.slice().filter(e => e.mberId != loginVO.id);   // 깊은 복사
       renderAvailable();
     }).fail(()=>Swal.fire({icon:"error",title:"사원 목록 조회 실패"}));
   }
@@ -355,6 +363,13 @@
     	  const formDataArr = $('#form-renderer').serializeArray();   // [{name:"field1",value:"…"}, …]
     	  const formDataObj = Object.fromEntries(formDataArr.map(({name,value}) => [name, value]));
 
+
+     		if (approvers.map(e => e.mberId).length === 0) {
+     			Swal.fire({icon:'warning',  title:'결재선을 선택해주세요'})
+     			return;
+     		}
+    	  
+    	  
     	  /* 2) 결재·참조 배열 → id 목록만 전송 예시 */
     	  const payload = {
     		adocContent :  JSON.stringify(formDataArr),                       // 작성 내용
@@ -370,8 +385,15 @@
     	    contentType: 'application/json',
     	    data : JSON.stringify(payload)
     	  })
-    	  .done(() => Swal.fire({icon:'success',title:'결재요청 완료'}))
-    	  .fail(() => Swal.fire({icon:'error',  title:'서버 오류, 다시 시도해 주세요'})); 
+    	  .done(() => 
+    	  Swal.fire({icon:'success',title:'결재요청 완료'})
+    	  .then(result => {
+			    if (result.isConfirmed) {
+			    	location.href = readyApprUrl;
+			    } 
+			  })
+    			  
+    	  ).fail(() => Swal.fire({icon:'error',  title:'서버 오류, 다시 시도해 주세요'})); 
     	});
   });
   </script>

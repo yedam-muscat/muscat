@@ -105,6 +105,19 @@ public class ApprContoller {
 	}
 
 	// 결재대기 상세
+	@GetMapping("/appr/readyApprDetail.do")
+	public String readyApprDetail(@ModelAttribute("apprDocSearchVO") ApprDocSearchVO apprDocSearchVO, Model model) {
+
+		ApprDocVO apprDoc = apprService.reqApprDetail(apprDocSearchVO.getAdocId());
+
+		model.addAttribute("apprDoc", apprDoc);
+
+		model.addAttribute("apprLine", apprService.reqApprLineDetail(apprDoc.getAlineId()));
+
+		model.addAttribute("apprHistory", apprService.reqApprHistory(apprDocSearchVO.getAdocId()));
+
+		return "appr/readyApprDetail.html";
+	}
 
 	// 결재요청
 	@GetMapping("/appr/reqAppr.do")
@@ -244,6 +257,20 @@ public class ApprContoller {
 		return resultMap;
 	}
 
+	@GetMapping("/appr/regHistoryDetail.do")
+	public String regHistoryDetail(@ModelAttribute("apprDocSearchVO") ApprDocSearchVO apprDocSearchVO, Model model) {
+
+		ApprDocVO apprDoc = apprService.reqApprDetail(apprDocSearchVO.getAdocId());
+
+		model.addAttribute("apprDoc", apprDoc);
+
+		model.addAttribute("apprLine", apprService.reqApprLineDetail(apprDoc.getAlineId()));
+
+		model.addAttribute("apprHistory", apprService.reqApprHistory(apprDocSearchVO.getAdocId()));
+
+		return "appr/regHistoryDetail.html";
+	}
+
 	// 결재문서함
 	@GetMapping("/appr/reqHistory.do")
 	public String reqHistory() {
@@ -279,6 +306,20 @@ public class ApprContoller {
 		return resultMap;
 	}
 
+	@GetMapping("/appr/reqHistoryDetail.do")
+	public String reqHistoryDetail(@ModelAttribute("apprDocSearchVO") ApprDocSearchVO apprDocSearchVO, Model model) {
+
+		ApprDocVO apprDoc = apprService.reqApprDetail(apprDocSearchVO.getAdocId());
+
+		model.addAttribute("apprDoc", apprDoc);
+
+		model.addAttribute("apprLine", apprService.reqApprLineDetail(apprDoc.getAlineId()));
+
+		model.addAttribute("apprHistory", apprService.reqApprHistory(apprDocSearchVO.getAdocId()));
+
+		return "appr/reqHistoryDetail.html";
+	}
+
 	// 참조문서함
 	@GetMapping("/appr/refHistory.do")
 	public String refHistory() {
@@ -312,6 +353,20 @@ public class ApprContoller {
 		resultMap.put("paginationInfo", paginationInfo);
 
 		return resultMap;
+	}
+	
+	@GetMapping("/appr/refHistoryDetail.do")
+	public String refHistoryDetail(@ModelAttribute("apprDocSearchVO") ApprDocSearchVO apprDocSearchVO, Model model) {
+
+		ApprDocVO apprDoc = apprService.reqApprDetail(apprDocSearchVO.getAdocId());
+
+		model.addAttribute("apprDoc", apprDoc);
+
+		model.addAttribute("apprLine", apprService.reqApprLineDetail(apprDoc.getAlineId()));
+
+		model.addAttribute("apprHistory", apprService.reqApprHistory(apprDocSearchVO.getAdocId()));
+
+		return "appr/refHistoryDetail.html";
 	}
 
 	// 문서 양식 관련
