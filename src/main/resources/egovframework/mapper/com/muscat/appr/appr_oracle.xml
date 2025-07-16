@@ -182,7 +182,8 @@
 		FROM APPRLINEDETAIL ALD
 		JOIN COMTNGNRLMBER MB ON ALD.mber_id =
 		MB.mber_id
-		WHERE ALINE_ID = #{alineId}
+		WHERE ALINE_ID =
+		#{alineId}
 		ORDER BY ALINE_ORDER
 	</select>
 
@@ -202,7 +203,8 @@
 		AH.appr_type,
 		AH.aline_detail_id
 		FROM APPRHISTORY AH
-		JOIN COMTNGNRLMBER MB ON AH.mber_id = MB.mber_id
+		JOIN COMTNGNRLMBER MB ON
+		AH.mber_id = MB.mber_id
 		WHERE ADOC_ID = #{adocId}
 		ORDER BY
 		aline_order
@@ -338,24 +340,28 @@
 		AD.DFORM_NAME,
 		AD.ADOC_TITLE,
 		AD.MBER_ID,
-		AD.MBER_NM
+		AD.MBER_NM,
+		AD.REG_DATE,
+		AD.UPD_DATE
 		FROM VW_APPRDOC_DETAIL AD
 		JOIN APPRLINE AL ON
 		AD.aline_Id =
 		AL.aline_Id
-		JOIN APPRLINEDETAIL ALD ON AL.aline_Id =
+		JOIN APPRLINEDETAIL ALD ON
+		AL.aline_Id =
 		ALD.aline_Id
 		WHERE
 		APPR_STATUS IN ('A1', 'A2', 'A3')
-		AND ALD.MBER_ID =
+		AND
+		ALD.MBER_ID =
 		#{mberId}
 		<if
 			test="@egovframework.com.cmm.util.EgovMybatisUtil@isNotEmpty(searchKeyword)">
 			<if test="searchCondition == 0">AND
-				DFORM_ID LIKE '%' || #{searchKeyword} || '%'
+				AD.DFORM_NAME LIKE '%' || #{searchKeyword} || '%'
 			</if>
 			<if test="searchCondition == 1">AND
-				MBER_ID LIKE '%' ||#{searchKeyword}|| '%'
+				AD.MBER_NM LIKE '%' ||#{searchKeyword}|| '%'
 			</if>
 		</if>
 		<![CDATA[
@@ -380,10 +386,10 @@
 		<if
 			test="@egovframework.com.cmm.util.EgovMybatisUtil@isNotEmpty(searchKeyword)">
 			<if test="searchCondition == 0">AND
-				DFORM_ID LIKE '%' || #{searchKeyword} || '%'
+				AD.DFORM_NAME LIKE '%' || #{searchKeyword} || '%'
 			</if>
 			<if test="searchCondition == 1">AND
-				MBER_ID LIKE '%' ||#{searchKeyword}|| '%'
+				AD.MBER_NM LIKE '%' ||#{searchKeyword}|| '%'
 			</if>
 		</if>
 	</select>
@@ -401,7 +407,9 @@
 		AD.DFORM_NAME,
 		AD.ADOC_TITLE,
 		AD.MBER_ID,
-		AD.MBER_NM
+		AD.MBER_NM,
+		AD.REG_DATE,
+		AD.UPD_DATE
 		FROM VW_APPRDOC_DETAIL AD
 		WHERE AD.MBER_ID =
 		#{mberId}
@@ -467,7 +475,7 @@
 		#{adocId},
 		#{mberId},
 		#{adocContent},
-		'A0',
+		'A1',
 		#{alineId},
 		#{dformId},
 		#{adocTitle},
@@ -494,11 +502,14 @@
 	</insert>
 
 	<insert id="insertApprReferences" parameterType="apprDocVO">
-		INSERT INTO approval_line_reference (aline_id, mber_id, reference_id)
-		VALUES
-		<foreach collection="references" item="ref" separator=",">
-			(#{alineId}, #{mberId}, #{ref})
+		INSERT ALL
+		<foreach collection="references" item="ref">
+			INTO APPRDOCREF
+			(adoc_id, mber_id, read_yn)
+			VALUES
+			(#{adocId}, #{ref}, 'N')
 		</foreach>
+		SELECT 1 FROM DUAL
 	</insert>
 
 	<insert id="insertDocForm" parameterType="docFormVO">

@@ -27,16 +27,16 @@ public class ApprServiceImpl implements ApprService {
 	public ResultVO regApprDoc(ApprDocVO apprDoc) {
 		ResultVO result = new ResultVO();
 
-		int count = apprMapper.insertApprLine(apprDoc);
+		apprMapper.insertApprLine(apprDoc);
 
-		count = apprMapper.insertApprDoc(apprDoc);
+		apprMapper.insertApprDoc(apprDoc);
 
-		count = apprMapper.insertApprApprovers(apprDoc);
+		apprMapper.insertApprApprovers(apprDoc);
 
-//		count = apprMapper.insertApprReferences(apprDoc);
+		apprMapper.insertApprReferences(apprDoc);
 
 		result.setResultCode("");
-		result.setResultMsg("");
+		result.setResultMsg("결재 요청이 완료되었습니다");
 		result.setResultSuccess(true);
 
 		return result;
