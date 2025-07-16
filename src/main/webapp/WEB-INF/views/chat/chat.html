@@ -168,7 +168,7 @@
 				style="background-color: #f8f9fa; border: 1px solid #ccc; border-radius: 5px; overflow-y: auto; height: 80%; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);">
 				<div class="d-flex justify-content-between align-items-center mb-2"
 					style="background-color: #0d6efd; color: white; padding: 10px; position: relative;">
-					<h5 style="margin: 0;">채팅방 목록</h5>
+					<h5 style="margin: 0; color: white;">채팅방 목록</h5>
 					<button id="openModalBtn" class="btn btn-primary btn-sm">➕</button>
 				</div>
 
@@ -470,6 +470,7 @@
 						room: roomId
 					};
 					webSocket.send(JSON.stringify(payload));
+
 				});
 
 				webSocket.addEventListener('message', e => handleMessage(e));
@@ -799,6 +800,8 @@
 									'message': msg,
 									'room': roomId
 								}));
+
+								//websocket.send(JSON.stringify({ "connectionType" : "chatConnection", "username" : username, "connectingUser" : "USER" }));
 								$("#gridChatInput").val(""); // 입력창 초기화
 							} else {
 								alert("메시지 저장 실패");
