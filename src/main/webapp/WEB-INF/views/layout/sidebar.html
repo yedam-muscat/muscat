@@ -117,7 +117,7 @@
 				</a></li>
 
 				<!-- 관리자 페이지 메뉴 -->
-				<li class="sidebar-item  has-sub" id="admin"><a href="#"
+				<li class="sidebar-item  has-sub" id="admin" th:if="${loginUserAuth.contains('ROLE_ADMIN') }"><a href="#"
 					class='sidebar-link'> <i class="bi bi-grid-1x2-fill"></i> <span>관리자페이지</span>
 				</a>
 					<ul class="submenu ">

@@ -12,8 +12,8 @@
 		<select id="searchCondition" class="form-select form-select-sm"
 			style="width: 130px">
 			<option value="" selected>-- 검색조건 --</option>
-			<option value="0">문서양식</option>
-			<option value="1">작성자</option>
+			<option value="0">문서양식제목</option>
+			<option value="1">기안자</option>
 		</select>
 
 		<!-- 검색어 -->
@@ -28,7 +28,14 @@
 
 	</div>
 
-	<table class="table table-bordered">
+	<table class="table table-bordered text-center">
+		<colgroup>
+			<col style="width: 10%">
+			<col style="width: 30%">
+			<col style="width: 10%">
+			<col style="width: 15%">
+			<col style="width: 15%">
+		</colgroup>	
 		<thead class="table-light">
 			<tr>
 				<th>문서ID</th>
@@ -85,8 +92,8 @@
 		  	            <td>${item.adocId }</td>
 		  	            <td>${item.dformName }</td>
 		  	            <td>${item.mberNm }</td>
-		  	            <td>${item.regDate }</td>
-		  	            <td>${item.updDate }</td>
+	        		    <td>${fmtDateTime(item.regDate)}</td>
+	        		    <td>${fmtDateTime(item.updDate)}</td>
 	  	            </tr>
 	  	          `);
 	        });
