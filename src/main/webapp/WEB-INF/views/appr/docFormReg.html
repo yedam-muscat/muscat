@@ -288,9 +288,10 @@
 						  } 
 					});
 				},
-                i18n: koreanI18n // 한국어 번역 객체 추가
+                i18n: koreanI18n
 			}
-
+			
+			// formBuilder 에디터 생성
 			const fb = $('#fb-editor').formBuilder(options);
 
 			// 미리보기 모달 렌더링
@@ -301,14 +302,16 @@
 					formData : formData
 				});
 			});
+			
+			// 저장 버튼 클릭
+			$('#saveBtn').on('click', function() {
+				fb.actions.save();
+			});
 
 /* 			$('#apprLineModal').on('show.bs.modal', function() {
 
 			}); */
 
-			$('#saveBtn').on('click', function() {
-				fb.actions.save();
-			});
 
 /* 			$('#isPermanent').on('change', function () {
 				  if ($(this).is(':checked')) {

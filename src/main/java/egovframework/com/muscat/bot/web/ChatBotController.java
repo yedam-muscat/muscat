@@ -94,7 +94,7 @@ public class ChatBotController {
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm");
 
         return String.format(
-        	    " 세계 시간 안내입니다:\n" +
+        	    " 세계 시간 안내입니다:" +
         	    " 서울: %s" +
         	    " 뉴욕: %s" +
         	    " 런던: %s" +
@@ -110,9 +110,9 @@ public class ChatBotController {
     
     //날씨
     private String getWeather(String nx, String ny) {
-        String serviceKey = "zLzDOKLTH0MnOy%2FJvMhvAEg1nkrknsHN1qxM%2BolnBQqGf0Ode1qcka7A9PfgCO9UK8u4F%2By1PD1yntKEheP83Q%3D%3D"; // 여기 key 넣으면 됨 인코딩된 키 사용
+        String serviceKey = ""; 
         String baseDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        String baseTime = "0800"; // 예: 오전 8시 기준
+        String baseTime = "0800"; 
 
         String apiUrl = String.format(
             "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst" +

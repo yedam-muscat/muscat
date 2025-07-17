@@ -100,7 +100,7 @@
 	        
 	        tbody.on('click', 'tr', function () {
 	        	  const id = $(this).data('temp-id');
-	        	  window.location.href = `${detailUrl}?id=${encodeURIComponent(id)}`;
+	        	  window.location.href = `${detailUrl}?adocId=${encodeURIComponent(id)}`;
 	        	});
 
 	        renderPagination(totalPages);
