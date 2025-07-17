@@ -40,6 +40,63 @@
 <script
 	src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
 <style>
+/* 달력 박스 전체 크기 & 중앙 배치 */
+#dashboardCalendar {
+	width: 260px;
+	margin: 0 auto;
+}
+
+/* 제목줄 */
+#dashboardCalendar .cal-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: .5rem;
+	font-weight: 600;
+}
+
+#dashboardCalendar .cal-prev, #dashboardCalendar .cal-next {
+	background: none;
+	border: none;
+	font-size: 1.25rem;
+	cursor: pointer;
+}
+
+/* 테이블 기본 */
+#dashboardCalendar .cal-table {
+	width: 100%;
+	text-align: center;
+	border-collapse: collapse;
+}
+
+#dashboardCalendar th {
+	font-size: .75rem;
+	font-weight: 500;
+	padding: .25rem 0;
+	color: #6c757d;
+}
+
+#dashboardCalendar td {
+	padding: .4rem 0;
+	user-select: none;
+}
+
+/* 오늘 & 선택 강조 */
+#dashboardCalendar .today {
+	background: #0d6efd20;
+	border-radius: 50%;
+	font-weight: 600;
+}
+
+#dashboardCalendar .selected {
+	background: #0d6efd;
+	color: #fff;
+	border-radius: 50%;
+}
+</style>
+
+
+<style>
 .sidebar-hidden {
 	visibility: hidden;
 }

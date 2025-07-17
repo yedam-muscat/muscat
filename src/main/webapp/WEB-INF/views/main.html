@@ -15,14 +15,12 @@
 					<div class="card-body p-3 text-center">
 
 						<!-- 날짜 -->
-						<p id="clockDate" class="text-secondary mb-0"></p>
+						<p id="clockDate" class="text-secondary mb-0" style="display:none"></p>
 						<!-- 시간 -->
 						<time id="clockDisplay" class="display-3 fw-semibold lh-1"
 							datetime=""></time>
-						<!-- 						<div>
-							<button class="btn btn-outline-primary">출근</button>
-							<button class="btn btn-outline-danger">퇴근</button>
-						</div> -->
+						<hr>
+						<div id="dashboardCalendar"></div>
 					</div>
 				</div>
 
@@ -312,5 +310,78 @@
 			});
 	    }
 	</script>
+	<script>
+(() => {
+  // ────── 유틸 함수 ──────
+  const today     = new Date();
+  let   viewYear  = today.getFullYear();
+  let   viewMonth = today.getMonth();        // 0-11
+
+  const $cal = document.getElementById('dashboardCalendar');
+
+  // ────── 달력 렌더링 ──────
+  function render() {
+    // ① 제목 영역 (월 · 년 · 이동 화살표)
+    const header =
+      `<div class="cal-header">
+         <button class="cal-prev">&#x2039;</button>
+         <span>${viewYear}년 ${viewMonth + 1}월</span>
+         <button class="cal-next">&#x203A;</button>
+       </div>`;
+
+    // ② 요일 헤더
+    const yoil = ['일','월','화','수','목','금','토'];
+    const thead =
+      `<thead><tr>${yoil.map(d => `<th>${d}</th>`).join('')}</tr></thead>`;
+
+    // ③ 날짜 셀
+    const first = new Date(viewYear, viewMonth, 1);
+    const last  = new Date(viewYear, viewMonth + 1, 0).getDate();
+
+    let html = '<tbody><tr>';
+    let day  = 1;
+
+    // 첫 주 빈칸
+    for (let i = 0; i < first.getDay(); i++) html += '<td></td>';
+
+    // 날짜 채우기
+    while (day <= last) {
+      const date = new Date(viewYear, viewMonth, day);
+      const isToday =
+        date.toDateString() === today.toDateString() ? ' today' : '';
+      html += `<td class="cal-day${isToday}" data-date="${date.toISOString()}">${day}</td>`;
+      if (date.getDay() === 6 && day !== last) html += '</tr><tr>';
+      day++;
+    }
+    // 마지막 주 빈칸
+    const remain = 7 - new Date(viewYear, viewMonth, last).getDay() - 1;
+    for (let i = 0; i < remain; i++) html += '<td></td>';
+
+    html += '</tr></tbody>';
+
+    // ④ 조립
+    $cal.innerHTML =
+      `${header}<table class="cal-table">${thead}${html}</table>`;
+
+    // ⑤ 이벤트
+    $cal.querySelector('.cal-prev').onclick = () => {
+      viewMonth--; if (viewMonth < 0) { viewMonth = 11; viewYear--; } render();
+    };
+    $cal.querySelector('.cal-next').onclick = () => {
+      viewMonth++; if (viewMonth > 11) { viewMonth = 0; viewYear++; } render();
+    };
+    $cal.querySelectorAll('.cal-day').forEach(td =>
+      td.onclick = () => {
+        const sel = $cal.querySelector('.selected');
+        if (sel) sel.classList.remove('selected');
+        td.classList.add('selected');
+        const picked = td.dataset.date.substring(0, 10); // YYYY-MM-DD
+        // TODO: 여기서 일정 조회 함수 호출
+        // loadSchedule(picked);
+      });
+  }
+  render();
+})();
+</script>
 </main>
 </html>

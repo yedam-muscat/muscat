@@ -33,7 +33,9 @@ public class ApprServiceImpl implements ApprService {
 
 		apprMapper.insertApprApprovers(apprDoc);
 
-		apprMapper.insertApprReferences(apprDoc);
+		if (apprDoc.getReferences() != null && apprDoc.getReferences().size() != 0) {
+			apprMapper.insertApprReferences(apprDoc);
+		}
 
 		result.setResultCode("");
 		result.setResultMsg("결재 요청이 완료되었습니다");
