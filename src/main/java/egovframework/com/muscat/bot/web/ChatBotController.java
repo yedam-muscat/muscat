@@ -110,7 +110,7 @@ public class ChatBotController {
     
     //날씨
     private String getWeather(String nx, String ny) {
-        String serviceKey = ""; 
+        String serviceKey = "zLzDOKLTH0MnOy%2FJvMhvAEg1nkrknsHN1qxM%2BolnBQqGf0Ode1qcka7A9PfgCO9UK8u4F%2By1PD1yntKEheP83Q%3D%3D"; 
         String baseDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         String baseTime = "0800"; 
 
@@ -141,7 +141,7 @@ public class ChatBotController {
             JsonNode root = mapper.readTree(response.toString());
             JsonNode items = root.at("/response/body/items/item");
 
-            StringBuilder result = new StringBuilder(" 현재 날씨 정보\n");
+            StringBuilder result = new StringBuilder(" 현재 날씨 정보");
             for (JsonNode item : items) {
                 String category = item.get("category").asText();
                 String obsrValue = item.get("obsrValue").asText();
